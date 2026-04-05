@@ -37,5 +37,13 @@ services:
     depends_on:
       - api
 
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mysql
+
 volumes:
   mysql_data:

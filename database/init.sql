@@ -691,19 +691,4 @@ ALTER TABLE Objets MODIFY COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Avis MODIFY COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Avis MODIFY COLUMN Id_Evenements INT NULL;
 
-ALTER TABLE Avis ADD COLUMN IF NOT EXISTS Id_Formations INT NULL;
-ALTER TABLE Avis ADD CONSTRAINT IF NOT EXISTS fk_avis_formations
-   FOREIGN KEY (Id_Formations) REFERENCES Formations(Id_Formations);
-
-ALTER TABLE Avis ADD CONSTRAINT IF NOT EXISTS chk_avis_cible CHECK (
-   (Id_Professionnels IS NOT NULL AND Id_Evenements IS NULL     AND Id_Formations IS NULL) OR
-   (Id_Professionnels IS NULL     AND Id_Evenements IS NOT NULL AND Id_Formations IS NULL) OR
-   (Id_Professionnels IS NULL     AND Id_Evenements IS NULL     AND Id_Formations IS NOT NULL) OR
-   (Id_Professionnels IS NULL     AND Id_Evenements IS NULL     AND Id_Formations IS NULL)
-);
-
-ALTER TABLE Historique DROP INDEX IF EXISTS Id_Particuliers;
-
-ALTER TABLE Planning_personnel DROP INDEX IF EXISTS Id_Particuliers;
-
 INSERT INTO Langue (Nom) VALUES ('Français'), ('English'), ('Deutsch'), ('Español');

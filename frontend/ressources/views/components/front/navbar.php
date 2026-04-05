@@ -53,7 +53,7 @@
                 </ul>
             </div>
 
-            <!-- Nouveau dropdown Déposer -->
+            
             <div class="dropdown dropdown-hover" data-tuto="deposer">
                 <div tabindex="0" role="button" class="cursor-pointer hover:text-primary transition flex items-center gap-2">
                     Déposer
@@ -99,12 +99,12 @@
             <?php include __DIR__ . '/darkmode.php'; ?>
 
             <?php if (isset($_SESSION['user'])): ?>
-                <div class="relative group">
-                    <button class="flex items-center gap-2 text-sm font-medium">
+                <div class="relative">
+                    <button id="user-menu-btn" class="flex items-center gap-2 text-sm font-medium">
                         <i class="fas fa-user-circle text-xl"></i>
                         <span><?= htmlspecialchars($_SESSION['user']['prenom'] ?? 'Mon compte') ?></span>
                     </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-base-100 rounded-xl shadow-lg border border-base-300 py-2 hidden group-hover:block z-50">
+                    <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-48 bg-base-100 rounded-xl shadow-lg border border-base-300 py-2 hidden z-50">
                         <a href="/UpcycleConnect-PA2526/frontend/public/mes-demandes" class="block px-4 py-2 text-sm hover:bg-base-200">Mes demandes</a>
                         <a href="/UpcycleConnect-PA2526/frontend/public/mes-prestations" class="block px-4 py-2 text-sm hover:bg-base-200">Mes prestations</a>
                         <a href="/UpcycleConnect-PA2526/frontend/public/planning" class="block px-4 py-2 text-sm hover:bg-base-200">
@@ -118,6 +118,17 @@
                         <a href="/UpcycleConnect-PA2526/frontend/public/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-base-200">Déconnexion</a>
                     </div>
                 </div>
+                <script>
+                    const btn = document.getElementById('user-menu-btn');
+                    const dropdown = document.getElementById('user-menu-dropdown');
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdown.classList.toggle('hidden');
+                    });
+                    document.addEventListener('click', function() {
+                        dropdown.classList.add('hidden');
+                    });
+                </script>
             <?php else: ?>
                 <a href="/UpcycleConnect-PA2526/frontend/public/login"
                     class="bg-black text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">

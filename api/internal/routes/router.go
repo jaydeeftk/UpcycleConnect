@@ -13,6 +13,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/health", handlers.Health)
 
 	mux.HandleFunc("/api/services", handlers.GetServices)
+	mux.HandleFunc("/api/formations", handlers.GetFormations)
+	
 
 	mux.HandleFunc("/api/evenements", handlers.GetEvenements)
 	mux.HandleFunc("/api/evenements/", handlers.GetEvenement)

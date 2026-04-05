@@ -544,4 +544,6 @@ CREATE TABLE `Inclure_publicites` (
     FOREIGN KEY (`Id_Publicites`) REFERENCES `Publicites`(`Id_Publicites`)
 );
 
+INSERT INTO `Langue` (`Nom`) VALUES ('Français'), ('English'), ('Deutsch'), ('Español');
+
 SET FOREIGN_KEY_CHECKS = 1;

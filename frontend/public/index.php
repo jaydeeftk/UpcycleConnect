@@ -52,9 +52,20 @@ function getCleanPath()
 {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-    $path = str_replace('/UpcycleConnect-PA2526/frontend/public/index.php', '', $path);
-    $path = str_replace('/UpcycleConnect-PA2526/frontend/public', '', $path);
-    $path = str_replace('/UpcycleConnect-PA2526/frontend', '', $path);
+    $prefixes = [
+        '/UpcycleConnect-PA2526/frontend/public/index.php',
+        '/UpcycleConnect-PA2526/frontend/public',
+        '/UpcycleConnect-PA2526/frontend',
+        '/UpcycleConnect-PA2526',
+        '/UpcycleConnect'
+    ];
+
+    foreach ($prefixes as $prefix) {
+        if (str_starts_with($path, $prefix)) {
+            $path = substr($path, strlen($prefix));
+            break;
+        }
+    }
 
     if ($path === '' || $path === false || $path === null) {
         return '/';

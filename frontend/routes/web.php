@@ -8,6 +8,20 @@ $router->get('/prestations/{id}', 'Front\PrestationController@show');
 $router->get('/demande-prestation', 'Front\PrestationController@create');
 $router->post('/demande-prestation', 'Front\PrestationController@store');
 
+$router->get('/catalogue/services', 'Front\CatalogueController@services');
+$router->get('/catalogue/formations', 'Front\CatalogueController@formations');
+$router->get('/catalogue/evenements', 'Front\CatalogueController@evenements');
+
+$router->get('/conseils', 'Front\ConseilController@index');
+$router->get('/score', 'Front\ScoreController@index');
+$router->get('/planning', 'Front\PlanningController@index');
+
+$router->get('/annonces/create', 'Front\AnnonceController@create');
+$router->post('/annonces/store', 'Front\AnnonceController@store');
+
+$router->get('/conteneurs/create', 'Front\ConteneurController@create');
+$router->post('/conteneurs/store', 'Front\ConteneurController@store');
+
 $router->get('/evenements', 'Front\EvenementController@index');
 $router->get('/evenements/{id}', 'Front\EvenementController@show');
 

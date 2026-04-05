@@ -9,8 +9,7 @@ import (
 )
 
 func GetEvenements(w http.ResponseWriter, r *http.Request) {
-
-	rows, err := database.DB.Query("SELECT id_evenement, titre, description, lieu, date_evenement FROM evenements")
+	rows, err := database.DB.Query("SELECT Id_Evenements, Titre, Description, Lieu, Date_Evenement, Capacite FROM Evenements")
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -21,12 +20,11 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 	var evenements []map[string]interface{}
 
 	for rows.Next() {
-
-		var id int
+		var id, capacite int
 		var titre, description, lieu string
-		var date string
+		var date *string
 
-		if err := rows.Scan(&id, &titre, &description, &lieu, &date); err != nil {
+		if err := rows.Scan(&id, &titre, &description, &lieu, &date, &capacite); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -37,6 +35,7 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 			"description": description,
 			"lieu":        lieu,
 			"date":        date,
+			"capacite":    capacite,
 		})
 	}
 
@@ -45,16 +44,18 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEvenement(w http.ResponseWriter, r *http.Request) {
-
 	parts := strings.Split(r.URL.Path, "/")
 	id := parts[len(parts)-1]
 
-	row := database.DB.QueryRow("SELECT id_evenement, titre, description, lieu, date_evenement FROM evenements WHERE id_evenement = ?", id)
+	row := database.DB.QueryRow(
+		"SELECT Id_Evenements, Titre, Description, Lieu, Date_Evenement, Capacite FROM Evenements WHERE Id_Evenements = ?", id,
+	)
 
-	var idE int
-	var titre, description, lieu, date string
+	var idE, capacite int
+	var titre, description, lieu string
+	var date *string
 
-	if err := row.Scan(&idE, &titre, &description, &lieu, &date); err != nil {
+	if err := row.Scan(&idE, &titre, &description, &lieu, &date, &capacite); err != nil {
 		http.Error(w, "Événement non trouvé", http.StatusNotFound)
 		return
 	}
@@ -66,5 +67,6 @@ func GetEvenement(w http.ResponseWriter, r *http.Request) {
 		"description": description,
 		"lieu":        lieu,
 		"date":        date,
+		"capacite":    capacite,
 	})
 }

@@ -10,13 +10,12 @@ import (
 )
 
 func AdminDashboard(w http.ResponseWriter, r *http.Request) {
-
 	var totalUtilisateurs, totalAnnonces, totalEvenements, totalMessages int
 
-	database.DB.QueryRow("SELECT COUNT(*) FROM utilisateurs").Scan(&totalUtilisateurs)
-	database.DB.QueryRow("SELECT COUNT(*) FROM annonces").Scan(&totalAnnonces)
-	database.DB.QueryRow("SELECT COUNT(*) FROM evenements").Scan(&totalEvenements)
-	database.DB.QueryRow("SELECT COUNT(*) FROM messages").Scan(&totalMessages)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs").Scan(&totalUtilisateurs)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Annonces").Scan(&totalAnnonces)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Evenements").Scan(&totalEvenements)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Messages").Scan(&totalMessages)
 
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
 		"total_utilisateurs": totalUtilisateurs,
@@ -27,8 +26,9 @@ func AdminDashboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
-
-	rows, err := database.DB.Query("SELECT id_utilisateur, nom, prenom, email, statut, date_inscription FROM utilisateurs")
+	rows, err := database.DB.Query(
+		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut, Date_Inscription FROM Utilisateurs",
+	)
 
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
@@ -39,7 +39,6 @@ func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 	var utilisateurs []map[string]interface{}
 
 	for rows.Next() {
-
 		var id int
 		var nom, prenom, email, statut string
 		var date *string
@@ -60,8 +59,9 @@ func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
-
-	rows, err := database.DB.Query("SELECT id_evenement, titre, description, lieu, date_evenement FROM evenements")
+	rows, err := database.DB.Query(
+		"SELECT Id_Evenements, Titre, Description, Lieu, Date_Evenement FROM Evenements",
+	)
 
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
@@ -72,7 +72,6 @@ func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	var evenements []map[string]interface{}
 
 	for rows.Next() {
-
 		var id int
 		var titre, description, lieu string
 		var date *string
@@ -92,11 +91,11 @@ func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
-
 	rows, err := database.DB.Query(`
-		SELECT m.id_message, m.contenu, u.nom, u.prenom, u.email
-		FROM messages m
-		JOIN utilisateurs u ON u.id_utilisateur = m.id_particulier
+		SELECT m.Id_Messages, m.Contenu, u.Nom, u.Prenom, u.Email
+		FROM Messages m
+		JOIN Particuliers p ON p.Id_Particuliers = m.Id_Particuliers
+		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
 	`)
 
 	if err != nil {
@@ -108,7 +107,6 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	var messages []map[string]interface{}
 
 	for rows.Next() {
-
 		var id int
 		var contenu, nom, prenom, email string
 
@@ -127,11 +125,9 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
-
-	rows, err := database.DB.Query(`
-		SELECT a.id_annonce, a.contenu, a.date_publication
-		FROM annonces a
-	`)
+	rows, err := database.DB.Query(
+		"SELECT Id_Annonces, Contenu, Date_publication, Statut FROM Annonces",
+	)
 
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
@@ -142,16 +138,17 @@ func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	var annonces []map[string]interface{}
 
 	for rows.Next() {
-
 		var id int
-		var contenu, date string
+		var contenu, statut string
+		var date *string
 
-		rows.Scan(&id, &contenu, &date)
+		rows.Scan(&id, &contenu, &date, &statut)
 
 		annonces = append(annonces, map[string]interface{}{
 			"id":      id,
 			"contenu": contenu,
 			"date":    date,
+			"statut":  statut,
 		})
 	}
 
@@ -162,7 +159,7 @@ func AdminDeleteUtilisateur(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.TrimSuffix(r.URL.Path, "/"), "/")
 	id := parts[len(parts)-1]
 
-	_, err := database.DB.Exec("DELETE FROM utilisateurs WHERE id_utilisateur = ?", id)
+	_, err := database.DB.Exec("DELETE FROM Utilisateurs WHERE Id_Utilisateurs = ?", id)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -172,13 +169,12 @@ func AdminDeleteUtilisateur(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
-
 	var body struct {
 		Titre       string `json:"titre"`
 		Description string `json:"description"`
 		Lieu        string `json:"lieu"`
 		Date        string `json:"date_evenement"`
-		IdSalarie   int    `json:"id_salarie"`
+		IdSalaries  int    `json:"id_salaries"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -187,8 +183,8 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := database.DB.Exec(
-		"INSERT INTO evenements (titre, description, lieu, date_evenement, id_salarie) VALUES (?, ?, ?, ?, ?)",
-		body.Titre, body.Description, body.Lieu, body.Date, body.IdSalarie,
+		"INSERT INTO Evenements (Titre, Description, Lieu, Date_Evenement, Id_Salaries) VALUES (?, ?, ?, ?, ?)",
+		body.Titre, body.Description, body.Lieu, body.Date, body.IdSalaries,
 	)
 
 	if err != nil {
@@ -196,19 +192,15 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.JSONOK(w, http.StatusCreated, map[string]string{
-		"message": "Événement créé",
-	})
-
+	httpx.JSONOK(w, http.StatusCreated, map[string]string{"message": "Événement créé"})
 }
 
 func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
-
 	parts := strings.Split(strings.TrimSuffix(r.URL.Path, "/"), "/")
 	id := parts[len(parts)-1]
 
 	if r.Method == "DELETE" || (r.Method == "GET" && strings.Contains(r.URL.Path, "delete")) {
-		_, err := database.DB.Exec("DELETE FROM utilisateurs WHERE id_utilisateur = ?", id)
+		_, err := database.DB.Exec("DELETE FROM Utilisateurs WHERE Id_Utilisateurs = ?", id)
 		if err != nil {
 			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 			return
@@ -218,7 +210,7 @@ func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	row := database.DB.QueryRow(
-		"SELECT id_utilisateur, nom, prenom, email, statut FROM utilisateurs WHERE id_utilisateur = ?", id,
+		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut FROM Utilisateurs WHERE Id_Utilisateurs = ?", id,
 	)
 
 	var idU int
@@ -239,74 +231,13 @@ func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetCategories(w http.ResponseWriter, r *http.Request) {
-
-	rows, err := database.DB.Query("SELECT id_categorie, nom, description, icone, statut FROM categories")
-
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	defer rows.Close()
-
-	var categories []map[string]interface{}
-
-	for rows.Next() {
-
-		var id int
-		var nom, statut string
-		var description, icone *string
-
-		rows.Scan(&id, &nom, &description, &icone, &statut)
-
-		categories = append(categories, map[string]interface{}{
-			"id":          id,
-			"nom":         nom,
-			"description": description,
-			"icone":       icone,
-			"statut":      statut,
-		})
-	}
-
-	httpx.JSONOK(w, http.StatusOK, categories)
+	httpx.JSONOK(w, http.StatusOK, []interface{}{})
 }
 
 func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
-
-	var body struct {
-		Nom         string `json:"nom"`
-		Description string `json:"description"`
-		Icone       string `json:"icone"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-		return
-	}
-
-	_, err := database.DB.Exec(
-		"INSERT INTO categories (nom, description, icone, statut) VALUES (?, ?, ?, 'active')",
-		body.Nom, body.Description, body.Icone,
-	)
-
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	httpx.JSONOK(w, http.StatusCreated, map[string]string{"message": "Catégorie créée"})
+	httpx.JSONOK(w, http.StatusCreated, map[string]string{"message": "Non implémenté"})
 }
 
 func AdminDeleteCategorie(w http.ResponseWriter, r *http.Request) {
-
-	parts := strings.Split(strings.TrimSuffix(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-
-	_, err := database.DB.Exec("DELETE FROM categories WHERE id_categorie = ?", id)
-
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Catégorie supprimée"})
+	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Non implémenté"})
 }

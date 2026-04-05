@@ -17,11 +17,11 @@
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Catégorie</label>
                 <select name="categorie" class="select select-bordered w-full select-sm">
                     <option value="">Toutes</option>
-                    <option value="upcycling">Upcycling</option>
-                    <option value="reparation">Réparation</option>
-                    <option value="durable">Développement durable</option>
-                    <option value="textile">Textile & Couture</option>
-                    <option value="bois">Travail du bois</option>
+                    <?php foreach ($categories ?? [] as $cat): ?>
+                        <option value="<?= htmlspecialchars($cat) ?>" <?= ($_GET['categorie'] ?? '') === $cat ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($cat) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div>
@@ -44,10 +44,10 @@
             <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Trier par</label>
                 <select name="tri" class="select select-bordered w-full select-sm">
-                    <option value="date">Date</option>
-                    <option value="prix_asc">Prix croissant</option>
-                    <option value="prix_desc">Prix décroissant</option>
-                    <option value="places">Places restantes</option>
+                    <option value="date" <?= ($_GET['tri'] ?? 'date') === 'date' ? 'selected' : '' ?>>Date</option>
+                    <option value="prix_asc" <?= ($_GET['tri'] ?? '') === 'prix_asc' ? 'selected' : '' ?>>Prix croissant</option>
+                    <option value="prix_desc" <?= ($_GET['tri'] ?? '') === 'prix_desc' ? 'selected' : '' ?>>Prix décroissant</option>
+                    <option value="places" <?= ($_GET['tri'] ?? '') === 'places' ? 'selected' : '' ?>>Places restantes</option>
                 </select>
             </div>
             <div class="md:col-span-5 flex justify-end gap-3">
@@ -59,16 +59,7 @@
         </form>
     </div>
 
-    <?php
-    $formations = $formations ?? [
-        ['id' => 1, 'titre' => 'Initiation à l\'upcycling du mobilier',  'categorie' => 'Upcycling',   'description' => 'Apprenez à transformer vos vieux meubles en pièces uniques et design.', 'prix' => 45,  'date' => '10 avr. 2026', 'duree' => '3h',  'places_total' => 12, 'places_dispo' => 4,  'lieu' => 'Paris 10ème',  'formateur' => 'Marie Lambert'],
-        ['id' => 2, 'titre' => 'Couture zéro déchet',                     'categorie' => 'Textile',     'description' => 'Techniques de couture pour réutiliser vos chutes de tissu et vêtements.', 'prix' => 35,  'date' => '12 avr. 2026', 'duree' => '2h',  'places_total' => 8,  'places_dispo' => 2,  'lieu' => 'Paris 11ème',  'formateur' => 'Sophie Dubois'],
-        ['id' => 3, 'titre' => 'Réparation électronique pour tous',        'categorie' => 'Réparation',  'description' => 'Diagnostiquer et réparer vos appareils électroniques du quotidien.', 'prix' => 60,  'date' => '15 avr. 2026', 'duree' => '4h',  'places_total' => 10, 'places_dispo' => 7,  'lieu' => 'Paris 13ème',  'formateur' => 'Thomas Girard'],
-        ['id' => 4, 'titre' => 'Sensibilisation développement durable',    'categorie' => 'Durable',     'description' => 'Comprendre les enjeux environnementaux et adopter les bons gestes au quotidien.', 'prix' => 20,  'date' => '18 avr. 2026', 'duree' => '2h',  'places_total' => 20, 'places_dispo' => 15, 'lieu' => 'Paris 16ème',  'formateur' => 'Julie Martin'],
-        ['id' => 5, 'titre' => 'Travail du bois recyclé',                  'categorie' => 'Bois',        'description' => 'Créez des objets uniques à partir de bois de récupération.', 'prix' => 80,  'date' => '20 avr. 2026', 'duree' => '6h',  'places_total' => 6,  'places_dispo' => 3,  'lieu' => 'Montreuil',    'formateur' => 'Paul Durand'],
-        ['id' => 6, 'titre' => 'Atelier peinture sur meubles',             'categorie' => 'Upcycling',   'description' => 'Maîtrisez les techniques de peinture à la craie et de patine pour rénover vos meubles.', 'prix' => 50,  'date' => '25 avr. 2026', 'duree' => '3h',  'places_total' => 10, 'places_dispo' => 0,  'lieu' => 'Ivry',         'formateur' => 'Claire Petit'],
-    ];
-    ?>
+    <?php $formations = $formations ?? []; ?>
 
     <div class="flex items-center justify-between mb-6">
         <p class="text-sm text-base-content/50"><?= count($formations) ?> formation(s) trouvée(s)</p>
@@ -76,8 +67,8 @@
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($formations as $formation):
-            $complet = $formation['places_dispo'] === 0;
-            $presque = $formation['places_dispo'] > 0 && $formation['places_dispo'] <= 3;
+            $complet = ($formation['places_dispo'] ?? 0) === 0;
+            $presque = ($formation['places_dispo'] ?? 0) > 0 && ($formation['places_dispo'] ?? 0) <= 3;
         ?>
             <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition <?= $complet ? 'opacity-70' : '' ?>">
                 <div class="w-full h-36 bg-purple-50 flex items-center justify-center relative">
@@ -94,34 +85,33 @@
                 </div>
                 <div class="p-6">
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="badge badge-ghost badge-sm"><?= htmlspecialchars($formation['categorie']) ?></span>
-                        <span class="text-xs text-base-content/40"><i class="fas fa-clock mr-1"></i><?= $formation['duree'] ?></span>
+                        <span class="badge badge-ghost badge-sm"><?= htmlspecialchars($formation['categorie'] ?? '') ?></span>
+                        <span class="text-xs text-base-content/40"><i class="fas fa-clock mr-1"></i><?= ($formation['duree'] ?? '') ?>h</span>
                     </div>
-                    <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($formation['titre']) ?></h3>
-                    <p class="text-sm text-base-content/60 mb-4 line-clamp-2"><?= htmlspecialchars($formation['description']) ?></p>
-
+                    <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($formation['titre'] ?? '') ?></h3>
+                    <p class="text-sm text-base-content/60 mb-4 line-clamp-2"><?= htmlspecialchars($formation['description'] ?? '') ?></p>
                     <div class="space-y-2 mb-4 text-xs text-base-content/50">
-                        <div><i class="fas fa-calendar-alt mr-2"></i><?= $formation['date'] ?></div>
-                        <div><i class="fas fa-map-marker-alt mr-2"></i><?= $formation['lieu'] ?></div>
-                        <div><i class="fas fa-user mr-2"></i><?= $formation['formateur'] ?></div>
+                        <div><i class="fas fa-calendar-alt mr-2"></i><?= $formation['date'] ?? '' ?></div>
+                        <div><i class="fas fa-map-marker-alt mr-2"></i><?= $formation['localisation'] ?? '' ?></div>
                         <div>
                             <i class="fas fa-users mr-2"></i>
                             <?php if ($complet): ?>
                                 <span class="text-red-500 font-medium">Complet</span>
                             <?php else: ?>
-                                <span class="<?= $presque ? 'text-orange-500 font-medium' : '' ?>"><?= $formation['places_dispo'] ?> / <?= $formation['places_total'] ?> places restantes</span>
+                                <span class="<?= $presque ? 'text-orange-500 font-medium' : '' ?>"><?= $formation['places_dispo'] ?? 0 ?> / <?= $formation['places_total'] ?? 0 ?> places restantes</span>
                             <?php endif; ?>
                         </div>
                     </div>
-
-                 
                     <div class="w-full bg-base-200 rounded-full h-1.5 mb-4">
-                        <?php $pct = round(($formation['places_total'] - $formation['places_dispo']) / $formation['places_total'] * 100); ?>
+                        <?php
+                        $total = $formation['places_total'] ?? 1;
+                        $dispo = $formation['places_dispo'] ?? 0;
+                        $pct = $total > 0 ? round(($total - $dispo) / $total * 100) : 0;
+                        ?>
                         <div class="h-1.5 rounded-full <?= $complet ? 'bg-red-400' : ($presque ? 'bg-orange-400' : 'bg-purple-400') ?>" style="width:<?= $pct ?>%"></div>
                     </div>
-
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold"><?= $formation['prix'] ?>€</span>
+                        <span class="text-xl font-bold"><?= $formation['prix'] ?? 0 ?>€</span>
                         <?php if ($complet): ?>
                             <button class="btn btn-disabled btn-sm" disabled>Complet</button>
                         <?php else: ?>

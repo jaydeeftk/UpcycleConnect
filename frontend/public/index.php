@@ -9,8 +9,10 @@ error_reporting(E_ALL);
 
 spl_autoload_register(function ($class) {
     $class = str_replace('App\\', '', $class);
-    $class = str_replace('\\', '/', $class);
-    $file = __DIR__ . '/../app/' . $class . '.php';
+    $parts = explode('\\', $class);
+    $filename = array_pop($parts);
+    $dirs = array_map('strtolower', $parts);
+    $file = __DIR__ . '/../app/' . implode('/', $dirs) . '/' . $filename . '.php';
 
     if (file_exists($file)) {
         require_once $file;

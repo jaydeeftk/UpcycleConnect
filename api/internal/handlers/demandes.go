@@ -10,13 +10,12 @@ import (
 )
 
 func GetDemandes(w http.ResponseWriter, r *http.Request) {
-
 	parts := strings.Split(r.URL.Path, "/")
-	idUtilisateur := parts[len(parts)-1]
+	idParticulier := parts[len(parts)-1]
 
 	rows, err := database.DB.Query(
-		"SELECT id_annonce, contenu, date_publication FROM annonces WHERE id_particulier = ?",
-		idUtilisateur,
+		"SELECT Id_Annonces, Contenu, Date_publication, Statut FROM Annonces WHERE Id_Particuliers = ?",
+		idParticulier,
 	)
 
 	if err != nil {
@@ -28,11 +27,11 @@ func GetDemandes(w http.ResponseWriter, r *http.Request) {
 	var demandes []map[string]interface{}
 
 	for rows.Next() {
-
 		var id int
-		var contenu, date string
+		var contenu, statut string
+		var date *string
 
-		if err := rows.Scan(&id, &contenu, &date); err != nil {
+		if err := rows.Scan(&id, &contenu, &date, &statut); err != nil {
 			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -41,6 +40,7 @@ func GetDemandes(w http.ResponseWriter, r *http.Request) {
 			"id":      id,
 			"contenu": contenu,
 			"date":    date,
+			"statut":  statut,
 		})
 	}
 
@@ -49,10 +49,9 @@ func GetDemandes(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateDemande(w http.ResponseWriter, r *http.Request) {
-
 	var body struct {
-		Contenu       string `json:"contenu"`
-		IdParticulier int    `json:"id_particulier"`
+		Contenu        string `json:"contenu"`
+		IdParticuliers int    `json:"id_particuliers"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -61,8 +60,8 @@ func CreateDemande(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := database.DB.Exec(
-		"INSERT INTO annonces (contenu, date_publication, id_particulier) VALUES (?, NOW(), ?)",
-		body.Contenu, body.IdParticulier,
+		"INSERT INTO Annonces (Contenu, Date_publication, Statut, Id_Particuliers) VALUES (?, NOW(), 'active', ?)",
+		body.Contenu, body.IdParticuliers,
 	)
 
 	if err != nil {

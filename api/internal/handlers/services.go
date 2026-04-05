@@ -8,8 +8,7 @@ import (
 )
 
 func GetServices(w http.ResponseWriter, r *http.Request) {
-
-	rows, err := database.DB.Query("SELECT id_service, titre, description, prix, categorie FROM services")
+	rows, err := database.DB.Query("SELECT Id_Services, Titre, Description, Prix, Duree, Categorie FROM Services")
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -20,14 +19,11 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	var services []map[string]interface{}
 
 	for rows.Next() {
-
-		var id int
-		var titre string
-		var description string
+		var id, duree int
+		var titre, description, categorie string
 		var prix float64
-		var categorie string
 
-		if err := rows.Scan(&id, &titre, &description, &prix, &categorie); err != nil {
+		if err := rows.Scan(&id, &titre, &description, &prix, &duree, &categorie); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -37,6 +33,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 			"titre":       titre,
 			"description": description,
 			"prix":        prix,
+			"duree":       duree,
 			"categorie":   categorie,
 		})
 	}

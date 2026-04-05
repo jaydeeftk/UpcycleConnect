@@ -9,7 +9,6 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-
 	var body struct {
 		Email    string `json:"email"`
 		Password string `json:"mot_de_passe"`
@@ -21,7 +20,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	row := database.DB.QueryRow(
-		"SELECT id_utilisateur, nom, prenom, email, statut FROM utilisateurs WHERE email = ? AND mot_de_passe = ?",
+		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut FROM Utilisateurs WHERE Email = ? AND Mot_de_passe = ?",
 		body.Email, body.Password,
 	)
 
@@ -43,13 +42,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
-
 	var body struct {
 		Nom      string `json:"nom"`
 		Prenom   string `json:"prenom"`
 		Email    string `json:"email"`
 		Password string `json:"mot_de_passe"`
-		Role     string `json:"role"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -58,7 +55,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var exists int
-	database.DB.QueryRow("SELECT COUNT(*) FROM utilisateurs WHERE email = ?", body.Email).Scan(&exists)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs WHERE Email = ?", body.Email).Scan(&exists)
 
 	if exists > 0 {
 		httpx.JSONError(w, http.StatusConflict, "Email déjà utilisé")
@@ -66,7 +63,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := database.DB.Exec(
-		"INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, statut, id_langue) VALUES (?, ?, ?, ?, 'actif', 1)",
+		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue) VALUES (?, ?, ?, ?, 'actif', NOW(), 1)",
 		body.Nom, body.Prenom, body.Email, body.Password,
 	)
 

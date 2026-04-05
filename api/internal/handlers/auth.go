@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"upcycleconnect/internal/database"
@@ -68,7 +69,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de la création du compte")
+		log.Println("REGISTER ERROR:", err.Error())
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 

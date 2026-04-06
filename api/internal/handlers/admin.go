@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
@@ -298,4 +301,73 @@ func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
 	}
 	id, _ := result.LastInsertId()
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id})
+}
+
+func generateCode() string {
+	rand.Seed(time.Now().UnixNano())
+	return fmt.Sprintf("%06d", rand.Intn(1000000))
+}
+
+func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query("SELECT id, type_objet, etat_objet, statut, IFNULL(code_ouverture, '') FROM demandes_depot ORDER BY date_demande DESC")
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+
+	type Demande struct {
+		ID            int    `json:"id"`
+		TypeObjet     string `json:"type_objet"`
+		EtatObjet     string `json:"etat_objet"`
+		Statut        string `json:"statut"`
+		CodeOuverture string `json:"code_ouverture"`
+	}
+
+	demandes := []Demande{}
+	for rows.Next() {
+		var d Demande
+		rows.Scan(&d.ID, &d.TypeObjet, &d.EtatObjet, &d.Statut, &d.CodeOuverture)
+		demandes = append(demandes, d)
+	}
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"data": demandes})
+}
+
+func AdminValiderDemande(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+
+	id := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/valider/")
+	code := generateCode()
+
+	_, err := database.DB.Exec("UPDATE demandes_depot SET statut = 'validee', code_ouverture = ? WHERE id = ?", code, id)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+		"message":        "Demande validée",
+		"code_ouverture": code,
+	})
+}
+
+func AdminRefuserDemande(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+
+	id := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/refuser/")
+
+	_, err := database.DB.Exec("UPDATE demandes_depot SET statut = 'refusee' WHERE id = ?", id)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Demande refusée"})
 }

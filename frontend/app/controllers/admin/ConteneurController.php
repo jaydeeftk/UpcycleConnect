@@ -5,7 +5,11 @@ use App\Services\ApiService;
 class ConteneurController
 {
     private $api;
-    public function __construct() { $this->api = new ApiService(); }
+    public function __construct()
+    {
+        \App\Middleware\AdminMiddleware::check();
+        $this->api = new ApiService();
+    }
 
     public function index()
     {
@@ -21,10 +25,10 @@ class ConteneurController
     {
         try {
             $this->api->post('/admin/conteneurs/', [
-                'localisation'      => $_POST['localisation'] ?? '',
-                'capacite'          => $_POST['capacite'] ?? '',
-                'statut'            => $_POST['statut'] ?? 'disponible',
-                'id_administrateurs' => (int)($_POST['id_administrateurs'] ?? 1),
+                'localisation'       => $_POST['localisation'] ?? '',
+                'capacite'           => $_POST['capacite'] ?? '',
+                'statut'             => $_POST['statut'] ?? 'disponible',
+                'id_administrateurs' => (int)($_SESSION['user']['id'] ?? 1),
             ]);
         } catch (\Exception $e) {}
         redirect('/UpcycleConnect-PA2526/frontend/public/admin/conteneurs');

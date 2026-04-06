@@ -25,9 +25,10 @@ class UtilisateurController
     {
         try {
             $result = $this->api->get('/admin/utilisateurs/' . $id);
-            return view('admin.utilisateurs.show', ['utilisateur' => $result['data'] ?? []]);
+            $utilisateur = $result['data'] ?? [];
+            return view('admin.utilisateurs.show', ['utilisateur' => $utilisateur]);
         } catch (\Exception $e) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
+            return view('admin.utilisateurs.show', ['utilisateur' => [], 'error' => $e->getMessage()]);
         }
     }
 
@@ -49,7 +50,13 @@ class UtilisateurController
 
     public function confirmDelete($id)
     {
-        return view('admin.utilisateurs.delete', ['id' => $id]);
+        try {
+            $result = $this->api->get('/admin/utilisateurs/' . $id);
+            $utilisateur = $result['data'] ?? ['id' => $id, 'nom' => '', 'prenom' => ''];
+        } catch (\Exception $e) {
+            $utilisateur = ['id' => $id, 'nom' => '', 'prenom' => ''];
+        }
+        return view('admin.utilisateurs.delete', ['utilisateur' => $utilisateur]);
     }
 
     public function delete($id)

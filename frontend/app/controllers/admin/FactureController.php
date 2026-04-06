@@ -5,7 +5,11 @@ use App\Services\ApiService;
 class FactureController
 {
     private $api;
-    public function __construct() { $this->api = new ApiService(); }
+    public function __construct()
+    {
+        \App\Middleware\AdminMiddleware::check();
+        $this->api = new ApiService();
+    }
 
     public function index()
     {

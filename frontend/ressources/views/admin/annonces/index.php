@@ -7,7 +7,7 @@
 
 <?php if (!empty($error)): ?>
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
+        <?= htmlspecialchars($error) ?>
     </div>
 <?php endif; ?>
 
@@ -16,7 +16,8 @@
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Particulier</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contenu</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Titre</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -24,25 +25,26 @@
         </thead>
         <tbody class="divide-y divide-gray-200">
             <?php if (empty($annonces)): ?>
-                <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Aucune annonce</td></tr>
+                <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucune annonce</td></tr>
             <?php else: ?>
                 <?php foreach ($annonces as $a): ?>
                 <tr>
                     <td class="px-6 py-4">
-                        <div class="font-medium"><?= htmlspecialchars($a['prenom'] . ' ' . $a['nom']) ?></div>
-                        <div class="text-sm text-gray-500"><?= htmlspecialchars($a['email']) ?></div>
+                        <div class="font-medium"><?= htmlspecialchars(($a['prenom'] ?? '') . ' ' . ($a['nom'] ?? '')) ?></div>
+                        <div class="text-sm text-gray-500"><?= htmlspecialchars($a['email'] ?? '') ?></div>
                     </td>
-                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars(substr($a['contenu'], 0, 80)) ?>...</td>
-                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($a['date_publication']) ?></td>
+                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars(substr($a['titre'] ?? '', 0, 60)) ?></td>
+                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($a['categorie'] ?? '-') ?></td>
+                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($a['date'] ?? '') ?></td>
                     <td class="px-6 py-4">
                         <?php
-                            $sc = match($a['statut']) {
-                                'validé' => 'bg-green-100 text-green-700',
-                                'refusé' => 'bg-red-100 text-red-700',
-                                default  => 'bg-yellow-100 text-yellow-700'
+                            $sc = match($a['statut'] ?? '') {
+                                'validee' => 'bg-green-100 text-green-700',
+                                'refusee' => 'bg-red-100 text-red-700',
+                                default   => 'bg-yellow-100 text-yellow-700'
                             };
                         ?>
-                        <span class="px-3 py-1 rounded-full text-sm <?= $sc ?>"><?= htmlspecialchars($a['statut']) ?></span>
+                        <span class="px-3 py-1 rounded-full text-sm <?= $sc ?>"><?= htmlspecialchars($a['statut'] ?? '') ?></span>
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">

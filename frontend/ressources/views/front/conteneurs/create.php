@@ -45,10 +45,9 @@
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8 space-y-8">
 
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/conteneurs/store" enctype="multipart/form-data">
+        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/conteneurs/store">
 
-        
-            <div>
+            <div class="mb-8">
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
                     Informations sur l'objet
                 </h2>
@@ -101,21 +100,10 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Photo de l'objet <span class="text-red-500">*</span></label>
-                        <div class="border-2 border-dashed border-base-300 rounded-xl p-6 text-center hover:border-primary/50 transition cursor-pointer" onclick="document.getElementById('photo_objet').click()">
-                            <i class="fas fa-camera text-3xl text-base-content/30 mb-3 block"></i>
-                            <p class="text-sm text-base-content/60">Cliquez pour ajouter une photo</p>
-                            <p class="text-xs text-base-content/40 mt-1">Une photo claire de l'objet aide notre équipe à valider votre demande</p>
-                        </div>
-                        <input type="file" id="photo_objet" name="photo_objet" accept="image/*" class="hidden" required>
-                    </div>
-
                 </div>
             </div>
 
-        
-            <div>
+            <div class="mb-8">
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
                     Choix du conteneur
                 </h2>
@@ -126,20 +114,20 @@
                         <label class="block text-sm font-medium mb-2">Localisation souhaitée <span class="text-red-500">*</span></label>
                         <select name="conteneur_id" class="select select-bordered w-full" required>
                             <option value="" disabled selected>Sélectionnez un conteneur</option>
-                            <?php if (!empty($conteneurs)): ?>
-                                <?php foreach ($conteneurs as $conteneur): ?>
-                                    <option value="<?= $conteneur['id'] ?>">
-                                        <?= htmlspecialchars($conteneur['localisation']) ?> — Capacité disponible : <?= $conteneur['capacite_dispo'] ?>%
+                            <?php if (!empty($conteneurs) && is_array($conteneurs)): ?>
+                                <?php
+                                $list = $conteneurs['data'] ?? $conteneurs;
+                                foreach ($list as $conteneur):
+                                    if (!is_array($conteneur)) continue;
+                                ?>
+                                    <option value="<?= htmlspecialchars($conteneur['id'] ?? '') ?>">
+                                        <?= htmlspecialchars($conteneur['localisation'] ?? '') ?> — Capacité : <?= htmlspecialchars($conteneur['capacite'] ?? '?') ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <option value="paris_10">Paris 10ème - Rue La Fayette</option>
-                                <option value="paris_11">Paris 11ème</option>
-                                <option value="paris_13">Paris 13ème</option>
-                                <option value="paris_16">Paris 16ème</option>
-                                <option value="bourg_la_reine">Bourg-la-Reine</option>
-                                <option value="ivry">Ivry-sur-Seine</option>
-                                <option value="montreuil">Montreuil</option>
+                                <option value="1">Paris 10ème - Rue La Fayette</option>
+                                <option value="2">Paris 11ème</option>
+                                <option value="3">Paris 13ème</option>
                             <?php endif; ?>
                         </select>
                     </div>
@@ -160,8 +148,7 @@
                 </div>
             </div>
 
-        
-            <div>
+            <div class="mb-8">
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
                     Destination souhaitée
                 </h2>
@@ -196,12 +183,10 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50">€</span>
                         <input type="number" name="prix_vente" min="0" step="0.01" placeholder="0.00" class="input input-bordered w-full pl-8">
                     </div>
-                    <p class="text-xs text-base-content/50 mt-1">Le prix final sera validé par notre équipe lors de la vérification de l'objet.</p>
                 </div>
             </div>
 
-        
-            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3 mb-8">
                 <i class="fas fa-info-circle text-blue-500 mt-0.5 flex-shrink-0"></i>
                 <div class="text-sm text-blue-800">
                     <p class="font-medium mb-1">Comment ça marche ?</p>
@@ -213,7 +198,6 @@
                 </div>
             </div>
 
-            
             <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-base-300">
                 <button type="submit" class="btn btn-neutral flex-1">
                     <i class="fas fa-paper-plane mr-2"></i>
@@ -232,18 +216,7 @@
     document.querySelectorAll('input[name="destination"]').forEach(radio => {
         radio.addEventListener('change', function() {
             const container = document.getElementById('prix-vente-container');
-            if (this.value === 'vente') {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
+            container.classList.toggle('hidden', this.value !== 'vente');
         });
-    });
-
-    document.getElementById('photo_objet').addEventListener('change', function() {
-        const label = this.previousElementSibling;
-        if (this.files.length > 0) {
-            label.querySelector('p').textContent = this.files[0].name;
-        }
     });
 </script>

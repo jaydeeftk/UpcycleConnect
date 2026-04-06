@@ -18,11 +18,12 @@ services:
 
   api:
     build: ./api
-    restart: unless-stopped
+    restart: on-failure
     ports:
       - "8080:8080"
     environment:
       DB_DSN: root:root@tcp(mysql:3306)/upcycleconnect?parseTime=true&charset=utf8mb4
+      JWT_SECRET: a33346c14310829ba428ec9630d436de1c842633a47fffb1e84c20ea8196a16e
     depends_on:
       mysql:
         condition: service_healthy

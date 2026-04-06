@@ -691,4 +691,7 @@ ALTER TABLE Objets MODIFY COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Avis MODIFY COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Avis MODIFY COLUMN Id_Evenements INT NULL;
 
+ALTER TABLE Utilisateurs ADD COLUMN IF NOT EXISTS Tutoriel_vu INT DEFAULT 0;
+ALTER TABLE Annonces ADD COLUMN IF NOT EXISTS Prix DECIMAL(10,2) DEFAULT 0;
+
 INSERT INTO Langue (Nom) VALUES ('Français'), ('English'), ('Deutsch'), ('Español');

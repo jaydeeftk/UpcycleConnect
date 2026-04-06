@@ -20,4 +20,18 @@ class ParametreController
             return view('admin.parametres.index', ['parametres' => [], 'error' => $e->getMessage()]);
         }
     }
+
+    public function update()
+    {
+        try {
+            $this->api->put('/admin/parametres', [
+                'nom_site'    => $_POST['nom_site'] ?? '',
+                'email'       => $_POST['email'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'langue'      => $_POST['langue'] ?? 'Français',
+                'fuseau'      => $_POST['fuseau'] ?? 'Europe/Paris',
+            ]);
+        } catch (\Exception $e) {}
+        redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres');
+    }
 }

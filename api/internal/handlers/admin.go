@@ -273,3 +273,29 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 	httpx.JSONOK(w, http.StatusOK, msgs)
 }
+
+func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	var body struct {
+		Description  string `json:"description"`
+		Illustration string `json:"illustration"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	adminID := 1
+	result, err := database.DB.Exec(
+		"INSERT INTO Catalogue (Description, Illustration, Id_Administrateurs) VALUES (?,?,?)",
+		body.Description, body.Illustration, adminID,
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	id, _ := result.LastInsertId()
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id})
+}

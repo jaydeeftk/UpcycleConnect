@@ -1,66 +1,53 @@
 <?php
-
 $router->get('/', 'Front\HomeController@index');
 $router->get('/home', 'Front\HomeController@index');
-
 $router->get('/prestations', 'Front\PrestationController@index');
 $router->get('/prestations/{id}', 'Front\PrestationController@show');
 $router->get('/demande-prestation', 'Front\PrestationController@create');
 $router->post('/demande-prestation', 'Front\PrestationController@store');
-
 $router->get('/catalogue/services', 'Front\CatalogueController@services');
 $router->get('/catalogue/formations', 'Front\CatalogueController@formations');
 $router->get('/catalogue/evenements', 'Front\CatalogueController@evenements');
-
 $router->get('/conseils', 'Front\ConseilController@index');
 $router->get('/score', 'Front\ScoreController@index');
 $router->get('/planning', 'Front\PlanningController@index');
-
 $router->get('/annonces/create', 'Front\AnnonceController@create');
 $router->post('/annonces/store', 'Front\AnnonceController@store');
-
 $router->get('/conteneurs/create', 'Front\ConteneurController@create');
 $router->post('/conteneurs/store', 'Front\ConteneurController@store');
-
 $router->get('/evenements', 'Front\EvenementController@index');
 $router->get('/evenements/{id}', 'Front\EvenementController@show');
-
 $router->get('/a-propos', 'Front\PageController@apropos');
 $router->get('/contact', 'Front\PageController@contact');
-
 $router->get('/login', 'Front\AuthController@showLogin');
 $router->post('/login', 'Front\AuthController@login');
 $router->get('/register', 'Front\AuthController@showRegister');
 $router->post('/register', 'Front\AuthController@register');
 $router->get('/logout', 'Front\AuthController@logout');
-
 $router->get('/mes-demandes', 'Front\UserController@mesDemandes');
 $router->get('/mes-prestations', 'Front\UserController@mesPrestations');
 $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
 
 $router->group(['prefix' => 'admin'], function($router) {
-
     $router->get('/', 'Admin\DashboardController@index');
     $router->get('/dashboard', 'Admin\DashboardController@index');
-    $router->get('/categories', 'Admin\CategorieController@index');
-    $router->post('/categories/store', 'Admin\CategorieController@store');
-    $router->get('/categories/{id}/delete', 'Admin\CategorieController@delete');
-    $router->get('/messages', 'Admin\MessageController@index');
-    $router->get('/parametres', 'Admin\ParametreController@index');
+
+    $router->get('/utilisateurs', 'Admin\UtilisateurController@index');
+    $router->post('/utilisateurs/store', 'Admin\UtilisateurController@store');
+    $router->get('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
+    $router->get('/utilisateurs/{id}/delete', 'Admin\UtilisateurController@confirmDelete');
+    $router->get('/utilisateurs/{id}', 'Admin\UtilisateurController@show');
+
     $router->get('/annonces', 'Admin\AnnonceController@index');
-    $router->get('/annonces/{id}/validate', 'Admin\AnnonceController@validate');
-    $router->get('/annonces/{id}/reject', 'Admin\AnnonceController@reject');
+    $router->post('/annonces/{id}/valider', 'Admin\AnnonceController@validate');
+    $router->post('/annonces/{id}/refuser', 'Admin\AnnonceController@reject');
+    $router->post('/annonces/{id}/supprimer', 'Admin\AnnonceController@delete');
+
     $router->get('/evenements', 'Admin\EvenementController@index');
     $router->get('/evenements/create', 'Admin\EvenementController@create');
     $router->post('/evenements/store', 'Admin\EvenementController@store');
     $router->get('/evenements/{id}/delete', 'Admin\EvenementController@delete');
-
-    $router->get('/utilisateurs', 'Admin\UtilisateurController@index');
-    $router->post('/utilisateurs/store', 'Admin\UtilisateurController@store');
-    $router->get('/utilisateurs/{id}', 'Admin\UtilisateurController@show');
-    $router->get('/utilisateurs/{id}/delete', 'Admin\UtilisateurController@confirmDelete');
-    $router->get('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
 
     $router->get('/formations', 'Admin\FormationController@index');
     $router->post('/formations/store', 'Admin\FormationController@store');
@@ -70,25 +57,20 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/conteneurs/store', 'Admin\ConteneurController@store');
     $router->get('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
 
-    $router->get('/notifications', 'Admin\NotificationController@index');
-    $router->get('/notifications/{id}/delete', 'Admin\NotificationController@delete');
+    $router->get('/categories', 'Admin\CategorieController@index');
+    $router->post('/categories/store', 'Admin\CategorieController@store');
+    $router->get('/categories/{id}/delete', 'Admin\CategorieController@delete');
 
     $router->get('/contrats', 'Admin\ContratController@index');
     $router->get('/contrats/{id}/delete', 'Admin\ContratController@delete');
 
     $router->get('/factures', 'Admin\FactureController@index');
 
-    $router->post('/annonces/{id}/supprimer', 'Admin\AnnonceController@delete');
+    $router->get('/notifications', 'Admin\NotificationController@index');
+    $router->post('/notifications/store', 'Admin\NotificationController@store');
+    $router->get('/notifications/{id}/delete', 'Admin\NotificationController@delete');
 
-    $router->post('/annonces/{id}/valider', 'Admin\AnnonceController@validate');
-    $router->post('/annonces/{id}/refuser', 'Admin\AnnonceController@reject');
-    $router->post('/annonces/{id}/supprimer', 'Admin\AnnonceController@delete');
-    $router->post('/conteneurs/store', 'Admin\ConteneurController@store');
-    $router->get('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
-    $router->post('/formations/store', 'Admin\FormationController@store');
-    $router->get('/formations/{id}/delete', 'Admin\FormationController@delete');
-    $router->post('/notifications/{id}/supprimer', 'Admin\NotificationController@delete');
-    $router->get('/contrats/{id}/delete', 'Admin\ContratController@delete');
-    $router->get('/utilisateurs/{id}', 'Admin\UtilisateurController@show');
-
+    $router->get('/messages', 'Admin\MessageController@index');
+    $router->get('/parametres', 'Admin\ParametreController@index');
+    $router->post('/parametres/update', 'Admin\ParametreController@update');
 });

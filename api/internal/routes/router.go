@@ -55,6 +55,15 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/categories", middleware.AdminOnly(handlers.AdminGetCategories))
 	mux.HandleFunc("/api/admin/categories/", middleware.AdminOnly(handlers.AdminDeleteCategorie))
 
+	mux.HandleFunc("/api/admin/categories", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.AdminGetCategories(w, r)
+		case http.MethodPost:
+			handlers.AdminCreateCategorie(w, r)
+		}
+	}))
+
 	mux.HandleFunc("/api/admin/parametres", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:

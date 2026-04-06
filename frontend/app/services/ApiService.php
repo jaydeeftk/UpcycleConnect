@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 class ApiService
@@ -12,6 +11,9 @@ class ApiService
     {
         $this->baseUrl = getenv('API_BASE_URL') ?: 'http://localhost:8080/api';
         $this->timeout = getenv('API_TIMEOUT') ?: 30;
+        if (isset($_SESSION['token'])) {
+            $this->token = $_SESSION['token'];
+        }
     }
 
     public function setToken($token)
@@ -23,11 +25,9 @@ class ApiService
     public function get($endpoint, $params = [])
     {
         $url = $this->baseUrl . $endpoint;
-        
         if (!empty($params)) {
             $url .= '?' . http_build_query($params);
         }
-
         return $this->request('GET', $url);
     }
 
@@ -36,7 +36,6 @@ class ApiService
         $url = $this->baseUrl . $endpoint;
         return $this->request('POST', $url, $data);
     }
-
 
     public function put($endpoint, $data = [])
     {
@@ -93,7 +92,6 @@ class ApiService
         return $result;
     }
 
-
     public function login($email, $password)
     {
         return $this->post('/auth/login', [
@@ -140,13 +138,5 @@ class ApiService
     public function requestConteneurCode($data)
     {
         return $this->post('/conteneurs/request-code', $data);
-    }
-}
-    public function __construct()
-{
-    $this->baseUrl = getenv('API_BASE_URL') ?: 'http://localhost:8080/api';
-    $this->timeout = getenv('API_TIMEOUT') ?: 30;
-    if (isset($_SESSION['token'])) {
-        $this->token = $_SESSION['token'];
     }
 }

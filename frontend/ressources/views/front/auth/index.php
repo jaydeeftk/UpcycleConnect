@@ -77,6 +77,7 @@
                         </form>
                     </div>
 
+                   
                     <div id="register-form" class="hidden">
                         <h2 class="text-3xl font-bold text-center mb-2">Inscription</h2>
                         <p class="text-center text-base-content/70 mb-8">Créez votre compte UpcycleConnect.</p>
@@ -97,25 +98,47 @@
                                 <input type="password" name="password" placeholder="••••••••"
                                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
+
+                       
                             <div>
                                 <label class="block text-sm font-medium mb-2">Je m'inscris en tant que</label>
                                 <div class="grid grid-cols-2 gap-4">
                                     <label class="cursor-pointer">
-                                        <input type="radio" name="role" value="particulier" class="peer hidden" checked />
+                                        <input type="radio" name="role" value="particulier" id="role-particulier" class="peer hidden" checked />
                                         <div class="border border-base-300 rounded-2xl p-4 text-center peer-checked:border-black peer-checked:bg-black/5 transition">
+                                            <i class="fas fa-user text-2xl mb-2 block text-green-500"></i>
                                             <div class="font-semibold">Particulier</div>
                                             <div class="text-sm text-base-content/70 mt-1">Déposer une demande</div>
                                         </div>
                                     </label>
                                     <label class="cursor-pointer">
-                                        <input type="radio" name="role" value="prestataire" class="peer hidden" />
+                                        <input type="radio" name="role" value="professionnel" id="role-professionnel" class="peer hidden" />
                                         <div class="border border-base-300 rounded-2xl p-4 text-center peer-checked:border-black peer-checked:bg-black/5 transition">
-                                            <div class="font-semibold">Prestataire</div>
+                                            <i class="fas fa-briefcase text-2xl mb-2 block text-blue-500"></i>
+                                            <div class="font-semibold">Professionnel/Artisan</div>
                                             <div class="text-sm text-base-content/70 mt-1">Proposer des services</div>
                                         </div>
                                     </label>
                                 </div>
                             </div>
+
+                           
+                            <div id="champs-professionnel" class="hidden space-y-5">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Nom de l'entreprise</label>
+                                    <input type="text" name="nom_entreprise" placeholder="Votre entreprise"
+                                        class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Type</label>
+                                    <select name="type" class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black">
+                                        <option value="artisan">Artisan</option>
+                                        <option value="professionnel">Professionnel</option>
+                                        <option value="entreprise">Entreprise</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <label class="flex items-center gap-3 cursor-pointer text-sm">
                                 <input type="checkbox" name="cgu" class="rounded" />
                                 <span>J'accepte les conditions d'utilisation</span>
@@ -156,5 +179,14 @@
         loginTab.classList.add('text-base-content/60');
         registerForm.classList.remove('hidden');
         loginForm.classList.add('hidden');
+    });
+
+
+    document.getElementById('role-particulier').addEventListener('change', function() {
+        document.getElementById('champs-professionnel').classList.add('hidden');
+    });
+
+    document.getElementById('role-professionnel').addEventListener('change', function() {
+        document.getElementById('champs-professionnel').classList.remove('hidden');
     });
 </script>

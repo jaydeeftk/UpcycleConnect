@@ -33,6 +33,7 @@ $router->post('/login', 'Front\AuthController@login');
 $router->get('/register', 'Front\AuthController@showRegister');
 $router->post('/register', 'Front\AuthController@register');
 $router->get('/logout', 'Front\AuthController@logout');
+$router->get('/tutoriel/done', 'Front\UserController@tutorielDone');
 
 $router->get('/mes-demandes', 'Front\UserController@mesDemandes');
 $router->get('/mes-prestations', 'Front\UserController@mesPrestations');

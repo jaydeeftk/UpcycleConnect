@@ -14,7 +14,6 @@
                 Accueil
             </a>
             
-            <!-- Catalogue -->
             <div class="dropdown dropdown-hover" data-tuto="prestations">
                 <div tabindex="0" role="button" class="cursor-pointer hover:text-primary transition flex items-center gap-2">
                     Catalogue

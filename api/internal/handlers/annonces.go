@@ -13,9 +13,10 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
+
 	var body struct {
 		Titre         string  `json:"titre"`
-		Contenu       string  `json:"description"`
+		Description   string  `json:"description"`
 		Categorie     string  `json:"categorie"`
 		Etat          string  `json:"etat"`
 		TypeAnnonce   string  `json:"type_annonce"`
@@ -24,18 +25,25 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		CodePostal    string  `json:"code_postal"`
 		IdParticulier int     `json:"user_id"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
-	result, err := database.DB.Exec(
-		"INSERT INTO Annonces (Titre, Contenu, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal, Statut, Date_publication, Id_Particuliers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)",
-		body.Titre, body.Contenu, body.Categorie, body.Etat, body.TypeAnnonce, body.Prix, body.Ville, body.CodePostal, body.IdParticulier,
+
+	query := `INSERT INTO Annonces 
+			  (Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal, Statut, Date_Publication, Id_Particuliers) 
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)`
+
+	result, err := database.DB.Exec(query,
+		body.Titre, body.Description, body.Categorie, body.Etat, body.TypeAnnonce, body.Prix, body.Ville, body.CodePostal, body.IdParticulier,
 	)
+
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONError(w, http.StatusInternalServerError, "Erreur BDD : "+err.Error())
 		return
 	}
+
 	id, _ := result.LastInsertId()
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
 		"id":      id,
@@ -45,26 +53,27 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 
 func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Annonces, Titre, Contenu, Categorie, Etat, Type_annonce, COALESCE(Prix, 0), Ville, Code_postal, Statut, Date_publication FROM Annonces WHERE Statut = 'validee' ORDER BY Date_publication DESC",
+		"SELECT Id_Annonces, Titre, Description, Categorie, Etat, Type_annonce, COALESCE(Prix, 0), Ville, Code_postal, Statut, Date_Publication FROM Annonces WHERE Statut = 'validee' ORDER BY Date_Publication DESC",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
+
 	var annonces []map[string]interface{}
 	for rows.Next() {
 		var id int
-		var titre, contenu, categorie, etat, typeAnnonce, ville, codePostal, statut, date string
+		var titre, description, categorie, etat, typeAnnonce, ville, codePostal, statut, date string
 		var prix float64
-		if err := rows.Scan(&id, &titre, &contenu, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date); err != nil {
+		if err := rows.Scan(&id, &titre, &description, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date); err != nil {
 			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		annonces = append(annonces, map[string]interface{}{
 			"id":           id,
 			"titre":        titre,
-			"contenu":      contenu,
+			"description":  description,
 			"categorie":    categorie,
 			"etat":         etat,
 			"type_annonce": typeAnnonce,
@@ -75,8 +84,36 @@ func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 			"date":         date,
 		})
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(annonces)
+	httpx.JSONOK(w, http.StatusOK, annonces)
+}
+
+func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(
+		"SELECT Id_Annonces, Titre, Statut, Date_Publication, Categorie FROM Annonces ORDER BY Date_Publication DESC",
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+
+	var annonces []map[string]interface{}
+	for rows.Next() {
+		var id int
+		var titre, statut, date, categorie string
+		if err := rows.Scan(&id, &titre, &statut, &date, &categorie); err != nil {
+			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		annonces = append(annonces, map[string]interface{}{
+			"id":        id,
+			"titre":     titre,
+			"statut":    statut,
+			"date":      date,
+			"categorie": categorie,
+		})
+	}
+	httpx.JSONOK(w, http.StatusOK, annonces)
 }
 
 func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +121,7 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 	idParticulier := parts[len(parts)-1]
 
 	rows, err := database.DB.Query(
-		"SELECT Id_Annonces, Titre, Contenu, Categorie, Etat, Type_annonce, COALESCE(Prix, 0), Ville, Code_postal, Statut, Date_publication FROM Annonces WHERE Id_Particuliers = ? ORDER BY Date_publication DESC",
+		"SELECT Id_Annonces, Titre, Description, Categorie, Etat, Type_annonce, COALESCE(Prix, 0), Ville, Code_postal, Statut, Date_Publication FROM Annonces WHERE Id_Particuliers = ? ORDER BY Date_Publication DESC",
 		idParticulier,
 	)
 	if err != nil {
@@ -96,16 +133,16 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 	var annonces []map[string]interface{}
 	for rows.Next() {
 		var id int
-		var titre, contenu, categorie, etat, typeAnnonce, ville, codePostal, statut, date string
+		var titre, description, categorie, etat, typeAnnonce, ville, codePostal, statut, date string
 		var prix float64
-		if err := rows.Scan(&id, &titre, &contenu, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date); err != nil {
+		if err := rows.Scan(&id, &titre, &description, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date); err != nil {
 			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		annonces = append(annonces, map[string]interface{}{
 			"id":           id,
 			"titre":        titre,
-			"contenu":      contenu,
+			"description":  description,
 			"categorie":    categorie,
 			"etat":         etat,
 			"type_annonce": typeAnnonce,
@@ -116,7 +153,30 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 			"date":         date,
 		})
 	}
+	httpx.JSONOK(w, http.StatusOK, annonces)
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(annonces)
+func AdminAnnonceAction(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/api/admin/annonces/")
+	id = strings.Split(id, "/")[0]
+
+	switch r.Method {
+	case http.MethodPut:
+		var body struct {
+			Statut string `json:"statut"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+			return
+		}
+		database.DB.Exec("UPDATE Annonces SET Statut = ? WHERE Id_Annonces = ?", body.Statut, id)
+		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Statut mis à jour"})
+
+	case http.MethodDelete:
+		database.DB.Exec("DELETE FROM Annonces WHERE Id_Annonces = ?", id)
+		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce supprimée"})
+
+	default:
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+	}
 }

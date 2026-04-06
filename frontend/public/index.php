@@ -1,5 +1,7 @@
 <?php
 session_start();
+ini_set('session.save_path', '/tmp');
+ini_set('session.cookie_lifetime', 86400);
 
 date_default_timezone_set('Europe/Paris');
 

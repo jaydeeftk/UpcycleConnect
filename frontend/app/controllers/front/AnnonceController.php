@@ -33,6 +33,7 @@ class AnnonceController
             'code_postal'  => $_POST['code_postal'] ?? '',
             'user_id'      => $_SESSION['user']['id'] ?? 0,
         ];
+        error_log("SESSION USER: " . json_encode($_SESSION['user']));
         try {
             $this->api->post('/annonces/create', $data);
             return view('front.annonces.create', [

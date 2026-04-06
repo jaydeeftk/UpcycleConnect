@@ -694,4 +694,29 @@ ALTER TABLE Avis MODIFY COLUMN Id_Evenements INT NULL;
 ALTER TABLE Utilisateurs ADD COLUMN IF NOT EXISTS Tutoriel_vu INT DEFAULT 0;
 ALTER TABLE Annonces ADD COLUMN IF NOT EXISTS Prix DECIMAL(10,2) DEFAULT 0;
 
+CREATE TABLE IF NOT EXISTS Demandes_conteneurs (
+  Id_Demande INT AUTO_INCREMENT PRIMARY KEY,
+  Type_objet VARCHAR(100),
+  Description TEXT,
+  Etat_usure VARCHAR(50),
+  Id_Conteneur INT,
+  Date_depot DATETIME,
+  Destination VARCHAR(50),
+  Prix_vente DECIMAL(10,2) DEFAULT 0,
+  Statut VARCHAR(50) DEFAULT 'en_attente',
+  Date_demande DATETIME,
+  Id_Particuliers INT NOT NULL,
+  FOREIGN KEY (Id_Particuliers) REFERENCES Particuliers(Id_Particuliers)
+);
+
+ALTER TABLE Utilisateurs ADD COLUMN Tutoriel_vu INT DEFAULT 0;
+ALTER TABLE Annonces ADD COLUMN Titre VARCHAR(100);
+ALTER TABLE Annonces ADD COLUMN Description TEXT;
+ALTER TABLE Annonces ADD COLUMN Categorie VARCHAR(50);
+ALTER TABLE Annonces ADD COLUMN Etat VARCHAR(50);
+ALTER TABLE Annonces ADD COLUMN Type_annonce VARCHAR(50);
+ALTER TABLE Annonces ADD COLUMN Prix DECIMAL(10,2) DEFAULT 0;
+ALTER TABLE Annonces ADD COLUMN Ville VARCHAR(100);
+ALTER TABLE Annonces ADD COLUMN Code_postal VARCHAR(10);
+
 INSERT INTO Langue (Nom) VALUES ('Français'), ('English'), ('Deutsch'), ('Español');

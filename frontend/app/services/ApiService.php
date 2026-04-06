@@ -11,8 +11,8 @@ class ApiService
     {
         $this->baseUrl = getenv('API_BASE_URL') ?: 'http://localhost:8080/api';
         $this->timeout = getenv('API_TIMEOUT') ?: 30;
-        if (isset($_SESSION['token'])) {
-            $this->token = $_SESSION['token'];
+        if (isset($_SESSION['user']['token'])) {
+            $this->token = $_SESSION['user']['token'];
         }
     }
 

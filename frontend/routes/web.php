@@ -62,4 +62,22 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/utilisateurs/{id}/delete', 'Admin\UtilisateurController@confirmDelete');
     $router->get('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
 
+    $router->get('/formations', 'Admin\FormationController@index');
+    $router->post('/formations/store', 'Admin\FormationController@store');
+    $router->get('/formations/{id}/delete', 'Admin\FormationController@delete');
+
+    $router->get('/conteneurs', 'Admin\ConteneurController@index');
+    $router->post('/conteneurs/store', 'Admin\ConteneurController@store');
+    $router->get('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
+
+    $router->get('/notifications', 'Admin\NotificationController@index');
+    $router->get('/notifications/{id}/delete', 'Admin\NotificationController@delete');
+
+    $router->get('/contrats', 'Admin\ContratController@index');
+    $router->get('/contrats/{id}/delete', 'Admin\ContratController@delete');
+
+    $router->get('/factures', 'Admin\FactureController@index');
+
+    $router->post('/annonces/{id}/supprimer', 'Admin\AnnonceController@delete');
+
 });

@@ -73,4 +73,12 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/messages', 'Admin\MessageController@index');
     $router->get('/parametres', 'Admin\ParametreController@index');
     $router->post('/parametres/update', 'Admin\ParametreController@update');
+
+    $router->get('/admin/demandes', 'Admin\DemandeController@index');
+    $router->post('/admin/demandes/valider/([0-9]+)', 'Admin\DemandeController@valider');
+    $router->post('/admin/demandes/refuser/([0-9]+)', 'Admin\DemandeController@refuser');
+
+    $router->get('/admin/demandes', 'Admin\DemandeController@index');
+    $router->post('/admin/demandes/valider/([0-9]+)', 'Admin\DemandeController@valider');
+    $router->post('/admin/demandes/refuser/([0-9]+)', 'Admin\DemandeController@refuser');
 });

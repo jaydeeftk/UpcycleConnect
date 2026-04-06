@@ -13,6 +13,12 @@ $router->get('/catalogue/formations', 'Front\CatalogueController@formations');
 $router->get('/catalogue/evenements', 'Front\CatalogueController@evenements');
 
 $router->get('/conseils', 'Front\ConseilController@index');
+$router->get('/conseils/forum/create', 'Front\ConseilController@createSujet');
+$router->post('/conseils/forum/store', 'Front\ConseilController@storeSujet');
+$router->get('/conseils/forum/{id}', 'Front\ConseilController@showSujet');
+$router->post('/conseils/forum/{id}/repondre', 'Front\ConseilController@storeReponse');
+$router->post('/conseils/forum/{idSujet}/solution/{idReponse}', 'Front\ConseilController@marquerSolution');
+$router->get('/conseils/{id}', 'Front\ConseilController@showConseil');
 $router->get('/score', 'Front\ScoreController@index');
 $router->get('/planning', 'Front\PlanningController@index');
 

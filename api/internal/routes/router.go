@@ -45,5 +45,11 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/admin/utilisateurs/delete/", handlers.AdminDeleteUtilisateur)
 
+	mux.HandleFunc("/api/conseils", handlers.GetConseils)
+	mux.HandleFunc("/api/conseils/", handlers.GetConseil)
+
+	mux.HandleFunc("/api/forum/sujets", handlers.ForumSujetsHandler)
+	mux.HandleFunc("/api/forum/sujets/", handlers.ForumSujetDispatch)
+
 	return mux
 }

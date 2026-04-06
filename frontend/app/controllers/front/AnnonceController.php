@@ -40,10 +40,10 @@ class AnnonceController
                 'success' => 'Votre annonce a bien été soumise ! Elle sera vérifiée par notre équipe avant publication.',
             ]);
         } catch (\Exception $e) {
-            return view('front.annonces.create', [
-                'title' => 'Déposer une annonce - UpcycleConnect',
-                'error' => 'Une erreur est survenue lors de l\'envoi de votre annonce. Veuillez réessayer.',
-            ]);
-        }
+    return view('front.annonces.create', [
+        'title' => 'Déposer une annonce - UpcycleConnect',
+        'error' => $e->getMessage(),
+    ]);
+}
     }
 }

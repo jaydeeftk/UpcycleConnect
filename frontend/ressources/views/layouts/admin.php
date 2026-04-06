@@ -60,6 +60,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="/UpcycleConnect-PA2526/frontend/public/admin/demandes"
+                            class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'demandes') !== false ? 'bg-gray-700' : '' ?>">
+                            <i class="fas fa-box-open w-5"></i><span>Dépôts (Objets)</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="/UpcycleConnect-PA2526/frontend/public/admin/categories"
                             class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'categories') !== false ? 'bg-gray-700' : '' ?>">
                             <i class="fas fa-folder w-5"></i><span>Catégories</span>

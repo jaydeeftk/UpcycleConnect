@@ -75,6 +75,7 @@ class AuthController
 
             if (isset($result['data'])) {
                 $_SESSION['user'] = $result['data'];
+                $_SESSION['token'] = $result['data']['token'] ?? null;
                 redirect('/UpcycleConnect-PA2526/frontend/public/');
             }
 

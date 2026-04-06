@@ -37,7 +37,7 @@ class ConteneurController
             'date_depot'   => $_POST['date_depot'] ?? '',
             'destination'  => $_POST['destination'] ?? 'don',
             'prix_vente'   => $_POST['destination'] === 'vente' ? (float)($_POST['prix_vente'] ?? 0) : 0,
-            'user_id'      => $_SESSION['user']['id_particulier'] ?? 1,
+            'user_id'      => $_SESSION['user']['id'] ?? 0,
         ];
         try {
             $this->api->post('/conteneurs/demandes', $data);

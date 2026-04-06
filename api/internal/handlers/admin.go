@@ -203,3 +203,63 @@ func AdminDeleteCategorie(w http.ResponseWriter, r *http.Request) {
 	database.DB.Exec("DELETE FROM Catalogue WHERE Id_Catalogue = ?", id)
 	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Catégorie supprimée"})
 }
+
+func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(
+		`SELECT d.Id_Demande, d.Type_objet, d.Description, d.Etat_usure, d.Statut, d.Date_demande,
+			COALESCE(d.Prix_vente, 0), c.Localisation,
+			u.Nom, u.Prenom, u.Email
+		FROM Demandes_conteneurs d
+		LEFT JOIN Conteneurs c ON c.Id_Conteneurs = d.Id_Conteneur
+		JOIN Particuliers p ON p.Id_Particuliers = d.Id_Particuliers
+		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
+		ORDER BY d.Date_demande DESC`,
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+
+	var demandes []map[string]interface{}
+	for rows.Next() {
+		var id int
+		var typeObjet, description, etatUsure, statut, date, localisation, nom, prenom, email string
+		var prix float64
+		rows.Scan(&id, &typeObjet, &description, &etatUsure, &statut, &date, &prix, &localisation, &nom, &prenom, &email)
+		demandes = append(demandes, map[string]interface{}{
+			"id": id, "type_objet": typeObjet, "description": description,
+			"etat_usure": etatUsure, "statut": statut, "date": date,
+			"prix_vente": prix, "localisation": localisation,
+			"nom": nom, "prenom": prenom, "email": email,
+		})
+	}
+	if demandes == nil {
+		demandes = []map[string]interface{}{}
+	}
+	httpx.JSONOK(w, http.StatusOK, demandes)
+}
+
+func AdminDemandeAction(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/")
+	parts := strings.Split(path, "/")
+
+	if len(parts) < 2 {
+		httpx.JSONError(w, http.StatusBadRequest, "Paramètres manquants")
+		return
+	}
+
+	action := parts[0]
+	id := parts[1]
+
+	switch action {
+	case "valider":
+		database.DB.Exec("UPDATE Demandes_conteneurs SET Statut = 'validee' WHERE Id_Demande = ?", id)
+		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Demande validée"})
+	case "refuser":
+		database.DB.Exec("UPDATE Demandes_conteneurs SET Statut = 'refusee' WHERE Id_Demande = ?", id)
+		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Demande refusée"})
+	default:
+		httpx.JSONError(w, http.StatusBadRequest, "Action inconnue")
+	}
+}

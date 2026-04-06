@@ -31,7 +31,7 @@ class AnnonceController
             'prix'         => $_POST['type_annonce'] === 'vente' ? (float)($_POST['prix'] ?? 0) : 0,
             'ville'        => $_POST['ville'] ?? '',
             'code_postal'  => $_POST['code_postal'] ?? '',
-            'user_id'      => $_SESSION['user']['id_particulier'] ?? 1,
+            'user_id'      => $_SESSION['user']['id'] ?? 0,
         ];
         try {
             $this->api->post('/annonces/create', $data);

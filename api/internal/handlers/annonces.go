@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 )
@@ -16,8 +15,15 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		Contenu       string `json:"contenu"`
-		IdParticulier int    `json:"user_id"`
+		Titre         string  `json:"titre"`
+		Description   string  `json:"description"`
+		Categorie     string  `json:"categorie"`
+		Etat          string  `json:"etat"`
+		TypeAnnonce   string  `json:"type_annonce"`
+		Prix          float64 `json:"prix"`
+		Ville         string  `json:"ville"`
+		CodePostal    string  `json:"code_postal"`
+		IdParticulier int     `json:"user_id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -25,9 +31,12 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := database.DB.Exec(
-		"INSERT INTO Annonces (Contenu, Statut, Date_publication, Id_Particuliers) VALUES (?, 'en_attente', NOW(), ?)",
-		body.Contenu, body.IdParticulier,
+	query := `INSERT INTO Annonces
+		(Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal, Statut, Date_publication, Id_Particuliers)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)`
+
+	result, err := database.DB.Exec(query,
+		body.Titre, body.Description, body.Categorie, body.Etat, body.TypeAnnonce, body.Prix, body.Ville, body.CodePostal, body.IdParticulier,
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, "Erreur BDD : "+err.Error())
@@ -43,7 +52,8 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 
 func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Annonces, Contenu, Statut, Date_publication FROM Annonces WHERE Statut = 'validee' ORDER BY Date_publication DESC",
+		`SELECT Id_Annonces, Titre, Description, Categorie, Etat, Type_annonce, COALESCE(Prix, 0), Ville, Code_postal, Statut, Date_publication
+		FROM Annonces WHERE Statut = 'validee' ORDER BY Date_publication DESC`,
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
@@ -54,13 +64,14 @@ func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 	var annonces []map[string]interface{}
 	for rows.Next() {
 		var id int
-		var contenu, statut, date string
-		rows.Scan(&id, &contenu, &statut, &date)
+		var titre, description, categorie, etat, typeAnnonce, ville, codePostal, statut, date string
+		var prix float64
+		rows.Scan(&id, &titre, &description, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date)
 		annonces = append(annonces, map[string]interface{}{
-			"id":      id,
-			"contenu": contenu,
-			"statut":  statut,
-			"date":    date,
+			"id": id, "titre": titre, "description": description,
+			"categorie": categorie, "etat": etat, "type_annonce": typeAnnonce,
+			"prix": prix, "ville": ville, "code_postal": codePostal,
+			"statut": statut, "date": date,
 		})
 	}
 	httpx.JSONOK(w, http.StatusOK, annonces)
@@ -71,7 +82,8 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 	idParticulier := parts[len(parts)-1]
 
 	rows, err := database.DB.Query(
-		"SELECT Id_Annonces, Contenu, Statut, Date_publication FROM Annonces WHERE Id_Particuliers = ? ORDER BY Date_publication DESC",
+		`SELECT Id_Annonces, Titre, Description, Categorie, Etat, Type_annonce, COALESCE(Prix, 0), Ville, Code_postal, Statut, Date_publication
+		FROM Annonces WHERE Id_Particuliers = ? ORDER BY Date_publication DESC`,
 		idParticulier,
 	)
 	if err != nil {
@@ -83,13 +95,14 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 	var annonces []map[string]interface{}
 	for rows.Next() {
 		var id int
-		var contenu, statut, date string
-		rows.Scan(&id, &contenu, &statut, &date)
+		var titre, description, categorie, etat, typeAnnonce, ville, codePostal, statut, date string
+		var prix float64
+		rows.Scan(&id, &titre, &description, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date)
 		annonces = append(annonces, map[string]interface{}{
-			"id":      id,
-			"contenu": contenu,
-			"statut":  statut,
-			"date":    date,
+			"id": id, "titre": titre, "description": description,
+			"categorie": categorie, "etat": etat, "type_annonce": typeAnnonce,
+			"prix": prix, "ville": ville, "code_postal": codePostal,
+			"statut": statut, "date": date,
 		})
 	}
 	httpx.JSONOK(w, http.StatusOK, annonces)
@@ -97,7 +110,7 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		`SELECT a.Id_Annonces, a.Contenu, a.Statut, a.Date_publication,
+		`SELECT a.Id_Annonces, a.Titre, a.Statut, a.Date_publication, a.Categorie,
 			u.Nom, u.Prenom, u.Email
 		FROM Annonces a
 		JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
@@ -113,16 +126,12 @@ func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	var annonces []map[string]interface{}
 	for rows.Next() {
 		var id int
-		var contenu, statut, date, nom, prenom, email string
-		rows.Scan(&id, &contenu, &statut, &date, &nom, &prenom, &email)
+		var titre, statut, date, categorie, nom, prenom, email string
+		rows.Scan(&id, &titre, &statut, &date, &categorie, &nom, &prenom, &email)
 		annonces = append(annonces, map[string]interface{}{
-			"id":      id,
-			"contenu": contenu,
-			"statut":  statut,
-			"date":    date,
-			"nom":     nom,
-			"prenom":  prenom,
-			"email":   email,
+			"id": id, "titre": titre, "statut": statut,
+			"date": date, "categorie": categorie,
+			"nom": nom, "prenom": prenom, "email": email,
 		})
 	}
 	httpx.JSONOK(w, http.StatusOK, annonces)
@@ -137,17 +146,12 @@ func AdminAnnonceAction(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			Statut string `json:"statut"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-			return
-		}
+		json.NewDecoder(r.Body).Decode(&body)
 		database.DB.Exec("UPDATE Annonces SET Statut = ? WHERE Id_Annonces = ?", body.Statut, id)
 		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Statut mis à jour"})
-
 	case http.MethodDelete:
 		database.DB.Exec("DELETE FROM Annonces WHERE Id_Annonces = ?", id)
 		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce supprimée"})
-
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}

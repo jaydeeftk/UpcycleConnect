@@ -15,6 +15,39 @@
     </div>
 <?php endif; ?>
 
+<!-- Modal ajout conteneur -->
+<div id="modal-conteneur" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-bold mb-4">Ajouter un conteneur</h3>
+        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/conteneurs/store">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Localisation</label>
+                    <input type="text" name="localisation" required class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Capacité</label>
+                    <input type="text" name="capacite" required class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Statut</label>
+                    <select name="statut" class="w-full border rounded-lg px-4 py-2">
+                        <option value="disponible">Disponible</option>
+                        <option value="plein">Plein</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
+                <input type="hidden" name="id_administrateurs" value="<?= $_SESSION['user']['id'] ?? 1 ?>">
+            </div>
+            <div class="flex gap-4 mt-6">
+                <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">Ajouter</button>
+                <button type="button" onclick="document.getElementById('modal-conteneur').classList.add('hidden')"
+                    class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Annuler</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <table class="min-w-full">
         <thead class="bg-gray-50">
@@ -38,12 +71,11 @@
                         <span class="px-3 py-1 rounded-full text-sm <?= $sc ?>"><?= htmlspecialchars($c['statut']) ?></span>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="flex gap-2">
-                            <button class="text-green-600 hover:text-green-800"><i class="fas fa-edit"></i></button>
-                            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/conteneurs/<?= $c['id'] ?>/supprimer">
-                                <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
-                            </form>
-                        </div>
+                        <a href="/UpcycleConnect-PA2526/frontend/public/admin/conteneurs/<?= $c['id'] ?>/delete"
+                            onclick="return confirm('Supprimer ce conteneur ?')"
+                            class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

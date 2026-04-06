@@ -80,4 +80,15 @@ $router->group(['prefix' => 'admin'], function($router) {
 
     $router->post('/annonces/{id}/supprimer', 'Admin\AnnonceController@delete');
 
+    $router->post('/annonces/{id}/valider', 'Admin\AnnonceController@validate');
+    $router->post('/annonces/{id}/refuser', 'Admin\AnnonceController@reject');
+    $router->post('/annonces/{id}/supprimer', 'Admin\AnnonceController@delete');
+    $router->post('/conteneurs/store', 'Admin\ConteneurController@store');
+    $router->get('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
+    $router->post('/formations/store', 'Admin\FormationController@store');
+    $router->get('/formations/{id}/delete', 'Admin\FormationController@delete');
+    $router->post('/notifications/{id}/supprimer', 'Admin\NotificationController@delete');
+    $router->get('/contrats/{id}/delete', 'Admin\ContratController@delete');
+    $router->get('/utilisateurs/{id}', 'Admin\UtilisateurController@show');
+
 });

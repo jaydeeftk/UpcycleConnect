@@ -21,6 +21,7 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/auth/login", handlers.Login)
 	mux.HandleFunc("/api/auth/register", handlers.Register)
+	mux.HandleFunc("/api/auth/tutoriel", handlers.UpdateTutoriel)
 
 	mux.HandleFunc("/api/paiements/", handlers.GetPaiements)
 
@@ -33,7 +34,12 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/evenements", handlers.AdminGetEvenements)
 	mux.HandleFunc("/api/admin/evenements/", handlers.AdminCreateEvenement)
 	mux.HandleFunc("/api/admin/messages", handlers.AdminGetMessages)
-	mux.HandleFunc("/api/admin/annonces", handlers.AdminGetAnnonces)
+	mux.HandleFunc("/api/annonces", handlers.GetAnnonces)
+	mux.HandleFunc("/api/annonces/create", handlers.CreateAnnonce)
+	mux.HandleFunc("/api/annonces/user/", handlers.GetAnnoncesUser)
+	mux.HandleFunc("/api/conteneurs", handlers.GetConteneurs)
+	mux.HandleFunc("/api/conteneurs/demandes", handlers.CreateDemandeConteneur)
+	mux.HandleFunc("/api/conteneurs/user/", handlers.GetDemandesConteneurUser)
 	mux.HandleFunc("/api/admin/categories", handlers.AdminGetCategories)
 	mux.HandleFunc("/api/admin/categories/", handlers.AdminDeleteCategorie)
 

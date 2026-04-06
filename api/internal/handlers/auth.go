@@ -18,33 +18,34 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Email    string `json:"email"`
 		Password string `json:"mot_de_passe"`
 	}
-
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
 
+	var id, idParticulier, idProfessionnel, tutorielVu int
+	var nom, prenom, email, statut, hash, role string
+
 	row := database.DB.QueryRow(
-		`SELECT u.Id_Utilisateurs, u.Nom, u.Prenom, u.Email, u.Statut, u.Mot_de_passe,
+		`SELECT u.Id_Utilisateurs, u.Nom, u.Prenom, u.Email, u.Statut, u.Mot_de_passe, u.Tutoriel_vu,
+			COALESCE(p.Id_Particuliers, 0), COALESCE(pro.Id_Professionnels, 0),
 			CASE
 				WHEN a.Id_Administrateurs IS NOT NULL THEN 'admin'
 				WHEN s.Id_Salaries IS NOT NULL THEN 'salarie'
-				WHEN p.Id_Professionnels IS NOT NULL THEN 'professionnel'
+				WHEN pro.Id_Professionnels IS NOT NULL THEN 'professionnel'
 				ELSE 'particulier'
 			END AS role
 		FROM Utilisateurs u
 		LEFT JOIN Administrateurs a ON a.Id_Utilisateurs = u.Id_Utilisateurs
 		LEFT JOIN Salaries s ON s.Id_Utilisateurs = u.Id_Utilisateurs
-		LEFT JOIN Professionnels_artisans p ON p.Id_Utilisateurs = u.Id_Utilisateurs
+		LEFT JOIN Professionnels_artisans pro ON pro.Id_Utilisateurs = u.Id_Utilisateurs
+		LEFT JOIN Particuliers p ON p.Id_Utilisateurs = u.Id_Utilisateurs
 		WHERE u.Email = ?`,
 		body.Email,
 	)
 
-	var id int
-	var nom, prenom, email, statut, hash, role string
-
-	if err := row.Scan(&id, &nom, &prenom, &email, &statut, &hash, &role); err != nil {
-		httpx.JSONError(w, http.StatusUnauthorized, "Email ou mot de passe incorrect")
+	if err := row.Scan(&id, &nom, &prenom, &email, &statut, &hash, &tutorielVu, &idParticulier, &idProfessionnel, &role); err != nil {
+		httpx.JSONError(w, http.StatusUnauthorized, "Identifiants incorrects")
 		return
 	}
 
@@ -66,24 +67,29 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"token":  signed,
-		"id":     id,
-		"nom":    nom,
-		"prenom": prenom,
-		"email":  email,
-		"role":   role,
-		"statut": statut,
+		"token":            signed,
+		"id":               id,
+		"id_particulier":   idParticulier,
+		"id_professionnel": idProfessionnel,
+		"nom":              nom,
+		"prenom":           prenom,
+		"email":            email,
+		"role":             role,
+		"statut":           statut,
+		"tutoriel_vu":      tutorielVu,
 	})
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Nom      string `json:"nom"`
-		Prenom   string `json:"prenom"`
-		Email    string `json:"email"`
-		Password string `json:"mot_de_passe"`
+		Nom           string `json:"nom"`
+		Prenom        string `json:"prenom"`
+		Email         string `json:"email"`
+		Password      string `json:"mot_de_passe"`
+		Role          string `json:"role"`
+		NomEntreprise string `json:"nom_entreprise"`
+		Type          string `json:"type"`
 	}
-
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
@@ -96,14 +102,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashed, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur serveur")
-		return
-	}
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 
 	result, err := database.DB.Exec(
-		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue) VALUES (?, ?, ?, ?, 'actif', NOW(), 1)",
+		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu) VALUES (?, ?, ?, ?, 'actif', NOW(), 1, 0)",
 		body.Nom, body.Prenom, body.Email, string(hashed),
 	)
 	if err != nil {
@@ -113,15 +115,28 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	id, _ := result.LastInsertId()
 
-	database.DB.Exec(
-		"INSERT INTO Particuliers (Id_Utilisateurs, Score) VALUES (?, 0)",
-		id,
-	)
+	if body.Role == "professionnel" {
+		database.DB.Exec(
+			"INSERT INTO Professionnels_artisans (Nom_Entreprise, Type, Id_Utilisateurs) VALUES (?, ?, ?)",
+			body.NomEntreprise, body.Type, id,
+		)
+	} else {
+		database.DB.Exec(
+			"INSERT INTO Particuliers (Score, Id_Utilisateurs) VALUES (0, ?)",
+			id,
+		)
+	}
 
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
-		"id":     id,
-		"nom":    body.Nom,
-		"prenom": body.Prenom,
-		"email":  body.Email,
+		"id": id, "nom": body.Nom, "prenom": body.Prenom, "email": body.Email, "role": body.Role,
 	})
+}
+
+func UpdateTutoriel(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Id int `json:"id"`
+	}
+	json.NewDecoder(r.Body).Decode(&body)
+	database.DB.Exec("UPDATE Utilisateurs SET Tutoriel_vu = 1 WHERE Id_Utilisateurs = ?", body.Id)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Tutoriel à jour"})
 }

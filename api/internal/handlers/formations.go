@@ -9,6 +9,44 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
+func GetFormations(w http.ResponseWriter, r *http.Request) {
+	query := `SELECT Id_Formations, Titre, Description, Prix, Duree, Statut, 
+			  COALESCE(Date_formation, ''), COALESCE(Places_total, 0), 
+			  COALESCE(Places_dispo, 0), COALESCE(Localisation, ''), 
+			  COALESCE(Categorie, '') 
+			  FROM Formations WHERE Statut = 'actif'`
+
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+
+	var formations []map[string]interface{}
+	for rows.Next() {
+		var id, duree, pTotal, pDispo int
+		var titre, desc, statut, date, loc, cat string
+		var prix float64
+		rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &pTotal, &pDispo, &loc, &cat)
+
+		formations = append(formations, map[string]interface{}{
+			"id":           id,
+			"titre":        titre,
+			"description":  desc,
+			"prix":         prix,
+			"duree":        duree,
+			"statut":       statut,
+			"date":         date,
+			"places_total": pTotal,
+			"places_dispo": pDispo,
+			"localisation": loc,
+			"categorie":    cat,
+		})
+	}
+	httpx.JSONOK(w, http.StatusOK, formations)
+}
+
 func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
 		`SELECT f.Id_Formations, f.Titre, f.Description, f.Prix, f.Duree, f.Statut,
@@ -23,22 +61,16 @@ func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	type Formation struct {
-		ID          int     `json:"id"`
-		Titre       string  `json:"titre"`
-		Description string  `json:"description"`
-		Prix        float64 `json:"prix"`
-		Duree       int     `json:"duree"`
-		Statut      string  `json:"statut"`
-		NomSalarie  string  `json:"nom_salarie"`
-		PrenomSal   string  `json:"prenom_salarie"`
-	}
-
-	formations := []Formation{}
+	var formations []map[string]interface{}
 	for rows.Next() {
-		var f Formation
-		rows.Scan(&f.ID, &f.Titre, &f.Description, &f.Prix, &f.Duree, &f.Statut, &f.NomSalarie, &f.PrenomSal)
-		formations = append(formations, f)
+		var id, duree int
+		var titre, desc, statut, nom, prenom string
+		var prix float64
+		rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &nom, &prenom)
+		formations = append(formations, map[string]interface{}{
+			"id": id, "titre": titre, "description": desc, "prix": prix,
+			"duree": duree, "statut": statut, "nom_salarie": nom, "prenom_salarie": prenom,
+		})
 	}
 	httpx.JSONOK(w, http.StatusOK, formations)
 }
@@ -57,10 +89,7 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 			Statut      string  `json:"statut"`
 			IdSalaries  int     `json:"id_salaries"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-			return
-		}
+		json.NewDecoder(r.Body).Decode(&body)
 		result, err := database.DB.Exec(
 			"INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Id_Salaries) VALUES (?,?,?,?,?,?)",
 			body.Titre, body.Description, body.Prix, body.Duree, body.Statut, body.IdSalaries,

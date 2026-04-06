@@ -9,7 +9,7 @@ import (
 )
 
 func GetConteneurs(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query("SELECT Id_Conteneurs, Localisation, Capacite, Statut FROM Conteneurs WHERE Statut = 'actif'")
+	rows, err := database.DB.Query("SELECT Id_Conteneurs, Localisation, Capacite, Statut FROM Conteneurs")
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return

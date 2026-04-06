@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 )
@@ -23,7 +24,7 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		Prix          float64 `json:"prix"`
 		Ville         string  `json:"ville"`
 		CodePostal    string  `json:"code_postal"`
-		IdParticulier int     `json:"user_id"`
+		IdUtilisateur int     `json:"user_id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -31,12 +32,17 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `INSERT INTO Annonces
-		(Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal, Statut, Date_publication, Id_Particuliers)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)`
+	var idParticulier int
+	err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur).Scan(&idParticulier)
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non trouvé comme particulier : "+err.Error())
+		return
+	}
 
-	result, err := database.DB.Exec(query,
-		body.Titre, body.Description, body.Categorie, body.Etat, body.TypeAnnonce, body.Prix, body.Ville, body.CodePostal, body.IdParticulier,
+	result, err := database.DB.Exec(
+		`INSERT INTO Annonces (Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal, Statut, Date_publication, Id_Particuliers)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)`,
+		body.Titre, body.Description, body.Categorie, body.Etat, body.TypeAnnonce, body.Prix, body.Ville, body.CodePostal, idParticulier,
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, "Erreur BDD : "+err.Error())
@@ -74,12 +80,21 @@ func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 			"statut": statut, "date": date,
 		})
 	}
+	if annonces == nil {
+		annonces = []map[string]interface{}{}
+	}
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }
 
 func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
-	idParticulier := parts[len(parts)-1]
+	idUtilisateur := parts[len(parts)-1]
+
+	var idParticulier int
+	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", idUtilisateur).Scan(&idParticulier); err != nil {
+		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		return
+	}
 
 	rows, err := database.DB.Query(
 		`SELECT Id_Annonces, Titre, Description, Categorie, Etat, Type_annonce, COALESCE(Prix, 0), Ville, Code_postal, Statut, Date_publication
@@ -105,12 +120,15 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 			"statut": statut, "date": date,
 		})
 	}
+	if annonces == nil {
+		annonces = []map[string]interface{}{}
+	}
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		`SELECT a.Id_Annonces, a.Titre, a.Statut, a.Date_publication, a.Categorie,
+		`SELECT a.Id_Annonces, COALESCE(a.Titre, a.Contenu, ''), a.Statut, a.Date_publication, COALESCE(a.Categorie, ''),
 			u.Nom, u.Prenom, u.Email
 		FROM Annonces a
 		JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
@@ -133,6 +151,9 @@ func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 			"date": date, "categorie": categorie,
 			"nom": nom, "prenom": prenom, "email": email,
 		})
+	}
+	if annonces == nil {
+		annonces = []map[string]interface{}{}
 	}
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }

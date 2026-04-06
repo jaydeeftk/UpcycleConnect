@@ -2,11 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"math/rand"
 	"net/http"
 	"strings"
-	"time"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
@@ -66,7 +63,6 @@ func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 		rows.Scan(&u.ID, &u.Nom, &u.Prenom, &u.Email, &u.Statut, &u.DateInscription, &u.Role)
 		users = append(users, u)
 	}
-
 	httpx.JSONOK(w, http.StatusOK, users)
 }
 
@@ -111,10 +107,7 @@ func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
 			Statut    string `json:"statut"`
 			Password  string `json:"mot_de_passe"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-			return
-		}
+		json.NewDecoder(r.Body).Decode(&body)
 
 		if body.Password != "" {
 			hashed, _ := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
@@ -143,103 +136,6 @@ func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AdminDeleteUtilisateur(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/utilisateurs/delete/")
-	database.DB.Exec("DELETE FROM Administrateurs WHERE Id_Utilisateurs=?", id)
-	database.DB.Exec("DELETE FROM Salaries WHERE Id_Utilisateurs=?", id)
-	database.DB.Exec("DELETE FROM Professionnels_artisans WHERE Id_Utilisateurs=?", id)
-	database.DB.Exec("DELETE FROM Particuliers WHERE Id_Utilisateurs=?", id)
-	database.DB.Exec("DELETE FROM Utilisateurs WHERE Id_Utilisateurs=?", id)
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Utilisateur supprimé"})
-}
-
-func AdminGetCategories(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query("SELECT Id_Catalogue, Description, Illustration FROM Catalogue")
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	defer rows.Close()
-
-	type Cat struct {
-		ID           int    `json:"id"`
-		Description  string `json:"description"`
-		Illustration string `json:"illustration"`
-	}
-
-	cats := []Cat{}
-	for rows.Next() {
-		var c Cat
-		rows.Scan(&c.ID, &c.Description, &c.Illustration)
-		cats = append(cats, c)
-	}
-	httpx.JSONOK(w, http.StatusOK, cats)
-}
-
-func AdminDeleteCategorie(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/categories/")
-	if r.Method != http.MethodDelete {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-		return
-	}
-	database.DB.Exec("DELETE FROM Catalogue WHERE Id_Catalogue=?", id)
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Catégorie supprimée"})
-}
-
-func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		`SELECT a.Id_Annonces, a.Contenu, a.Statut, a.Date_publication,
-			u.Nom, u.Prenom, u.Email
-		FROM Annonces a
-		JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-		ORDER BY a.Date_publication DESC`,
-	)
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	defer rows.Close()
-
-	type Annonce struct {
-		ID         int    `json:"id"`
-		Contenu    string `json:"contenu"`
-		Statut     string `json:"statut"`
-		Date       string `json:"date_publication"`
-		NomUser    string `json:"nom"`
-		PrenomUser string `json:"prenom"`
-		EmailUser  string `json:"email"`
-	}
-
-	annonces := []Annonce{}
-	for rows.Next() {
-		var a Annonce
-		rows.Scan(&a.ID, &a.Contenu, &a.Statut, &a.Date, &a.NomUser, &a.PrenomUser, &a.EmailUser)
-		annonces = append(annonces, a)
-	}
-	httpx.JSONOK(w, http.StatusOK, annonces)
-}
-
-func AdminAnnonceAction(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/annonces/")
-	id = strings.Split(id, "/")[0]
-
-	switch r.Method {
-	case http.MethodPut:
-		var body struct {
-			Statut string `json:"statut"`
-		}
-		json.NewDecoder(r.Body).Decode(&body)
-		database.DB.Exec("UPDATE Annonces SET Statut=? WHERE Id_Annonces=?", body.Statut, id)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Annonce mise à jour"})
-	case http.MethodDelete:
-		database.DB.Exec("DELETE FROM Annonces WHERE Id_Annonces=?", id)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Annonce supprimée"})
-	default:
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-	}
-}
-
 func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
 		`SELECT m.Id_Messages, m.Contenu, m.Date_envoi,
@@ -258,30 +154,37 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	type Msg struct {
-		ID             int    `json:"id"`
-		Contenu        string `json:"contenu"`
-		Date           string `json:"date_envoi"`
-		NomParticulier string `json:"nom_particulier"`
-		PrenomPart     string `json:"prenom_particulier"`
-		NomPro         string `json:"nom_pro"`
-		PrenomPro      string `json:"prenom_pro"`
-	}
-
-	msgs := []Msg{}
+	var msgs []map[string]interface{}
 	for rows.Next() {
-		var m Msg
-		rows.Scan(&m.ID, &m.Contenu, &m.Date, &m.NomParticulier, &m.PrenomPart, &m.NomPro, &m.PrenomPro)
-		msgs = append(msgs, m)
+		var id int
+		var cont, date, np, pp, npr, ppr string
+		rows.Scan(&id, &cont, &date, &np, &pp, &npr, &ppr)
+		msgs = append(msgs, map[string]interface{}{
+			"id": id, "contenu": cont, "date": date, "nom_particulier": np, "prenom_particulier": pp, "nom_pro": npr, "prenom_pro": ppr,
+		})
 	}
 	httpx.JSONOK(w, http.StatusOK, msgs)
 }
 
-func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+func AdminGetCategories(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query("SELECT Id_Catalogue, Description, Illustration FROM Catalogue")
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	defer rows.Close()
+
+	var cats []map[string]interface{}
+	for rows.Next() {
+		var id int
+		var desc, illu string
+		rows.Scan(&id, &desc, &illu)
+		cats = append(cats, map[string]interface{}{"id": id, "description": desc, "illustration": illu})
+	}
+	httpx.JSONOK(w, http.StatusOK, cats)
+}
+
+func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Description  string `json:"description"`
 		Illustration string `json:"illustration"`
@@ -290,84 +193,13 @@ func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
-	adminID := 1
-	result, err := database.DB.Exec(
-		"INSERT INTO Catalogue (Description, Illustration, Id_Administrateurs) VALUES (?,?,?)",
-		body.Description, body.Illustration, adminID,
-	)
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	id, _ := result.LastInsertId()
-	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id})
+
+	database.DB.Exec("INSERT INTO Catalogue (Description, Illustration, Id_Administrateurs) VALUES (?, ?, 1)", body.Description, body.Illustration)
+	httpx.JSONOK(w, http.StatusCreated, map[string]string{"message": "Catégorie créée"})
 }
 
-func generateCode() string {
-	rand.Seed(time.Now().UnixNano())
-	return fmt.Sprintf("%06d", rand.Intn(1000000))
-}
-
-func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query("SELECT id, type_objet, etat_objet, statut, IFNULL(code_ouverture, '') FROM demandes_depot ORDER BY date_demande DESC")
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	defer rows.Close()
-
-	type Demande struct {
-		ID            int    `json:"id"`
-		TypeObjet     string `json:"type_objet"`
-		EtatObjet     string `json:"etat_objet"`
-		Statut        string `json:"statut"`
-		CodeOuverture string `json:"code_ouverture"`
-	}
-
-	demandes := []Demande{}
-	for rows.Next() {
-		var d Demande
-		rows.Scan(&d.ID, &d.TypeObjet, &d.EtatObjet, &d.Statut, &d.CodeOuverture)
-		demandes = append(demandes, d)
-	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"data": demandes})
-}
-
-func AdminValiderDemande(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-		return
-	}
-
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/valider/")
-	code := generateCode()
-
-	_, err := database.DB.Exec("UPDATE demandes_depot SET statut = 'validee', code_ouverture = ? WHERE id = ?", code, id)
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"message":        "Demande validée",
-		"code_ouverture": code,
-	})
-}
-
-func AdminRefuserDemande(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-		return
-	}
-
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/refuser/")
-
-	_, err := database.DB.Exec("UPDATE demandes_depot SET statut = 'refusee' WHERE id = ?", id)
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Demande refusée"})
+func AdminDeleteCategorie(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/api/admin/categories/")
+	database.DB.Exec("DELETE FROM Catalogue WHERE Id_Catalogue = ?", id)
+	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Catégorie supprimée"})
 }

@@ -52,7 +52,6 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/admin/messages", middleware.AdminOnly(handlers.AdminGetMessages))
 
-	mux.HandleFunc("/api/admin/categories", middleware.AdminOnly(handlers.AdminGetCategories))
 	mux.HandleFunc("/api/admin/categories/", middleware.AdminOnly(handlers.AdminDeleteCategorie))
 
 	mux.HandleFunc("/api/admin/categories", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {

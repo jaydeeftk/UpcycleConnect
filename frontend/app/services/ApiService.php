@@ -46,6 +46,12 @@ class ApiService
         return $this->request('PUT', $url, $data);
     }
 
+    public function patch($endpoint, $data = [])
+    {
+        $url = $this->baseUrl . $endpoint;
+        return $this->request('PATCH', $url, $data);
+    }
+
     public function delete($endpoint)
     {
         $url = $this->baseUrl . $endpoint;

@@ -215,18 +215,29 @@ function updateMaintUI() {
 
 btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
-    fetch('http://145.241.169.248:8080/api/admin/parametres', {
+    
+    console.log("Envoi du nouvel état :", newState);
+
+    fetch('/api/admin/parametres', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ "maintenance_mode": newState.toString() })
     })
-    .then(res => res.json())
+    .then(response => {
+        if (!response.ok) throw new Error('Erreur HTTP ' + response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log("Réponse API reçue :", data);
         isMaintenance = newState;
         updateMaintUI();
-        alert(isMaintenance ? "Site verrouillé !" : "Site accessible !");
+        alert(isMaintenance ? "Maintenance ACTIVÉE" : "Maintenance DÉSACTIVÉE");
+        location.reload(); 
     })
-    .catch(err => alert("Erreur API : " + err));
+    .catch(err => {
+        console.error("Erreur complète :", err);
+        alert("Erreur technique : " + err.message);
+    });
 });
 
 showSection('general');

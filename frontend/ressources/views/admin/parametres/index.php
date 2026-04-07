@@ -217,12 +217,11 @@ btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
     const url = '/api/admin/parametres/'; 
 
-    fetch(url, {
+    fetch('http://145.241.169.248:8080/api/admin/parametres/', { 
         method: 'PUT',
         headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
+        'Content-Type': 'application/json'
+    },
         body: JSON.stringify({ "maintenance_mode": newState.toString() })
     })
     .then(res => {

@@ -44,8 +44,9 @@ $router->get('/mes-prestations', 'Front\UserController@mesPrestations');
 $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
 
+
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
-    $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');
+$router->post('/admin-portal-access', 'Front\AuthController@adminLogin');
 
 $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/', 'Admin\DashboardController@index');
@@ -81,14 +82,13 @@ $router->group(['prefix' => 'admin'], function($router) {
 
     $router->get('/contrats', 'Admin\ContratController@index');
     $router->get('/contrats/{id}/delete', 'Admin\ContratController@delete');
-
     $router->get('/factures', 'Admin\FactureController@index');
 
     $router->get('/notifications', 'Admin\NotificationController@index');
     $router->post('/notifications/store', 'Admin\NotificationController@store');
     $router->get('/notifications/{id}/delete', 'Admin\NotificationController@delete');
-
     $router->get('/messages', 'Admin\MessageController@index');
+
     $router->get('/parametres', 'Admin\ParametreController@index');
     $router->post('/parametres/update', 'Admin\ParametreController@update');
     $router->post('/parametres/update-maintenance', 'Admin\ParametreController@updateMaintenance');
@@ -96,5 +96,4 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/demandes', 'Admin\DemandeController@index');
     $router->post('/demandes/valider/([0-9]+)', 'Admin\DemandeController@valider');
     $router->post('/demandes/refuser/([0-9]+)', 'Admin\DemandeController@refuser');
-
 });

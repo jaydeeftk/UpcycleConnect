@@ -92,4 +92,12 @@ class AuthController
         session_destroy();
         redirect('/UpcycleConnect-PA2526/frontend/public/');
     }
+
+    public function showAdminGate() {
+    return view('auth.admin_login', ['layout' => 'blank', 'title' => 'Portail Admin']);
+}
+
+public function adminLogin() {
+    redirect('/UpcycleConnect-PA2526/frontend/public/admin/dashboard');
+}
 }

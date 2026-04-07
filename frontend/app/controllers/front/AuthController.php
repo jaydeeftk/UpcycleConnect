@@ -34,6 +34,7 @@ class AuthController
 
             if (isset($result['data'])) {
                 $_SESSION['user'] = $result['data'];
+                $_SESSION['token'] = $result['data']['token'] ?? null;
                 redirect('/UpcycleConnect-PA2526/frontend/public/');
             }
 
@@ -94,10 +95,34 @@ class AuthController
     }
 
     public function showAdminGate() {
-    return view('auth.admin_login', ['layout' => 'blank', 'title' => 'Portail Admin']);
-}
+        return view('auth.admin_login', [
+            'layout' => 'blank', 
+            'title' => 'Accès Restreint - Admin',
+            'error' => $_GET['error'] ?? null
+        ]);
+    }
 
-public function adminLogin() {
-    redirect('/UpcycleConnect-PA2526/frontend/public/admin/dashboard');
-}
+    public function adminLogin() {
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        try {
+            $result = $this->api->post('/auth/login', [
+                'email' => $email,
+                'mot_de_passe' => $password
+            ]);
+
+            if (isset($result['data']) && ($result['data']['role'] === 'admin' || $result['data']['role'] === 'superadmin')) {
+                $_SESSION['user'] = $result['data'];
+                $_SESSION['token'] = $result['data']['token'] ?? null;
+                
+                redirect('/UpcycleConnect-PA2526/frontend/public/admin/dashboard');
+            } else {
+                redirect('/UpcycleConnect-PA2526/frontend/public/admin-portal-access?error=Privilèges insuffisants');
+            }
+
+        } catch (\Exception $e) {
+            redirect('/UpcycleConnect-PA2526/frontend/public/admin-portal-access?error=Identifiants invalides');
+        }
+    }
 }

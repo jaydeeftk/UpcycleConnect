@@ -21,6 +21,15 @@ class MaintenanceMiddleware {
     try {
         $response = $this->api->get('/admin/parametres/');
 
+        echo "<pre>RÉPONSE API :<br>";
+    var_dump($response);
+    echo "</pre>";
+    die();
+
+} catch (\Exception $e) {
+    echo "ERREUR API : " . $e->getMessage();
+    die();
+}
         $maintenance = $response['maintenance_mode'] ?? ($response['data']['maintenance_mode'] ?? 'false');
         
         $isMaintenanceActive = ($maintenance === 'true' || $maintenance === true || $maintenance === 1 || $maintenance === "1");

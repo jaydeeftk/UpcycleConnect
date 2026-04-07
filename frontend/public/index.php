@@ -164,7 +164,6 @@ $maintenanceMiddleware = new \App\Middleware\MaintenanceMiddleware();
 
 $uri = $_SERVER['REQUEST_URI'];
 
-$maintenanceMiddleware->handle($uri, function() {
+$maintenanceMiddleware->handle($uri, function() use ($router) {
+    $router->dispatch();
 });
-
-$router->dispatch();

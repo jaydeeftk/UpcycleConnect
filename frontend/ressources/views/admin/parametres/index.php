@@ -217,13 +217,11 @@ btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
     const url = '/api/admin/parametres/'; 
 
-    fetch('/api/admin/parametres/', { 
+    fetch('/UpcycleConnect-PA2526/api/admin/parametres/', { 
         method: 'PUT',
-        headers: { 
-        'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ "maintenance_mode": newState.toString() })
-    })
+    })  
     .then(res => {
         console.log("Status Code:", res.status);
         if (res.status === 404) throw new Error("La route n'existe pas sur le serveur (404)");

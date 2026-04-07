@@ -96,7 +96,7 @@ func ForumSujetDispatch(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.TrimSuffix(path, "/"), "/")
 	id := parts[0]
 
-	if len(parts) >= 2 && parts[1] == "reponses" {
+	if len(parts) >= 2 && (parts[1] == "reponses" || parts[1] == "repondre") {
 		creerReponse(w, r, id)
 		return
 	}

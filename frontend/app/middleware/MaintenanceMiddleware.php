@@ -12,6 +12,8 @@ class MaintenanceMiddleware {
     }
 
     public function handle($request, $next) {
+        echo "LE MIDDLEWARE EST BIEN APPELÉ"; 
+    die();
     $uri = method_exists($request, 'getUri') ? $request->getUri() : ($_SERVER['REQUEST_URI'] ?? '');
 
     if (str_contains($uri, '/api/') || str_contains($uri, '/admin')) {
@@ -25,7 +27,7 @@ class MaintenanceMiddleware {
     var_dump($response);
     echo "</pre>";
     die();
-    
+
         $maintenance = $response['maintenance_mode'] ?? ($response['data']['maintenance_mode'] ?? 'false');
         $isMaintenanceActive = ($maintenance === 'true' || $maintenance === true || $maintenance === 1 || $maintenance === "1");
 

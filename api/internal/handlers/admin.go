@@ -242,7 +242,7 @@ func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
 
 func AdminDemandeAction(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/")
-	parts := strings.Split(path, "/")
+	parts := strings.Split(strings.TrimSuffix(path, "/"), "/")
 
 	if len(parts) < 2 {
 		httpx.JSONError(w, http.StatusBadRequest, "Paramètres manquants")

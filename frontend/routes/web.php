@@ -63,3 +63,25 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
 
 });
+
+$router->group(['prefix' => 'salaries'], function($router) {
+
+    $router->get('/dashboard', 'salaries\DashboardController@index');
+
+    // Conseils
+    $router->get('/conseils', 'salaries\ConseilController@index');
+    $router->post('/conseils/store', 'salaries\ConseilController@store');
+    $router->get('/conseils/{id}/edit', 'salaries\ConseilController@edit');
+    $router->post('/conseils/{id}/update', 'salaries\ConseilController@update');
+    $router->get('/conseils/{id}/delete', 'salaries\ConseilController@delete');
+
+    // Planning
+    $router->get('/planning', 'salaries\PlanningController@index');
+    $router->post('/planning/evenement/create', 'salaries\PlanningController@storeEvenement');
+    $router->post('/planning/formation/create', 'salaries\PlanningController@storeFormation');
+    $router->post('/planning/atelier/create', 'salaries\PlanningController@storeAtelier');
+    $router->get('/planning/evenement/delete/{id}', 'salaries\PlanningController@deleteEvenement');
+    $router->get('/planning/formation/delete/{id}', 'salaries\PlanningController@deleteFormation');
+    $router->get('/planning/atelier/delete/{id}', 'salaries\PlanningController@deleteAtelier');
+
+});

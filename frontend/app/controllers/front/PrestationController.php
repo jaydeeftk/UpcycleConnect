@@ -54,6 +54,6 @@ class PrestationController
 
     public function store()
     {
-        redirect('/UpcycleConnect-PA2526/frontend/public/mes-demandes');
+        redirect('/mes-demandes');
     }
 }

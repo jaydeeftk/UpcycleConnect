@@ -11,7 +11,7 @@ class ConteneurController
     public function create()
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
         $conteneurs = [];
         try {
@@ -27,7 +27,7 @@ class ConteneurController
     public function store()
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
         $data = [
             'type_objet'   => $_POST['type_objet'] ?? '',

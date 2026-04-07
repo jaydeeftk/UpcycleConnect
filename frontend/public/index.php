@@ -6,7 +6,6 @@ session_start();
 date_default_timezone_set('Europe/Paris');
 
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 spl_autoload_register(function ($class) {
@@ -26,18 +25,16 @@ $config = require_once __DIR__ . '/../config/app.php';
 function view($view, $data = [])
 {
     extract($data);
-
     $isAdmin = str_starts_with($view, 'admin');
     $layout = $data['layout'] ?? ($isAdmin ? 'admin' : 'main');
 
     ob_start();
-
     $viewFile = __DIR__ . '/../ressources/views/' . str_replace('.', '/', $view) . '.php';
 
     if (file_exists($viewFile)) {
         require $viewFile;
     } else {
-        echo "<div class='p-8 bg-red-100 text-red-700'>Vue non trouvée : {$view}<br>Fichier: {$viewFile}</div>";
+        echo "<div class='p-8 bg-red-100 text-red-700'>Vue non trouvée : {$view}</div>";
     }
 
     $content = ob_get_clean();
@@ -46,6 +43,7 @@ function view($view, $data = [])
 
 function redirect($url)
 {
+    $url = '/' . ltrim($url, '/');
     header("Location: {$url}");
     exit;
 }
@@ -53,27 +51,12 @@ function redirect($url)
 function getCleanPath()
 {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-    $prefixes = [
-        '/UpcycleConnect-PA2526/frontend/public/index.php',
-        '/UpcycleConnect-PA2526/frontend/public',
-        '/UpcycleConnect-PA2526/frontend',
-        '/UpcycleConnect-PA2526',
-        '/UpcycleConnect'
-    ];
-
-    foreach ($prefixes as $prefix) {
-        if (str_starts_with($path, $prefix)) {
-            $path = substr($path, strlen($prefix));
-            break;
-        }
+    
+    if ($path !== '/' && str_ends_with($path, '/')) {
+        $path = rtrim($path, '/');
     }
 
-    if ($path === '' || $path === false || $path === null) {
-        return '/';
-    }
-
-    return $path;
+    return $path ?: '/';
 }
 
 class Router
@@ -81,79 +64,46 @@ class Router
     private $routes = [];
     private $currentPrefix = '';
 
-    public function get($path, $handler)
-    {
-        $this->routes['GET'][$this->currentPrefix . $path] = $handler;
+    public function get($path, $handler) { $this->addRoute('GET', $path, $handler); }
+    public function post($path, $handler) { $this->addRoute('POST', $path, $handler); }
+
+    private function addRoute($method, $path, $handler) {
+        $fullPath = $this->currentPrefix . '/' . ltrim($path, '/');
+        $fullPath = ($fullPath === '//') ? '/' : rtrim($fullPath, '/');
+        if ($fullPath === '') $fullPath = '/';
+        $this->routes[$method][$fullPath] = $handler;
     }
 
-    public function post($path, $handler)
-    {
-        $this->routes['POST'][$this->currentPrefix . $path] = $handler;
-    }
-
-    public function put($path, $handler)
-    {
-        $this->routes['PUT'][$this->currentPrefix . $path] = $handler;
-    }
-
-    public function delete($path, $handler)
-    {
-        $this->routes['DELETE'][$this->currentPrefix . $path] = $handler;
-    }
-
-    public function group($options, $callback)
-    {
+    public function group($options, $callback) {
         $previousPrefix = $this->currentPrefix;
-        $prefix = $options['prefix'] ?? '';
-
-        $this->currentPrefix .= '/' . trim($prefix, '/');
-        $this->currentPrefix = rtrim($this->currentPrefix, '/');
-
+        $this->currentPrefix .= '/' . trim($options['prefix'] ?? '', '/');
         $callback($this);
-
         $this->currentPrefix = $previousPrefix;
     }
 
     public function dispatch()
-{
-    $method = $_SERVER['REQUEST_METHOD'];
-    $path = getCleanPath();
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $path = getCleanPath();
 
-    $bestMatch = null;
-    $bestParams = [];
-    $bestScore = -1;
+        foreach ($this->routes[$method] ?? [] as $route => $handler) {
+            $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $route);
+            $pattern = '#^' . ($pattern === '/' ? '/' : rtrim($pattern, '/')) . '$#';
 
-    foreach ($this->routes[$method] ?? [] as $route => $handler) {
+            if (preg_match($pattern, $path, $matches)) {
+                array_shift($matches);
+                [$controller, $action] = explode('@', $handler);
+                $controllerClass = "App\\Controllers\\{$controller}";
 
-        $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $route);
-        $pattern = '#^' . $pattern . '$#';
-
-        if (preg_match($pattern, $path, $matches)) {
-            array_shift($matches);
-            $score = strlen($route) - substr_count($route, '{');
-
-            if ($score > $bestScore) {
-                $bestScore = $score;
-                $bestMatch = $handler;
-                $bestParams = $matches;
+                if (class_exists($controllerClass)) {
+                    $instance = new $controllerClass();
+                    return $instance->$action(...$matches);
+                }
             }
         }
-    }
 
-    if ($bestMatch) {
-        [$controller, $action] = explode('@', $bestMatch);
-        $controllerClass = "App\\Controllers\\{$controller}";
-
-        if (class_exists($controllerClass)) {
-            $instance = new $controllerClass();
-            if (method_exists($instance, $action)) {
-                return $instance->$action(...$bestParams);
-            }
-        }
-    }
-
-    http_response_code(404);
-    view('errors.404');
+        http_response_code(404);
+        view('errors.404');
     }
 }
 
@@ -162,8 +112,8 @@ require __DIR__ . '/../routes/web.php';
 
 $maintenanceMiddleware = new \App\Middleware\MaintenanceMiddleware();
 
-$uri = $_SERVER['REQUEST_URI'];
+$path = getCleanPath();
 
-$maintenanceMiddleware->handle($uri, function() use ($router) {
+$maintenanceMiddleware->handle($path, function() use ($router) {
     $router->dispatch();
 });

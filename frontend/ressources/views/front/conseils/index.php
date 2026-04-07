@@ -44,7 +44,7 @@
 
                 <?php if (isset($_SESSION['user'])): ?>
                     <div class="border-t border-base-300 mt-5 pt-5">
-                        <a href="/UpcycleConnect-PA2526/frontend/public/conseils/forum/create"
+                        <a href="/conseils/forum/create"
                            class="btn btn-neutral btn-sm w-full">
                             <i class="fas fa-plus mr-2"></i>
                             Nouveau sujet
@@ -134,7 +134,7 @@
                 <div class="flex items-center justify-between">
                     <p class="text-base-content/60 text-sm">Échangez avec la communauté UpcycleConnect</p>
                     <?php if (isset($_SESSION['user'])): ?>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/conseils/forum/create"
+                        <a href="/conseils/forum/create"
                            class="btn btn-neutral btn-sm">
                             <i class="fas fa-plus mr-2"></i>
                             Nouveau sujet
@@ -152,7 +152,7 @@
                         <?php foreach ($sujets as $sujet):
                             $catInfo = array_values(array_filter($categories, fn($c) => $c['slug'] === $sujet['categorie']))[0] ?? $categories[0];
                         ?>
-                            <a href="/UpcycleConnect-PA2526/frontend/public/conseils/forum/<?= $sujet['id'] ?>"
+                            <a href="/conseils/forum/<?= $sujet['id'] ?>"
                                class="block bg-base-100 rounded-2xl shadow-sm p-5 hover:shadow-md transition">
                                 <div class="flex items-center gap-4">
                                     <div class="flex-1">

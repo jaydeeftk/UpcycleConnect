@@ -42,7 +42,7 @@
                         <?php endif; ?>
                     </td>
                     <td class="px-6 py-4">
-                        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/notifications/<?= $n['id'] ?>/supprimer">
+                        <form method="POST" action="/admin/notifications/<?= $n['id'] ?>/supprimer">
                             <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
                         </form>
                     </td>

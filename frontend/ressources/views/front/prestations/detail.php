@@ -40,11 +40,11 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4">
-                <a href="/UpcycleConnect-PA2526/frontend/public/demande-prestation"
+                <a href="/demande-prestation"
                     class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition text-center">
                     Faire une demande
                 </a>
-                <a href="/UpcycleConnect-PA2526/frontend/public/prestations"
+                <a href="/prestations"
                     class="bg-base-200 border border-base-300 px-8 py-3 rounded-xl font-medium hover:bg-base-300 transition text-center">
                     Retour aux prestations
                 </a>

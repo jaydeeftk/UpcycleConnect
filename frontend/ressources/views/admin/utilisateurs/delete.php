@@ -15,11 +15,11 @@
         <p class="text-sm text-red-500 mb-8">Cette action est irréversible.</p>
 
         <div class="flex gap-4 justify-center">
-            <a href="/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs/<?= $utilisateur['id'] ?>/delete/confirm"
+            <a href="/admin/utilisateurs/<?= $utilisateur['id'] ?>/delete/confirm"
                 class="bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 transition">
                 Oui, supprimer
             </a>
-            <a href="/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs"
+            <a href="/admin/utilisateurs"
                 class="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition">
                 Annuler
             </a>

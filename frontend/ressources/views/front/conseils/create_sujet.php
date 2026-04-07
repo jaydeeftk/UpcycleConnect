@@ -19,7 +19,7 @@
     <?php endif; ?>
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8">
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/conseils/forum/store">
+        <form method="POST" action="/conseils/forum/store">
 
             <div class="space-y-6">
 
@@ -65,7 +65,7 @@
                 <button type="submit" class="btn btn-neutral flex-1">
                     <i class="fas fa-paper-plane mr-2"></i> Publier le sujet
                 </button>
-                <a href="/UpcycleConnect-PA2526/frontend/public/conseils?onglet=forum" class="btn btn-ghost flex-1">
+                <a href="/conseils?onglet=forum" class="btn btn-ghost flex-1">
                     Annuler
                 </a>
             </div>

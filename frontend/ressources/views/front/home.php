@@ -16,11 +16,11 @@
             </p>
             
             <div class="mt-8 flex flex-col sm:flex-row gap-4">
-                <a href="/UpcycleConnect-PA2526/frontend/public/prestations" class="bg-black text-white px-7 py-4 rounded-xl font-semibold hover:bg-neutral-800 transition text-center">
+                <a href="/prestations" class="bg-black text-white px-7 py-4 rounded-xl font-semibold hover:bg-neutral-800 transition text-center">
                     Découvrir les prestations
                 </a>
                 
-                <a href="/UpcycleConnect-PA2526/frontend/public/devenir-prestataire" class="bg-white text-black px-7 py-4 rounded-xl font-semibold hover:bg-neutral-200 transition text-center">
+                <a href="/devenir-prestataire" class="bg-white text-black px-7 py-4 rounded-xl font-semibold hover:bg-neutral-200 transition text-center">
                     Devenir prestataire
                 </a>
             </div>
@@ -132,11 +132,11 @@
                 </div>
                 
                 <div class="mt-8 flex flex-wrap gap-4">
-                    <a href="/UpcycleConnect-PA2526/frontend/public/prestations" class="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
+                    <a href="/prestations" class="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                         Voir les prestations
                     </a>
                     
-                    <a href="/UpcycleConnect-PA2526/frontend/public/evenements" class="bg-base-200 border border-base-300 px-6 py-3 rounded-xl font-medium hover:bg-base-300 transition">
+                    <a href="/evenements" class="bg-base-200 border border-base-300 px-6 py-3 rounded-xl font-medium hover:bg-base-300 transition">
                         Voir les événements
                     </a>
                 </div>

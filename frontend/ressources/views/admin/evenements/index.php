@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-bold">Événements</h2>
         <p class="text-gray-600">Gérez les événements et ateliers</p>
     </div>
-    <a href="/UpcycleConnect-PA2526/frontend/public/admin/evenements/create"
+    <a href="/admin/evenements/create"
         class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600">
         <i class="fas fa-plus mr-2"></i>Créer un événement
     </a>
@@ -52,7 +52,7 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
-                            <a href="/UpcycleConnect-PA2526/frontend/public/admin/evenements/<?= $e['id'] ?>/delete"
+                            <a href="/admin/evenements/<?= $e['id'] ?>/delete"
                                 onclick="return confirm('Supprimer cet événement ?')"
                                 class="text-red-600 hover:text-red-800">
                                 <i class="fas fa-trash"></i>

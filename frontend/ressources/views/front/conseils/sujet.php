@@ -1,7 +1,7 @@
 <section class="max-w-4xl mx-auto px-6 lg:px-10 py-16">
 
     <div class="mb-8">
-        <a href="/UpcycleConnect-PA2526/frontend/public/conseils?onglet=forum" class="flex items-center gap-2 text-sm text-base-content/50 hover:text-base-content transition mb-6">
+        <a href="/conseils?onglet=forum" class="flex items-center gap-2 text-sm text-base-content/50 hover:text-base-content transition mb-6">
             <i class="fas fa-arrow-left"></i> Retour au forum
         </a>
 
@@ -57,7 +57,7 @@
                         </div>
 
                         <?php if (isset($_SESSION['user']) && ($_SESSION['user']['id'] ?? 0) == ($sujet['auteur_id'] ?? -1) && !($sujet['resolu'] ?? false)): ?>
-                            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/conseils/forum/<?= $sujet['id'] ?>/solution/<?= $reponse['id'] ?>">
+                            <form method="POST" action="/conseils/forum/<?= $sujet['id'] ?>/solution/<?= $reponse['id'] ?>">
                                 <button type="submit" class="btn btn-success btn-xs gap-1">
                                     <i class="fas fa-check"></i> Marquer comme solution
                                 </button>
@@ -85,7 +85,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/conseils/forum/<?= $sujet['id'] ?>/repondre">
+            <form method="POST" action="/conseils/forum/<?= $sujet['id'] ?>/repondre">
                 <div class="mb-4">
                     <textarea
                         name="contenu"
@@ -105,7 +105,7 @@
     <?php else: ?>
         <div class="bg-base-100 rounded-2xl shadow-sm p-8 text-center">
             <p class="text-base-content/60 mb-4">Connectez-vous pour répondre à ce sujet.</p>
-            <a href="/UpcycleConnect-PA2526/frontend/public/login" class="btn btn-neutral">
+            <a href="/login" class="btn btn-neutral">
                 <i class="fas fa-sign-in-alt mr-2"></i> Se connecter
             </a>
         </div>

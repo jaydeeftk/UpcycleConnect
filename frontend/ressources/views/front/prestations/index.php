@@ -28,7 +28,7 @@
                         <h3 class="text-xl font-semibold mb-3"><?= htmlspecialchars($prestation['titre'] ?? '') ?></h3>
                         <p class="text-base-content/70 mb-2"><?= htmlspecialchars($prestation['description'] ?? '') ?></p>
                         <p class="font-semibold mb-4">À partir de <?= htmlspecialchars($prestation['prix'] ?? '') ?>€</p>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/prestations/<?= $prestation['id'] ?>"
+                        <a href="/prestations/<?= $prestation['id'] ?>"
                             class="text-sm font-medium hover:underline">
                             Voir la prestation →
                         </a>
@@ -51,7 +51,7 @@
             Rejoignez la plateforme UpcycleConnect et proposez vos prestations pour aider
             les particuliers à donner une seconde vie à leurs objets.
         </p>
-        <a href="/UpcycleConnect-PA2526/frontend/public/devenir-prestataire"
+        <a href="/devenir-prestataire"
             class="inline-block bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
             Devenir prestataire
         </a>

@@ -87,11 +87,11 @@
             proposer ses services, UpcycleConnect vous accompagne vers une consommation plus responsable.
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="/UpcycleConnect-PA2526/frontend/public/prestations"
+            <a href="/prestations"
                 class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                 Voir les prestations
             </a>
-            <a href="/UpcycleConnect-PA2526/frontend/public/devenir-prestataire"
+            <a href="/devenir-prestataire"
                 class="bg-base-200 border border-base-300 px-8 py-3 rounded-xl font-medium hover:bg-base-300 transition">
                 Devenir prestataire
             </a>

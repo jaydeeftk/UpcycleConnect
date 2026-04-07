@@ -51,7 +51,7 @@
                 </select>
             </div>
             <div class="md:col-span-5 flex justify-end gap-3">
-                <a href="/UpcycleConnect-PA2526/frontend/public/catalogue/formations" class="btn btn-ghost btn-sm">Réinitialiser</a>
+                <a href="/catalogue/formations" class="btn btn-ghost btn-sm">Réinitialiser</a>
                 <button type="submit" class="btn btn-neutral btn-sm">
                     <i class="fas fa-filter mr-2"></i>Filtrer
                 </button>

@@ -49,7 +49,7 @@
                 </select>
             </div>
             <div class="md:col-span-5 flex justify-end gap-3">
-                <a href="/UpcycleConnect-PA2526/frontend/public/catalogue/evenements" class="btn btn-ghost btn-sm">Réinitialiser</a>
+                <a href="/catalogue/evenements" class="btn btn-ghost btn-sm">Réinitialiser</a>
                 <button type="submit" class="btn btn-neutral btn-sm">
                     <i class="fas fa-filter mr-2"></i>Filtrer
                 </button>
@@ -118,7 +118,7 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-xl font-bold"><?= ($prix === 0 || $prix === null) ? 'Gratuit' : $prix . '€' ?></span>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/evenements/<?= $ev['id'] ?>" class="btn btn-neutral btn-sm">Participer</a>
+                        <a href="/evenements/<?= $ev['id'] ?>" class="btn btn-neutral btn-sm">Participer</a>
                     </div>
                 </div>
             </div>

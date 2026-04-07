@@ -45,7 +45,7 @@
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8 space-y-8">
 
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/conteneurs/store">
+        <form method="POST" action="/conteneurs/store">
 
             <div class="mb-8">
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
@@ -203,7 +203,7 @@
                     <i class="fas fa-paper-plane mr-2"></i>
                     Soumettre la demande
                 </button>
-                <a href="/UpcycleConnect-PA2526/frontend/public/" class="btn btn-ghost flex-1">
+                <a href="/" class="btn btn-ghost flex-1">
                     Annuler
                 </a>
             </div>

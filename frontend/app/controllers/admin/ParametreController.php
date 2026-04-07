@@ -49,7 +49,7 @@ class ParametreController
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres');
+        redirect('/admin/parametres');
     }
     
     public function updateMaintenance()

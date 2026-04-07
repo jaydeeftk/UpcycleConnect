@@ -10,7 +10,7 @@ class AdminMiddleware
         }
 
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
             exit();
         }
 

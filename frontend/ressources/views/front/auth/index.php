@@ -52,7 +52,7 @@
                         <h2 class="text-3xl font-bold text-center mb-2">Connexion</h2>
                         <p class="text-center text-base-content/70 mb-8">Accédez à votre espace personnel.</p>
 
-                        <form class="space-y-5" method="POST" action="/UpcycleConnect-PA2526/frontend/public/login">
+                        <form class="space-y-5" method="POST" action="/login">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Adresse email</label>
                                 <input type="email" name="email" placeholder="votre@email.com"
@@ -82,7 +82,7 @@
                         <h2 class="text-3xl font-bold text-center mb-2">Inscription</h2>
                         <p class="text-center text-base-content/70 mb-8">Créez votre compte UpcycleConnect.</p>
 
-                        <form class="space-y-5" method="POST" action="/UpcycleConnect-PA2526/frontend/public/register">
+                        <form class="space-y-5" method="POST" action="/register">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Nom complet</label>
                                 <input type="text" name="nom" placeholder="Votre nom complet"

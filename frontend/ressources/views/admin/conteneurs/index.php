@@ -19,7 +19,7 @@
 <div id="modal-conteneur" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <h3 class="text-lg font-bold mb-4">Ajouter un conteneur</h3>
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/conteneurs/store">
+        <form method="POST" action="/admin/conteneurs/store">
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium mb-1">Localisation</label>
@@ -71,7 +71,7 @@
                         <span class="px-3 py-1 rounded-full text-sm <?= $sc ?>"><?= htmlspecialchars($c['statut']) ?></span>
                     </td>
                     <td class="px-6 py-4">
-                        <a href="/UpcycleConnect-PA2526/frontend/public/admin/conteneurs/<?= $c['id'] ?>/delete"
+                        <a href="/admin/conteneurs/<?= $c['id'] ?>/delete"
                             onclick="return confirm('Supprimer ce conteneur ?')"
                             class="text-red-600 hover:text-red-800">
                             <i class="fas fa-trash"></i>

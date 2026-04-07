@@ -12,7 +12,7 @@
     <?php if (!isset($_SESSION['user'])): ?>
         <div class="bg-base-100 rounded-2xl border border-base-300 p-8 text-center">
             <p class="text-base-content/70 mb-4">Vous devez être connecté pour voir vos demandes.</p>
-            <a href="/UpcycleConnect-PA2526/frontend/public/login"
+            <a href="/login"
                 class="inline-block bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                 Se connecter
             </a>
@@ -71,7 +71,7 @@
                 <?php if (empty($annoncesFiltered)): ?>
                     <div class="bg-base-100 rounded-2xl border border-base-300 p-6 text-center">
                         <p class="text-base-content/60 mb-3">Vous n'avez pas encore d'annonces.</p>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/annonces/create" class="btn btn-neutral btn-sm">
+                        <a href="/annonces/create" class="btn btn-neutral btn-sm">
                             Déposer une annonce
                         </a>
                     </div>
@@ -132,7 +132,7 @@
                 <?php if (empty($conteneursFiltred)): ?>
                     <div class="bg-base-100 rounded-2xl border border-base-300 p-6 text-center">
                         <p class="text-base-content/60 mb-3">Vous n'avez pas encore de dépôts en conteneur.</p>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/conteneurs/create" class="btn btn-neutral btn-sm">
+                        <a href="/conteneurs/create" class="btn btn-neutral btn-sm">
                             Déposer un objet
                         </a>
                     </div>

@@ -11,7 +11,7 @@
     </p>
     
     <div class="mt-16">
-        <a href="/UpcycleConnect-PA2526/frontend/public/admin-portal-access" 
+        <a href="/admin-portal-access" 
            class="text-[10px] text-gray-300 hover:text-gray-500 transition-colors uppercase tracking-[0.2em] font-medium">
             Accès restreint
         </a>

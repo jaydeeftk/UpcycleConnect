@@ -63,7 +63,7 @@ func NewRouter() http.Handler {
 		}
 	}))
 
-	mux.HandleFunc("/api/admin/parametres", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/admin/parametres/", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			handlers.AdminGetParametres(w, r)

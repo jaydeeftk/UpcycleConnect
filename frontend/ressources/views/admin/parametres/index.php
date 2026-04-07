@@ -215,7 +215,7 @@ function updateMaintUI() {
 
 btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
-    fetch('/api/admin/parametres', {
+    fetch('http://145.241.169.248:8080/api/admin/parametres', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ "maintenance_mode": newState.toString() })

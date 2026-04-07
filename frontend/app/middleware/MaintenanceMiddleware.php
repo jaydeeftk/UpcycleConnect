@@ -13,8 +13,7 @@ class MaintenanceMiddleware {
 
     public function handle($request, $next) {
     $uri = method_exists($request, 'getUri') ? $request->getUri() : ($_SERVER['REQUEST_URI'] ?? '');
-
-    // Sécurité : ne jamais bloquer l'API ni l'administration
+    
     if (str_contains($uri, '/api/') || str_contains($uri, '/admin')) {
         return $next($request);
     }

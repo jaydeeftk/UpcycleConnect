@@ -82,5 +82,13 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/factures/", middleware.AdminOnly(handlers.AdminGetFacture))
 	mux.HandleFunc("/api/admin/messages", middleware.AdminOnly(handlers.AdminGetMessages))
 
+	mux.HandleFunc("/api/admin/demandes", middleware.AdminOnly(handlers.AdminGetDemandes))
+	mux.HandleFunc("/api/admin/demandes/", middleware.AdminOnly(handlers.AdminDemandeAction))
+
+	mux.HandleFunc("/api/admin/demandes", middleware.AdminOnly(handlers.AdminGetDemandes))
+	mux.HandleFunc("/api/admin/demandes/", middleware.AdminOnly(handlers.AdminDemandeAction))
+	mux.HandleFunc("/api/score/", handlers.GetScore)
+	mux.HandleFunc("/api/planning/", middleware.JWTAuth(handlers.GetPlanning))
+
 	return mux
 }

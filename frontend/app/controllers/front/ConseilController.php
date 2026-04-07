@@ -79,7 +79,7 @@ class ConseilController
                 'titre'          => $_POST['titre'] ?? '',
                 'contenu'        => $_POST['contenu'] ?? '',
                 'categorie'      => $_POST['categorie'] ?? 'general',
-                'id_utilisateur' => $_SESSION['user']['id'] ?? 0,
+                'user_id' => $_SESSION['user']['id'] ?? 0,
             ]);
             redirect('/UpcycleConnect-PA2526/frontend/public/conseils/forum/' . ($result['data']['id'] ?? ''));
         } catch (\Exception $e) {

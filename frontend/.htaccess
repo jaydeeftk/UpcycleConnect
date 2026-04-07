@@ -1,8 +1,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    
+
     RewriteRule ^api/(.*) http://api:8080/api/$1 [P,L]
 
+    RewriteCond %{REQUEST_URI} !^/api/
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ /public/$1 [L]
 </IfModule>

@@ -3,20 +3,28 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 )
 
 func AdminGetParametres(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"nom_site":    "UpcycleConnect",
-		"email":       os.Getenv("CONTACT_EMAIL"),
-		"description": "Plateforme de mise en relation pour l'upcycling",
-		"langue":      "Français",
-		"fuseau":      "Europe/Paris",
-	})
+	rows, err := database.DB.Query("SELECT Cle, Valeur FROM Parametres")
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, "Erreur BDD: "+err.Error())
+		return
+	}
+	defer rows.Close()
+
+	parametres := make(map[string]string)
+	for rows.Next() {
+		var cle, valeur string
+		if err := rows.Scan(&cle, &valeur); err == nil {
+			parametres[cle] = valeur
+		}
+	}
+
+	httpx.JSONOK(w, http.StatusOK, parametres)
 }
 
 func AdminUpdateParametres(w http.ResponseWriter, r *http.Request) {

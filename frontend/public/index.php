@@ -158,11 +158,13 @@ class Router
 }
 
 $router = new Router();
-
 require __DIR__ . '/../routes/web.php';
 
 $maintenanceMiddleware = new \App\Middleware\MaintenanceMiddleware();
 
-$maintenanceMiddleware->handle($_SERVER['REQUEST_URI'], function() use ($router) {
-    $router->dispatch();
+$uri = $_SERVER['REQUEST_URI'];
+
+$maintenanceMiddleware->handle($uri, function() {
 });
+
+$router->dispatch();

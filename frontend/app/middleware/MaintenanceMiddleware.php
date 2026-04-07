@@ -27,7 +27,7 @@ class MaintenanceMiddleware {
             $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
 
             if ($isMaintenanceActive && !$isAdmin) {
-                view('maintenance.index');
+                view('admin.maintenance.index');
                 exit; 
             }
         } catch (\Exception $e) {

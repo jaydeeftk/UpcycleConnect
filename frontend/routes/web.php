@@ -93,4 +93,7 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/demandes', 'Admin\DemandeController@index');
     $router->post('/demandes/valider/([0-9]+)', 'Admin\DemandeController@valider');
     $router->post('/demandes/refuser/([0-9]+)', 'Admin\DemandeController@refuser');
+
+    $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
+    $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');
 });

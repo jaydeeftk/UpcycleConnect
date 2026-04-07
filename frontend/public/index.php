@@ -28,7 +28,7 @@ function view($view, $data = [])
     extract($data);
 
     $isAdmin = str_starts_with($view, 'admin');
-    $layout = $isAdmin ? 'admin' : 'main';
+    $layout = $data['layout'] ?? ($isAdmin ? 'admin' : 'main');
 
     ob_start();
 

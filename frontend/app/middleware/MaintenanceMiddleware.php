@@ -14,8 +14,8 @@ class MaintenanceMiddleware {
     public function handle($request, $next) {
         $uri = method_exists($request, 'getUri') ? $request->getUri() : ($_SERVER['REQUEST_URI'] ?? '');
 
-        if (str_contains($uri, '/api/') || str_contains($uri, '/admin')) {
-            return $next($request);
+        if (str_contains($uri, '/api/') || str_contains($uri, '/admin') || str_contains($uri, '/admin-portal-access')) {
+        return $next($request);
         }
 
         try {
@@ -27,8 +27,8 @@ class MaintenanceMiddleware {
             $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
 
             if ($isMaintenanceActive && !$isAdmin) {
-                view('maintenance.index');
-                exit; 
+                view('maintenance.index', ['layout' => 'blank']);
+    exit; 
             }
         } catch (\Exception $e) {
         }

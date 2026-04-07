@@ -13,14 +13,20 @@ class ParametreController
     }
 
     public function index()
-    {
-        try {
-            $result = $this->api->get('/admin/parametres');
-            return view('admin.parametres.index', ['parametres' => $result['data'] ?? []]);
-        } catch (\Exception $e) {
-            return view('admin.parametres.index', ['parametres' => [], 'error' => $e->getMessage()]);
-        }
+{
+    try {
+        $result = $this->api->get('/admin/parametres');
+        
+        echo "<pre>";
+        var_dump($result); 
+        echo "</pre>";
+        die();
+        
+        return view('admin.parametres.index', ['parametres' => $result['data'] ?? []]);
+    } catch (\Exception $e) {
+        return view('admin.parametres.index', ['parametres' => [], 'error' => $e->getMessage()]);
     }
+}
 
     public function update()
     {

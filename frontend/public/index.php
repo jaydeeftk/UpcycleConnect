@@ -161,4 +161,8 @@ $router = new Router();
 
 require __DIR__ . '/../routes/web.php';
 
-$router->dispatch();
+$maintenanceMiddleware = new \App\Middleware\MaintenanceMiddleware();
+
+$maintenanceMiddleware->handle($_SERVER['REQUEST_URI'], function() use ($router) {
+    $router->dispatch();
+});

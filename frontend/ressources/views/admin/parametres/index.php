@@ -170,8 +170,9 @@
                     <button class="w-full bg-gray-100 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-200 text-left">
                         <i class="fas fa-broom mr-2"></i>Vider le cache
                     </button>
-                    <button class="w-full bg-yellow-100 text-yellow-700 px-4 py-3 rounded-lg hover:bg-yellow-200 text-left">
-                        <i class="fas fa-tools mr-2"></i>Mode maintenance
+                    <button id="btn-toggle-maintenance" class="w-full bg-yellow-100 text-yellow-700 px-4 py-3 rounded-lg hover:bg-yellow-200 text-left">
+                        <i class="fas fa-tools mr-2"></i>
+                        <span id="maintenance-text">Activer le mode maintenance</span>
                     </button>
                 </div>
             </div>
@@ -181,16 +182,39 @@
 </div>
 
 <script>
-function showSection(id) {
-    document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
-    document.querySelectorAll('.section-btn').forEach(b => {
-        b.classList.remove('bg-green-50', 'text-green-700', 'font-medium');
-        b.classList.add('hover:bg-gray-50');
-    });
-    document.getElementById('section-' + id).classList.remove('hidden');
-    const btn = document.getElementById('btn-' + id);
-    btn.classList.add('bg-green-50', 'text-green-700', 'font-medium');
-    btn.classList.remove('hover:bg-gray-50');
+
+let isMaintenance = <?= ($parametres['maintenance_mode'] ?? 'false') === 'true' ? 'true' : 'false' ?>;
+
+const btnMaint = document.getElementById('btn-toggle-maintenance');
+const textMaint = document.getElementById('maintenance-text');
+
+function updateMaintUI() {
+    if (isMaintenance) {
+        btnMaint.classList.replace('bg-yellow-100', 'bg-red-600');
+        btnMaint.classList.replace('text-yellow-700', 'text-white');
+        textMaint.innerText = "Désactiver le mode maintenance (ACTIF)";
+    } else {
+        btnMaint.classList.replace('bg-red-600', 'bg-yellow-100');
+        btnMaint.classList.replace('text-white', 'text-yellow-700');
+        textMaint.innerText = "Activer le mode maintenance";
+    }
 }
-showSection('general');
+updateMaintUI();
+
+btnMaint.addEventListener('click', function() {
+    const newState = !isMaintenance;
+    
+    fetch('/api/admin/parametres', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "maintenance_mode": newState.toString() })
+    })
+    .then(res => res.json())
+    .then(data => {
+        isMaintenance = newState;
+        updateMaintUI();
+        alert(isMaintenance ? "Le site est maintenant verrouillé (Engrenage actif)" : "Le site est de nouveau accessible");
+    })
+    .catch(err => alert("Erreur API : " + err));
+});
 </script>

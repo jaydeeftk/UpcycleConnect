@@ -5,6 +5,7 @@ use App\Services\ApiService;
 class ParametreController
 {
     private $api;
+
     public function __construct()
     {
         \App\Middleware\AdminMiddleware::check();

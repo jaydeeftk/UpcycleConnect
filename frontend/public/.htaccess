@@ -1,16 +1,13 @@
 <IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
+    Options -MultiViews -Indexes
     RewriteEngine On
+    
+    RewriteRule ^api/(.*) http://api:8080/api/$1 [P,L]
 
-    # Gérer les fichiers statiques
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     
-    # Rediriger toutes les requêtes vers index.php
-    RewriteRule ^ index.php [L]
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
 Options -Indexes

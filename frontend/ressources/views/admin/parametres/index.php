@@ -215,28 +215,29 @@ function updateMaintUI() {
 
 btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
-    
-    console.log("Envoi du nouvel état :", newState);
+    const url = '/api/admin/parametres/'; 
 
-    fetch('http://145.241.169.248:8080/api/admin/parametres', { 
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ "maintenance_mode": newState.toString() })
+    fetch(url, {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ "maintenance_mode": newState.toString() })
     })
-    .then(response => {
-        if (!response.ok) throw new Error('Erreur HTTP ' + response.status);
-        return response.json();
+    .then(res => {
+        console.log("Status Code:", res.status);
+        if (res.status === 404) throw new Error("La route n'existe pas sur le serveur (404)");
+        return res.json();
     })
     .then(data => {
-        console.log("Réponse API reçue :", data);
         isMaintenance = newState;
         updateMaintUI();
-        alert(isMaintenance ? "Maintenance ACTIVÉE" : "Maintenance DÉSACTIVÉE");
-        location.reload(); 
+        location.reload();
     })
     .catch(err => {
-        console.error("Erreur complète :", err);
-        alert("Erreur technique : " + err.message);
+        console.error(err);
+        alert("Détail de l'erreur : " + err.message);
     });
 });
 

@@ -64,11 +64,17 @@ func NewRouter() http.Handler {
 	}))
 
 	mux.HandleFunc("/api/admin/parametres/", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/admin/parametres/" && r.URL.Path != "/api/admin/parametres" {
+			http.NotFound(w, r)
+			return
+		}
 		switch r.Method {
 		case http.MethodGet:
 			handlers.AdminGetParametres(w, r)
 		case http.MethodPut:
 			handlers.AdminUpdateParametres(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	}))
 

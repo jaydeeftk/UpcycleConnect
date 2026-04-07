@@ -24,6 +24,11 @@ services:
     environment:
       DB_DSN: root:root@tcp(mysql:3306)/upcycleconnect?parseTime=true&charset=utf8mb4
       JWT_SECRET: a33346c14310829ba428ec9630d436de1c842633a47fffb1e84c20ea8196a16e
+      SMTP_HOST: smtp.office365.com
+      SMTP_PORT: 587
+      SMTP_USER: upcycleconnect.notif@outlook.com
+      SMTP_PASS: ET45Z-2AY9F-GHG3G-47V59-AALGG
+      APP_URL: http://145.241.169.248
     depends_on:
       mysql:
         condition: service_healthy

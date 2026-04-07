@@ -20,7 +20,7 @@ func ForumSujetsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getSujets(w http.ResponseWriter, r *http.Request) {
+func getSujets(w http.ResponseWriter, _ *http.Request) {
 	rows, err := database.DB.Query(
 		`SELECT s.Id_Sujets, s.Titre, s.Date_Creation,
 			u.Nom, u.Prenom,
@@ -109,7 +109,7 @@ func ForumSujetDispatch(w http.ResponseWriter, r *http.Request) {
 	getSujet(w, r, id)
 }
 
-func getSujet(w http.ResponseWriter, r *http.Request, id string) {
+func getSujet(w http.ResponseWriter, _ *http.Request, id string) {
 	row := database.DB.QueryRow(
 		`SELECT s.Id_Sujets, s.Titre, s.Date_Creation, u.Nom, u.Prenom
 		FROM Sujets s
@@ -182,6 +182,6 @@ func creerReponse(w http.ResponseWriter, r *http.Request, idSujet string) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id})
 }
 
-func marquerSolution(w http.ResponseWriter, r *http.Request, idSujet, idReponse string) {
+func marquerSolution(w http.ResponseWriter, _ *http.Request, idSujet, idReponse string) {
 	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Solution marquée"})
 }

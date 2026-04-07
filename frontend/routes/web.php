@@ -88,6 +88,7 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/messages', 'Admin\MessageController@index');
     $router->get('/parametres', 'Admin\ParametreController@index');
     $router->post('/parametres/update', 'Admin\ParametreController@update');
+    $router->post('/parametres/update-maintenance', 'Admin\ParametreController@updateMaintenance');
 
     $router->get('/demandes', 'Admin\DemandeController@index');
     $router->post('/demandes/valider/([0-9]+)', 'Admin\DemandeController@valider');

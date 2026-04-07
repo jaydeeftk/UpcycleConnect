@@ -14,6 +14,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/auth/login", handlers.Login)
 	mux.HandleFunc("/api/auth/register", handlers.Register)
 	mux.HandleFunc("/api/auth/tutoriel", handlers.UpdateTutoriel)
+	mux.HandleFunc("/api/parametres", handlers.AdminGetParametres)
 
 	mux.HandleFunc("/api/services", handlers.GetServices)
 	mux.HandleFunc("/api/formations", handlers.GetFormations)

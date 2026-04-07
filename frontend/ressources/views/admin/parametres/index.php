@@ -218,10 +218,10 @@ btnMaint.addEventListener('click', function() {
     
     console.log("Envoi du nouvel état :", newState);
 
-    fetch('/api/admin/parametres', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ "maintenance_mode": newState.toString() })
+    fetch('http://145.241.169.248:8080/api/admin/parametres', { 
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ "maintenance_mode": newState.toString() })
     })
     .then(response => {
         if (!response.ok) throw new Error('Erreur HTTP ' + response.status);

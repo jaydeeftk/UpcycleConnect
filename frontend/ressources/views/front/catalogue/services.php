@@ -44,7 +44,7 @@
                 </select>
             </div>
             <div class="md:col-span-4 flex justify-end gap-3">
-                <a href="/UpcycleConnect-PA2526/frontend/public/catalogue/services" class="btn btn-ghost btn-sm">Réinitialiser</a>
+                <a href="/catalogue/services" class="btn btn-ghost btn-sm">Réinitialiser</a>
                 <button type="submit" class="btn btn-neutral btn-sm">
                     <i class="fas fa-filter mr-2"></i>Filtrer
                 </button>
@@ -90,7 +90,7 @@
                             <span class="text-xl font-bold">À partir de <?= $service['prix'] ?>€</span>
                             <div class="text-xs text-base-content/40 mt-0.5"><i class="fas fa-map-marker-alt mr-1"></i><?= $service['localisation'] ?></div>
                         </div>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/prestations/<?= $service['id'] ?>" class="btn btn-neutral btn-sm">
+                        <a href="/prestations/<?= $service['id'] ?>" class="btn btn-neutral btn-sm">
                             Voir
                         </a>
                     </div>

@@ -13,7 +13,7 @@
 
 <div class="mb-6 bg-white rounded-lg shadow p-6">
     <h3 class="text-lg font-bold mb-4">Ajouter une catégorie</h3>
-    <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/categories/store" class="flex gap-4">
+    <form method="POST" action="/admin/categories/store" class="flex gap-4">
         <input type="text" name="description" placeholder="Description" required
             class="flex-1 border rounded-lg px-4 py-2">
         <input type="text" name="illustration" placeholder="URL illustration"
@@ -44,7 +44,7 @@
                     <td class="px-6 py-4 font-medium"><?= htmlspecialchars($c['description']) ?></td>
                     <td class="px-6 py-4 text-gray-600 text-sm"><?= htmlspecialchars($c['illustration'] ?? '-') ?></td>
                     <td class="px-6 py-4">
-                        <a href="/UpcycleConnect-PA2526/frontend/public/admin/categories/<?= $c['id'] ?>/delete"
+                        <a href="/admin/categories/<?= $c['id'] ?>/delete"
                             onclick="return confirm('Supprimer cette catégorie ?')"
                             class="text-red-600 hover:text-red-800">
                             <i class="fas fa-trash"></i>

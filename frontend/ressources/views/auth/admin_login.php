@@ -6,7 +6,7 @@
             <p class="text-sm text-gray-500 mt-2">Accès réservé aux administrateurs UpcycleConnect</p>
         </div>
         
-        <form action="/UpcycleConnect-PA2526/frontend/public/admin-portal-access" method="POST" class="space-y-5">
+        <form action="/admin-portal-access" method="POST" class="space-y-5">
             <div>
                 <label class="block text-sm font-semibold text-gray-700">Identifiant Administrateur</label>
                 <input type="email" name="email" placeholder="admin@upcycle.com" 
@@ -25,7 +25,7 @@
         </form>
         
         <div class="mt-8 pt-6 border-t border-gray-100 text-center">
-            <a href="/UpcycleConnect-PA2526/frontend/public/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+            <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">
                 <i class="fa-solid fa-arrow-left mr-1"></i> Retour à l'engrenage
             </a>
         </div>

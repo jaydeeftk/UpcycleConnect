@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-bold">Profil utilisateur</h2>
         <p class="text-gray-600">Détails complets du compte</p>
     </div>
-    <a href="/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs"
+    <a href="/admin/utilisateurs"
         class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
         <i class="fas fa-arrow-left mr-2"></i>Retour
     </a>
@@ -38,7 +38,7 @@
             <span class="px-3 py-1 rounded-full text-sm <?= $rc ?>"><?= htmlspecialchars(ucfirst($utilisateur['role'] ?? 'particulier')) ?></span>
         </div>
         <div class="mt-6 flex gap-2 justify-center">
-            <a href="/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs/<?= $utilisateur['id'] ?>/delete"
+            <a href="/admin/utilisateurs/<?= $utilisateur['id'] ?>/delete"
                 class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm"
                 onclick="return confirm('Supprimer cet utilisateur ?')">
                 <i class="fas fa-trash mr-1"></i>Supprimer
@@ -79,7 +79,7 @@
 
         <div class="bg-white rounded-lg shadow p-6">
             <h4 class="text-lg font-bold mb-4">Modifier le statut</h4>
-            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs/<?= $utilisateur['id'] ?>/statut" class="flex gap-4">
+            <form method="POST" action="/admin/utilisateurs/<?= $utilisateur['id'] ?>/statut" class="flex gap-4">
                 <select name="statut" class="border rounded-lg px-4 py-2 flex-1">
                     <option value="actif" <?= ($utilisateur['statut'] ?? '') === 'actif' ? 'selected' : '' ?>>Actif</option>
                     <option value="inactif" <?= ($utilisateur['statut'] ?? '') === 'inactif' ? 'selected' : '' ?>>Inactif</option>

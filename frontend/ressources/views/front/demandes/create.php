@@ -9,7 +9,7 @@
     </div>
 
     <div class="bg-base-100 rounded-3xl shadow-sm p-8 md:p-10">
-        <form class="space-y-8" method="POST" action="/UpcycleConnect-PA2526/frontend/public/demande-prestation">
+        <form class="space-y-8" method="POST" action="/demande-prestation">
 
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
@@ -98,7 +98,7 @@
                     class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                     Envoyer ma demande
                 </button>
-                <a href="/UpcycleConnect-PA2526/frontend/public/prestations"
+                <a href="/prestations"
                     class="border border-base-300 px-8 py-3 rounded-xl font-medium hover:bg-base-200 transition text-center">
                     Voir les prestations
                 </a>

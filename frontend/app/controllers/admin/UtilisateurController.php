@@ -45,7 +45,7 @@ class UtilisateurController
                 'statut'       => $_POST['statut'] ?? 'actif',
             ]);
         } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
+        redirect('/admin/utilisateurs');
     }
 
     public function confirmDelete($id)
@@ -62,6 +62,6 @@ class UtilisateurController
     public function delete($id)
     {
         try { $this->api->delete('/admin/utilisateurs/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
+        redirect('/admin/utilisateurs');
     }
 }

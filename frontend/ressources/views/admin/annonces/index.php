@@ -48,13 +48,13 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
-                            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/valider">
+                            <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/valider">
                                 <button class="text-green-600 hover:text-green-800" title="Valider"><i class="fas fa-check"></i></button>
                             </form>
-                            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/refuser">
+                            <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/refuser">
                                 <button class="text-red-600 hover:text-red-800" title="Refuser"><i class="fas fa-times"></i></button>
                             </form>
-                            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/supprimer">
+                            <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/supprimer">
                                 <button class="text-gray-600 hover:text-gray-800" title="Supprimer"><i class="fas fa-trash"></i></button>
                             </form>
                         </div>

@@ -31,12 +31,12 @@ class ConteneurController
                 'id_administrateurs' => (int)($_SESSION['user']['id'] ?? 1),
             ]);
         } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/conteneurs');
+        redirect('/admin/conteneurs');
     }
 
     public function delete($id)
     {
         try { $this->api->delete('/admin/conteneurs/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/conteneurs');
+        redirect('/admin/conteneurs');
     }
 }

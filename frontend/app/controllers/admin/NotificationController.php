@@ -30,12 +30,12 @@ class NotificationController
                 'id_utilisateurs'   => (int)($_POST['id_utilisateurs'] ?? 0),
             ]);
         } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/notifications');
+        redirect('/admin/notifications');
     }
 
     public function delete($id)
     {
         try { $this->api->delete('/admin/notifications/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/notifications');
+        redirect('/admin/notifications');
     }
 }

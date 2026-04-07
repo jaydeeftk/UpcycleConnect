@@ -30,10 +30,10 @@
                     </td>
                     <td class="px-6 py-4 flex gap-2">
                         <?php if(strtolower($demande['statut']) === 'en_attente'): ?>
-                            <form action="/UpcycleConnect-PA2526/frontend/public/admin/demandes/valider/<?= $demande['id'] ?>" method="POST">
+                            <form action="/admin/demandes/valider/<?= $demande['id'] ?>" method="POST">
                                 <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm">Valider</button>
                             </form>
-                            <form action="/UpcycleConnect-PA2526/frontend/public/admin/demandes/refuser/<?= $demande['id'] ?>" method="POST">
+                            <form action="/admin/demandes/refuser/<?= $demande['id'] ?>" method="POST">
                                 <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Refuser</button>
                             </form>
                         <?php endif; ?>

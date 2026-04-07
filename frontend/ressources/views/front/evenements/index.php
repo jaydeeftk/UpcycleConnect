@@ -21,7 +21,7 @@
                         </div>
                         <h3 class="text-xl font-semibold mb-3"><?= htmlspecialchars($evenement['titre'] ?? '') ?></h3>
                         <p class="text-base-content/70 mb-4"><?= htmlspecialchars($evenement['description'] ?? '') ?></p>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/evenements/<?= $evenement['id'] ?>"
+                        <a href="/evenements/<?= $evenement['id'] ?>"
                             class="text-sm font-medium hover:underline">
                             Voir l'événement →
                         </a>
@@ -44,7 +44,7 @@
             Rejoignez des événements près de chez vous pour apprendre, rencontrer des prestataires
             et découvrir de nouvelles façons de donner une seconde vie à vos objets.
         </p>
-        <a href="/UpcycleConnect-PA2526/frontend/public/login"
+        <a href="/login"
             class="inline-block bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
             S'inscrire à un événement
         </a>

@@ -33,12 +33,12 @@ class FormationController
                 'id_salaries' => (int)($_POST['id_salaries'] ?? 1),
             ]);
         } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/formations');
+        redirect('/admin/formations');
     }
 
     public function delete($id)
     {
         try { $this->api->delete('/admin/formations/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/formations');
+        redirect('/admin/formations');
     }
 }

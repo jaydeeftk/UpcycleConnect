@@ -30,7 +30,7 @@
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8 space-y-8">
 
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/annonces/store" enctype="multipart/form-data">
+        <form method="POST" action="/annonces/store" enctype="multipart/form-data">
 
             
             <div>
@@ -175,7 +175,7 @@
                     <i class="fas fa-paper-plane mr-2"></i>
                     Soumettre l'annonce
                 </button>
-                <a href="/UpcycleConnect-PA2526/frontend/public/" class="btn btn-ghost flex-1">
+                <a href="/" class="btn btn-ghost flex-1">
                     Annuler
                 </a>
             </div>

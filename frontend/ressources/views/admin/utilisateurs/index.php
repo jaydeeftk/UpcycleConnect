@@ -60,11 +60,11 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
-                            <a href="/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs/<?= $user['id'] ?>"
+                            <a href="/admin/utilisateurs/<?= $user['id'] ?>"
                                 class="text-blue-600 hover:text-blue-800" title="Voir">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs/<?= $user['id'] ?>/delete"
+                            <a href="/admin/utilisateurs/<?= $user['id'] ?>/delete"
                                 class="text-red-600 hover:text-red-800" title="Supprimer"
                                 onclick="return confirm('Supprimer cet utilisateur ?')">
                                 <i class="fas fa-trash"></i>

@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex items-center justify-between">
         
         <div class="text-2xl font-bold tracking-tight">
-            <a href="/UpcycleConnect-PA2526/frontend/public/" class="flex items-center gap-2">
+            <a href="/" class="flex items-center gap-2">
                 <i class="fas fa-recycle text-green-500 text-3xl"></i>
                 UpcycleConnect
             </a>
@@ -10,7 +10,7 @@
         
         <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
             
-            <a href="/UpcycleConnect-PA2526/frontend/public/" class="hover:text-primary transition">
+            <a href="/" class="hover:text-primary transition">
                 Accueil
             </a>
             
@@ -23,7 +23,7 @@
                 </div>
                 <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow border border-base-300 mt-2">
                     <li>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/catalogue/services" class="flex items-center gap-3">
+                        <a href="/catalogue/services" class="flex items-center gap-3">
                             <i class="fas fa-tools text-orange-500"></i>
                             <div>
                                 <div class="font-medium">Services</div>
@@ -32,7 +32,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/catalogue/formations" class="flex items-center gap-3">
+                        <a href="/catalogue/formations" class="flex items-center gap-3">
                             <i class="fas fa-graduation-cap text-purple-500"></i>
                             <div>
                                 <div class="font-medium">Formations</div>
@@ -41,7 +41,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/catalogue/evenements" class="flex items-center gap-3">
+                        <a href="/catalogue/evenements" class="flex items-center gap-3">
                             <i class="fas fa-calendar-alt text-blue-500"></i>
                             <div>
                                 <div class="font-medium">Événements</div>
@@ -63,7 +63,7 @@
                 
                 <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow border border-base-300 mt-2">
                     <li>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/annonces/create" class="flex items-center gap-3">
+                        <a href="/annonces/create" class="flex items-center gap-3">
                             <i class="fas fa-bullhorn text-green-500"></i>
                             <div>
                                 <div class="font-medium">Déposer une annonce</div>
@@ -72,7 +72,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/conteneurs/create" class="flex items-center gap-3">
+                        <a href="/conteneurs/create" class="flex items-center gap-3">
                             <i class="fas fa-box-open text-blue-500"></i>
                             <div>
                                 <div class="font-medium">Déposer dans un conteneur</div>
@@ -83,11 +83,11 @@
                 </ul>
             </div>
             
-            <a href="/UpcycleConnect-PA2526/frontend/public/conseils" class="hover:text-primary transition" data-tuto="conseils">
+            <a href="/conseils" class="hover:text-primary transition" data-tuto="conseils">
                 Conseils
             </a>
             
-            <a href="/UpcycleConnect-PA2526/frontend/public/a-propos" class="hover:text-primary transition">
+            <a href="/a-propos" class="hover:text-primary transition">
                 À propos
             </a>
             
@@ -104,17 +104,17 @@
                         <span><?= htmlspecialchars($_SESSION['user']['prenom'] ?? 'Mon compte') ?></span>
                     </button>
                     <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-48 bg-base-100 rounded-xl shadow-lg border border-base-300 py-2 hidden z-50">
-                        <a href="/UpcycleConnect-PA2526/frontend/public/mes-demandes" class="block px-4 py-2 text-sm hover:bg-base-200">Mes demandes</a>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/mes-prestations" class="block px-4 py-2 text-sm hover:bg-base-200">Mes prestations</a>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/planning" class="block px-4 py-2 text-sm hover:bg-base-200">
+                        <a href="/mes-demandes" class="block px-4 py-2 text-sm hover:bg-base-200">Mes demandes</a>
+                        <a href="/mes-prestations" class="block px-4 py-2 text-sm hover:bg-base-200">Mes prestations</a>
+                        <a href="/planning" class="block px-4 py-2 text-sm hover:bg-base-200">
                             <i class="fas fa-calendar-alt text-blue-500 mr-1"></i> Mon Planning
                         </a>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/score" class="block px-4 py-2 text-sm hover:bg-base-200">
+                        <a href="/score" class="block px-4 py-2 text-sm hover:bg-base-200">
                             <i class="fas fa-leaf text-emerald-500 mr-1"></i> Mon Upcycling Score
                         </a>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/paiements" class="block px-4 py-2 text-sm hover:bg-base-200">Paiements</a>
+                        <a href="/paiements" class="block px-4 py-2 text-sm hover:bg-base-200">Paiements</a>
                         <div class="border-t border-base-300 my-1"></div>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-base-200">Déconnexion</a>
+                        <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-base-200">Déconnexion</a>
                     </div>
                 </div>
                 <script>
@@ -129,14 +129,14 @@
                     });
                 </script>
             <?php else: ?>
-                <a href="/UpcycleConnect-PA2526/frontend/public/login"
+                <a href="/login"
                     class="bg-black text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">
                     Inscription / Connexion
                 </a>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin'): ?>
-    <a href="/UpcycleConnect-PA2526/frontend/public/admin/dashboard" class="nav-link">
+    <a href="/admin/dashboard" class="nav-link">
         <i class="fas fa-cog"></i> Administration
     </a>
         <?php endif; ?>

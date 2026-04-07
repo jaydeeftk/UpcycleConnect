@@ -37,7 +37,7 @@
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
                             <button class="text-green-600 hover:text-green-800"><i class="fas fa-edit"></i></button>
-                            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/contrats/<?= $c['id'] ?>/supprimer">
+                            <form method="POST" action="/admin/contrats/<?= $c['id'] ?>/supprimer">
                                 <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
                             </form>
                         </div>

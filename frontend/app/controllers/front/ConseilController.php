@@ -60,7 +60,7 @@ class ConseilController
     public function createSujet()
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
 
         return view('front.conseils.create_sujet', [
@@ -71,7 +71,7 @@ class ConseilController
     public function storeSujet()
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
 
         try {
@@ -81,7 +81,7 @@ class ConseilController
                 'categorie'      => $_POST['categorie'] ?? 'general',
                 'user_id' => $_SESSION['user']['id'] ?? 0,
             ]);
-            redirect('/UpcycleConnect-PA2526/frontend/public/conseils/forum/' . ($result['data']['id'] ?? ''));
+            redirect('/conseils/forum/' . ($result['data']['id'] ?? ''));
         } catch (\Exception $e) {
             return view('front.conseils.create_sujet', [
                 'title' => 'Nouveau sujet - Forum UpcycleConnect',
@@ -93,7 +93,7 @@ class ConseilController
     public function storeReponse($id)
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
 
         try {
@@ -103,19 +103,19 @@ class ConseilController
             ]);
         } catch (\Exception $e) {}
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/conseils/forum/' . $id);
+        redirect('/conseils/forum/' . $id);
     }
 
     public function marquerSolution($idSujet, $idReponse)
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
 
         try {
             $this->api->patch('/forum/sujets/' . $idSujet . '/reponses/' . $idReponse . '/solution');
         } catch (\Exception $e) {}
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/conseils/forum/' . $idSujet);
+        redirect('/conseils/forum/' . $idSujet);
     }
 }

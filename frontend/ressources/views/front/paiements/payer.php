@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <form class="space-y-6" method="POST" action="/UpcycleConnect-PA2526/frontend/public/payer">
+        <form class="space-y-6" method="POST" action="/payer">
             <div>
                 <label class="block text-sm font-medium mb-2">Nom sur la carte</label>
                 <input type="text" name="nom_carte" placeholder="Jean Dupont"

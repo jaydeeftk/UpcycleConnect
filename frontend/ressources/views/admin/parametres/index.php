@@ -32,7 +32,7 @@
         <div id="section-general" class="section-content">
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-xl font-bold mb-6">Paramètres généraux</h3>
-                <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/parametres/update">
+                <form method="POST" action="/admin/parametres/update">
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Nom du site</label>
@@ -216,7 +216,7 @@ function updateMaintUI() {
 btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
     
-    fetch('/UpcycleConnect-PA2526/frontend/public/admin/parametres/update-maintenance', {
+    fetch('/admin/parametres/update-maintenance', {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json'

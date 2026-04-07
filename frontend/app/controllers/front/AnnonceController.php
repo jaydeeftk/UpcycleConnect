@@ -11,7 +11,7 @@ class AnnonceController
     public function create()
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
         return view('front.annonces.create', [
             'title' => 'Déposer une annonce - UpcycleConnect',
@@ -20,7 +20,7 @@ class AnnonceController
     public function store()
     {
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
         $data = [
             'titre'        => $_POST['titre'] ?? '',

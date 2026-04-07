@@ -29,12 +29,12 @@ class CategorieController
                 'illustration' => $_POST['illustration'] ?? '',
             ]);
         } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/categories');
+        redirect('/admin/categories');
     }
 
     public function delete($id)
     {
         try { $this->api->delete('/admin/categories/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/categories');
+        redirect('/admin/categories');
     }
 }

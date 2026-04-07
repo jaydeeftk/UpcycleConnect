@@ -39,12 +39,12 @@ class EvenementController
                 'id_salaries' => (int)($_POST['id_salaries'] ?? 1),
             ]);
         } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/evenements');
+        redirect('/admin/evenements');
     }
 
     public function delete($id)
     {
         try { $this->api->delete('/admin/evenements/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/evenements');
+        redirect('/admin/evenements');
     }
 }

@@ -35,7 +35,7 @@ class AuthController
             if (isset($result['data'])) {
                 $_SESSION['user'] = $result['data'];
                 $_SESSION['token'] = $result['data']['token'] ?? null;
-                redirect('/UpcycleConnect-PA2526/frontend/public/');
+                redirect('/');
             }
 
         } catch (\Exception $e) {
@@ -77,7 +77,7 @@ class AuthController
             if (isset($result['data'])) {
                 $_SESSION['user'] = $result['data'];
                 $_SESSION['token'] = $result['data']['token'] ?? null;
-                redirect('/UpcycleConnect-PA2526/frontend/public/');
+                redirect('/');
             }
 
         } catch (\Exception $e) {
@@ -91,7 +91,7 @@ class AuthController
     public function logout()
     {
         session_destroy();
-        redirect('/UpcycleConnect-PA2526/frontend/public/');
+        redirect('/');
     }
 
     public function showAdminGate() {
@@ -116,13 +116,13 @@ class AuthController
                 $_SESSION['user'] = $result['data'];
                 $_SESSION['token'] = $result['data']['token'] ?? null;
                 
-                redirect('/UpcycleConnect-PA2526/frontend/public/admin/dashboard');
+                redirect('/admin/dashboard');
             } else {
-                redirect('/UpcycleConnect-PA2526/frontend/public/admin-portal-access?error=Privilèges insuffisants');
+                redirect('/admin-portal-access?error=Privilèges insuffisants');
             }
 
         } catch (\Exception $e) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/admin-portal-access?error=Identifiants invalides');
+            redirect('/admin-portal-access?error=Identifiants invalides');
         }
     }
 }

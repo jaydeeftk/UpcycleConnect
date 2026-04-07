@@ -26,12 +26,12 @@ class DemandeController
     public function valider($id)
     {
         try { $this->api->put('/admin/demandes/valider/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/demandes');
+        redirect('/admin/demandes');
     }
 
     public function refuser($id)
     {
         try { $this->api->put('/admin/demandes/refuser/' . $id); } catch (\Exception $e) {}
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/demandes');
+        redirect('/admin/demandes');
     }
 }

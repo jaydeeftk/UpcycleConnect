@@ -10,7 +10,7 @@
     <?php if (!isset($_SESSION['user'])): ?>
         <div class="bg-base-100 rounded-2xl border border-base-300 p-8 text-center">
             <p class="text-base-content/70 mb-4">Vous devez être connecté pour voir vos paiements.</p>
-            <a href="/UpcycleConnect-PA2526/frontend/public/login"
+            <a href="/login"
                 class="inline-block bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                 Se connecter
             </a>
@@ -39,7 +39,7 @@
                         <?php endif; ?>
                     </div>
                     <?php if ($paiement['statut'] == 0): ?>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/payer"
+                        <a href="/payer"
                             class="inline-block bg-black text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">
                             Régler maintenant
                         </a>

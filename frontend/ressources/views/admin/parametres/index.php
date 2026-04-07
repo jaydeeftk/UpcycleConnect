@@ -218,11 +218,13 @@ btnMaint.addEventListener('click', function() {
     
     fetch('/UpcycleConnect-PA2526/frontend/public/admin/parametres/update-maintenance', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ "maintenance_mode": newState.toString() })
     })
     .then(res => {
-        if (!res.ok) throw new Error("Erreur PHP");
+        if (!res.ok) throw new Error("Erreur route PHP (Statut " + res.status + ")");
         return res.json();
     })
     .then(data => {
@@ -231,7 +233,10 @@ btnMaint.addEventListener('click', function() {
         alert(isMaintenance ? "Mode Maintenance ACTIVÉ" : "Mode Maintenance DÉSACTIVÉ");
         location.reload();
     })
-    .catch(err => alert("Erreur : " + err));
+    .catch(err => {
+        console.error(err);
+        alert("Erreur : " + err.message);
+    });
 });
 
 showSection('general');

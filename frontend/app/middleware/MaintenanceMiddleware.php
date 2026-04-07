@@ -12,6 +12,12 @@ class MaintenanceMiddleware {
     }
 
     public function handle($request, $next) {
+        $uri = method_exists($request, 'getUri') ? $request->getUri() : ($_SERVER['REQUEST_URI'] ?? '');
+
+        if (str_contains($uri, '/api/')) {
+            return $next($request);
+        }
+
         try {
             $response = $this->api->get('/admin/parametres');
             $maintenance = $response['data']['maintenance_mode'] ?? 'false';
@@ -22,7 +28,7 @@ class MaintenanceMiddleware {
                 return view('maintenance_page');
             }
         } catch (\Exception $e) {
-        }
+    }
 
         return $next($request);
     }

@@ -1,4 +1,33 @@
+# 1. Fichiers contenant des mots de passe et secrets
+.env
+*.env
+docker-compose.yml
 
-.claude/
+# 2. Fichiers compilés Go (Backend)
+/api/app
 *.exe
-frontend/.env
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/api/vendor/
+
+# 3. Base de données
+/mysql_data/
+*.sqlite3
+
+# 4. Dépendances Frontend / PHP
+/frontend/vendor/
+/frontend/node_modules/
+npm-debug.log
+yarn-error.log
+
+# 5. Fichiers d'éditeurs (VS Code) et d'OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

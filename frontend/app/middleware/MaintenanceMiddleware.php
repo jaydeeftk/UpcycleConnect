@@ -14,15 +14,24 @@ class MaintenanceMiddleware {
     public function handle($request, $next) {
     $uri = method_exists($request, 'getUri') ? $request->getUri() : ($_SERVER['REQUEST_URI'] ?? '');
 
+    // Sécurité : ne jamais bloquer l'API ni l'administration
     if (str_contains($uri, '/api/') || str_contains($uri, '/admin')) {
         return $next($request);
     }
 
-    $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
-    
-    if (true && !$isAdmin) { 
-        view('maintenance_page');
-        exit;
+    try {
+        $response = $this->api->get('/admin/parametres/');
+
+        $maintenance = $response['maintenance_mode'] ?? ($response['data']['maintenance_mode'] ?? 'false');
+        $isMaintenanceActive = ($maintenance === 'true' || $maintenance === true || $maintenance === 1 || $maintenance === "1");
+
+        $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
+
+        if ($isMaintenanceActive && !$isAdmin) {
+            view('maintenance.index');
+            exit; 
+        }
+    } catch (\Exception $e) {
     }
 
     return $next($request);

@@ -2,12 +2,13 @@
 
 return [
     'name' => 'UpcycleConnect',
-    'env' => 'development',
-    'debug' => true,
-    'url' => 'http://localhost:8000',
+    'url' => getenv('APP_URL') ?: 'http://145.241.169.248', 
+    
+    'env' => getenv('APP_ENV') ?: 'production',
+    'debug' => getenv('APP_DEBUG') === 'true',
     
     'api' => [
-        'base_url' => 'http://localhost:8080/api',
+        'base_url' => getenv('API_BASE_URL') ?: 'http://api:8080/api',
         'timeout' => 30,
     ],
     

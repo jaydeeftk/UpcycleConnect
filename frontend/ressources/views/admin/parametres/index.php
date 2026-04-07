@@ -215,21 +215,25 @@ function updateMaintUI() {
 
 btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
-    const url = '/api/admin/parametres/'; 
+    
+    const apiUrl = 'http://145.241.169.248:8080/api/admin/parametres/';
 
-    fetch('/UpcycleConnect-PA2526/api/admin/parametres/', { 
+    fetch(apiUrl, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
         body: JSON.stringify({ "maintenance_mode": newState.toString() })
-    })  
+    })
     .then(res => {
-        console.log("Status Code:", res.status);
-        if (res.status === 404) throw new Error("La route n'existe pas sur le serveur (404)");
+        if (!res.ok) throw new Error("Erreur HTTP " + res.status);
         return res.json();
     })
     .then(data => {
         isMaintenance = newState;
         updateMaintUI();
+        alert(isMaintenance ? "Maintenance activée" : "Maintenance désactivée");
         location.reload();
     })
     .catch(err => {

@@ -18,20 +18,11 @@ class MaintenanceMiddleware {
         return $next($request);
     }
 
-    try {
-        $response = $this->api->get('/admin/parametres/');
-
-        $maintenance = $response['maintenance_mode'] ?? ($response['data']['maintenance_mode'] ?? 'false');
-
-        $isMaintenanceActive = ($maintenance === 'true' || $maintenance === true || $maintenance === 1 || $maintenance === "1");
-
-        $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
-
-        if (true && !$isAdmin) {
-            view('maintenance_page');
-            exit; 
-        }
-    } catch (\Exception $e) {
+    $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
+    
+    if (true && !$isAdmin) { 
+        view('maintenance_page');
+        exit;
     }
 
     return $next($request);

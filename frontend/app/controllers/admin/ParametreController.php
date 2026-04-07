@@ -35,4 +35,27 @@ class ParametreController
         } catch (\Exception $e) {}
         redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres');
     }
+    
+    public function updateMaintenance()
+    {
+        try {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true);
+
+            if (!isset($data['maintenance_mode'])) {
+                throw new \Exception("Données manquantes");
+            }
+
+            $result = $this->api->put('/admin/parametres/', [
+                'maintenance_mode' => $data['maintenance_mode']
+            ]);
+
+            header('Content-Type: application/json');
+            echo json_encode($result);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit;
+    }
 }

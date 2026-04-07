@@ -216,30 +216,22 @@ function updateMaintUI() {
 btnMaint.addEventListener('click', function() {
     const newState = !isMaintenance;
     
-    const apiUrl = 'http://145.241.169.248:8080/api/admin/parametres/';
-
-    fetch(apiUrl, {
-        method: 'PUT',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
+    fetch('/UpcycleConnect-PA2526/frontend/public/admin/parametres/update-maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ "maintenance_mode": newState.toString() })
     })
     .then(res => {
-        if (!res.ok) throw new Error("Erreur HTTP " + res.status);
+        if (!res.ok) throw new Error("Erreur PHP");
         return res.json();
     })
     .then(data => {
         isMaintenance = newState;
         updateMaintUI();
-        alert(isMaintenance ? "Maintenance activée" : "Maintenance désactivée");
+        alert(isMaintenance ? "Mode Maintenance ACTIVÉ" : "Mode Maintenance DÉSACTIVÉ");
         location.reload();
     })
-    .catch(err => {
-        console.error(err);
-        alert("Détail de l'erreur : " + err.message);
-    });
+    .catch(err => alert("Erreur : " + err));
 });
 
 showSection('general');

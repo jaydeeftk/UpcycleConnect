@@ -27,5 +27,7 @@
     <?php include __DIR__ . '/../components/front/footer.php'; ?>
     <?php include __DIR__ . '/../components/front/tutoriel.php'; ?>
 
+
+    <script src="https://js.stripe.com/v3/"></script>
 </body>
 </html>

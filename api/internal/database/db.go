@@ -14,7 +14,7 @@ func Connect() {
 
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
-		dsn = "root:root@tcp(127.0.0.1:3306)/upcycleconnect?parseTime=true"
+		dsn = "root:root@tcp(127.0.0.1:3306)/upcycleconnect?parseTime=true&charset=utf8mb4"
 	}
 
 	db, err := sql.Open("mysql", dsn)

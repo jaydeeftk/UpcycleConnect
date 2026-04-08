@@ -39,7 +39,22 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEvenement(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/evenements/")
+	path := strings.TrimPrefix(r.URL.Path, "/api/evenements/")
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+
+	if len(parts) >= 2 && parts[1] == "participer" {
+		ParticiperEvenement(w, r)
+		return
+	}
+
+	if len(parts) >= 2 && parts[1] == "desinscrire" {
+		DesinscrireEvenement(w, r)
+		return
+	}
+
+	id := parts[0]
+	userId := r.URL.Query().Get("user_id")
+
 	row := database.DB.QueryRow(
 		"SELECT Id_Evenements, Titre, Description, Date_, Lieu, Capacite, Statut FROM Evenements WHERE Id_Evenements=?", id,
 	)
@@ -56,7 +71,116 @@ func GetEvenement(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusNotFound, "Événement introuvable")
 		return
 	}
-	httpx.JSONOK(w, http.StatusOK, e)
+
+	estInscrit := false
+	if userId != "" {
+		var idParticulier int
+		if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", userId).Scan(&idParticulier); err == nil {
+			var count int
+			database.DB.QueryRow("SELECT COUNT(*) FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?", idParticulier, id).Scan(&count)
+			estInscrit = count > 0
+		}
+	}
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+		"id": e.ID, "titre": e.Titre, "description": e.Description,
+		"date": e.Date, "lieu": e.Lieu, "capacite": e.Capacite,
+		"statut": e.Statut, "est_inscrit": estInscrit,
+	})
+}
+
+func DesinscrireEvenement(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/evenements/")
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+	idEvenement := parts[0]
+
+	var body struct {
+		IdUtilisateur int `json:"id_utilisateur"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+
+	var idParticulier int
+	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur).Scan(&idParticulier); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
+		return
+	}
+
+	database.DB.Exec("DELETE FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?", idParticulier, idEvenement)
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription effectuée"})
+}
+
+func ParticiperEvenement(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+	idEvenement := ""
+	for i, p := range parts {
+		if p == "evenements" && i+1 < len(parts) {
+			idEvenement = parts[i+1]
+			break
+		}
+	}
+
+	if idEvenement == "" {
+		httpx.JSONError(w, http.StatusBadRequest, "ID événement manquant")
+		return
+	}
+
+	var body struct {
+		IdUtilisateur int `json:"id_utilisateur"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+
+	if body.IdUtilisateur == 0 {
+		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur requis")
+		return
+	}
+
+	var idParticulier int
+	if err := database.DB.QueryRow(
+		"SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur,
+	).Scan(&idParticulier); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
+		return
+	}
+
+	var count int
+	database.DB.QueryRow(
+		"SELECT COUNT(*) FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?",
+		idParticulier, idEvenement,
+	).Scan(&count)
+	if count > 0 {
+		httpx.JSONError(w, http.StatusConflict, "Vous participez déjà à cet événement")
+		return
+	}
+
+	_, err := database.DB.Exec(
+		"INSERT INTO Participer_evenements (Id_Particuliers, Id_Evenements) VALUES (?, ?)",
+		idParticulier, idEvenement,
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
+		"message": "Inscription confirmée",
+	})
 }
 
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {

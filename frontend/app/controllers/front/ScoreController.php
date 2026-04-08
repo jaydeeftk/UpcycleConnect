@@ -15,17 +15,18 @@ class ScoreController
 
     public function index()
     {
-        // if (!isset($_SESSION['user'])) {
-        //     redirect('/login');
-        // }
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
 
         $score      = 0;
         $historique = [];
 
         try {
-            $data       = $this->api->get('/score/' . $_SESSION['user']['id']);
-            $score      = $data['score']      ?? 0;
-            $historique = $data['historique'] ?? [];
+            $res        = $this->api->get('/score/' . $_SESSION['user']['id']);
+            $res        = $res['data'] ?? $res;
+            $score      = $res['score']      ?? 0;
+            $historique = $res['historique'] ?? [];
         } catch (\Exception $e) {
             $score      = 0;
             $historique = [];

@@ -40,6 +40,22 @@ class ConseilController
         ]);
     }
 
+    public function showConseil($id)
+    {
+        $conseil = [];
+        try {
+            $res     = $this->api->get('/conseils/' . $id);
+            $conseil = $res['data'] ?? $res;
+        } catch (\Exception $e) {
+            $conseil = [];
+        }
+
+        return view('front.conseils.detail', [
+            'title'   => ($conseil['titre'] ?? 'Conseil') . ' - UpcycleConnect',
+            'conseil' => $conseil,
+        ]);
+    }
+
     public function showSujet($id)
     {
         $sujet = [];
@@ -79,7 +95,7 @@ class ConseilController
                 'titre'          => $_POST['titre'] ?? '',
                 'contenu'        => $_POST['contenu'] ?? '',
                 'categorie'      => $_POST['categorie'] ?? 'general',
-                'user_id' => $_SESSION['user']['id'] ?? 0,
+                'id_utilisateur' => $_SESSION['user']['id'] ?? 0,
             ]);
             redirect('/conseils/forum/' . ($result['data']['id'] ?? ''));
         } catch (\Exception $e) {

@@ -106,9 +106,9 @@
 
                                         <?php if (!empty($conseil['tags'])): ?>
                                             <div class="flex flex-wrap gap-2 mb-4">
-                                                <?php foreach ($conseil['tags'] as $tag): ?>
-                                                    <?php if ($tag): ?>
-                                                        <span class="badge badge-outline badge-sm">#<?= htmlspecialchars($tag) ?></span>
+                                                <?php foreach (explode(',', $conseil['tags']) as $tag): ?>
+                                                    <?php if (trim($tag)): ?>
+                                                        <span class="badge badge-outline badge-sm">#<?= htmlspecialchars(trim($tag)) ?></span>
                                                     <?php endif; ?>
                                                 <?php endforeach; ?>
                                             </div>
@@ -121,6 +121,9 @@
                                                 <span class="badge badge-sm badge-ghost"><?= htmlspecialchars($conseil['role'] ?? '') ?></span>
                                                 <span>· <?= htmlspecialchars($conseil['date'] ?? '') ?></span>
                                             </div>
+                                            <a href="/conseils/<?= $conseil['id'] ?>" class="btn btn-ghost btn-sm">
+                                                Lire la suite <i class="fas fa-arrow-right ml-1"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

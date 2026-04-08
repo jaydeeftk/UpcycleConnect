@@ -114,7 +114,16 @@
                                             <span><i class="fas fa-box mr-1"></i>État : <?= htmlspecialchars($annonce['etat'] ?? '') ?></span>
                                         </div>
                                     </div>
-                                    <span class="badge <?= $statutColor ?> flex-shrink-0"><?= $statutLabel ?></span>
+                                    <div class="flex flex-col items-end gap-2">
+                                        <span class="badge <?= $statutColor ?> flex-shrink-0"><?= $statutLabel ?></span>
+                                        <?php if (($annonce['statut'] ?? '') === 'en_attente'): ?>
+                                            <form method="POST" action="/annonces/<?= $annonce['id'] ?>/annuler">
+                                                <button type="submit" class="btn btn-ghost btn-xs text-red-500 hover:bg-red-50">
+                                                    <i class="fas fa-times mr-1"></i> Annuler
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -141,14 +150,14 @@
                         <?php foreach ($conteneursFiltred as $conteneur): ?>
                             <?php
                             $statutColor = match($conteneur['statut'] ?? 'en_attente') {
-                                'validee' => 'badge-success',
-                                'rejetee' => 'badge-error',
-                                default   => 'badge-warning',
+                                'valide'     => 'badge-success',
+                                'refuse'     => 'badge-error',
+                                default      => 'badge-warning',
                             };
                             $statutLabel = match($conteneur['statut'] ?? 'en_attente') {
-                                'validee' => 'Validé - Code envoyé',
-                                'rejetee' => 'Refusé',
-                                default   => 'En attente de validation',
+                                'valide'     => 'Validé',
+                                'refuse'     => 'Refusé',
+                                default      => 'En attente',
                             };
                             ?>
                             <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6">
@@ -168,9 +177,15 @@
                                         </div>
                                         <p class="text-sm text-base-content/60 mb-3"><?= htmlspecialchars($conteneur['description'] ?? '') ?></p>
                                         <div class="flex gap-4 text-xs text-base-content/50">
-                                            <span><i class="fas fa-map-marker-alt mr-1"></i><?= htmlspecialchars($conteneur['localisation'] ?? '') ?></span>
-                                            <span><i class="fas fa-calendar mr-1"></i>Dépôt prévu le <?= htmlspecialchars($conteneur['date_depot'] ?? '') ?></span>
+                                            <span><i class="fas fa-calendar mr-1"></i><?= htmlspecialchars($conteneur['date'] ?? '') ?></span>
                                         </div>
+                                        <?php if (($conteneur['statut'] ?? '') === 'valide' && !empty($conteneur['code_acces'])): ?>
+                                            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                                <p class="text-xs font-semibold text-green-700 mb-1"><i class="fas fa-key mr-1"></i> Votre code d'accès au conteneur :</p>
+                                                <p class="text-2xl font-bold text-green-600 tracking-widest"><?= htmlspecialchars($conteneur['code_acces']) ?></p>
+                                                <p class="text-xs text-green-600 mt-1">Présentez ce code lors du dépôt de votre objet.</p>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                     <span class="badge <?= $statutColor ?> flex-shrink-0"><?= $statutLabel ?></span>
                                 </div>

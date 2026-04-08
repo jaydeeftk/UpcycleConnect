@@ -52,7 +52,26 @@
                 </ul>
             </div>
 
-            
+            <div class="dropdown dropdown-hover">
+                <div tabindex="0" role="button" class="cursor-pointer hover:text-primary transition flex items-center gap-2">
+                    Objets
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow border border-base-300 mt-2">
+                    <li>
+                        <a href="/annonces" class="flex items-center gap-3">
+                            <i class="fas fa-bullhorn text-green-500"></i>
+                            <div>
+                                <div class="font-medium">Toutes les annonces</div>
+                                <div class="text-xs text-base-content/60">Dons et ventes disponibles</div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
             <div class="dropdown dropdown-hover" data-tuto="deposer">
                 <div tabindex="0" role="button" class="cursor-pointer hover:text-primary transition flex items-center gap-2">
                     Déposer
@@ -60,7 +79,6 @@
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-                
                 <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow border border-base-300 mt-2">
                     <li>
                         <a href="/annonces/create" class="flex items-center gap-3">
@@ -136,10 +154,10 @@
             <?php endif; ?>
 
             <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin'): ?>
-    <a href="/admin/dashboard" class="nav-link">
-        <i class="fas fa-cog"></i> Administration
-    </a>
-        <?php endif; ?>
+                <a href="/admin/dashboard" class="nav-link">
+                    <i class="fas fa-cog"></i> Administration
+                </a>
+            <?php endif; ?>
 
         </div>
     </div>

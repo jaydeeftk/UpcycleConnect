@@ -3,48 +3,66 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
+	"os"
 
-	"upcycleconnect/internal/database"
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/checkout/session"
 	"upcycleconnect/internal/httpx"
 )
 
-func GetPaiements(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	idUtilisateur := parts[len(parts)-1]
-
-	rows, err := database.DB.Query(
-		"SELECT Id_Paiements, Montant, Statut, Date_Paiement FROM Paiements WHERE Id_Utilisateurs = ?",
-		idUtilisateur,
-	)
-
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-	defer rows.Close()
 
-	var paiements []map[string]interface{}
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
-	for rows.Next() {
-		var id int
-		var montant float64
-		var statut bool
-		var date string
-
-		if err := rows.Scan(&id, &montant, &statut, &date); err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		paiements = append(paiements, map[string]interface{}{
-			"id":      id,
-			"montant": montant,
-			"statut":  statut,
-			"date":    date,
-		})
+	var body struct {
+		IdUtilisateur int     `json:"id_utilisateur"`
+		Type          string  `json:"type"`
+		IdItem        int     `json:"id_item"`
+		Montant       float64 `json:"montant"`
+		Titre         string  `json:"titre"`
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(paiements)
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+
+	params := &stripe.CheckoutSessionParams{
+		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
+					Currency: stripe.String("eur"),
+					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
+						Name: stripe.String(body.Titre),
+					},
+					UnitAmount: stripe.Int64(int64(body.Montant * 100)),
+				},
+				Quantity: stripe.Int64(1),
+			},
+		},
+		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
+		SuccessURL: stripe.String("http://localhost/paiement/success?type=" + body.Type + "&id=" + string(rune(body.IdItem))),
+		CancelURL:  stripe.String("http://localhost/catalogue/" + body.Type + "s"),
+	}
+
+	s, err := session.New(params)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, "Erreur Stripe : "+err.Error())
+		return
+	}
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+		"checkout_url": s.URL,
+	})
+}
+
+func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+		"message": "Paiement confirmé",
+	})
 }

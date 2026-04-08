@@ -43,6 +43,7 @@ class ConseilController
 
     public function store()
     {
+      
         try {
             $this->api->post('/salaries/conseils/create', [
                 'contenu'      => $_POST['contenu'] ?? '',

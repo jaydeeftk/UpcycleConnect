@@ -54,8 +54,8 @@ func GetConseils(w http.ResponseWriter, r *http.Request) {
 
 func CreateConseil(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Contenu    string `json:"contenu"`
-		IdSalaries int    `json:"id_salaries"`
+		Contenu        string `json:"contenu"`
+		IdUtilisateurs int    `json:"id_salaries"` // reçoit l'Id_Utilisateurs
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -63,17 +63,28 @@ func CreateConseil(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.Contenu == "" || body.IdSalaries == 0 {
-		http.Error(w, `{"message": "Contenu et id_salaries requis"}`, http.StatusBadRequest)
+	if body.Contenu == "" || body.IdUtilisateurs == 0 {
+		http.Error(w, `{"message": "Contenu et id requis"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Résoudre l'Id_Salaries depuis l'Id_Utilisateurs
+	var idSalaries int
+	err := database.DB.QueryRow(`
+        SELECT Id_Salaries FROM Salaries WHERE Id_Utilisateurs = ?
+    `, body.IdUtilisateurs).Scan(&idSalaries)
+
+	if err != nil {
+		http.Error(w, `{"message": "Salarié introuvable"}`, http.StatusNotFound)
 		return
 	}
 
 	dateAjout := time.Now().Format("2006-01-02 15:04:05")
 
 	result, err := database.DB.Exec(`
-		INSERT INTO Conseils (Contenu, Date_d_ajout, Id_Salaries)
-		VALUES (?, ?, ?)
-	`, body.Contenu, dateAjout, body.IdSalaries)
+        INSERT INTO Conseils (Contenu, Date_d_ajout, Id_Salaries)
+        VALUES (?, ?, ?)
+    `, body.Contenu, dateAjout, idSalaries)
 
 	if err != nil {
 		http.Error(w, `{"message": "Erreur lors de la création"}`, http.StatusInternalServerError)

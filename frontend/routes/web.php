@@ -2,12 +2,16 @@
 
 $router->get('/', 'Front\HomeController@index');
 $router->get('/home', 'Front\HomeController@index');
+$router->get('/lang/{lang}', 'Front\LangController@switch');
 $router->get('/prestations', 'Front\PrestationController@index');
 $router->get('/prestations/{id}', 'Front\PrestationController@show');
 $router->get('/demande-prestation', 'Front\PrestationController@create');
 $router->post('/demande-prestation', 'Front\PrestationController@store');
 $router->get('/catalogue/services', 'Front\CatalogueController@services');
+$router->get('/services/{id}', 'Front\CatalogueController@showService');
 $router->get('/catalogue/formations', 'Front\CatalogueController@formations');
+$router->get('/formations/{id}', 'Front\CatalogueController@showFormation');
+$router->post('/formations/{id}/inscrire', 'Front\CatalogueController@inscrireFormation');
 $router->get('/catalogue/evenements', 'Front\CatalogueController@evenements');
 
 $router->get('/conseils', 'Front\ConseilController@index');
@@ -21,14 +25,20 @@ $router->get('/conseils/{id}', 'Front\ConseilController@showConseil');
 $router->get('/score', 'Front\ScoreController@index');
 $router->get('/planning', 'Front\PlanningController@index');
 
+$router->get('/annonces', 'Front\AnnonceController@index');
 $router->get('/annonces/create', 'Front\AnnonceController@create');
 $router->post('/annonces/store', 'Front\AnnonceController@store');
+$router->get('/annonces/{id}', 'Front\AnnonceController@show');
+$router->post('/annonces/{id}/annuler', 'Front\AnnonceController@annuler');
 
 $router->get('/conteneurs/create', 'Front\ConteneurController@create');
 $router->post('/conteneurs/store', 'Front\ConteneurController@store');
 
 $router->get('/evenements', 'Front\EvenementController@index');
 $router->get('/evenements/{id}', 'Front\EvenementController@show');
+$router->post("/evenements/{id}/participer", "Front\\EvenementController@participer");
+$router->post("/evenements/{id}/desinscrire", "Front\\EvenementController@desinscrire");
+$router->post("/formations/{id}/desinscrire", "Front\\CatalogueController@desinscrireFormation");
 $router->get('/a-propos', 'Front\PageController@apropos');
 $router->get('/contact', 'Front\PageController@contact');
 
@@ -43,6 +53,7 @@ $router->get('/mes-demandes', 'Front\UserController@mesDemandes');
 $router->get('/mes-prestations', 'Front\UserController@mesPrestations');
 $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
+$router->get('/paiement/success', 'Front\UserController@paiementSuccess');
 
 
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
@@ -96,4 +107,6 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/demandes', 'Admin\DemandeController@index');
     $router->post('/demandes/valider/([0-9]+)', 'Admin\DemandeController@valider');
     $router->post('/demandes/refuser/([0-9]+)', 'Admin\DemandeController@refuser');
+
+    
 });

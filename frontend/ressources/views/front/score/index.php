@@ -42,9 +42,9 @@
                 <h3 class="font-semibold mb-4">Comment améliorer votre score ?</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <?php foreach ([
-                        ['icon' => 'fa-box-open',    'color' => 'text-blue-500',    'bg' => 'bg-blue-50',    'label' => 'Donner ou vendre',  'desc' => '+50 pts par objet déposé'],
-                        ['icon' => 'fa-calendar-alt','color' => 'text-purple-500',  'bg' => 'bg-purple-50',  'label' => 'Participer',        'desc' => '+30 pts par événement'],
-                        ['icon' => 'fa-comments',    'color' => 'text-orange-500',  'bg' => 'bg-orange-50',  'label' => 'Partager un conseil','desc' => '+20 pts par conseil'],
+                        ['icon' => 'fa-box-open',    'color' => 'text-blue-500',    'bg' => 'bg-blue-50',    'label' => 'Donner ou vendre',  'desc' => '+30 pts par objet déposé'],
+                        ['icon' => 'fa-calendar-alt','color' => 'text-purple-500',  'bg' => 'bg-purple-50',  'label' => 'Participer',        'desc' => '+20 pts par événement'],
+                        ['icon' => 'fa-comments',    'color' => 'text-orange-500',  'bg' => 'bg-orange-50',  'label' => 'Partager un conseil','desc' => '+10 pts par conseil'],
                     ] as $action): ?>
                         <div class="<?= $action['bg'] ?> rounded-xl p-4 text-center">
                             <i class="fas <?= $action['icon'] ?> <?= $action['color'] ?> text-2xl mb-2 block"></i>
@@ -132,28 +132,27 @@
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8">
         <h2 class="text-lg font-semibold mb-6">Historique des points</h2>
-        <div class="space-y-3">
-            <?php
-            $historique = $historique ?? [
-                ['action' => 'Dépôt d\'un objet dans un conteneur', 'points' => '+50', 'date' => '02 avr. 2026', 'icon' => 'fa-box-open',     'color' => 'text-blue-500'],
-                ['action' => 'Participation à un atelier',           'points' => '+30', 'date' => '28 mars 2026', 'icon' => 'fa-calendar-alt', 'color' => 'text-purple-500'],
-                ['action' => 'Conseil partagé dans l\'espace conseils','points' => '+20','date' => '25 mars 2026','icon' => 'fa-comments',    'color' => 'text-orange-500'],
-                ['action' => 'Don d\'un objet via annonce',           'points' => '+50', 'date' => '20 mars 2026', 'icon' => 'fa-heart',        'color' => 'text-red-500'],
-            ];
-            foreach ($historique as $item):
-            ?>
-                <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-base-200 transition">
-                    <div class="w-10 h-10 bg-base-200 rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas <?= $item['icon'] ?> <?= $item['color'] ?>"></i>
+        <?php if (empty($historique)): ?>
+            <div class="text-center py-10 text-base-content/40">
+                <i class="fas fa-history text-4xl mb-3 block"></i>
+                <p>Aucune activité pour le moment. Commencez à upcycler !</p>
+            </div>
+        <?php else: ?>
+            <div class="space-y-3">
+                <?php foreach ($historique as $item): ?>
+                    <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-base-200 transition">
+                        <div class="w-10 h-10 bg-base-200 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas <?= $item['icon'] ?> <?= $item['color'] ?>"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-sm"><?= htmlspecialchars($item['action']) ?></div>
+                            <div class="text-xs text-base-content/50"><?= htmlspecialchars($item['detail'] ?? '') ?></div>
+                        </div>
+                        <div class="font-bold text-emerald-500"><?= $item['points'] ?> pts</div>
                     </div>
-                    <div class="flex-1">
-                        <div class="font-medium text-sm"><?= htmlspecialchars($item['action']) ?></div>
-                        <div class="text-xs text-base-content/50"><?= htmlspecialchars($item['date']) ?></div>
-                    </div>
-                    <div class="font-bold text-emerald-500"><?= $item['points'] ?> pts</div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 
 </section>

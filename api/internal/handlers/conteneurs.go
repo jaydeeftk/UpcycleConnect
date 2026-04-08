@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
@@ -97,7 +99,11 @@ func GetDemandesConteneurUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := database.DB.Query("SELECT Id_Demande, Type_objet, Statut FROM Demandes_conteneurs WHERE Id_Particuliers = ?", idParticulier)
+	rows, err := database.DB.Query(
+		`SELECT Id_Demande, Type_objet, COALESCE(Description, ''), COALESCE(Etat_usure, ''), 
+			Statut, COALESCE(Code_acces, ''), COALESCE(Date_demande, '')
+		FROM Demandes_conteneurs WHERE Id_Particuliers = ? ORDER BY Date_demande DESC`, idParticulier,
+	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -107,14 +113,71 @@ func GetDemandesConteneurUser(w http.ResponseWriter, r *http.Request) {
 	var list []map[string]interface{}
 	for rows.Next() {
 		var idD int
-		var t, s string
-		rows.Scan(&idD, &t, &s)
-		list = append(list, map[string]interface{}{"id": idD, "type_objet": t, "statut": s})
+		var typeObjet, desc, etat, statut, code, date string
+		rows.Scan(&idD, &typeObjet, &desc, &etat, &statut, &code, &date)
+		list = append(list, map[string]interface{}{
+			"id":          idD,
+			"type_objet":  typeObjet,
+			"description": desc,
+			"etat_usure":  etat,
+			"statut":      statut,
+			"code_acces":  code,
+			"date":        date,
+		})
 	}
 	if list == nil {
 		list = []map[string]interface{}{}
 	}
 	httpx.JSONOK(w, http.StatusOK, list)
+}
+
+func ValiderDemandeConteneur(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+	idDemande := ""
+	for i, p := range parts {
+		if p == "demandes" && i+1 < len(parts) {
+			idDemande = parts[i+1]
+			break
+		}
+	}
+
+	var body struct {
+		Action string `json:"action"`
+	}
+	json.NewDecoder(r.Body).Decode(&body)
+
+	if body.Action == "valider" {
+		code := genererCode()
+		database.DB.Exec(
+			"UPDATE Demandes_conteneurs SET Statut = 'valide', Code_acces = ? WHERE Id_Demande = ?",
+			code, idDemande,
+		)
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+			"message":    "Demande validée",
+			"code_acces": code,
+		})
+	} else {
+		database.DB.Exec(
+			"UPDATE Demandes_conteneurs SET Statut = 'refuse' WHERE Id_Demande = ?",
+			idDemande,
+		)
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Demande refusée"})
+	}
+}
+
+func genererCode() string {
+	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	rand.Seed(time.Now().UnixNano())
+	result := make([]byte, 6)
+	for i := range result {
+		result[i] = chars[rand.Intn(len(chars))]
+	}
+	return "UC-" + string(result)
 }
 
 func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {

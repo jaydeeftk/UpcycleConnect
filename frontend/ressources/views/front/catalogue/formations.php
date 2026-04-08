@@ -1,5 +1,19 @@
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
 
+    <?php if (isset($_GET['success'])): ?>
+        <div class="alert alert-success mb-6">
+            <i class="fas fa-check-circle"></i>
+            <span>Vous êtes bien inscrit à cette formation !</span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['error'])): ?>
+        <div class="alert alert-error mb-6">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?= htmlspecialchars($_GET['error']) ?></span>
+        </div>
+    <?php endif; ?>
+
     <div class="mb-10">
         <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
@@ -115,7 +129,7 @@
                         <?php if ($complet): ?>
                             <button class="btn btn-disabled btn-sm" disabled>Complet</button>
                         <?php else: ?>
-                            <a href="#" class="btn btn-neutral btn-sm">S'inscrire</a>
+                            <a href="/formations/<?= $formation['id'] ?>" class="btn btn-neutral btn-sm">Voir la formation</a>
                         <?php endif; ?>
                     </div>
                 </div>

@@ -12,15 +12,16 @@ class UserController
     {
         $annonces = [];
         $conteneurs = [];
-        if (isset($_SESSION['user']['id_particulier'])) {
-            $idParticulier = $_SESSION['user']['id_particulier'];
+        if (isset($_SESSION['user']['id'])) {
             try {
-                $annonces = $this->api->get('/annonces/user/' . $idParticulier) ?? [];
+                $res      = $this->api->get('/annonces/user/' . $_SESSION['user']['id']) ?? [];
+                $annonces = $res['data'] ?? $res;
             } catch (\Exception $e) {
                 $annonces = [];
             }
             try {
-                $conteneurs = $this->api->get('/conteneurs/user/' . $idParticulier) ?? [];
+                $res        = $this->api->get('/conteneurs/user/' . $_SESSION['user']['id']) ?? [];
+                $conteneurs = $res['data'] ?? $res;
             } catch (\Exception $e) {
                 $conteneurs = [];
             }
@@ -67,4 +68,13 @@ class UserController
         echo json_encode(['success' => true]);
         exit;
     }
+
+    public function paiementSuccess()
+{
+    return view('front.paiements.success', [
+        'title' => 'Paiement confirmé - UpcycleConnect',
+        'type'  => $_GET['type'] ?? '',
+        'id'    => $_GET['id'] ?? '',
+    ]);
+}
 }

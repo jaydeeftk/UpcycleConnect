@@ -7,6 +7,19 @@ import (
 	"upcycleconnect/internal/middleware"
 )
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func NewRouter() http.Handler {
 	mux := http.NewServeMux()
 
@@ -17,12 +30,13 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/parametres", handlers.AdminGetParametres)
 
 	mux.HandleFunc("/api/services", handlers.GetServices)
+	mux.HandleFunc("/api/services/", handlers.GetService)
 	mux.HandleFunc("/api/formations", handlers.GetFormations)
+	mux.HandleFunc("/api/formations/", handlers.GetFormation)
 	mux.HandleFunc("/api/evenements", handlers.GetEvenements)
 	mux.HandleFunc("/api/evenements/", handlers.GetEvenement)
 	mux.HandleFunc("/api/annonces", handlers.GetAnnonces)
-	mux.HandleFunc("/api/annonces/create", handlers.CreateAnnonce)
-	mux.HandleFunc("/api/annonces/user/", handlers.GetAnnoncesUser)
+	mux.HandleFunc("/api/annonces/", handlers.GetAnnonceDispatch)
 
 	mux.HandleFunc("/api/conteneurs", handlers.GetConteneurs)
 	mux.HandleFunc("/api/conteneurs/demandes", handlers.CreateDemandeConteneur)
@@ -33,7 +47,6 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/forum/sujets", handlers.ForumSujetsHandler)
 	mux.HandleFunc("/api/forum/sujets/", handlers.ForumSujetDispatch)
 
-	mux.HandleFunc("/api/paiements/", middleware.JWTAuth(handlers.GetPaiements))
 	mux.HandleFunc("/api/demandes/", middleware.JWTAuth(handlers.GetDemandes))
 	mux.HandleFunc("/api/demandes/create", middleware.JWTAuth(handlers.CreateDemande))
 
@@ -93,7 +106,9 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/demandes/", middleware.AdminOnly(handlers.AdminDemandeAction))
 
 	mux.HandleFunc("/api/score/", handlers.GetScore)
-	mux.HandleFunc("/api/planning/", middleware.JWTAuth(handlers.GetPlanning))
+	mux.HandleFunc("/api/planning/", handlers.GetPlanning)
+	mux.HandleFunc("/api/paiements/checkout", handlers.CreateCheckoutSession)
+	mux.HandleFunc("/api/paiements/success", handlers.PaiementSuccess)
 
-	return mux
+	return corsMiddleware(mux)
 }

@@ -14,7 +14,6 @@ func AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	database.DB.QueryRow("SELECT COUNT(*) FROM Annonces").Scan(&totalAnnonces)
 	database.DB.QueryRow("SELECT COUNT(*) FROM Evenements").Scan(&totalEvenements)
 	database.DB.QueryRow("SELECT COUNT(*) FROM Messages").Scan(&totalMessages)
-
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
 		"total_utilisateurs": totalUsers,
 		"total_annonces":     totalAnnonces,
@@ -25,14 +24,13 @@ func AdminDashboard(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut, Date_Inscription FROM Utilisateurs ORDER BY Date_Inscription DESC",
+		"SELECT Id_Utilisateurs, COALESCE(Nom,''), COALESCE(Prenom,''), COALESCE(Email,''), COALESCE(Statut,''), COALESCE(Date_Inscription,'') FROM Utilisateurs ORDER BY Date_Inscription DESC",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
-
 	users := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
@@ -53,11 +51,10 @@ func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := parts[3]
-
 	var id_u int
 	var nom, prenom, email, statut, date string
 	err := database.DB.QueryRow(
-		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut, Date_Inscription FROM Utilisateurs WHERE Id_Utilisateurs = ?", id,
+		"SELECT Id_Utilisateurs, COALESCE(Nom,''), COALESCE(Prenom,''), COALESCE(Email,''), COALESCE(Statut,''), COALESCE(Date_Inscription,'') FROM Utilisateurs WHERE Id_Utilisateurs = ?", id,
 	).Scan(&id_u, &nom, &prenom, &email, &statut, &date)
 	if err != nil {
 		httpx.JSONError(w, http.StatusNotFound, "Utilisateur introuvable")
@@ -76,16 +73,32 @@ func AdminDeleteUtilisateur(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Utilisateur supprimé"})
 }
 
+func AdminUpdateUtilisateur(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id := parts[len(parts)-1]
+	var body struct {
+		Statut string `json:"statut"`
+		Nom    string `json:"nom"`
+		Prenom string `json:"prenom"`
+		Email  string `json:"email"`
+	}
+	json.NewDecoder(r.Body).Decode(&body)
+	database.DB.Exec(
+		"UPDATE Utilisateurs SET Statut=?, Nom=?, Prenom=?, Email=? WHERE Id_Utilisateurs=?",
+		body.Statut, body.Nom, body.Prenom, body.Email, id,
+	)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Utilisateur mis à jour"})
+}
+
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Evenements, Titre, Description, COALESCE(Date_, ''), COALESCE(Lieu, '') FROM Evenements ORDER BY Date_ DESC",
+		"SELECT Id_Evenements, COALESCE(Titre,''), COALESCE(Description,''), COALESCE(Date_,''), COALESCE(Lieu,'') FROM Evenements ORDER BY Date_ DESC",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
-
 	evenements := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
@@ -112,6 +125,9 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 		IdSalarie     int    `json:"id_salarie"`
 	}
 	json.NewDecoder(r.Body).Decode(&body)
+	if body.IdSalarie == 0 {
+		body.IdSalarie = 1
+	}
 	_, err := database.DB.Exec(
 		"INSERT INTO Evenements (Titre, Description, Lieu, Date_, Id_Salaries) VALUES (?, ?, ?, ?, ?)",
 		body.Titre, body.Description, body.Lieu, body.DateEvenement, body.IdSalarie,
@@ -123,16 +139,22 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Événement créé"})
 }
 
+func AdminDeleteEvenement(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id := parts[len(parts)-1]
+	database.DB.Exec("DELETE FROM Evenements WHERE Id_Evenements = ?", id)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement supprimé"})
+}
+
 func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Messages, Contenu, Date_envoi, Id_Particuliers FROM Messages ORDER BY Date_envoi DESC LIMIT 50",
+		"SELECT Id_Messages, COALESCE(Contenu,''), COALESCE(Date_envoi,''), Id_Particuliers FROM Messages ORDER BY Date_envoi DESC LIMIT 50",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
-
 	messages := []map[string]interface{}{}
 	for rows.Next() {
 		var id, userId int
@@ -150,13 +172,12 @@ func AdminGetCategories(w http.ResponseWriter, r *http.Request) {
 		AdminCreateCategorie(w, r)
 		return
 	}
-	rows, err := database.DB.Query("SELECT Id_Categories, Nom, Description FROM Categories")
+	rows, err := database.DB.Query("SELECT Id_Categories, Nom, COALESCE(Description,'') FROM Categories")
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
-
 	categories := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
@@ -196,14 +217,13 @@ func AdminDeleteCategorie(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Annonces, Titre, Description, Statut, Date_publication FROM Annonces ORDER BY Date_publication DESC",
+		"SELECT Id_Annonces, COALESCE(Titre,''), COALESCE(Description,''), COALESCE(Statut,'en_attente'), COALESCE(Date_publication,'') FROM Annonces ORDER BY Date_publication DESC",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
-
 	annonces := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
@@ -217,6 +237,22 @@ func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }
 
+func AdminUpdateAnnonceStatut(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 4 {
+		httpx.JSONError(w, http.StatusBadRequest, "Paramètres manquants")
+		return
+	}
+	id := parts[2]
+	action := parts[3]
+	statut := "active"
+	if action == "reject" {
+		statut = "rejetee"
+	}
+	database.DB.Exec("UPDATE Annonces SET Statut = ? WHERE Id_Annonces = ?", statut, id)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Statut mis à jour"})
+}
+
 func AdminGetParametres(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
 		"site_nom":         "UpcycleConnect",
@@ -228,7 +264,7 @@ func AdminGetParametres(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Formations, Titre, Description, Prix, Duree, Statut, COALESCE(Date_formation,''), COALESCE(Places_total,0), COALESCE(Places_dispo,0) FROM Formations ORDER BY Date_formation DESC",
+		"SELECT Id_Formations, COALESCE(Titre,''), COALESCE(Description,''), COALESCE(Prix,0), COALESCE(Duree,0), COALESCE(Statut,''), COALESCE(Date_formation,''), COALESCE(Places_total,0), COALESCE(Places_dispo,0) FROM Formations ORDER BY Date_formation DESC",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
@@ -258,27 +294,44 @@ func AdminDeleteFormation(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetContrats(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusOK, []interface{}{})
+	rows, err := database.DB.Query(
+		"SELECT Id_Contrats, COALESCE(Type,''), COALESCE(Date_signature,''), COALESCE(Date_debut,''), COALESCE(Date_fin,'') FROM Contrats ORDER BY Date_signature DESC",
+	)
+	if err != nil {
+		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		return
+	}
+	defer rows.Close()
+	contrats := []map[string]interface{}{}
+	for rows.Next() {
+		var id int
+		var typeC, dateSign, dateDebut, dateFin string
+		rows.Scan(&id, &typeC, &dateSign, &dateDebut, &dateFin)
+		contrats = append(contrats, map[string]interface{}{
+			"id": id, "reference": typeC, "montant": 0,
+			"statut": "actif", "date": dateSign,
+		})
+	}
+	httpx.JSONOK(w, http.StatusOK, contrats)
 }
 
 func AdminGetFactures(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Paiements, Montant, Statut, Date_Paiement FROM Paiements ORDER BY Date_Paiement DESC",
+		"SELECT Id_Facture, COALESCE(Numero_facture,''), COALESCE(Montant_TTC,0), COALESCE(Statut,''), COALESCE(Date_emission,'') FROM Factures ORDER BY Date_emission DESC",
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONOK(w, http.StatusOK, []interface{}{})
 		return
 	}
 	defer rows.Close()
 	factures := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
+		var numero, statut, date string
 		var montant float64
-		var statut bool
-		var date string
-		rows.Scan(&id, &montant, &statut, &date)
+		rows.Scan(&id, &numero, &montant, &statut, &date)
 		factures = append(factures, map[string]interface{}{
-			"id": id, "montant": montant, "statut": statut, "date": date,
+			"id": id, "reference": numero, "montant": montant, "statut": statut, "date": date,
 		})
 	}
 	httpx.JSONOK(w, http.StatusOK, factures)
@@ -286,7 +339,7 @@ func AdminGetFactures(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetNotifications(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Notifications, Contenu, Date_envoi, Id_Utilisateurs FROM Notifications ORDER BY Date_envoi DESC LIMIT 20",
+		"SELECT Id_Notifications, COALESCE(Contenu,''), COALESCE(Date_Envoi,'') FROM Notifications ORDER BY Date_Envoi DESC LIMIT 20",
 	)
 	if err != nil {
 		httpx.JSONOK(w, http.StatusOK, []interface{}{})
@@ -295,11 +348,11 @@ func AdminGetNotifications(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 	notifs := []map[string]interface{}{}
 	for rows.Next() {
-		var id, userId int
+		var id int
 		var contenu, date string
-		rows.Scan(&id, &contenu, &date, &userId)
+		rows.Scan(&id, &contenu, &date)
 		notifs = append(notifs, map[string]interface{}{
-			"id": id, "message": contenu, "date": date, "id_utilisateur": userId,
+			"id": id, "titre": "Notification", "message": contenu, "date": date,
 		})
 	}
 	httpx.JSONOK(w, http.StatusOK, notifs)
@@ -313,7 +366,7 @@ func AdminSendNotification(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 	database.DB.Exec(
-		"INSERT INTO Notifications (Contenu, Date_envoi, Id_Utilisateurs) VALUES (?, NOW(), 1)",
+		"INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs) VALUES (?, NOW(), 1, 1, 1)",
 		body.Titre+": "+body.Message,
 	)
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Notification envoyée"})

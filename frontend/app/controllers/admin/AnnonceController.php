@@ -11,13 +11,13 @@ class AnnonceController
         $this->api->setToken($_SESSION['user']['token'] ?? '');
     }
     public function index()
-    {
-        try {
-            $result = $this->api->get('/admin/annonces');
-            $annonces = isset($result['data']) ? $result['data'] : ($result ?? []);
-        } catch (\Exception $e) { $annonces = []; }
-        return view('admin.annonces.index', ['annonces' => $annonces, 'page_title' => 'Annonces']);
-    }
+{
+    try {
+        $result = $this->api->get('/admin/annonces');
+        $annonces = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $annonces = []; }
+    return view('admin.annonces.index', ['annonces' => $annonces, 'page_title' => 'Annonces']);
+}
     public function validate($id)
     {
         try { $this->api->get('/admin/annonces/' . $id . '/validate'); } catch (\Exception $e) {}

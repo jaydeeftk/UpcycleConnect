@@ -11,13 +11,13 @@ class FormationController
         $this->api->setToken($_SESSION['user']['token'] ?? '');
     }
     public function index()
-    {
-        try {
-            $result = $this->api->get('/formations');
-            $formations = $result ?? [];
-        } catch (\Exception $e) { $formations = []; }
-        return view('admin.formations.index', ['formations' => $formations, 'page_title' => 'Formations']);
-    }
+{
+    try {
+        $result = $this->api->get('/admin/formations');
+        $formations = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $formations = []; }
+    return view('admin.formations.index', ['formations' => $formations, 'page_title' => 'Formations']);
+}
     public function delete($id)
     {
         try { $this->api->delete('/admin/formations/' . $id); } catch (\Exception $e) {}

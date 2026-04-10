@@ -11,11 +11,11 @@ class FactureController
         $this->api->setToken($_SESSION['user']['token'] ?? '');
     }
     public function index()
-    {
-        try {
-            $result = $this->api->get('/admin/factures');
-            $factures = $result['data'] ?? [];
-        } catch (\Exception $e) { $factures = []; }
-        return view('admin.factures.index', ['factures' => $factures, 'page_title' => 'Factures']);
-    }
+{
+    try {
+        $result = $this->api->get('/admin/factures');
+        $factures = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $factures = []; }
+    return view('admin.factures.index', ['factures' => $factures, 'page_title' => 'Factures']);
+}
 }

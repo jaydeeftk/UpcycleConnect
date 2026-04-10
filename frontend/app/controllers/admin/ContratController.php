@@ -11,11 +11,11 @@ class ContratController
         $this->api->setToken($_SESSION['user']['token'] ?? '');
     }
     public function index()
-    {
-        try {
-            $result = $this->api->get('/admin/contrats');
-            $contrats = $result['data'] ?? [];
-        } catch (\Exception $e) { $contrats = []; }
-        return view('admin.contrats.index', ['contrats' => $contrats, 'page_title' => 'Contrats']);
-    }
+{
+    try {
+        $result = $this->api->get('/admin/contrats');
+        $contrats = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $contrats = []; }
+    return view('admin.contrats.index', ['contrats' => $contrats, 'page_title' => 'Contrats']);
+}
 }

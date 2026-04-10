@@ -4,21 +4,19 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 )
 
 func AdminDashboard(w http.ResponseWriter, r *http.Request) {
-	var totalUtilisateurs, totalAnnonces, totalEvenements, totalMessages int
-
-	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs").Scan(&totalUtilisateurs)
+	var totalUsers, totalAnnonces, totalEvenements, totalMessages int
+	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs").Scan(&totalUsers)
 	database.DB.QueryRow("SELECT COUNT(*) FROM Annonces").Scan(&totalAnnonces)
 	database.DB.QueryRow("SELECT COUNT(*) FROM Evenements").Scan(&totalEvenements)
 	database.DB.QueryRow("SELECT COUNT(*) FROM Messages").Scan(&totalMessages)
 
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"total_utilisateurs": totalUtilisateurs,
+		"total_utilisateurs": totalUsers,
 		"total_annonces":     totalAnnonces,
 		"total_evenements":   totalEvenements,
 		"total_messages":     totalMessages,
@@ -27,217 +25,203 @@ func AdminDashboard(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut, Date_Inscription FROM Utilisateurs",
+		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut, Date_Inscription FROM Utilisateurs ORDER BY Date_Inscription DESC",
 	)
-
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
 
-	var utilisateurs []map[string]interface{}
-
+	users := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
-		var nom, prenom, email, statut string
-		var date *string
-
+		var nom, prenom, email, statut, date string
 		rows.Scan(&id, &nom, &prenom, &email, &statut, &date)
-
-		utilisateurs = append(utilisateurs, map[string]interface{}{
-			"id":         id,
-			"nom":        nom,
-			"prenom":     prenom,
-			"email":      email,
-			"statut":     statut,
-			"created_at": date,
+		users = append(users, map[string]interface{}{
+			"id": id, "nom": nom, "prenom": prenom,
+			"email": email, "statut": statut, "date_inscription": date,
 		})
 	}
+	httpx.JSONOK(w, http.StatusOK, users)
+}
 
-	httpx.JSONOK(w, http.StatusOK, utilisateurs)
+func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 4 {
+		httpx.JSONError(w, http.StatusBadRequest, "ID manquant")
+		return
+	}
+	id := parts[3]
+
+	var id_u int
+	var nom, prenom, email, statut, date string
+	err := database.DB.QueryRow(
+		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut, Date_Inscription FROM Utilisateurs WHERE Id_Utilisateurs = ?", id,
+	).Scan(&id_u, &nom, &prenom, &email, &statut, &date)
+	if err != nil {
+		httpx.JSONError(w, http.StatusNotFound, "Utilisateur introuvable")
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+		"id": id_u, "nom": nom, "prenom": prenom,
+		"email": email, "statut": statut, "date_inscription": date,
+	})
+}
+
+func AdminDeleteUtilisateur(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id := parts[len(parts)-1]
+	database.DB.Exec("DELETE FROM Utilisateurs WHERE Id_Utilisateurs = ?", id)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Utilisateur supprimé"})
 }
 
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Evenements, Titre, Description, Lieu, Date_Evenement FROM Evenements",
+		"SELECT Id_Evenements, Titre, Description, Date_evenement, Lieu FROM Evenements ORDER BY Date_evenement DESC",
 	)
-
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
 
-	var evenements []map[string]interface{}
-
+	evenements := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
-		var titre, description, lieu string
-		var date *string
-
-		rows.Scan(&id, &titre, &description, &lieu, &date)
-
+		var titre, description, date, lieu string
+		rows.Scan(&id, &titre, &description, &date, &lieu)
 		evenements = append(evenements, map[string]interface{}{
-			"id":          id,
-			"titre":       titre,
-			"description": description,
-			"lieu":        lieu,
-			"date":        date,
+			"id": id, "titre": titre, "description": description,
+			"date_evenement": date, "lieu": lieu,
 		})
 	}
-
 	httpx.JSONOK(w, http.StatusOK, evenements)
 }
 
-func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(`
-		SELECT m.Id_Messages, m.Contenu, u.Nom, u.Prenom, u.Email
-		FROM Messages m
-		JOIN Particuliers p ON p.Id_Particuliers = m.Id_Particuliers
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-	`)
+func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	var body struct {
+		Titre         string `json:"titre"`
+		Description   string `json:"description"`
+		Lieu          string `json:"lieu"`
+		DateEvenement string `json:"date_evenement"`
+		IdSalarie     int    `json:"id_salarie"`
+	}
+	json.NewDecoder(r.Body).Decode(&body)
+	_, err := database.DB.Exec(
+		"INSERT INTO Evenements (Titre, Description, Lieu, Date_evenement, Id_Salaries) VALUES (?, ?, ?, ?, ?)",
+		body.Titre, body.Description, body.Lieu, body.DateEvenement, body.IdSalarie,
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Événement créé"})
+}
 
+func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(
+		"SELECT Id_Messages, Contenu, Date_envoi, Id_Utilisateurs FROM Messages ORDER BY Date_envoi DESC LIMIT 50",
+	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
 
-	var messages []map[string]interface{}
-
+	messages := []map[string]interface{}{}
 	for rows.Next() {
-		var id int
-		var contenu, nom, prenom, email string
-
-		rows.Scan(&id, &contenu, &nom, &prenom, &email)
-
+		var id, userId int
+		var contenu, date string
+		rows.Scan(&id, &contenu, &date, &userId)
 		messages = append(messages, map[string]interface{}{
-			"id":      id,
-			"contenu": contenu,
-			"nom":     nom,
-			"prenom":  prenom,
-			"email":   email,
+			"id": id, "contenu": contenu, "date_envoi": date, "id_utilisateur": userId,
 		})
 	}
-
 	httpx.JSONOK(w, http.StatusOK, messages)
+}
+
+func AdminGetCategories(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		AdminCreateCategorie(w, r)
+		return
+	}
+	rows, err := database.DB.Query("SELECT Id_Categories, Nom, Description FROM Categories")
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+
+	categories := []map[string]interface{}{}
+	for rows.Next() {
+		var id int
+		var nom, description string
+		rows.Scan(&id, &nom, &description)
+		categories = append(categories, map[string]interface{}{
+			"id": id, "nom": nom, "description": description,
+		})
+	}
+	httpx.JSONOK(w, http.StatusOK, categories)
+}
+
+func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Nom         string `json:"nom"`
+		Description string `json:"description"`
+		Icone       string `json:"icone"`
+	}
+	json.NewDecoder(r.Body).Decode(&body)
+	_, err := database.DB.Exec(
+		"INSERT INTO Categories (Nom, Description) VALUES (?, ?)",
+		body.Nom, body.Description,
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Catégorie créée"})
+}
+
+func AdminDeleteCategorie(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id := parts[len(parts)-1]
+	database.DB.Exec("DELETE FROM Categories WHERE Id_Categories = ?", id)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Catégorie supprimée"})
 }
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Annonces, Contenu, Date_publication, Statut FROM Annonces",
+		"SELECT Id_Annonces, Titre, Description, Statut, Date_publication FROM Annonces ORDER BY Date_publication DESC",
 	)
-
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	defer rows.Close()
 
-	var annonces []map[string]interface{}
-
+	annonces := []map[string]interface{}{}
 	for rows.Next() {
 		var id int
-		var contenu, statut string
-		var date *string
-
-		rows.Scan(&id, &contenu, &date, &statut)
-
+		var titre, description, statut, date string
+		rows.Scan(&id, &titre, &description, &statut, &date)
 		annonces = append(annonces, map[string]interface{}{
-			"id":      id,
-			"contenu": contenu,
-			"date":    date,
-			"statut":  statut,
+			"id": id, "titre": titre, "description": description,
+			"statut": statut, "date_publication": date,
 		})
 	}
-
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }
 
-func AdminDeleteUtilisateur(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(strings.TrimSuffix(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-
-	_, err := database.DB.Exec("DELETE FROM Utilisateurs WHERE Id_Utilisateurs = ?", id)
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Utilisateur supprimé"})
-}
-
-func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		Titre       string `json:"titre"`
-		Description string `json:"description"`
-		Lieu        string `json:"lieu"`
-		Date        string `json:"date_evenement"`
-		IdSalaries  int    `json:"id_salaries"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-		return
-	}
-
-	_, err := database.DB.Exec(
-		"INSERT INTO Evenements (Titre, Description, Lieu, Date_Evenement, Id_Salaries) VALUES (?, ?, ?, ?, ?)",
-		body.Titre, body.Description, body.Lieu, body.Date, body.IdSalaries,
-	)
-
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	httpx.JSONOK(w, http.StatusCreated, map[string]string{"message": "Événement créé"})
-}
-
-func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(strings.TrimSuffix(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-
-	if r.Method == "DELETE" || (r.Method == "GET" && strings.Contains(r.URL.Path, "delete")) {
-		_, err := database.DB.Exec("DELETE FROM Utilisateurs WHERE Id_Utilisateurs = ?", id)
-		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Utilisateur supprimé"})
-		return
-	}
-
-	row := database.DB.QueryRow(
-		"SELECT Id_Utilisateurs, Nom, Prenom, Email, Statut FROM Utilisateurs WHERE Id_Utilisateurs = ?", id,
-	)
-
-	var idU int
-	var nom, prenom, email, statut string
-
-	if err := row.Scan(&idU, &nom, &prenom, &email, &statut); err != nil {
-		httpx.JSONError(w, http.StatusNotFound, "Utilisateur non trouvé")
-		return
-	}
-
+func AdminGetParametres(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"id":     idU,
-		"nom":    nom,
-		"prenom": prenom,
-		"email":  email,
-		"statut": statut,
+		"site_nom":         "UpcycleConnect",
+		"site_description": "Plateforme de l'économie circulaire",
+		"email_contact":    "contact@upcycleconnect.fr",
+		"maintenance":      false,
 	})
-}
-
-func AdminGetCategories(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusOK, []interface{}{})
-}
-
-func AdminCreateCategorie(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusCreated, map[string]string{"message": "Non implémenté"})
-}
-
-func AdminDeleteCategorie(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Non implémenté"})
 }

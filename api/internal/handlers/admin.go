@@ -78,7 +78,7 @@ func AdminDeleteUtilisateur(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Evenements, Titre, Description, Date_evenement, Lieu FROM Evenements ORDER BY Date_evenement DESC",
+		"SELECT Id_Evenements, Titre, Description, COALESCE(Date_, ''), COALESCE(Lieu, '') FROM Evenements ORDER BY Date_ DESC",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
@@ -113,7 +113,7 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 	_, err := database.DB.Exec(
-		"INSERT INTO Evenements (Titre, Description, Lieu, Date_evenement, Id_Salaries) VALUES (?, ?, ?, ?, ?)",
+		"INSERT INTO Evenements (Titre, Description, Lieu, Date_, Id_Salaries) VALUES (?, ?, ?, ?, ?)",
 		body.Titre, body.Description, body.Lieu, body.DateEvenement, body.IdSalarie,
 	)
 	if err != nil {
@@ -125,7 +125,7 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Messages, Contenu, Date_envoi, Id_Utilisateurs FROM Messages ORDER BY Date_envoi DESC LIMIT 50",
+		"SELECT Id_Messages, Contenu, Date_envoi, Id_Particuliers FROM Messages ORDER BY Date_envoi DESC LIMIT 50",
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, err.Error())

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -19,13 +21,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	row := database.DB.QueryRow(
-		"SELECT u.Id_Utilisateurs, u.Nom, u.Prenom, u.Email, u.Statut, u.Tutoriel_vu, COALESCE(p.Id_Particuliers, 0), COALESCE(pro.Id_Professionnels, 0) FROM Utilisateurs u LEFT JOIN Particuliers p ON p.Id_Utilisateurs = u.Id_Utilisateurs LEFT JOIN Professionnels_artisans pro ON pro.Id_Utilisateurs = u.Id_Utilisateurs WHERE u.Email = ? AND u.Mot_de_passe = ?",
-		body.Email, body.Password,
+		"SELECT u.Id_Utilisateurs, u.Nom, u.Prenom, u.Email, u.Mot_de_passe, u.Statut, u.Tutoriel_vu, COALESCE(p.Id_Particuliers, 0), COALESCE(pro.Id_Professionnels, 0) FROM Utilisateurs u LEFT JOIN Particuliers p ON p.Id_Utilisateurs = u.Id_Utilisateurs LEFT JOIN Professionnels_artisans pro ON pro.Id_Utilisateurs = u.Id_Utilisateurs WHERE u.Email = ?",
+		body.Email,
 	)
 
 	var id, idParticulier, idProfessionnel, tutorielVu int
-	var nom, prenom, email, statut string
-	if err := row.Scan(&id, &nom, &prenom, &email, &statut, &tutorielVu, &idParticulier, &idProfessionnel); err != nil {
+	var nom, prenom, email, statut, hashedPassword string
+	if err := row.Scan(&id, &nom, &prenom, &email, &hashedPassword, &statut, &tutorielVu, &idParticulier, &idProfessionnel); err != nil {
+		httpx.JSONError(w, http.StatusUnauthorized, "Email ou mot de passe incorrect")
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(body.Password)); err != nil {
 		httpx.JSONError(w, http.StatusUnauthorized, "Email ou mot de passe incorrect")
 		return
 	}
@@ -72,9 +79,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hashed, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, "Erreur hashage")
+		return
+	}
+
 	result, err := database.DB.Exec(
 		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu) VALUES (?, ?, ?, ?, 'actif', NOW(), 1, 0)",
-		body.Nom, body.Prenom, body.Email, body.Password,
+		body.Nom, body.Prenom, body.Email, string(hashed),
 	)
 	if err != nil {
 		log.Println("REGISTER ERROR:", err.Error())

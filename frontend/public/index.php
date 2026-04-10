@@ -45,22 +45,27 @@ function redirect($url)
 function getCleanPath()
 {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
     $prefixes = [
         '/UpcycleConnect-PA2526/frontend/public/index.php',
         '/UpcycleConnect-PA2526/frontend/public',
         '/UpcycleConnect-PA2526/frontend',
         '/UpcycleConnect-PA2526',
-        '/UpcycleConnect'
+        '/UpcycleConnect',
+        '/index.php',
     ];
+
     foreach ($prefixes as $prefix) {
         if (str_starts_with($path, $prefix)) {
             $path = substr($path, strlen($prefix));
             break;
         }
     }
+
     if ($path === '' || $path === false || $path === null) {
         return '/';
     }
+
     return $path;
 }
 

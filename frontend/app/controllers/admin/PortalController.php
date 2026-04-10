@@ -50,8 +50,8 @@ class PortalController
     }
 
     public function toggleMaintenance()
-    {
-        MaintenanceMiddleware::toggle();
-        redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres');
-    }
+{
+    MaintenanceMiddleware::toggle();
+    redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres#maintenance');
+}
 }

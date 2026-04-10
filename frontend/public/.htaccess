@@ -1,9 +1,8 @@
 Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /UpcycleConnect-PA2526/frontend/public/
+    RewriteBase /
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
-ErrorDocument 404 /UpcycleConnect-PA2526/frontend/public/index.php

@@ -46,6 +46,9 @@ $router->get('/mes-prestations', 'Front\UserController@mesPrestations');
 $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
 
+$router->get('/admin-portal-access', 'Admin\\PortalController@show');
+$router->post('/admin-portal-access', 'Admin\\PortalController@login');
+
 $router->group(['prefix' => 'admin'], function($router) {
 
     $router->get('/', 'Admin\DashboardController@index');
@@ -68,9 +71,6 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/utilisateurs/{id}', 'Admin\UtilisateurController@show');
     $router->get('/utilisateurs/{id}/delete', 'Admin\UtilisateurController@confirmDelete');
     $router->get('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
-
-    $router->get('/admin-portal-access', 'Admin\\PortalController@show');
-    $router->post('/admin-portal-access', 'Admin\\PortalController@login');
 
     $router->get('/conteneurs', 'Admin\\ConteneurController@index');
     $router->get('/conteneurs/{id}/accept', 'Admin\\ConteneurController@accept');

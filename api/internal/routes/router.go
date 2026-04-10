@@ -65,5 +65,9 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/utilisateurs/update/", handlers.AdminUpdateUtilisateur)
 	mux.HandleFunc("/api/admin/evenements/delete/", handlers.AdminDeleteEvenement)
 
+	mux.HandleFunc("/api/admin/utilisateurs/update/", handlers.AdminUpdateUtilisateur)
+	mux.HandleFunc("/api/admin/annonces/", handlers.AdminUpdateAnnonceStatut)
+	mux.HandleFunc("/api/admin/evenements/delete/", handlers.AdminDeleteEvenement)
+
 	return mux
 }

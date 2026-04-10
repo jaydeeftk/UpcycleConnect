@@ -1,88 +1,77 @@
 <?php
-
 namespace App\Controllers\Admin;
-
 use App\Services\ApiService;
-
 class UtilisateurController
 {
     private $api;
-
     public function __construct()
     {
         \App\Middleware\AdminMiddleware::handle();
         $this->api = new ApiService();
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
     }
-
     public function index()
     {
         try {
             $result = $this->api->get('/admin/utilisateurs');
-
-            return view('admin.utilisateurs.index', [
-                'utilisateurs' => $result['data'] ?? [],
-                'page_title' => 'Gestion des utilisateurs'
-            ]);
-        } catch (\Exception $e) {
-            return view('admin.utilisateurs.index', [
-                'error' => $e->getMessage(),
-                'utilisateurs' => [],
-                'page_title' => 'Gestion des utilisateurs'
-            ]);
-        }
+            $utilisateurs = isset($result['data']) ? $result['data'] : ($result ?? []);
+        } catch (\Exception $e) { $utilisateurs = []; }
+        return view('admin.utilisateurs.index', ['utilisateurs' => $utilisateurs, 'page_title' => 'Utilisateurs']);
     }
-
     public function show($id)
     {
         try {
             $result = $this->api->get('/admin/utilisateurs/' . $id);
-
-            return view('admin.utilisateurs.show', [
-                'utilisateur' => $result['data'] ?? [],
-                'page_title' => 'Détail utilisateur'
-            ]);
+            $utilisateur = isset($result['data']) ? $result['data'] : ($result ?? []);
         } catch (\Exception $e) {
             redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
+            return;
         }
+        return view('admin.utilisateurs.show', ['utilisateur' => $utilisateur, 'page_title' => 'Détail utilisateur']);
     }
-
-    public function confirmDelete($id)
+    public function create()
     {
-        try {
-            $result = $this->api->get('/admin/utilisateurs/' . $id);
-
-            return view('admin.utilisateurs.delete', [
-                'utilisateur' => $result['data'] ?? [],
-                'page_title' => 'Supprimer un utilisateur'
-            ]);
-        } catch (\Exception $e) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
-        }
+        return view('admin.utilisateurs.create', ['page_title' => 'Ajouter un utilisateur']);
     }
-
-    public function delete($id)
-{
-    try {
-        $this->api->get('/admin/utilisateurs/delete/' . $id);
-    } catch (\Exception $e) {}
-
-    redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
-}
-
     public function store()
     {
         try {
             $this->api->post('/auth/register', [
-                'nom'         => $_POST['nom'] ?? '',
-                'prenom'      => $_POST['prenom'] ?? '',
-                'email'       => $_POST['email'] ?? '',
+                'nom'          => $_POST['nom'] ?? '',
+                'prenom'       => $_POST['prenom'] ?? '',
+                'email'        => $_POST['email'] ?? '',
                 'mot_de_passe' => $_POST['mot_de_passe'] ?? '',
-                'role'        => $_POST['role'] ?? 'particulier'
+                'role'         => $_POST['role'] ?? 'particulier'
             ]);
         } catch (\Exception $e) {}
-
         redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
     }
-
-    public function update($id) {}
+    public function update($id)
+    {
+        try {
+            $this->api->put('/admin/utilisateurs/update/' . $id, [
+                'nom'    => $_POST['nom'] ?? '',
+                'prenom' => $_POST['prenom'] ?? '',
+                'email'  => $_POST['email'] ?? '',
+                'statut' => $_POST['statut'] ?? 'actif',
+            ]);
+        } catch (\Exception $e) {}
+        redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs/' . $id);
+    }
+    public function confirmDelete($id)
+    {
+        try {
+            $result = $this->api->get('/admin/utilisateurs/' . $id);
+            $utilisateur = isset($result['data']) ? $result['data'] : ($result ?? []);
+        } catch (\Exception $e) {
+            redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
+            return;
+        }
+        return view('admin.utilisateurs.delete', ['utilisateur' => $utilisateur, 'page_title' => 'Supprimer']);
+    }
+    public function delete($id)
+    {
+        try { $this->api->delete('/admin/utilisateurs/delete/' . $id); } catch (\Exception $e) {}
+        redirect('/UpcycleConnect-PA2526/frontend/public/admin/utilisateurs');
+    }
 }

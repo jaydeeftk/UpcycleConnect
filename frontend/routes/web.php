@@ -90,4 +90,9 @@ $router->group(['prefix' => 'admin'], function($router) {
 
     $router->get('/parametres', 'Admin\\ParametreController@index');
     $router->post('/maintenance/toggle', 'Admin\\PortalController@toggleMaintenance');
+
+    $router->get('/utilisateurs/create', 'Admin\\UtilisateurController@create');
+    $router->post('/utilisateurs/store', 'Admin\\UtilisateurController@store');
+    $router->post('/utilisateurs/{id}/update', 'Admin\\UtilisateurController@update');
+    $router->get('/evenements/{id}/delete', 'Admin\\EvenementController@delete');
 });

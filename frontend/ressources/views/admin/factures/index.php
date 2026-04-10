@@ -1,0 +1,37 @@
+<div class="mb-6">
+    <h2 class="text-2xl font-bold">Factures</h2>
+    <p class="text-gray-600">Suivi des paiements et factures</p>
+</div>
+
+<?php if (empty($factures)): ?>
+    <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+        <i class="fas fa-file-invoice text-4xl mb-3"></i>
+        <p>Aucune facture enregistrée.</p>
+    </div>
+<?php else: ?>
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full text-left">
+        <thead class="bg-gray-50 border-b">
+            <tr>
+                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Montant</th>
+                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Statut</th>
+                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            <?php foreach ($factures as $f): ?>
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm">#<?= $f['id'] ?? '-' ?></td>
+                <td class="px-6 py-4 font-medium"><?= number_format($f['montant'] ?? 0, 2) ?> €</td>
+                <td class="px-6 py-4">
+                    <?php $s = $f['statut'] ?? 'en_attente'; $colors = ['payee' => 'bg-green-100 text-green-800', 'en_attente' => 'bg-yellow-100 text-yellow-800', 'annulee' => 'bg-red-100 text-red-800']; ?>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium <?= $colors[$s] ?? 'bg-gray-100 text-gray-800' ?>"><?= ucfirst($s) ?></span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500"><?= $f['date'] ?? '-' ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+<?php endif; ?>

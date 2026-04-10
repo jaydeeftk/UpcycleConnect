@@ -225,3 +225,96 @@ func AdminGetParametres(w http.ResponseWriter, r *http.Request) {
 		"maintenance":      false,
 	})
 }
+
+func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(
+		"SELECT Id_Formations, Titre, Description, Prix, Duree, Statut, COALESCE(Date_formation,''), COALESCE(Places_total,0), COALESCE(Places_dispo,0) FROM Formations ORDER BY Date_formation DESC",
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+	formations := []map[string]interface{}{}
+	for rows.Next() {
+		var id, duree, placesTotal, placesDispo int
+		var titre, description, statut, date string
+		var prix float64
+		rows.Scan(&id, &titre, &description, &prix, &duree, &statut, &date, &placesTotal, &placesDispo)
+		formations = append(formations, map[string]interface{}{
+			"id": id, "titre": titre, "description": description, "prix": prix,
+			"duree": duree, "statut": statut, "date": date,
+			"places_total": placesTotal, "places_dispo": placesDispo,
+		})
+	}
+	httpx.JSONOK(w, http.StatusOK, formations)
+}
+
+func AdminDeleteFormation(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id := parts[len(parts)-1]
+	database.DB.Exec("DELETE FROM Formations WHERE Id_Formations = ?", id)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation supprimée"})
+}
+
+func AdminGetContrats(w http.ResponseWriter, r *http.Request) {
+	httpx.JSONOK(w, http.StatusOK, []interface{}{})
+}
+
+func AdminGetFactures(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(
+		"SELECT Id_Paiements, Montant, Statut, Date_Paiement FROM Paiements ORDER BY Date_Paiement DESC",
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer rows.Close()
+	factures := []map[string]interface{}{}
+	for rows.Next() {
+		var id int
+		var montant float64
+		var statut bool
+		var date string
+		rows.Scan(&id, &montant, &statut, &date)
+		factures = append(factures, map[string]interface{}{
+			"id": id, "montant": montant, "statut": statut, "date": date,
+		})
+	}
+	httpx.JSONOK(w, http.StatusOK, factures)
+}
+
+func AdminGetNotifications(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(
+		"SELECT Id_Notifications, Contenu, Date_envoi, Id_Utilisateurs FROM Notifications ORDER BY Date_envoi DESC LIMIT 20",
+	)
+	if err != nil {
+		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		return
+	}
+	defer rows.Close()
+	notifs := []map[string]interface{}{}
+	for rows.Next() {
+		var id, userId int
+		var contenu, date string
+		rows.Scan(&id, &contenu, &date, &userId)
+		notifs = append(notifs, map[string]interface{}{
+			"id": id, "message": contenu, "date": date, "id_utilisateur": userId,
+		})
+	}
+	httpx.JSONOK(w, http.StatusOK, notifs)
+}
+
+func AdminSendNotification(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Titre   string `json:"titre"`
+		Message string `json:"message"`
+		Cible   string `json:"cible"`
+	}
+	json.NewDecoder(r.Body).Decode(&body)
+	database.DB.Exec(
+		"INSERT INTO Notifications (Contenu, Date_envoi, Id_Utilisateurs) VALUES (?, NOW(), 1)",
+		body.Titre+": "+body.Message,
+	)
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Notification envoyée"})
+}

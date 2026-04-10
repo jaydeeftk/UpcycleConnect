@@ -54,5 +54,12 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/conteneurs/demandes", handlers.AdminGetDemandesConteneurs)
 	mux.HandleFunc("/api/admin/conteneurs/demandes/", handlers.AdminDemandeConteneurAction)
 
+	mux.HandleFunc("/api/admin/formations", handlers.AdminGetFormations)
+	mux.HandleFunc("/api/admin/formations/", handlers.AdminDeleteFormation)
+	mux.HandleFunc("/api/admin/contrats", handlers.AdminGetContrats)
+	mux.HandleFunc("/api/admin/factures", handlers.AdminGetFactures)
+	mux.HandleFunc("/api/admin/notifications", handlers.AdminGetNotifications)
+	mux.HandleFunc("/api/admin/notifications/send", handlers.AdminSendNotification)
+
 	return mux
 }

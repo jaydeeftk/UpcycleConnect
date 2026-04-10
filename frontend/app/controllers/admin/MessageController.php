@@ -15,20 +15,11 @@ class MessageController
     }
 
     public function index()
-    {
-        try {
-            $result = $this->api->get('/admin/messages');
-
-            return view('admin.messages.index', [
-                'messages' => $result['data'] ?? [],
-                'page_title' => 'Gestion des messages'
-            ]);
-        } catch (\Exception $e) {
-            return view('admin.messages.index', [
-                'error' => $e->getMessage(),
-                'messages' => [],
-                'page_title' => 'Gestion des messages'
-            ]);
-        }
-    }
+{
+    try {
+        $result = $this->api->get('/admin/messages');
+        $messages = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $messages = []; }
+    return view('admin.messages.index', ['messages' => $messages, 'page_title' => 'Messages']);
+}
 }

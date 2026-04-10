@@ -15,19 +15,13 @@ class ConteneurController
     }
 
     public function index()
-    {
-        try {
-            $result   = $this->api->get('/admin/conteneurs/demandes');
-            $demandes = $result['data'] ?? [];
-        } catch (\Exception $e) {
-            $demandes = [];
-        }
-
-        return view('admin.conteneurs.index', [
-            'demandes'   => $demandes,
-            'page_title' => 'Dépôts objets',
-        ]);
-    }
+{
+    try {
+        $result = $this->api->get('/admin/conteneurs/demandes');
+        $demandes = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $demandes = []; }
+    return view('admin.conteneurs.index', ['demandes' => $demandes, 'page_title' => 'Dépôts objets']);
+}
 
     public function accept($id)
     {

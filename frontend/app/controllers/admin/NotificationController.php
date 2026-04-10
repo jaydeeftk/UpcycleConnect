@@ -11,13 +11,13 @@ class NotificationController
         $this->api->setToken($_SESSION['user']['token'] ?? '');
     }
     public function index()
-    {
-        try {
-            $result = $this->api->get('/admin/notifications');
-            $notifications = $result['data'] ?? [];
-        } catch (\Exception $e) { $notifications = []; }
-        return view('admin.notifications.index', ['notifications' => $notifications, 'page_title' => 'Notifications']);
-    }
+{
+    try {
+        $result = $this->api->get('/admin/notifications');
+        $notifications = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $notifications = []; }
+    return view('admin.notifications.index', ['notifications' => $notifications, 'page_title' => 'Notifications']);
+}
     public function send()
     {
         try {

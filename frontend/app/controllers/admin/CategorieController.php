@@ -11,13 +11,13 @@ class CategorieController
         $this->api->setToken($_SESSION['user']['token'] ?? '');
     }
     public function index()
-    {
-        try {
-            $result = $this->api->get('/admin/categories');
-            $categories = isset($result['data']) ? $result['data'] : ($result ?? []);
-        } catch (\Exception $e) { $categories = []; }
-        return view('admin.categories.index', ['categories' => $categories, 'page_title' => 'Catégories']);
-    }
+{
+    try {
+        $result = $this->api->get('/admin/categories');
+        $categories = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+    } catch (\Exception $e) { $categories = []; }
+    return view('admin.categories.index', ['categories' => $categories, 'page_title' => 'Catégories']);
+}
     public function store()
     {
         try {

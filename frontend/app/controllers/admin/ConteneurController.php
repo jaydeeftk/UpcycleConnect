@@ -9,6 +9,7 @@ class ConteneurController
 
     public function __construct()
     {
+        \App\Middleware\AdminMiddleware::handle();
         $this->api = new ApiService();
         $this->api->setToken($_SESSION['user']['token'] ?? '');
     }

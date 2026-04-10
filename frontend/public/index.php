@@ -3,9 +3,8 @@ session_start();
 
 date_default_timezone_set('Europe/Paris');
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require_once __DIR__ . '/../app/middleware/MaintenanceMiddleware.php';
+\App\Middleware\MaintenanceMiddleware::handle(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 spl_autoload_register(function ($class) {
     $class = str_replace('App\\', '', $class);

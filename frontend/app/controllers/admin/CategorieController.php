@@ -9,9 +9,10 @@ class CategorieController
     private $api;
 
     public function __construct()
-    {
-        $this->api = new ApiService();
-    }
+{
+    \App\Middleware\AdminMiddleware::handle();
+    $this->api = new ApiService();
+}
 
     public function index()
     {

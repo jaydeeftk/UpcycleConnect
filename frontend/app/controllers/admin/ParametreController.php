@@ -10,6 +10,7 @@ class ParametreController
 
     public function __construct()
     {
+        \App\Middleware\AdminMiddleware::handle();
         $this->api = new ApiService();
     }
 

@@ -374,38 +374,67 @@ func AdminSendNotification(w http.ResponseWriter, r *http.Request) {
 
 func AdminUtilisateursDispatch(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+
 	if len(parts) < 4 {
-		httpx.JSONError(w, http.StatusBadRequest, "Paramètres manquants")
+		AdminGetUtilisateurs(w, r)
 		return
 	}
-	id := parts[3]
+
+	segment3 := parts[3]
+
+	if segment3 == "delete" && len(parts) >= 5 {
+		AdminDeleteUtilisateur(w, r)
+		return
+	}
+	if segment3 == "update" && len(parts) >= 5 {
+		AdminUpdateUtilisateur(w, r)
+		return
+	}
+
 	if len(parts) >= 5 {
 		action := parts[4]
 		switch action {
 		case "delete":
 			AdminDeleteUtilisateur(w, r)
 		case "update":
-			AdminUpdateUtilisateur(w, r)
+			if r.Method == http.MethodPut || r.Method == http.MethodPost {
+				AdminUpdateUtilisateur(w, r)
+			}
 		default:
 			AdminUtilisateurAction(w, r)
 		}
 		return
 	}
-	if id == "delete" {
-		AdminDeleteUtilisateur(w, r)
+
+	AdminUtilisateurAction(w, r)
+}
+
+func AdminEvenementsDispatch(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+
+	if r.Method == http.MethodPost {
+		AdminCreateEvenement(w, r)
 		return
 	}
-	AdminUtilisateurAction(w, r)
+
+	if len(parts) >= 5 && parts[4] == "delete" {
+		AdminDeleteEvenement(w, r)
+		return
+	}
+
+	if len(parts) >= 4 && parts[3] == "delete" {
+		AdminDeleteEvenement(w, r)
+		return
+	}
+
+	AdminGetEvenements(w, r)
 }
 
 func AdminAnnoncesDispatch(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	if len(parts) >= 4 {
+	if len(parts) >= 5 {
 		id := parts[3]
-		action := ""
-		if len(parts) >= 5 {
-			action = parts[4]
-		}
+		action := parts[4]
 		switch action {
 		case "validate":
 			database.DB.Exec("UPDATE Annonces SET Statut = 'active' WHERE Id_Annonces = ?", id)
@@ -416,17 +445,4 @@ func AdminAnnoncesDispatch(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Action effectuée"})
-}
-
-func AdminEvenementsDispatch(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	if r.Method == http.MethodPost {
-		AdminCreateEvenement(w, r)
-		return
-	}
-	if len(parts) >= 5 && parts[4] == "delete" {
-		AdminDeleteEvenement(w, r)
-		return
-	}
-	AdminGetEvenements(w, r)
 }

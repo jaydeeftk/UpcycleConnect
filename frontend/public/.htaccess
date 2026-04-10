@@ -1,19 +1,9 @@
+Options -Indexes
 <IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
     RewriteEngine On
-
-    # Gérer les fichiers statiques
+    RewriteBase /UpcycleConnect-PA2526/frontend/public/
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    
-    # Rediriger toutes les requêtes vers index.php
-    RewriteRule ^ index.php [L]
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
-
-Options -Indexes
-
-ErrorDocument 404 /index.php
-ErrorDocument 500 /index.php
+ErrorDocument 404 /UpcycleConnect-PA2526/frontend/public/index.php

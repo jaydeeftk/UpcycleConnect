@@ -110,39 +110,39 @@
         </div>
 
         <div id="section-maintenance" class="param-section hidden bg-white rounded-lg shadow p-6">
-            <h3 class="text-xl font-bold mb-6">Mode Maintenance</h3>
-            <?php
-            $maintenanceFile = __DIR__ . '/../../../../../.maintenance';
-            $active = file_exists($maintenanceFile);
-            ?>
-            <div class="mb-6 p-4 rounded-lg <?= $active ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200' ?>">
-                <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 rounded-full <?= $active ? 'bg-red-500' : 'bg-green-500' ?>"></div>
-                    <span class="font-medium <?= $active ? 'text-red-700' : 'text-green-700' ?>">
-                        Site <?= $active ? 'en maintenance (inaccessible au public)' : 'en ligne (accessible au public)' ?>
-                    </span>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="border rounded-lg p-4">
-                    <div class="text-sm text-gray-500">Version PHP</div>
-                    <div class="text-xl font-bold"><?= phpversion() ?></div>
-                </div>
-                <div class="border rounded-lg p-4">
-                    <div class="text-sm text-gray-500">Environnement</div>
-                    <div class="text-xl font-bold">Docker</div>
-                </div>
-            </div>
-            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/maintenance/toggle">
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-medium text-white text-lg transition <?= $active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600' ?>">
-                    <?php if ($active): ?>
-                        <i class="fas fa-times-circle"></i> Désactiver le mode maintenance
-                    <?php else: ?>
-                        <i class="fas fa-wrench"></i> Activer le mode maintenance
-                    <?php endif; ?>
-                </button>
-            </form>
+    <h3 class="text-xl font-bold mb-6">Mode Maintenance</h3>
+    <?php
+    require_once __DIR__ . '/../../../../app/middleware/MaintenanceMiddleware.php';
+    $active = \App\Middleware\MaintenanceMiddleware::isActive();
+    ?>
+    <div class="mb-6 p-4 rounded-lg <?= $active ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200' ?>">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full <?= $active ? 'bg-red-500 animate-pulse' : 'bg-green-500' ?>"></div>
+            <span class="font-medium <?= $active ? 'text-red-700' : 'text-green-700' ?>">
+                Site <?= $active ? 'en maintenance (inaccessible au public)' : 'en ligne (accessible au public)' ?>
+            </span>
         </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="border rounded-lg p-4">
+            <div class="text-sm text-gray-500">Version PHP</div>
+            <div class="text-xl font-bold"><?= phpversion() ?></div>
+        </div>
+        <div class="border rounded-lg p-4">
+            <div class="text-sm text-gray-500">Environnement</div>
+            <div class="text-xl font-bold">Docker</div>
+        </div>
+    </div>
+    <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/maintenance/toggle">
+        <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-medium text-white text-lg transition <?= $active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600' ?>">
+            <?php if ($active): ?>
+                <i class="fas fa-times-circle"></i> Désactiver le mode maintenance
+            <?php else: ?>
+                <i class="fas fa-wrench"></i> Activer le mode maintenance
+            <?php endif; ?>
+        </button>
+    </form>
+</div>
 
     </div>
 </div>

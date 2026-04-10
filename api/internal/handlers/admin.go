@@ -371,3 +371,62 @@ func AdminSendNotification(w http.ResponseWriter, r *http.Request) {
 	)
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Notification envoyée"})
 }
+
+func AdminUtilisateursDispatch(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 4 {
+		httpx.JSONError(w, http.StatusBadRequest, "Paramètres manquants")
+		return
+	}
+	id := parts[3]
+	if len(parts) >= 5 {
+		action := parts[4]
+		switch action {
+		case "delete":
+			AdminDeleteUtilisateur(w, r)
+		case "update":
+			AdminUpdateUtilisateur(w, r)
+		default:
+			AdminUtilisateurAction(w, r)
+		}
+		return
+	}
+	if id == "delete" {
+		AdminDeleteUtilisateur(w, r)
+		return
+	}
+	AdminUtilisateurAction(w, r)
+}
+
+func AdminAnnoncesDispatch(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) >= 4 {
+		id := parts[3]
+		action := ""
+		if len(parts) >= 5 {
+			action = parts[4]
+		}
+		switch action {
+		case "validate":
+			database.DB.Exec("UPDATE Annonces SET Statut = 'active' WHERE Id_Annonces = ?", id)
+		case "reject":
+			database.DB.Exec("UPDATE Annonces SET Statut = 'rejetee' WHERE Id_Annonces = ?", id)
+		case "delete":
+			database.DB.Exec("DELETE FROM Annonces WHERE Id_Annonces = ?", id)
+		}
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Action effectuée"})
+}
+
+func AdminEvenementsDispatch(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if r.Method == http.MethodPost {
+		AdminCreateEvenement(w, r)
+		return
+	}
+	if len(parts) >= 5 && parts[4] == "delete" {
+		AdminDeleteEvenement(w, r)
+		return
+	}
+	AdminGetEvenements(w, r)
+}

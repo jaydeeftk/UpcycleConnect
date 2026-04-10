@@ -61,7 +61,7 @@ func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := database.DB.Exec(
-		"INSERT INTO Demandes_conteneurs (Type_objet, Description, Etat_usure, Id_Conteneur, Date_depot, Destination, Prix_vente, Statut, Date_demande, Id_Particuliers) VALUES (?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)",
+		"INSERT INTO Demandes_conteneurs (Type_objet, Description, Etat_usure, Id_Conteneurs, Date_depot, Destination, Prix_vente, Statut, Date_demande, Id_Particuliers) VALUES (?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)",
 		body.TypeObjet, body.Description, body.EtatUsure, body.IdConteneur, body.DateDepot, body.Destination, body.PrixVente, body.IdParticulier,
 	)
 	if err != nil {
@@ -81,7 +81,7 @@ func GetDemandesConteneurUser(w http.ResponseWriter, r *http.Request) {
 	idParticulier := parts[len(parts)-1]
 
 	rows, err := database.DB.Query(
-		"SELECT Id_Demande, Type_objet, Description, Etat_usure, Date_depot, Destination, COALESCE(Prix_vente, 0), Statut, Date_demande FROM Demandes_conteneurs WHERE Id_Particuliers = ? ORDER BY Date_demande DESC",
+		"SELECT Id_Demandes_conteneurs, Type_objet, Description, Etat_usure, Date_depot, Destination, COALESCE(Prix_vente, 0), Statut, Date_demande FROM Demandes_conteneurs WHERE Id_Particuliers = ? ORDER BY Date_demande DESC",
 		idParticulier,
 	)
 	if err != nil {

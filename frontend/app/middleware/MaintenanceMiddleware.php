@@ -27,17 +27,17 @@ class MaintenanceMiddleware
     }
 
     public static function handle(string $path): void
-    {
-        self::init();
-        if (!self::isActive()) return;
+{
+    self::init();
+    if (!self::isActive()) return;
 
-        $allowed = ['/admin', '/maintenance-login'];
-        foreach ($allowed as $prefix) {
-            if (str_starts_with($path, $prefix)) return;
-        }
-
-        http_response_code(503);
-        require __DIR__ . '/../../ressources/views/front/maintenance/index.php';
-        exit;
+    $allowed = ['/admin', '/maintenance-login'];
+    foreach ($allowed as $prefix) {
+        if (str_starts_with($path, $prefix)) return;
     }
+
+    http_response_code(503);
+    require __DIR__ . '/../../ressources/views/front/maintenance/index.php';
+    exit;
+}
 }

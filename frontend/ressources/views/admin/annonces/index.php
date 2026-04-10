@@ -35,17 +35,22 @@
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500"><?= $a['date_publication'] ?? '-' ?></td>
                 <td class="px-6 py-4">
-                    <div class="flex gap-2">
-                        <a href="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/validate"
-                           class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600" title="Valider">
-                            <i class="fas fa-check"></i>
-                        </a>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/reject"
-                           class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600" title="Rejeter">
-                            <i class="fas fa-times"></i>
-                        </a>
-                    </div>
-                </td>
+    <div class="flex gap-2">
+        <a href="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/validate"
+           class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600" title="Valider">
+            <i class="fas fa-check"></i>
+        </a>
+        <a href="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/reject"
+           class="bg-orange-500 text-white px-3 py-1 rounded text-xs hover:bg-orange-600" title="Rejeter">
+            <i class="fas fa-times"></i>
+        </a>
+        <a href="/UpcycleConnect-PA2526/frontend/public/admin/annonces/<?= $a['id'] ?>/delete"
+           onclick="return confirm('Supprimer cette annonce ?')"
+           class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600" title="Supprimer">
+            <i class="fas fa-trash"></i>
+        </a>
+    </div>
+</td>
             </tr>
             <?php endforeach; ?>
         </tbody>

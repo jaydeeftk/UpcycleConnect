@@ -28,4 +28,12 @@ class AnnonceController
         try { $this->api->get('/admin/annonces/' . $id . '/reject'); } catch (\Exception $e) {}
         redirect('/UpcycleConnect-PA2526/frontend/public/admin/annonces');
     }
+
+    public function delete($id)
+{
+    try { $this->api->get('/admin/annonces/' . $id . '/delete'); } catch (\Exception $e) {}
+    redirect('/UpcycleConnect-PA2526/frontend/public/admin/annonces');
 }
+}
+
+    

@@ -3,41 +3,37 @@ namespace App\Middleware;
 
 class MaintenanceMiddleware
 {
-    private static $file;
-
-    public static function init()
+    private static function getFile(): string
     {
-        self::$file = __DIR__ . '/../../.maintenance';
+        return '/tmp/.maintenance';
     }
 
     public static function isActive(): bool
     {
-        self::init();
-        return file_exists(self::$file);
+        return file_exists(self::getFile());
     }
 
     public static function toggle()
     {
-        self::init();
-        if (file_exists(self::$file)) {
-            unlink(self::$file);
+        $file = self::getFile();
+        if (file_exists($file)) {
+            unlink($file);
         } else {
-            file_put_contents(self::$file, '1');
+            file_put_contents($file, '1');
         }
     }
 
     public static function handle(string $path): void
-{
-    self::init();
-    if (!self::isActive()) return;
+    {
+        if (!self::isActive()) return;
 
-    $allowed = ['/admin', '/maintenance-login'];
-    foreach ($allowed as $prefix) {
-        if (str_starts_with($path, $prefix)) return;
+        $allowed = ['/admin', '/maintenance-login'];
+        foreach ($allowed as $prefix) {
+            if (str_starts_with($path, $prefix)) return;
+        }
+
+        http_response_code(503);
+        require __DIR__ . '/../../ressources/views/front/maintenance/index.php';
+        exit;
     }
-
-    http_response_code(503);
-    require __DIR__ . '/../../ressources/views/front/maintenance/index.php';
-    exit;
-}
 }

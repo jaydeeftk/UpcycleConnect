@@ -51,5 +51,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/categories/", handlers.AdminDeleteCategorie)
 	mux.HandleFunc("/api/admin/parametres", handlers.AdminGetParametres)
 
+	mux.HandleFunc("/api/admin/conteneurs/demandes", handlers.AdminGetDemandesConteneurs)
+	mux.HandleFunc("/api/admin/conteneurs/demandes/", handlers.AdminDemandeConteneurAction)
+
 	return mux
 }

@@ -49,9 +49,9 @@ class PortalController
         require __DIR__ . '/../../../ressources/views/admin/portal/index.php';
     }
 
-    public function toggleMaintenance()
+ public function toggleMaintenance()
 {
     MaintenanceMiddleware::toggle();
-    redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres#maintenance');
+    redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres?section=maintenance');
 }
 }

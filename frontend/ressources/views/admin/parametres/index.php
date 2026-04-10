@@ -158,4 +158,10 @@ function showSection(id) {
     event.currentTarget.classList.add('bg-green-50', 'text-green-700', 'font-medium');
     event.currentTarget.classList.remove('hover:bg-gray-50');
 }
+
+const section = new URLSearchParams(window.location.search).get('section');
+if (section) {
+    const link = document.querySelector(`[onclick="showSection('${section}')"]`);
+    if (link) link.click();
+}
 </script>

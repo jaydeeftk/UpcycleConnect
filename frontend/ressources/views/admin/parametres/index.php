@@ -4,98 +4,73 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-    
     <div class="lg:col-span-1">
         <div class="bg-white rounded-lg shadow p-4">
-            <nav class="space-y-2">
-                <a href="#general" class="block px-4 py-3 bg-green-50 text-green-700 rounded-lg font-medium">
+            <nav class="space-y-1" id="param-nav">
+                <a href="#general" onclick="showSection('general')" class="param-link block px-4 py-3 bg-green-50 text-green-700 rounded-lg font-medium cursor-pointer">
                     <i class="fas fa-cog mr-2"></i>Général
                 </a>
-                <a href="#notifications" class="block px-4 py-3 hover:bg-gray-50 rounded-lg">
-                    <i class="fas fa-bell mr-2"></i>Notifications
-                </a>
-                <a href="#paiements" class="block px-4 py-3 hover:bg-gray-50 rounded-lg">
+                <a href="#paiements" onclick="showSection('paiements')" class="param-link block px-4 py-3 hover:bg-gray-50 rounded-lg cursor-pointer">
                     <i class="fas fa-credit-card mr-2"></i>Paiements
                 </a>
-                <a href="#api" class="block px-4 py-3 hover:bg-gray-50 rounded-lg">
-                    <i class="fas fa-code mr-2"></i>API
+                <a href="#systeme" onclick="showSection('systeme')" class="param-link block px-4 py-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+                    <i class="fas fa-server mr-2"></i>Système
                 </a>
-                <a href="#securite" class="block px-4 py-3 hover:bg-gray-50 rounded-lg">
-                    <i class="fas fa-shield-alt mr-2"></i>Sécurité
-                </a>
-                <a href="#maintenance" class="block px-4 py-3 hover:bg-gray-50 rounded-lg">
+                <a href="#maintenance" onclick="showSection('maintenance')" class="param-link block px-4 py-3 hover:bg-gray-50 rounded-lg cursor-pointer">
                     <i class="fas fa-wrench mr-2"></i>Maintenance
                 </a>
             </nav>
         </div>
     </div>
 
-
     <div class="lg:col-span-3 space-y-6">
-   
-        <div class="bg-white rounded-lg shadow p-6">
+
+        <div id="section-general" class="param-section bg-white rounded-lg shadow p-6">
             <h3 class="text-xl font-bold mb-6">Paramètres généraux</h3>
-            
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium mb-2">Nom du site</label>
                     <input type="text" value="UpcycleConnect" class="w-full border rounded-lg px-4 py-2">
                 </div>
-
                 <div>
                     <label class="block text-sm font-medium mb-2">Email de contact</label>
                     <input type="email" value="contact@upcycleconnect.fr" class="w-full border rounded-lg px-4 py-2">
                 </div>
-
                 <div>
                     <label class="block text-sm font-medium mb-2">Description</label>
                     <textarea rows="3" class="w-full border rounded-lg px-4 py-2">Plateforme de mise en relation pour l'upcycling</textarea>
                 </div>
-
                 <div>
                     <label class="block text-sm font-medium mb-2">Langue par défaut</label>
                     <select class="w-full border rounded-lg px-4 py-2">
                         <option selected>Français</option>
                         <option>English</option>
-                        <option>Deutsch</option>
-                        <option>Español</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-2">Fuseau horaire</label>
-                    <select class="w-full border rounded-lg px-4 py-2">
-                        <option selected>Europe/Paris</option>
-                        <option>UTC</option>
                     </select>
                 </div>
             </div>
-
             <div class="mt-6 pt-6 border-t">
                 <button class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600">
-                    <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                    <i class="fas fa-save mr-2"></i>Enregistrer
                 </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div id="section-paiements" class="param-section hidden bg-white rounded-lg shadow p-6">
             <h3 class="text-xl font-bold mb-6">Modes de paiement</h3>
-            
             <div class="space-y-4">
                 <div class="flex items-center justify-between p-4 border rounded-lg">
                     <div class="flex items-center">
                         <i class="fab fa-stripe text-4xl text-blue-600 mr-4"></i>
                         <div>
                             <div class="font-medium">Stripe</div>
-                            <div class="text-sm text-gray-500">Cartes bancaires, Apple Pay, Google Pay</div>
+                            <div class="text-sm text-gray-500">Cartes bancaires, Apple Pay</div>
                         </div>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" checked class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
                     </label>
                 </div>
-
                 <div class="flex items-center justify-between p-4 border rounded-lg">
                     <div class="flex items-center">
                         <i class="fab fa-paypal text-4xl text-blue-700 mr-4"></i>
@@ -106,33 +81,81 @@
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
                     </label>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div id="section-systeme" class="param-section hidden bg-white rounded-lg shadow p-6">
             <h3 class="text-xl font-bold mb-6">Informations système</h3>
-            
             <div class="grid grid-cols-2 gap-4">
                 <div class="border rounded-lg p-4">
                     <div class="text-sm text-gray-500">Version PHP</div>
-                    <div class="text-xl font-bold">8.2.0</div>
+                    <div class="text-xl font-bold"><?= phpversion() ?></div>
                 </div>
                 <div class="border rounded-lg p-4">
-                    <div class="text-sm text-gray-500">Version MySQL</div>
-                    <div class="text-xl font-bold">8.0.35</div>
+                    <div class="text-sm text-gray-500">Environnement</div>
+                    <div class="text-xl font-bold">Docker</div>
                 </div>
                 <div class="border rounded-lg p-4">
-                    <div class="text-sm text-gray-500">Espace disque utilisé</div>
-                    <div class="text-xl font-bold">2.4 GB</div>
+                    <div class="text-sm text-gray-500">Serveur</div>
+                    <div class="text-xl font-bold">Apache 2.4</div>
                 </div>
                 <div class="border rounded-lg p-4">
-                    <div class="text-sm text-gray-500">Taille BDD</div>
-                    <div class="text-xl font-bold">145 MB</div>
+                    <div class="text-sm text-gray-500">OS</div>
+                    <div class="text-xl font-bold">Linux</div>
                 </div>
             </div>
         </div>
+
+        <div id="section-maintenance" class="param-section hidden bg-white rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-6">Mode Maintenance</h3>
+            <?php
+            $maintenanceFile = __DIR__ . '/../../../../../.maintenance';
+            $active = file_exists($maintenanceFile);
+            ?>
+            <div class="mb-6 p-4 rounded-lg <?= $active ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200' ?>">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full <?= $active ? 'bg-red-500' : 'bg-green-500' ?>"></div>
+                    <span class="font-medium <?= $active ? 'text-red-700' : 'text-green-700' ?>">
+                        Site <?= $active ? 'en maintenance (inaccessible au public)' : 'en ligne (accessible au public)' ?>
+                    </span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="border rounded-lg p-4">
+                    <div class="text-sm text-gray-500">Version PHP</div>
+                    <div class="text-xl font-bold"><?= phpversion() ?></div>
+                </div>
+                <div class="border rounded-lg p-4">
+                    <div class="text-sm text-gray-500">Environnement</div>
+                    <div class="text-xl font-bold">Docker</div>
+                </div>
+            </div>
+            <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/admin/maintenance/toggle">
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-medium text-white text-lg transition <?= $active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600' ?>">
+                    <?php if ($active): ?>
+                        <i class="fas fa-times-circle"></i> Désactiver le mode maintenance
+                    <?php else: ?>
+                        <i class="fas fa-wrench"></i> Activer le mode maintenance
+                    <?php endif; ?>
+                </button>
+            </form>
+        </div>
+
     </div>
 </div>
+
+<script>
+function showSection(id) {
+    document.querySelectorAll('.param-section').forEach(s => s.classList.add('hidden'));
+    document.querySelectorAll('.param-link').forEach(l => {
+        l.classList.remove('bg-green-50', 'text-green-700', 'font-medium');
+        l.classList.add('hover:bg-gray-50');
+    });
+    document.getElementById('section-' + id).classList.remove('hidden');
+    event.currentTarget.classList.add('bg-green-50', 'text-green-700', 'font-medium');
+    event.currentTarget.classList.remove('hover:bg-gray-50');
+}
+</script>

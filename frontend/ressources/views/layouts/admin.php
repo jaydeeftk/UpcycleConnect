@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <nav class="p-4">
+<nav class="p-4">
     <ul class="space-y-2">
         <li>
             <a href="/UpcycleConnect-PA2526/frontend/public/admin/dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'dashboard') !== false ? 'bg-gray-700' : '' ?>">
@@ -38,7 +38,13 @@
         <li>
             <a href="/UpcycleConnect-PA2526/frontend/public/admin/annonces" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'annonces') !== false ? 'bg-gray-700' : '' ?>">
                 <i class="fas fa-bullhorn"></i>
-                <span>Prestations</span>
+                <span>Annonces</span>
+            </a>
+        </li>
+        <li>
+            <a href="/UpcycleConnect-PA2526/frontend/public/admin/conteneurs" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'conteneurs') !== false ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-box-open"></i>
+                <span>Dépôts (Objets)</span>
             </a>
         </li>
         <li>
@@ -57,7 +63,30 @@
             <a href="/UpcycleConnect-PA2526/frontend/public/admin/messages" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'messages') !== false ? 'bg-gray-700' : '' ?>">
                 <i class="fas fa-envelope"></i>
                 <span>Messages</span>
-                <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+            </a>
+        </li>
+        <li>
+            <a href="/UpcycleConnect-PA2526/frontend/public/admin/formations" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'formations') !== false ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Formations</span>
+            </a>
+        </li>
+        <li>
+            <a href="/UpcycleConnect-PA2526/frontend/public/admin/contrats" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'contrats') !== false ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-file-contract"></i>
+                <span>Contrats</span>
+            </a>
+        </li>
+        <li>
+            <a href="/UpcycleConnect-PA2526/frontend/public/admin/factures" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'factures') !== false ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-file-invoice"></i>
+                <span>Factures</span>
+            </a>
+        </li>
+        <li>
+            <a href="/UpcycleConnect-PA2526/frontend/public/admin/notifications" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= strpos($_SERVER['REQUEST_URI'] ?? '', 'notifications') !== false ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
             </a>
         </li>
     </ul>

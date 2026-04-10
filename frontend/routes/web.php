@@ -69,4 +69,13 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/utilisateurs/{id}/delete', 'Admin\UtilisateurController@confirmDelete');
     $router->get('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
 
+    $router->get('/admin-portal-access', 'Admin\\PortalController@show');
+    $router->post('/admin-portal-access', 'Admin\\PortalController@login');
+
+    $router->get('/conteneurs', 'Admin\\ConteneurController@index');
+    $router->get('/conteneurs/{id}/accept', 'Admin\\ConteneurController@accept');
+    $router->get('/conteneurs/{id}/refuse', 'Admin\\ConteneurController@refuse');
+    $router->get('/conteneurs/{id}/delete', 'Admin\\ConteneurController@delete');
+    $router->post('/maintenance/toggle', 'Admin\\PortalController@toggleMaintenance');
+
 });

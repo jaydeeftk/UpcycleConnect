@@ -95,4 +95,6 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/utilisateurs/store', 'Admin\\UtilisateurController@store');
     $router->post('/utilisateurs/{id}/update', 'Admin\\UtilisateurController@update');
     $router->get('/evenements/{id}/delete', 'Admin\\EvenementController@delete');
+
+    $router->get('/annonces/{id}/delete', 'Admin\\AnnonceController@delete');
 });

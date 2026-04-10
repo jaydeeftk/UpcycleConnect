@@ -12,18 +12,17 @@ class MaintenanceMiddleware
 
     public static function isActive(): bool
     {
+        self::init();
         return file_exists(self::$file);
     }
 
-    public static function enable()
+    public static function toggle()
     {
-        file_put_contents(self::$file, '1');
-    }
-
-    public static function disable()
-    {
+        self::init();
         if (file_exists(self::$file)) {
             unlink(self::$file);
+        } else {
+            file_put_contents(self::$file, '1');
         }
     }
 
@@ -32,12 +31,7 @@ class MaintenanceMiddleware
         self::init();
         if (!self::isActive()) return;
 
-        $allowed = [
-            '/admin',
-            '/admin-portal-access',
-            '/login-admin',
-        ];
-
+        $allowed = ['/admin', '/maintenance-login'];
         foreach ($allowed as $prefix) {
             if (str_starts_with($path, $prefix)) return;
         }

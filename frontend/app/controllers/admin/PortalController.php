@@ -2,6 +2,7 @@
 namespace App\Controllers\Admin;
 
 use App\Services\ApiService;
+use App\Middleware\MaintenanceMiddleware;
 
 class PortalController
 {
@@ -9,6 +10,7 @@ class PortalController
 
     public function __construct()
     {
+        \App\Middleware\AdminMiddleware::handle();
         $this->api = new ApiService();
     }
 
@@ -17,6 +19,7 @@ class PortalController
         if (isset($_SESSION['user']) && ($_SESSION['user']['statut'] ?? '') === 'admin') {
             redirect('/UpcycleConnect-PA2526/frontend/public/admin/dashboard');
         }
+        $error = null;
         require __DIR__ . '/../../../ressources/views/admin/portal/index.php';
     }
 
@@ -24,6 +27,7 @@ class PortalController
     {
         $email    = $_POST['email']    ?? '';
         $password = $_POST['password'] ?? '';
+        $error    = null;
 
         try {
             $result = $this->api->post('/auth/login', [
@@ -48,12 +52,7 @@ class PortalController
 
     public function toggleMaintenance()
     {
-        $file = __DIR__ . '/../../../../.maintenance';
-        if (file_exists($file)) {
-            unlink($file);
-        } else {
-            file_put_contents($file, '1');
-        }
+        MaintenanceMiddleware::toggle();
         redirect('/UpcycleConnect-PA2526/frontend/public/admin/parametres');
     }
 }

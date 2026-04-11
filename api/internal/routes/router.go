@@ -48,5 +48,17 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/salaries/planning/atelier/", handlers.DeleteAtelierPlanning)
 	mux.HandleFunc("/api/salaries/planning", handlers.GetPlanning)
 
+	mux.HandleFunc("/api/salarie/formations", handlers.GetFormations)
+	mux.HandleFunc("/api/salarie/formations/create", handlers.CreateFormation)
+	mux.HandleFunc("/api/salarie/formations/", handlers.FormationAction)
+
+	mux.HandleFunc("/api/salarie/evenements", handlers.GetEvenementsSalarie)
+	mux.HandleFunc("/api/salarie/evenements/create", handlers.CreateEvenement)
+	mux.HandleFunc("/api/salarie/evenements/", handlers.EvenementSalarieAction)
+
+	mux.HandleFunc("/api/salarie/ateliers", handlers.GetAteliers)
+	mux.HandleFunc("/api/salarie/ateliers/create", handlers.CreateAtelier)
+	mux.HandleFunc("/api/salarie/ateliers/", handlers.AtelierAction)
+
 	return mux
 }

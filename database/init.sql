@@ -692,3 +692,4 @@ ALTER TABLE Avis MODIFY COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Avis MODIFY COLUMN Id_Evenements INT NULL;
 
 INSERT INTO Langue (Nom) VALUES ('Français'), ('English'), ('Deutsch'), ('Español');
+

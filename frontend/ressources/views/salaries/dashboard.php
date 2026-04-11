@@ -28,8 +28,8 @@
             </div>
             <i class="fas fa-calendar-alt text-4xl text-blue-400"></i>
         </div>
-        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/planning"
-           class="text-sm text-blue-600 hover:underline mt-3 block">Voir le planning →</a>
+        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/evenements"
+   class="text-sm text-blue-600 hover:underline mt-3 block">Gérer →</a>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
@@ -39,8 +39,9 @@
             </div>
             <i class="fas fa-graduation-cap text-4xl text-green-400"></i>
         </div>
-        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/planning"
-           class="text-sm text-green-600 hover:underline mt-3 block">Voir le planning →</a>
+       <a href="/UpcycleConnect-PA2526/frontend/public/salaries/formations"
+   class="text-sm text-green-600 hover:underline mt-3 block">Gérer →</a>
+
     </div>
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
@@ -50,12 +51,12 @@
             </div>
             <i class="fas fa-tools text-4xl text-purple-400"></i>
         </div>
-        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/planning"
-           class="text-sm text-purple-600 hover:underline mt-3 block">Voir le planning →</a>
+        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/ateliers"
+   class="text-sm text-purple-600 hover:underline mt-3 block">Gérer →</a>
     </div>
 </div>
 
-<!-- Aperçu planning -->
+
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
         <h3 class="text-lg font-bold">Prochaines activités</h3>

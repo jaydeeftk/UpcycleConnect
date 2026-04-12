@@ -66,40 +66,23 @@ foreach ($sections as $title => $items):
 
 <script>
 (function() {
-    var STORAGE_KEY = 'sb-sections';
-
-    function getSaved() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { return {}; }
-    }
-
-    function setSaved(state) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function applySection(key, open, animate) {
-        var el = document.getElementById(key);
-        var icon = document.getElementById('icon-' + key);
-        if (!el) return;
-        if (open) {
-            el.style.maxHeight = el.scrollHeight + 'px';
-            if (icon) icon.style.transform = 'rotate(0deg)';
-        } else {
-            el.style.maxHeight = '0px';
-            if (icon) icon.style.transform = 'rotate(-90deg)';
-        }
-    }
+    var KEY = 'sb-sections';
+    function getSaved() { try { return JSON.parse(localStorage.getItem(KEY)||'{}'); } catch(e) { return {}; } }
+    function setSaved(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
 
     window.toggleSection = function(key) {
-        var state = getSaved();
         var el = document.getElementById(key);
+        var icon = document.getElementById('icon-'+key);
         if (!el) return;
-        var isOpen = el.style.maxHeight && el.style.maxHeight !== '0px';
-        state[key] = !isOpen;
-        setSaved(state);
-        applySection(key, !isOpen, true);
+        var isOpen = parseInt(el.style.maxHeight) > 0;
+        var s = getSaved();
+        s[key] = !isOpen;
+        setSaved(s);
+        el.style.maxHeight = !isOpen ? el.scrollHeight+'px' : '0px';
+        if (icon) icon.style.transform = !isOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
+    function applyAll() {
         var state = getSaved();
         <?php foreach ($sections as $title => $items):
             $sectionKey = 'sb-section-' . strtolower(str_replace(' ', '-', $title));
@@ -110,16 +93,25 @@ foreach ($sections as $title => $items):
         ?>
         (function() {
             var key = '<?= $sectionKey ?>';
-            var defaultOpen = <?= $hasActive ? 'true' : 'false' ?>;
-            var open = (key in state) ? state[key] : defaultOpen;
+            var def = <?= $hasActive ? 'true' : 'false' ?>;
+            var open = (key in state) ? state[key] : def;
             var el = document.getElementById(key);
-            if (el) {
-                el.style.maxHeight = open ? el.scrollHeight + 'px' : '0px';
-                var icon = document.getElementById('icon-' + key);
-                if (icon) icon.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
-            }
+            var icon = document.getElementById('icon-'+key);
+            if (!el) return;
+            el.style.transition = 'none';
+            el.style.maxHeight = open ? el.scrollHeight+'px' : '0px';
+            if (icon) icon.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() { el.style.transition = ''; });
+            });
         })();
         <?php endforeach; ?>
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyAll);
+    } else {
+        applyAll();
+    }
 })();
 </script>

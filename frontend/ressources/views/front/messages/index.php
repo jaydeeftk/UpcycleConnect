@@ -1,87 +1,143 @@
-<section class="max-w-6xl mx-auto px-6 lg:px-10 py-16 reveal">
-    <div class="mb-10 flex items-end justify-between">
-        <div>
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center">
-                    <i class="fas fa-envelope text-emerald-600"></i>
-                </div>
-                <span class="text-sm font-medium text-emerald-600 uppercase tracking-wide">Messagerie</span>
+<section class="max-w-5xl mx-auto px-6 lg:px-10 py-16 reveal">
+    <div class="mb-10">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center">
+                <i class="fas fa-envelope text-emerald-600"></i>
             </div>
-            <h1 class="text-4xl font-extrabold tracking-tight">Mes conversations</h1>
+            <span class="text-sm font-medium text-emerald-600 uppercase tracking-wide">Messagerie</span>
         </div>
+        <h1 class="text-4xl font-extrabold tracking-tight">Mes messages</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm">Échangez directement avec le support UpcycleConnect.</p>
     </div>
 
-    <div class="grid lg:grid-cols-4 gap-8 h-[650px]">
-        <aside class="lg:col-span-1 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden shadow-sm">
-            <div class="p-6 border-b border-slate-100 dark:border-slate-800 font-bold text-sm uppercase tracking-widest opacity-50">Contacts</div>
-            <div id="conversations-list" class="flex-1 overflow-y-auto p-2 space-y-1 no-scrollbar"></div>
-        </aside>
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col overflow-hidden" style="height:600px">
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+            <div class="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-500/30">
+                <i class="fas fa-headset text-sm"></i>
+            </div>
+            <div>
+                <p class="font-bold text-sm">Support UpcycleConnect</p>
+                <p class="text-[11px] text-emerald-500 font-semibold">En ligne</p>
+            </div>
+        </div>
 
-        <div class="lg:col-span-3 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden shadow-xl">
-            <div id="messages-container" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/30 dark:bg-slate-950/20 no-scrollbar"></div>
-            
-            <div class="p-6 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
-                <div id="typing-indicator" class="text-[10px] text-emerald-500 mb-2 h-4 opacity-0 transition-opacity font-bold uppercase ml-2 tracking-tighter">L'admin écrit...</div>
-                <div class="flex items-center gap-3 bg-slate-100 dark:bg-slate-800/50 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all duration-300">
-                    <button type="button" onclick="document.getElementById('file-input').click()" class="p-3 text-slate-400 hover:text-emerald-500 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm">
-                        <i class="fas fa-paperclip text-lg"></i>
-                    </button>
-                    <input type="file" id="file-input" class="hidden" accept="image/*" onchange="uploadFile(this)">
-                    <input type="text" id="message-input" oninput="handleTyping()" onkeypress="if(event.key==='Enter') window.sendMessage()" class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 dark:text-slate-100" placeholder="Écrivez votre message...">
-                    <button onclick="window.sendMessage()" class="bg-emerald-500 text-white p-3.5 rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-500/40 transition-all active:scale-95">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+        <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/30 dark:bg-slate-950/10 no-scrollbar">
+            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-slate-400 gap-3">
+                <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <i class="fas fa-comments text-2xl opacity-40"></i>
                 </div>
+                <p class="text-sm font-medium">Aucun message pour l'instant</p>
+                <p class="text-xs opacity-60">Envoyez votre premier message ci-dessous.</p>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 dark:border-slate-800">
+            <div id="send-error" class="text-xs text-red-500 mb-2 hidden font-medium px-1"></div>
+            <div class="flex items-center gap-3 bg-slate-100 dark:bg-slate-800/60 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-emerald-500/30 transition-all duration-300">
+                <input type="text" id="message-input" onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 dark:text-slate-100" placeholder="Écrivez votre message...">
+                <button onclick="sendMessage()" id="send-btn" class="bg-emerald-500 text-white px-5 py-3 rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all active:scale-95 text-sm font-semibold">
+                    <i class="fas fa-paper-plane mr-1.5"></i>Envoyer
+                </button>
             </div>
         </div>
     </div>
 </section>
 
 <script>
-var token = "<?php echo $_SESSION['token'] ?? ''; ?>";
-var currentRecipientId = 1;
-var typingTimeout;
+(function() {
+    var token = <?= json_encode($_SESSION['token'] ?? '') ?>;
+    var userId = <?= json_encode($_SESSION['user']['id'] ?? 0) ?>;
 
-function escHtml(s) {
-    let r = String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return r.replace(/\[IMG\](.*?)\[\/IMG\]/g, (match, url) => {
-        return `<div class="mt-2 group relative max-w-sm"><img src="${url}" class="rounded-2xl shadow-lg border dark:border-slate-700 cursor-pointer hover:scale-[1.02] transition-transform duration-300" onclick="window.open('${url}', '_blank')"><a href="${url}" download class="absolute top-2 right-2 p-2 bg-white/90 dark:bg-slate-800/90 rounded-lg text-emerald-500 opacity-0 group-hover:opacity-100 transition-all shadow-sm"><i class="fas fa-download"></i></a></div>`;
-    });
-}
-
-window.sendMessage = function() {
-    const el = document.getElementById('message-input');
-    const val = el.value.trim();
-    if(!val || typeof ws === 'undefined' || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(JSON.stringify({type:"message", recipient_id: parseInt(currentRecipientId), content: val}));
-    el.value = '';
-};
-
-async function uploadFile(input) {
-    if (!input.files.length) return;
-    const fd = new FormData();
-    fd.append('file', input.files[0]);
-    try {
-        const res = await fetch('/api/messages/upload', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
-            body: fd
-        });
-        const data = await res.json();
-        if (data.url) {
-            ws.send(JSON.stringify({
-                type: "message",
-                recipient_id: currentRecipientId,
-                content: "[IMG]" + data.url + "[/IMG]"
-            }));
-        }
-    } catch (e) { console.error("Upload error", e); }
-    input.value = "";
-}
-
-function handleTyping() {
-    if(typeof ws !== 'undefined' && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({type:"typing", recipient_id: parseInt(currentRecipientId)}));
+    function esc(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
-}
+
+    function formatDate(d) {
+        if (!d) return '';
+        var dt = new Date(d.replace(' ', 'T'));
+        return dt.toLocaleDateString('fr-FR', {day:'2-digit',month:'short'}) + ' ' + dt.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    }
+
+    function renderMessages(msgs) {
+        var container = document.getElementById('messages-container');
+        var empty = document.getElementById('empty-state');
+        if (!msgs || msgs.length === 0) {
+            empty.classList.remove('hidden');
+            return;
+        }
+        empty.classList.add('hidden');
+        var html = '';
+        msgs.forEach(function(m) {
+            if (m.is_admin) {
+                html += '<div class="flex items-end gap-2">';
+                html += '<div class="w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0 mb-1"><i class="fas fa-headset"></i></div>';
+                html += '<div class="max-w-[70%]">';
+                html += '<p class="text-[10px] text-slate-400 mb-1 font-semibold">Support</p>';
+                html += '<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm shadow-sm">' + esc(m.contenu) + '</div>';
+                html += '<p class="text-[10px] text-slate-400 mt-1">' + formatDate(m.date_envoi) + '</p>';
+                html += '</div></div>';
+            } else {
+                html += '<div class="flex items-end gap-2 flex-row-reverse">';
+                html += '<div class="w-7 h-7 bg-slate-300 dark:bg-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-200 text-xs flex-shrink-0 mb-1"><i class="fas fa-user"></i></div>';
+                html += '<div class="max-w-[70%]">';
+                html += '<p class="text-[10px] text-slate-400 mb-1 font-semibold text-right">Vous</p>';
+                html += '<div class="bg-emerald-500 text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm shadow-md shadow-emerald-500/20">' + esc(m.contenu) + '</div>';
+                html += '<p class="text-[10px] text-slate-400 mt-1 text-right">' + formatDate(m.date_envoi) + '</p>';
+                html += '</div></div>';
+            }
+        });
+        container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function loadMessages() {
+        fetch('/api/messages/user/' + userId, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            renderMessages(data.data || []);
+        })
+        .catch(function() {});
+    }
+
+    window.sendMessage = function() {
+        var input = document.getElementById('message-input');
+        var val = input.value.trim();
+        var errEl = document.getElementById('send-error');
+        errEl.classList.add('hidden');
+        if (!val) return;
+
+        var btn = document.getElementById('send-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i>Envoi...';
+
+        fetch('/api/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ contenu: val })
+        })
+        .then(function(r) {
+            if (!r.ok) return r.json().then(function(d) { throw new Error(d.error || 'Erreur'); });
+            return r.json();
+        })
+        .then(function() {
+            input.value = '';
+            loadMessages();
+        })
+        .catch(function(e) {
+            errEl.textContent = e.message || 'Erreur lors de l\'envoi.';
+            errEl.classList.remove('hidden');
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i>Envoyer';
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', loadMessages);
+})();
 </script>

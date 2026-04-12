@@ -22,19 +22,8 @@
 
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
-            const texts = document.querySelectorAll('.sb-text');
-            const sections = document.querySelectorAll('.sb-section');
-            if (sb.classList.contains('w-20')) {
-                sb.classList.replace('w-20', 'w-72');
-                texts.forEach(el => el.classList.remove('hidden'));
-                sections.forEach(el => el.classList.remove('hidden'));
-                localStorage.setItem('sidebar-collapsed', 'false');
-            } else {
-                sb.classList.replace('w-72', 'w-20');
-                texts.forEach(el => el.classList.add('hidden'));
-                sections.forEach(el => el.classList.add('hidden'));
-                localStorage.setItem('sidebar-collapsed', 'true');
-            }
+            const isCollapsed = sb.classList.toggle('collapsed');
+            localStorage.setItem('sidebar-collapsed', isCollapsed ? 'true' : 'false');
         }
 
         function toggleNotifs() {
@@ -44,7 +33,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             applyTheme(localStorage.getItem('theme') || 'dark');
-            /* sidebar toujours visible */
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                document.getElementById('sidebar').classList.add('collapsed');
+            }
             loadPendingCounts();
         });
 
@@ -112,7 +103,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
-        #sidebar { background-color: #0f172a !important; transition: none !important; }
+        #sidebar { background-color: #0f172a !important; width: 18rem; transition: width 220ms ease-in-out; overflow: hidden; }
+        #sidebar.collapsed { width: 5rem; }
+        #sidebar.collapsed .sb-text { display: none !important; }
+        #sidebar.collapsed .sb-section { display: none !important; }
         .nav-link { transition: background 150ms ease-out; }
         .nav-link.active { background: #10b981; color: white !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -141,14 +135,17 @@
                 document.documentElement.setAttribute('data-theme', 'dark');
             }
             if (localStorage.getItem('sidebar-collapsed') === 'true') {
-                document.documentElement.setAttribute('data-sb-collapsed', 'true');
+                document.addEventListener('DOMContentLoaded', function() {
+                    var sb = document.getElementById('sidebar');
+                    if (sb) sb.classList.add('collapsed');
+                });
             }
         })();
     </script>
 </head>
 <body class="h-screen flex text-slate-900 dark:text-slate-100 transition-colors duration-300">
 
-    <aside id="sidebar" class="w-72 flex flex-col z-30 border-r border-slate-800">
+    <aside id="sidebar" class="flex flex-col z-30 border-r border-slate-800 flex-shrink-0">
         <div class="p-6 h-20 flex items-center gap-3 border-b border-slate-800/50 overflow-hidden">
             <div class="min-w-[40px] w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white">
                 <i class="fas fa-recycle text-xl"></i>

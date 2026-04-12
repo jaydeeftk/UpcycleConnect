@@ -20,7 +20,7 @@
                     Découvrir les prestations
                 </a>
 
-                <a href="/devenir-prestataire" class="bg-white text-black px-7 py-4 rounded-xl font-semibold hover:bg-emerald-500 hover:text-white transition text-center border border-white/20">
+                <a href="/devenir-prestataire" style="background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);color:white;border:1.5px solid rgba(255,255,255,0.4);" class="px-7 py-4 rounded-xl font-semibold hover:bg-white hover:text-black transition text-center inline-block">
                     Devenir prestataire
                 </a>
             </div>

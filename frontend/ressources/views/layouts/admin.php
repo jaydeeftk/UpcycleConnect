@@ -20,7 +20,22 @@
             localStorage.setItem('theme', t);
         }
 
-        function toggleSidebar() { /* sidebar fixe */ }
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const texts = document.querySelectorAll('.sb-text');
+            const sections = document.querySelectorAll('.sb-section');
+            if (sb.classList.contains('w-20')) {
+                sb.classList.replace('w-20', 'w-72');
+                texts.forEach(el => el.classList.remove('hidden'));
+                sections.forEach(el => el.classList.remove('hidden'));
+                localStorage.setItem('sidebar-collapsed', 'false');
+            } else {
+                sb.classList.replace('w-72', 'w-20');
+                texts.forEach(el => el.classList.add('hidden'));
+                sections.forEach(el => el.classList.add('hidden'));
+                localStorage.setItem('sidebar-collapsed', 'true');
+            }
+        }
 
         function toggleNotifs() {
             const panel = document.getElementById('notif-panel');
@@ -97,7 +112,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
-        #sidebar { background-color: #0f172a !important; }
+        #sidebar { background-color: #0f172a !important; transition: none !important; }
         .nav-link { transition: background 150ms ease-out; }
         .nav-link.active { background: #10b981; color: white !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }

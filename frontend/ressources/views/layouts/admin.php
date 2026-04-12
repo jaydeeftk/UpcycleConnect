@@ -20,14 +20,7 @@
             localStorage.setItem('theme', t);
         }
 
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const isCollapsed = sb.classList.toggle('w-20');
-            sb.classList.toggle('w-72');
-            document.querySelectorAll('.sb-text').forEach(el => el.classList.toggle('hidden'));
-            document.querySelectorAll('.sb-section').forEach(el => el.classList.toggle('hidden'));
-            localStorage.setItem('sidebar-collapsed', isCollapsed);
-        }
+        function toggleSidebar() { /* sidebar fixe */ }
 
         function toggleNotifs() {
             const panel = document.getElementById('notif-panel');
@@ -36,12 +29,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             applyTheme(localStorage.getItem('theme') || 'dark');
-            if (localStorage.getItem('sidebar-collapsed') === 'true') {
-                const sb = document.getElementById('sidebar');
-                sb.classList.replace('w-72', 'w-20');
-                document.querySelectorAll('.sb-text').forEach(el => el.classList.add('hidden'));
-                document.querySelectorAll('.sb-section').forEach(el => el.classList.add('hidden'));
-            }
+            /* sidebar toujours visible */
             loadPendingCounts();
         });
 
@@ -109,7 +97,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
-        #sidebar { background-color: #0f172a !important; transition: width 250ms cubic-bezier(0.23, 1, 0.32, 1); }
+        #sidebar { background-color: #0f172a !important; }
         .nav-link { transition: background 150ms ease-out; }
         .nav-link.active { background: #10b981; color: white !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -152,7 +152,12 @@ if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && w
 
         <div class="flex-1 flex flex-col overflow-hidden bg-slate-50">
             <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
-                <div class="flex items-center">
+                <div class="flex items-center gap-4 
+<button onclick="themeToggle()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-500 transition-all duration-300">
+    <i class="fas fa-sun dark:hidden"></i>
+    <i class="fas fa-moon hidden dark:inline"></i>
+</button>
+">
                     <button id="sidebarToggle" class="mr-5 p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl focus:outline-none transition-all duration-200">
                         <i class="fas fa-bars text-xl"></i>
                     </button>

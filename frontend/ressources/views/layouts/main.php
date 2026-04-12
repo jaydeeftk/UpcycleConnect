@@ -10,6 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script>
+        (function() {
+            var t = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (t === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -91,6 +102,22 @@
 
         /* Utilitaires de Fade */
         .reveal { animation: fade-in 0.6s ease-out; }
+
+        .dark .bg-white { background-color: #0f172a !important; }
+        .dark .bg-gray-50, .dark .bg-slate-50 { background-color: #020617 !important; }
+        .dark .text-gray-900, .dark .text-slate-900, .dark .text-gray-800, .dark .text-slate-800 { color: #f1f5f9 !important; }
+        .dark .border-gray-200, .dark .border-slate-200 { border-color: #1e293b !important; }
+        .dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,.4) !important; }
+        .dark input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([class*="bg-"]),
+        .dark select:not([class*="bg-"]),
+        .dark textarea:not([class*="bg-"]) {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+            border-color: #334155 !important;
+        }
+        .dark .card { background-color: #0f172a !important; border-color: #1e293b !important; }
+        .dark .dropdown-content, .dark .menu { background-color: #0f172a !important; border-color: #1e293b; }
+        .dark .modal-box { background-color: #0f172a !important; }
     </style>
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-500/30">

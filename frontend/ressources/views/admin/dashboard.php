@@ -4,12 +4,12 @@
         <h1 class="text-4xl font-bold text-gray-900">Bienvenue sur l'espace admin</h1>
     </div>
     <div class="flex items-center gap-3">
-        <a href="/admin/utilisateurs?export=csv" class="bg-white border border-gray-200 px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Exporter</a>
+        <a href="/admin/utilisateurs?export=csv" class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 border border-gray-200 px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Exporter</a>
         <div class="relative" x-data="{ open: false }">
             <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="bg-gray-900 text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition flex items-center gap-2">
                 Nouvelle action <i class="fas fa-chevron-down text-xs"></i>
             </button>
-            <div class="hidden absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden">
+            <div class="hidden absolute right-0 top-full mt-2 w-48 bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden">
                 <a href="/admin/utilisateurs/create" class="block px-4 py-3 text-sm hover:bg-gray-50">Créer un utilisateur</a>
                 <a href="/admin/evenements/create" class="block px-4 py-3 text-sm hover:bg-gray-50">Créer un événement</a>
                 <a href="/admin/notifications" class="block px-4 py-3 text-sm hover:bg-gray-50">Envoyer une notif</a>
@@ -20,22 +20,22 @@
 
 <?php $v = $visites ?? []; ?>
 <section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
-    <div class="bg-white rounded-3xl shadow-sm p-6 border-l-4 border-blue-500">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-blue-500">
         <p class="text-sm text-gray-500">Visites aujourd'hui</p>
         <h3 id="cnt-visits-today" class="text-3xl font-bold mt-3"><?= number_format($v['today'] ?? 0) ?></h3>
         <p class="text-sm text-blue-600 mt-2">Pages vues ce jour</p>
     </div>
-    <div class="bg-white rounded-3xl shadow-sm p-6 border-l-4 border-indigo-500">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-indigo-500">
         <p class="text-sm text-gray-500">Visites 7 jours</p>
         <h3 id="cnt-visits-week" class="text-3xl font-bold mt-3"><?= number_format($v['week'] ?? 0) ?></h3>
         <p class="text-sm text-indigo-600 mt-2">Cette semaine</p>
     </div>
-    <div class="bg-white rounded-3xl shadow-sm p-6 border-l-4 border-purple-500">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-purple-500">
         <p class="text-sm text-gray-500">Visites 30 jours</p>
         <h3 id="cnt-visits-month" class="text-3xl font-bold mt-3"><?= number_format($v['month'] ?? 0) ?></h3>
         <p class="text-sm text-purple-600 mt-2">Ce mois</p>
     </div>
-    <div class="bg-white rounded-3xl shadow-sm p-6 border-l-4 border-slate-400">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-slate-400">
         <p class="text-sm text-gray-500">Total visites</p>
         <h3 id="cnt-visits-total" class="text-3xl font-bold mt-3"><?= number_format($v['total'] ?? 0) ?></h3>
         <p class="text-sm text-slate-500 mt-2">Depuis le début</p>
@@ -43,25 +43,25 @@
 </section>
 
 <section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-3xl shadow-sm p-6">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <p class="text-sm text-gray-500">Utilisateurs</p>
         <h3 id="cnt-utilisateurs" class="text-3xl font-bold mt-3"><?= number_format($stats['total_utilisateurs'] ?? 0) ?></h3>
         <p class="text-sm text-emerald-600 mt-2">Total inscrits</p>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-sm p-6">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <p class="text-sm text-gray-500">Annonces</p>
         <h3 id="cnt-annonces" class="text-3xl font-bold mt-3"><?= number_format($stats['total_annonces'] ?? 0) ?></h3>
         <p class="text-sm text-emerald-600 mt-2">Total annonces</p>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-sm p-6">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <p class="text-sm text-gray-500">Événements</p>
         <h3 id="cnt-evenements" class="text-3xl font-bold mt-3"><?= number_format($stats['total_evenements'] ?? 0) ?></h3>
         <p class="text-sm text-gray-500 mt-2">Total événements</p>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-sm p-6">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <p class="text-sm text-gray-500">Messages</p>
         <h3 id="cnt-messages" class="text-3xl font-bold mt-3"><?= number_format($stats['total_messages'] ?? 0) ?></h3>
         <p class="text-sm text-amber-600 mt-2">Total messages</p>
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <section class="grid xl:grid-cols-3 gap-6 mb-8">
-    <div class="xl:col-span-2 bg-white rounded-3xl shadow-sm p-6">
+    <div class="xl:col-span-2 bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h3 class="text-xl font-bold">Activité générale</h3>
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </script>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-sm p-6">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <div class="mb-6">
             <h3 class="text-xl font-bold">Statistiques</h3>
             <p class="text-sm text-gray-500 mt-1">Résumé de l'activité</p>
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </section>
 
 <section class="grid lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-3xl shadow-sm p-6">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold">Prestations récentes</h3>
             <a href="/admin/services" class="text-sm text-gray-600 hover:text-black">Voir tout</a>
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-sm p-6">
+    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold">Actions rapides</h3>
         </div>

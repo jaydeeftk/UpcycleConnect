@@ -1,6 +1,11 @@
 package handlers
 
 import (
+	"io"
+	"os"
+	"path/filepath"
+	"fmt"
+	"time"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -118,4 +123,41 @@ func GetHistorique(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	httpx.JSONOK(w, http.StatusOK, items)
+}
+
+func UploadMessageAttachment(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(5 << 20)
+	if err != nil {
+		httpx.Error(w, http.StatusBadRequest, "Fichier trop volumineux")
+		return
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		httpx.Error(w, http.StatusBadRequest, "Erreur de lecture")
+		return
+	}
+	defer file.Close()
+
+	uploadDir := "uploads/messages"
+	os.MkdirAll(uploadDir, os.ModePerm)
+
+	ext := filepath.Ext(header.Filename)
+	filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+	filepathFull := filepath.Join(uploadDir, filename)
+
+	dst, err := os.Create(filepathFull)
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, "Erreur serveur")
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, file); err != nil {
+		httpx.Error(w, http.StatusInternalServerError, "Erreur ecriture")
+		return
+	}
+
+	fileURL := "/api/uploads/messages/" + filename
+	httpx.JSON(w, http.StatusOK, map[string]string{"url": fileURL})
 }

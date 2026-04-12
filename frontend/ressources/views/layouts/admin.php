@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
         tailwind.config = {
@@ -16,118 +17,66 @@
                 extend: {
                     colors: {
                         primary: '#10b981',
-                        sidebar: '#0f172a',
-                        cardDark: '#1e293b',
-                        bgDark: '#020617'
+                        surface: '#0f172a',
+                        overlay: 'rgba(30, 41, 59, 0.5)'
                     }
                 }
             }
         };
 
-        function applyTheme(t) {
-            document.documentElement.setAttribute('data-theme', t);
-            if (t === 'dark') document.documentElement.classList.add('dark');
-            else document.documentElement.classList.remove('dark');
+        const applyTheme = (t) => {
+            const html = document.documentElement;
+            html.setAttribute('data-theme', t);
+            t === 'dark' ? html.classList.add('dark') : html.classList.remove('dark');
             localStorage.setItem('theme', t);
-        }
-
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const isCollapsed = sb.classList.toggle('w-20');
-            sb.classList.toggle('w-72');
-            document.querySelectorAll('.sb-text').forEach(el => el.classList.toggle('hidden'));
-            document.querySelectorAll('.sb-section').forEach(el => el.classList.toggle('hidden'));
-            localStorage.setItem('sidebar-collapsed', isCollapsed);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            applyTheme(localStorage.getItem('theme') || 'dark');
-            if (localStorage.getItem('sidebar-collapsed') === 'true') toggleSidebar();
-        });
+        };
+        applyTheme(localStorage.getItem('theme') || 'dark');
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-
-        /* SIDEBAR SOMBRE PERMANENTE */
-        #sidebar { 
-            background-color: #0f172a !important; 
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* FIX DES CARTES DÉGUEULASSES */
-        .dark .bg-white, .dark .card, .dark .stats { 
-            background-color: #1e293b !important; 
-            color: #f1f5f9 !important;
-            border: 1px solid #334155 !important;
-        }
-        .dark .table, .dark .table tr { 
-            background-color: #1e293b !important; 
-            color: #f1f5f9 !important;
-            border-bottom: 1px solid #334155 !important;
-        }
-
-        /* Mode Light propre */
-        body:not(.dark) { background-color: #f8fafc; }
-        body:not(.dark) .bg-white { background-color: white !important; }
-
-        .nav-link { transition: all 0.2s; }
-        .nav-link.active { background: #10b981; color: white !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        :root { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); }
         
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Glassmorphism Cards */
+        .dark .admin-card {
+            background: rgba(30, 41, 59, 0.4) !important;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 180ms var(--ease-out), border-color 180ms var(--ease-out);
+        }
+        .admin-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .dark body { background: #020617; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
-
-    <aside id="sidebar" class="w-72 flex flex-col z-30 border-r border-slate-800 shrink-0 shadow-2xl">
-        <div class="p-6 h-20 flex items-center gap-3 border-b border-slate-800/50">
-            <div class="min-w-[40px] w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white">
-                <i class="fas fa-recycle text-xl"></i>
-            </div>
-            <span class="sb-text font-bold text-lg text-white whitespace-nowrap">UpcycleConnect</span>
+    <aside id="sidebar" class="w-72 bg-[#0f172a] border-r border-slate-800 flex flex-col z-30">
+        <div class="p-8 h-20 flex items-center gap-3">
+             <i class="fas fa-recycle text-emerald-500 text-2xl"></i>
+             <span class="font-bold text-white tracking-tight">Upcycle<span class="text-emerald-500">Connect</span></span>
         </div>
-
-        <nav class="flex-1 overflow-y-auto no-scrollbar py-6">
+        <nav class="flex-1 overflow-y-auto py-6">
             <?php include __DIR__ . '/../components/admin/sidebar.php'; ?>
         </nav>
-
-        <div class="p-4 border-t border-slate-800/50">
-            <a href="/logout" class="flex items-center gap-4 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all font-bold">
-                <i class="fas fa-sign-out-alt text-lg"></i>
-                <span class="sb-text uppercase text-[10px] tracking-widest">Déconnexion</span>
-            </a>
-        </div>
     </aside>
 
-    <div class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-bgDark transition-colors">
-        <header class="h-20 flex items-center justify-between px-8 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-sidebar/50 backdrop-blur-md">
-            <div class="flex items-center gap-6">
-                <button onclick="toggleSidebar()" class="p-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 transition-all">
-                    <i class="fas fa-bars-staggered text-xl"></i>
-                </button>
-                <h2 class="font-bold text-sm text-slate-400 uppercase tracking-widest sb-text">Administration</h2>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <button onclick="applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark')" class="btn btn-ghost btn-circle btn-sm">
-                    <i class="fas fa-sun dark:hidden text-orange-400"></i>
-                    <i class="fas fa-moon hidden dark:inline text-blue-400"></i>
-                </button>
-                <div class="flex items-center gap-3 pl-4 border-l dark:border-slate-700">
-                    <div class="text-right hidden sm:block leading-tight">
-                        <p class="text-xs font-bold"><?= $_SESSION['admin_user'] ?? 'Admin' ?></p>
-                        <p class="text-[9px] text-emerald-500 font-black uppercase">Administrateur</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white font-black">A</div>
-                </div>
-            </div>
+    <div class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-[#020617]">
+        <header class="h-20 flex items-center justify-between px-10 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#0f172a]/50 backdrop-blur-md">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Dashboard</h2>
+            <button onclick="applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark')" class="btn btn-ghost btn-circle btn-sm">
+                <i class="fas fa-sun dark:hidden text-orange-400"></i>
+                <i class="fas fa-moon hidden dark:inline text-blue-400"></i>
+            </button>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-8 no-scrollbar">
+        <main class="flex-1 overflow-y-auto p-10 no-scrollbar">
             <?php echo $content; ?>
         </main>
     </div>
-
 </body>
 </html>

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"upcycleconnect/internal/websockets"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -61,30 +62,21 @@ func readPump(client *websockets.Client) {
 			}
 			break
 		}
-
 		websockets.GlobalHub.Broadcast <- message
 	}
 }
 
 func writePump(client *websockets.Client) {
 	defer client.Conn.Close()
-	for {
-		select {
-		case message, ok := <-client.Send:
-			if !ok {
-				client.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-
-			w, err := client.Conn.NextWriter(websocket.TextMessage)
-			if err != nil {
-				return
-			}
-			w.Write(message)
-
-			if err := w.Close(); err != nil {
-				return
-			}
+	for message := range client.Send {
+		w, err := client.Conn.NextWriter(websocket.TextMessage)
+		if err != nil {
+			return
+		}
+		w.Write(message)
+		if err := w.Close(); err != nil {
+			return
 		}
 	}
+	client.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 }

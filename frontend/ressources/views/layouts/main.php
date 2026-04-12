@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="transition-colors duration-500">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,10 +16,15 @@
             document.documentElement.classList.add('dark');
         }
     </script>
+    <style>
+        * { transition: background-color 0.3s ease, border-color 0.3s ease; }
+    </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     <?php include __DIR__ . '/../components/front/navbar.php'; ?>
-    <main><?php echo $content; ?></main>
+    <div class="min-h-screen">
+        <?php echo $content; ?>
+    </div>
     <?php include __DIR__ . '/../components/front/footer.php'; ?>
 </body>
 </html>

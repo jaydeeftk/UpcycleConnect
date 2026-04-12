@@ -103,5 +103,85 @@
 
     <?php include __DIR__ . '/../components/front/footer.php'; ?>
 
+    <script>
+    (function() {
+        var GEO_API = 'https://geo.api.gouv.fr/communes';
+        var activeInput = null;
+        var dropdown = null;
+
+        function createDropdown() {
+            var el = document.createElement('div');
+            el.id = 'geo-dropdown';
+            el.style.cssText = 'position:absolute;z-index:9999;background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;min-width:240px;font-family:inherit';
+            document.body.appendChild(el);
+            return el;
+        }
+
+        function positionDropdown(input) {
+            var rect = input.getBoundingClientRect();
+            dropdown.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+            dropdown.style.left = (rect.left + window.scrollX) + 'px';
+            dropdown.style.width = rect.width + 'px';
+        }
+
+        function hideDropdown() {
+            if (dropdown) dropdown.style.display = 'none';
+        }
+
+        function showSuggestions(input, results) {
+            if (!dropdown) dropdown = createDropdown();
+            positionDropdown(input);
+            if (!results.length) { hideDropdown(); return; }
+            dropdown.style.display = 'block';
+            dropdown.innerHTML = results.map(function(c) {
+                var cp = c.codesPostaux && c.codesPostaux[0] ? ' — ' + c.codesPostaux[0] : '';
+                return '<div class="geo-item" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f1f5f9;transition:background 120ms" data-value="' + c.nom + cp.replace('— ','') + '" data-label="' + c.nom + cp + '">' +
+                    '<span style="font-weight:600">' + c.nom + '</span><span style="color:#94a3b8;font-size:11px">' + cp + '</span>' +
+                    '</div>';
+            }).join('');
+            dropdown.querySelectorAll('.geo-item').forEach(function(item) {
+                item.addEventListener('mouseenter', function() { this.style.background = '#f0fdf4'; });
+                item.addEventListener('mouseleave', function() { this.style.background = ''; });
+                item.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    if (activeInput) activeInput.value = this.dataset.label.trim();
+                    hideDropdown();
+                });
+            });
+        }
+
+        var debounceTimer;
+        function onInput(e) {
+            activeInput = e.target;
+            clearTimeout(debounceTimer);
+            var q = e.target.value.trim();
+            if (q.length < 2) { hideDropdown(); return; }
+            debounceTimer = setTimeout(function() {
+                fetch(GEO_API + '?nom=' + encodeURIComponent(q) + '&fields=nom,codesPostaux&limit=8&boost=population')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) { showSuggestions(activeInput, data); })
+                    .catch(function() {});
+            }, 200);
+        }
+
+        function attachGeoComplete() {
+            document.querySelectorAll('input[name="lieu"],input[name="localisation"],input[name="ville"],input[name="adresse"]').forEach(function(input) {
+                if (input.dataset.geocomplete) return;
+                input.dataset.geocomplete = '1';
+                input.setAttribute('autocomplete', 'off');
+                input.addEventListener('input', onInput);
+                input.addEventListener('blur', function() { setTimeout(hideDropdown, 150); });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', attachGeoComplete);
+        var obs = new MutationObserver(attachGeoComplete);
+        obs.observe(document.body, { childList: true, subtree: true });
+        document.addEventListener('click', function(e) {
+            if (dropdown && !dropdown.contains(e.target)) hideDropdown();
+        });
+    })();
+    </script>
+
 </body>
 </html>

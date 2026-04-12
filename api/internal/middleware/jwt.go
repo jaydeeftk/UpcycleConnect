@@ -69,6 +69,11 @@ func SalarieOnly(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
+func GetClaims(r *http.Request) jwt.MapClaims {
+	claims, _ := r.Context().Value(ClaimsKey).(jwt.MapClaims)
+	return claims
+}
+
 func ProfessionnelOnly(next http.HandlerFunc) http.HandlerFunc {
 	return JWTAuth(func(w http.ResponseWriter, r *http.Request) {
 		claims := r.Context().Value(ClaimsKey).(jwt.MapClaims)

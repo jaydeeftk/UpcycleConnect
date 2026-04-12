@@ -20,7 +20,7 @@
                     Découvrir les prestations
                 </a>
 
-                <a href="/devenir-prestataire" class="bg-white text-black px-7 py-4 rounded-xl font-semibold hover:bg-neutral-200 transition text-center">
+                <a href="/devenir-prestataire" class="bg-white text-black px-7 py-4 rounded-xl font-semibold hover:bg-emerald-500 hover:text-white transition text-center border border-white/20">
                     Devenir prestataire
                 </a>
             </div>
@@ -34,7 +34,7 @@
     </h2>
 
     <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
             <img src="https://images.unsplash.com/photo-1604186838309-c6715f0d3e6d?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
 
             <div class="p-6">
@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
             <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
 
             <div class="p-6">
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
             <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
 
             <div class="p-6">

@@ -71,7 +71,7 @@
         </button>
         <input type="file" id="file-input" class="hidden" accept="image/*" onchange="uploadFile(this)">
         
-        <input type="text" id="message-input" onkeypress="if(event.key==='Enter') sendMessage()" 
+        <input type="text" id="message-input" oninput="notifyTyping()" onkeypress="if(event.key==='Enter') sendMessage()" 
             placeholder="Écrivez votre message..." 
             class="flex-1 bg-transparent border-none focus:ring-0 text-slate-700 dark:text-slate-200 placeholder-slate-400 text-sm">
         

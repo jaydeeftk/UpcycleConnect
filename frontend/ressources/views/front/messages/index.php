@@ -178,4 +178,25 @@ async function uploadFile(input) {
     input.value = "";
 }
 
+
+let typingTimeout;
+function notifyTyping() {
+    if(!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({type: "typing", recipient_id: parseInt(currentRecipientId)}));
+}
+
+function handleSocketMessage(e) {
+    const data = JSON.parse(e.data);
+    if(data.type === "typing" && data.sender_id == currentRecipientId) {
+        const indicator = document.getElementById('typing-indicator');
+        indicator.classList.remove('opacity-0');
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => indicator.classList.add('opacity-0'), 2000);
+    } else if(data.type === "message") {
+        appendMessage(data);
+        const container = document.getElementById('messages-container');
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }
+}
+
 </script>

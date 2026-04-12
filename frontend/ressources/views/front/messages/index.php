@@ -51,7 +51,8 @@ function initWS() {
 }
 
 function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    let r = String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    return r.replace(/\[IMG\](.*?)\[\/IMG\]/g, '<a href=\"$1\" target=\"_blank\"><img src=\"$1\" class=\"max-w-xs rounded-lg mt-2 border border-slate-200\"></a>');
 }
 
 function showTyping() {
@@ -153,4 +154,28 @@ document.getElementById('msg-input').addEventListener('keydown', function(e) {
 
 loadMessages();
 initWS();
+
+async function uploadFile(input) {
+    if (!input.files.length) return;
+    let file = input.files[0];
+    let fd = new FormData();
+    fd.append("file", file);
+    try {
+        let res = await fetch("/api/messages/upload", {
+            method: "POST",
+            headers: {"Authorization": "Bearer " + token},
+            body: fd
+        });
+        let data = await res.json();
+        if (data.url) {
+            let textInput = input.nextElementSibling;
+            let oldVal = textInput.value;
+            textInput.value = "[IMG]" + data.url + "[/IMG]";
+            sendMessage();
+            setTimeout(() => { textInput.value = oldVal; }, 50);
+        }
+    } catch (e) {}
+    input.value = "";
+}
+
 </script>

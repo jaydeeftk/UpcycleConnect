@@ -200,3 +200,30 @@ function handleSocketMessage(e) {
 }
 
 </script>
+
+<script>
+window.typingTimeout = null;
+window.notifyTyping = function() {
+    if(typeof ws === 'undefined' || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({type: "typing", recipient_id: parseInt(currentRecipientId)}));
+};
+window.uploadFile = async function(input) {
+    if (!input.files.length) return;
+    let fd = new FormData();
+    fd.append("file", input.files[0]);
+    try {
+        let res = await fetch("/api/messages/upload", {
+            method: "POST",
+            headers: {"Authorization": "Bearer " + token},
+            body: fd
+        });
+        let data = await res.json();
+        if (data.url) {
+            const msgInput = document.getElementById('message-input');
+            msgInput.value = "[IMG]" + data.url + "[/IMG]";
+            window.sendMessage();
+        }
+    } catch (e) { console.error(e); }
+    input.value = "";
+};
+</script>

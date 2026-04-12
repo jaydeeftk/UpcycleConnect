@@ -64,23 +64,21 @@
             </div>
         </div>
 
-        <div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 transition-colors duration-300">
-    <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-emerald-500/50 transition-all">
-        <button type="button" onclick="document.getElementById('file-input').click()" class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all">
+        
+<div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300">
+    <div id="typing-indicator" class="text-[10px] text-slate-400 italic mb-1 h-4 opacity-0 transition-opacity duration-300">Quelqu'un écrit...</div>
+    <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:border-emerald-500 transition-all">
+        <button type="button" onclick="document.getElementById('file-input').click()" class="p-2 text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="fas fa-paperclip text-lg"></i>
         </button>
         <input type="file" id="file-input" class="hidden" accept="image/*" onchange="uploadFile(this)">
-        
-        <input type="text" id="message-input" oninput="notifyTyping()" onkeypress="if(event.key==='Enter') sendMessage()" 
-            placeholder="Écrivez votre message..." 
-            class="flex-1 bg-transparent border-none focus:ring-0 text-slate-700 dark:text-slate-200 placeholder-slate-400 text-sm">
-        
-        <button onclick="sendMessage()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95">
+        <input type="text" id="message-input" oninput="notifyTyping()" onkeypress="if(event.key==='Enter') sendMessage()" placeholder="Écrivez votre message..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-slate-700 dark:text-slate-100 placeholder-slate-400">
+        <button onclick="sendMessage()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-2.5 rounded-xl shadow-md shadow-emerald-500/20 transition-all active:scale-95">
             <i class="fas fa-paper-plane"></i>
         </button>
     </div>
-    <p class="text-[10px] text-slate-400 mt-2 px-2">Entrée pour envoyer • Maj+Entrée pour nouvelle ligne</p>
-</div></div>
+</div>
+</div>
 </div>
 
 <script>

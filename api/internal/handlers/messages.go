@@ -2,38 +2,93 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"fmt"
-	"io"
 	"time"
+	"upcycleconnect/internal/database"
 )
 
-// GetMessages (utilisé par l'admin pour voir les convs)
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode([]interface{}{})
+	recipientID := r.URL.Query().Get("recipient_id")
+	if recipientID == "" {
+		json.NewEncoder(w).Encode([]interface{}{})
+		return
+	}
+
+	rows, err := database.DB.Query(`
+		SELECT id, sender_id, recipient_id, content, created_at 
+		FROM messages 
+		WHERE (sender_id = 1 AND recipient_id = ?) 
+		   OR (sender_id = ? AND recipient_id = 1) 
+		ORDER BY created_at ASC`, recipientID, recipientID)
+
+	if err != nil {
+		json.NewEncoder(w).Encode([]interface{}{})
+		return
+	}
+	defer rows.Close()
+
+	var msgs []map[string]interface{}
+	for rows.Next() {
+		var id, sID, rID int
+		var content string
+		var createdAt time.Time
+		rows.Scan(&id, &sID, &rID, &content, &createdAt)
+		msgs = append(msgs, map[string]interface{}{
+			"id": id, "sender_id": sID, "recipient_id": rID,
+			"content": content, "created_at": createdAt,
+		})
+	}
+	json.NewEncoder(w).Encode(msgs)
 }
 
-// GetUserMessages (utilisé par l'utilisateur pour son historique)
 func GetUserMessages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode([]interface{}{})
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		json.NewEncoder(w).Encode([]interface{}{})
+		return
+	}
+
+	rows, err := database.DB.Query(`
+		SELECT id, sender_id, recipient_id, content, created_at 
+		FROM messages 
+		WHERE sender_id = ? OR recipient_id = ? 
+		ORDER BY created_at ASC`, userID, userID)
+
+	if err != nil {
+		json.NewEncoder(w).Encode([]interface{}{})
+		return
+	}
+	defer rows.Close()
+
+	var msgs []map[string]interface{}
+	for rows.Next() {
+		var id, sID, rID int
+		var content string
+		var createdAt time.Time
+		rows.Scan(&id, &sID, &rID, &content, &createdAt)
+		msgs = append(msgs, map[string]interface{}{
+			"id": id, "sender_id": sID, "recipient_id": rID,
+			"content": content, "created_at": createdAt,
+		})
+	}
+	json.NewEncoder(w).Encode(msgs)
 }
 
-// GetHistorique (alias parfois utilisé dans le router)
 func GetHistorique(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode([]interface{}{})
 }
 
-// SendMessage (envoi classique hors WebSocket si besoin)
 func SendMessage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// UploadMessageAttachment (notre nouvelle fonction pour le trombone)
 func UploadMessageAttachment(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(5 << 20)
 	if err != nil {

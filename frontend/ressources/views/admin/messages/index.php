@@ -8,7 +8,9 @@
         <button onclick="toggleTheme()" id="theme-btn" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition text-slate-600" title="Changer le thème">
             <i class="fas fa-moon" id="theme-icon"></i>
         </button>
-        <input type="text" id="search-conv" oninput="filterConversations()" placeholder="Rechercher un utilisateur..."
+        <button type="button" onclick="this.nextElementSibling.click()" class="p-2 text-slate-400 hover:text-emerald-500 transition"><i class="fas fa-paperclip"></i></button>
+<input type="file" class="hidden" accept="image/*" onchange="uploadFile(this)">
+<input type="text" id="search-conv" oninput="filterConversations()" placeholder="Rechercher un utilisateur..."
             class="border border-slate-200 rounded-lg px-4 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-emerald-300">
     </div>
 </div>
@@ -195,7 +197,8 @@ function renderMessages(msgs) {
 }
 
 function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    let r = String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    return r.replace(/\[IMG\](.*?)\[\/IMG\]/g, '<a href=\"$1\" target=\"_blank\"><img src=\"$1\" class=\"max-w-xs rounded-lg mt-2 border border-slate-200\"></a>');
 }
 
 function sendAdminReply() {
@@ -251,4 +254,28 @@ function toggleTheme() {
 }
 
 initWS();
+
+async function uploadFile(input) {
+    if (!input.files.length) return;
+    let file = input.files[0];
+    let fd = new FormData();
+    fd.append("file", file);
+    try {
+        let res = await fetch("/api/messages/upload", {
+            method: "POST",
+            headers: {"Authorization": "Bearer " + token},
+            body: fd
+        });
+        let data = await res.json();
+        if (data.url) {
+            let textInput = input.nextElementSibling;
+            let oldVal = textInput.value;
+            textInput.value = "[IMG]" + data.url + "[/IMG]";
+            sendMessage();
+            setTimeout(() => { textInput.value = oldVal; }, 50);
+        }
+    } catch (e) {}
+    input.value = "";
+}
+
 </script>

@@ -64,20 +64,23 @@
             </div>
         </div>
 
-        <div class="p-4 border-t border-slate-200 bg-slate-50">
-            <div class="flex gap-2 items-end">
-                <textarea id="reply-input" placeholder="Votre réponse..."
-                    class="flex-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white"
-                    rows="2"
-                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminReply();}"></textarea>
-                <button id="btn-send" onclick="sendAdminReply()"
-                    class="bg-emerald-500 text-white px-4 py-2.5 rounded-xl hover:bg-emerald-600 transition font-medium text-sm flex items-center gap-2 self-end">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <p class="text-xs text-slate-400 mt-1">Entrée pour envoyer · Maj+Entrée pour nouvelle ligne</p>
-        </div>
+        <div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 transition-colors duration-300">
+    <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-emerald-500/50 transition-all">
+        <button type="button" onclick="document.getElementById('file-input').click()" class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all">
+            <i class="fas fa-paperclip text-lg"></i>
+        </button>
+        <input type="file" id="file-input" class="hidden" accept="image/*" onchange="uploadFile(this)">
+        
+        <input type="text" id="message-input" onkeypress="if(event.key==='Enter') sendMessage()" 
+            placeholder="Écrivez votre message..." 
+            class="flex-1 bg-transparent border-none focus:ring-0 text-slate-700 dark:text-slate-200 placeholder-slate-400 text-sm">
+        
+        <button onclick="sendMessage()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95">
+            <i class="fas fa-paper-plane"></i>
+        </button>
     </div>
+    <p class="text-[10px] text-slate-400 mt-2 px-2">Entrée pour envoyer • Maj+Entrée pour nouvelle ligne</p>
+</div></div>
 </div>
 
 <script>

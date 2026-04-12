@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,14 +17,13 @@
         }
     </script>
     <style>
-        * { transition: background-color 0.3s ease, border-color 0.3s ease; }
+        * { transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col">
     <?php include __DIR__ . '/../components/front/navbar.php'; ?>
-    <div class="min-h-screen">
-        <?php echo $content; ?>
-    </div>
+    <main class="flex-1"><?php echo $content; ?></main>
     <?php include __DIR__ . '/../components/front/footer.php'; ?>
 </body>
 </html>

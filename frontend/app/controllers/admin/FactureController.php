@@ -1,0 +1,35 @@
+<?php
+namespace App\Controllers\Admin;
+
+use App\Services\ApiService;
+
+class FactureController
+{
+    private $api;
+
+    public function __construct()
+    {
+        $this->api = new ApiService();
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+    }
+
+    public function index()
+    {
+        try {
+            $result = $this->api->get('/admin/factures');
+
+            $factures = isset($result['data']) && is_array($result['data']) 
+                ? $result['data'] 
+                : (is_array($result) && !isset($result['success']) ? $result : []);
+
+        } catch (\Exception $e) {
+            $factures = [];
+        }
+
+        return view('admin.factures.index', [
+            'factures' => $factures, 
+            'page_title' => 'Gestion des Factures',
+            'page_subtitle' => 'Historique des transactions et commissions'
+        ]);
+    }
+}

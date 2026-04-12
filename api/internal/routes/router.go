@@ -56,7 +56,6 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/score/", handlers.GetScore)
 	mux.HandleFunc("/api/planning/", handlers.GetPlanning)
-	mux.HandleFunc("/api/messages", middleware.JWTAuth(handlers.SendMessage))
 	mux.HandleFunc("/api/historique/", handlers.GetHistorique)
 	mux.HandleFunc("/api/paiements/checkout", handlers.CreateCheckoutSession)
 	mux.HandleFunc("/api/paiements/success", handlers.PaiementSuccess)

@@ -26,6 +26,11 @@ if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && w
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
+
+<style>
+    * { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+    .dark { color-scheme: dark; }
+</style>
 </head>
 <body class="bg-base-200 text-base-content min-h-screen">
 

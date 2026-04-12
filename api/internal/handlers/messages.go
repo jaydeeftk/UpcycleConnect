@@ -26,8 +26,8 @@ func GetUserMessages(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(`
 		SELECT
 			m.Id_Messages,
-			m.Contenu,
-			COALESCE(m.Date_envoi, '') AS date_envoi,
+			COALESCE(m.Contenu, '') AS contenu,
+			COALESCE(DATE_FORMAT(m.Date_envoi, '%Y-%m-%d %H:%i:%s'), '') AS date_envoi,
 			CASE
 				WHEN m.Id_Particuliers IS NULL AND m.Id_Utilisateurs IS NOT NULL THEN 1
 				ELSE 0
@@ -35,7 +35,7 @@ func GetUserMessages(w http.ResponseWriter, r *http.Request) {
 		FROM Messages m
 		LEFT JOIN Particuliers p ON p.Id_Particuliers = m.Id_Particuliers
 		WHERE m.Id_Utilisateurs = ? OR p.Id_Utilisateurs = ?
-		ORDER BY m.Date_envoi ASC`,
+		ORDER BY m.Id_Messages ASC`,
 		userID, userID,
 	)
 	if err != nil {

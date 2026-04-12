@@ -366,22 +366,25 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := database.DB.Query(
-		`SELECT DISTINCT
-			COALESCE(m.Id_Utilisateurs, p2.Id_Utilisateurs) AS id_user,
-			COALESCE(u2.Nom, '') AS nom,
-			COALESCE(u2.Prenom, '') AS prenom,
-			COALESCE(u2.Email, '') AS email,
-			(SELECT COALESCE(m2.Contenu,'') FROM Messages m2
-			 WHERE COALESCE(m2.Id_Utilisateurs, (SELECT Id_Utilisateurs FROM Particuliers WHERE Id_Particuliers=m2.Id_Particuliers LIMIT 1)) = COALESCE(m.Id_Utilisateurs, p2.Id_Utilisateurs)
-			 ORDER BY m2.Date_envoi DESC LIMIT 1) AS dernier_message,
-			(SELECT COALESCE(m3.Date_envoi,'') FROM Messages m3
-			 WHERE COALESCE(m3.Id_Utilisateurs, (SELECT Id_Utilisateurs FROM Particuliers WHERE Id_Particuliers=m3.Id_Particuliers LIMIT 1)) = COALESCE(m.Id_Utilisateurs, p2.Id_Utilisateurs)
-			 ORDER BY m3.Date_envoi DESC LIMIT 1) AS derniere_date
-		FROM Messages m
-		LEFT JOIN Particuliers p2 ON p2.Id_Particuliers = m.Id_Particuliers
-		LEFT JOIN Utilisateurs u2 ON u2.Id_Utilisateurs = COALESCE(m.Id_Utilisateurs, p2.Id_Utilisateurs)
-		WHERE u2.Id_Utilisateurs IS NOT NULL
-		ORDER BY derniere_date DESC
+		`SELECT
+			md.uid,
+			COALESCE(u.Nom, '') AS nom,
+			COALESCE(u.Prenom, '') AS prenom,
+			COALESCE(u.Email, '') AS email,
+			COALESCE(m_last.Contenu, '') AS dernier_message,
+			COALESCE(DATE_FORMAT(m_last.Date_envoi, '%Y-%m-%d %H:%i:%s'), '') AS derniere_date
+		FROM (
+			SELECT
+				COALESCE(m.Id_Utilisateurs, p.Id_Utilisateurs) AS uid,
+				MAX(m.Id_Messages) AS last_id
+			FROM Messages m
+			LEFT JOIN Particuliers p ON p.Id_Particuliers = m.Id_Particuliers
+			WHERE COALESCE(m.Id_Utilisateurs, p.Id_Utilisateurs) IS NOT NULL
+			GROUP BY COALESCE(m.Id_Utilisateurs, p.Id_Utilisateurs)
+		) AS md
+		JOIN Utilisateurs u ON u.Id_Utilisateurs = md.uid
+		JOIN Messages m_last ON m_last.Id_Messages = md.last_id
+		ORDER BY md.last_id DESC
 		LIMIT 50`,
 	)
 	if err != nil {

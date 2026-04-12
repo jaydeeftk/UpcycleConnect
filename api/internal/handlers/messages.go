@@ -128,13 +128,13 @@ func GetHistorique(w http.ResponseWriter, r *http.Request) {
 func UploadMessageAttachment(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(5 << 20)
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, "Fichier trop volumineux")
+		http.Error(w, "Fichier trop volumineux", http.StatusBadRequest)
 		return
 	}
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, "Erreur de lecture")
+		http.Error(w, "Erreur de lecture", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
@@ -148,16 +148,18 @@ func UploadMessageAttachment(w http.ResponseWriter, r *http.Request) {
 
 	dst, err := os.Create(filepathFull)
 	if err != nil {
-		httpx.Error(w, http.StatusInternalServerError, "Erreur serveur")
+		http.Error(w, "Erreur serveur", http.StatusInternalServerError)
 		return
 	}
 	defer dst.Close()
 
 	if _, err := io.Copy(dst, file); err != nil {
-		httpx.Error(w, http.StatusInternalServerError, "Erreur ecriture")
+		http.Error(w, "Erreur ecriture", http.StatusInternalServerError)
 		return
 	}
 
 	fileURL := "/api/uploads/messages/" + filename
-	httpx.JSON(w, http.StatusOK, map[string]string{"url": fileURL})
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"url": fileURL})
 }

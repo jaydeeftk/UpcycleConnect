@@ -1,271 +1,108 @@
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-    <div>
-        <p class="text-sm text-gray-500">Tableau de bord</p>
-        <h1 class="text-4xl font-bold text-gray-900">Bienvenue sur l'espace admin</h1>
-    </div>
-    <div class="flex items-center gap-3">
-        <a href="/admin/utilisateurs?export=csv" class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 border border-gray-200 px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Exporter</a>
-        <div class="relative" x-data="{ open: false }">
-            <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="bg-gray-900 text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition flex items-center gap-2">
-                Nouvelle action <i class="fas fa-chevron-down text-xs"></i>
+<div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div class="flex items-end justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Bienvenue, Admin</h1>
+            <p class="text-slate-500 dark:text-slate-400 font-medium">Voici l'état de votre plateforme aujourd'hui.</p>
+        </div>
+        <div class="flex gap-3">
+            <button class="btn btn-ghost bg-white dark:bg-slate-800 shadow-sm border-slate-200 dark:border-slate-700 hover:scale-105 active:scale-95 transition-all">
+                <i class="fas fa-download mr-2"></i> Exporter
             </button>
-            <div class="hidden absolute right-0 top-full mt-2 w-48 bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden">
-                <a href="/admin/utilisateurs/create" class="block px-4 py-3 text-sm hover:bg-gray-50">Créer un utilisateur</a>
-                <a href="/admin/evenements/create" class="block px-4 py-3 text-sm hover:bg-gray-50">Créer un événement</a>
-                <a href="/admin/notifications" class="block px-4 py-3 text-sm hover:bg-gray-50">Envoyer une notif</a>
+            <button class="btn btn-primary shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all">
+                <i class="fas fa-plus mr-2"></i> Nouvelle action
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <?php 
+        $stats = [
+            ['label' => 'Visites aujourd\'hui', 'val' => '222', 'color' => 'text-emerald-500', 'bg' => 'bg-emerald-500/10'],
+            ['label' => 'Visites 7 jours', 'val' => '1,554', 'color' => 'text-blue-500', 'bg' => 'bg-blue-500/10'],
+            ['label' => 'Utilisateurs', 'val' => '5', 'color' => 'text-purple-500', 'bg' => 'bg-purple-500/10'],
+            ['label' => 'Messages', 'val' => '19', 'color' => 'text-orange-500', 'bg' => 'bg-orange-500/10'],
+        ];
+        foreach($stats as $s): ?>
+        <div class="group bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/30 transition-all duration-300">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1"><?= $s['label'] ?></p>
+            <div class="flex items-center justify-between">
+                <span class="text-3xl font-black"><?= $s['val'] ?></span>
+                <div class="<?= $s['bg'] ?> <?= $s['color'] ?> w-10 h-10 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="font-bold text-lg">Activité Générale</h3>
+                <select class="select select-sm select-bordered bg-slate-50 dark:bg-slate-800">
+                    <option>7 derniers jours</option>
+                    <option>30 derniers jours</option>
+                </select>
+            </div>
+            <div class="h-[300px]">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <h3 class="font-bold text-lg mb-6">Dernières Activités</h3>
+            <div class="space-y-6">
+                <?php for($i=0; $i<4; $i++): ?>
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold">Nouvelle annonce</p>
+                        <p class="text-xs text-slate-400">Il y a 2 minutes</p>
+                    </div>
+                </div>
+                <?php endfor; ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <h3 class="font-bold text-lg mb-6">Prestations récentes</h3>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead><tr class="text-slate-400 border-slate-100 dark:border-slate-800"><th>Titre</th><th>Catégorie</th><th>Prix</th></tr></thead>
+                    <tbody>
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer border-slate-100 dark:border-slate-800">
+                            <td class="font-bold">Réparation vélo</td>
+                            <td><span class="badge badge-ghost">Reparation</span></td>
+                            <td class="font-mono text-emerald-500">49.9€</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <h3 class="font-bold text-lg mb-6">Actions Rapides</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group">
+                    <i class="fas fa-user-plus mb-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
+                    <p class="font-bold text-sm">Ajouter Utilisateur</p>
+                </button>
+                <button class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all text-left group">
+                    <i class="fas fa-calendar-plus mb-3 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    <p class="font-bold text-sm">Créer Événement</p>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<?php $v = $visites ?? []; ?>
-<section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-blue-500">
-        <p class="text-sm text-gray-500">Visites aujourd'hui</p>
-        <h3 id="cnt-visits-today" class="text-3xl font-bold mt-3"><?= number_format($v['today'] ?? 0) ?></h3>
-        <p class="text-sm text-blue-600 mt-2">Pages vues ce jour</p>
-    </div>
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-indigo-500">
-        <p class="text-sm text-gray-500">Visites 7 jours</p>
-        <h3 id="cnt-visits-week" class="text-3xl font-bold mt-3"><?= number_format($v['week'] ?? 0) ?></h3>
-        <p class="text-sm text-indigo-600 mt-2">Cette semaine</p>
-    </div>
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-purple-500">
-        <p class="text-sm text-gray-500">Visites 30 jours</p>
-        <h3 id="cnt-visits-month" class="text-3xl font-bold mt-3"><?= number_format($v['month'] ?? 0) ?></h3>
-        <p class="text-sm text-purple-600 mt-2">Ce mois</p>
-    </div>
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6 border-l-4 border-slate-400">
-        <p class="text-sm text-gray-500">Total visites</p>
-        <h3 id="cnt-visits-total" class="text-3xl font-bold mt-3"><?= number_format($v['total'] ?? 0) ?></h3>
-        <p class="text-sm text-slate-500 mt-2">Depuis le début</p>
-    </div>
-</section>
-
-<section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <p class="text-sm text-gray-500">Utilisateurs</p>
-        <h3 id="cnt-utilisateurs" class="text-3xl font-bold mt-3"><?= number_format($stats['total_utilisateurs'] ?? 0) ?></h3>
-        <p class="text-sm text-emerald-600 mt-2">Total inscrits</p>
-    </div>
-
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <p class="text-sm text-gray-500">Annonces</p>
-        <h3 id="cnt-annonces" class="text-3xl font-bold mt-3"><?= number_format($stats['total_annonces'] ?? 0) ?></h3>
-        <p class="text-sm text-emerald-600 mt-2">Total annonces</p>
-    </div>
-
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <p class="text-sm text-gray-500">Événements</p>
-        <h3 id="cnt-evenements" class="text-3xl font-bold mt-3"><?= number_format($stats['total_evenements'] ?? 0) ?></h3>
-        <p class="text-sm text-gray-500 mt-2">Total événements</p>
-    </div>
-
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <p class="text-sm text-gray-500">Messages</p>
-        <h3 id="cnt-messages" class="text-3xl font-bold mt-3"><?= number_format($stats['total_messages'] ?? 0) ?></h3>
-        <p class="text-sm text-amber-600 mt-2">Total messages</p>
-    </div>
-</section>
-<script>
-function animateCounter(id, target) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    let start = 0;
-    const duration = 1200;
-    const step = Math.ceil(target / (duration / 16));
-    const timer = setInterval(() => {
-        start += step;
-        if (start >= target) { el.textContent = target.toLocaleString('fr-FR'); clearInterval(timer); }
-        else { el.textContent = start.toLocaleString('fr-FR'); }
-    }, 16);
-}
-document.addEventListener('DOMContentLoaded', () => {
-    animateCounter('cnt-utilisateurs', <?= intval($stats['total_utilisateurs'] ?? 0) ?>);
-    animateCounter('cnt-annonces', <?= intval($stats['total_annonces'] ?? 0) ?>);
-    animateCounter('cnt-evenements', <?= intval($stats['total_evenements'] ?? 0) ?>);
-    animateCounter('cnt-messages', <?= intval($stats['total_messages'] ?? 0) ?>);
-    animateCounter('cnt-visits-today', <?= intval($v['today'] ?? 0) ?>);
-    animateCounter('cnt-visits-week', <?= intval($v['week'] ?? 0) ?>);
-    animateCounter('cnt-visits-month', <?= intval($v['month'] ?? 0) ?>);
-    animateCounter('cnt-visits-total', <?= intval($v['total'] ?? 0) ?>);
-});
-</script>
-
-<section class="grid xl:grid-cols-3 gap-6 mb-8">
-    <div class="xl:col-span-2 bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h3 class="text-xl font-bold">Activité générale</h3>
-                <p class="text-sm text-gray-500 mt-1">Vue d'ensemble de la plateforme</p>
-            </div>
-            <a href="/admin/finances" class="text-sm text-gray-600 hover:text-black font-medium">Voir plus →</a>
-        </div>
-        <div class="flex gap-2 mb-4">
-            <button onclick="showChart('platform')" id="btn-platform" class="text-xs px-3 py-1.5 bg-slate-800 text-white rounded-lg font-medium">Plateforme</button>
-            <button onclick="showChart('visites')" id="btn-visites" class="text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg font-medium hover:bg-slate-200">Visites 7j</button>
-        </div>
-        <div class="h-64">
-            <canvas id="activityChart"></canvas>
-            <canvas id="visitesChart" class="hidden"></canvas>
-        </div>
-        <?php
-        $parJour = $v['par_jour'] ?? [];
-        $visitesLabels = json_encode(array_column($parJour, 'date'));
-        $visitesData   = json_encode(array_column($parJour, 'nb'));
-        ?>
-        <script>
-        const chartPlatform = new Chart(document.getElementById('activityChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Utilisateurs','Annonces','Événements','Messages','Formations','Conteneurs'],
-                datasets: [{
-                    label: 'Total',
-                    data: [
-                        <?= intval($stats['total_utilisateurs'] ?? 0) ?>,
-                        <?= intval($stats['total_annonces'] ?? 0) ?>,
-                        <?= intval($stats['total_evenements'] ?? 0) ?>,
-                        <?= intval($stats['total_messages'] ?? 0) ?>,
-                        <?= intval($stats['total_formations'] ?? 0) ?>,
-                        <?= intval($stats['total_conteneurs'] ?? 0) ?>
-                    ],
-                    backgroundColor: ['#10b981','#3b82f6','#8b5cf6','#f59e0b','#06b6d4','#ef4444'],
-                    borderRadius: 8,
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-        const chartVisites = new Chart(document.getElementById('visitesChart'), {
-            type: 'line',
-            data: {
-                labels: <?= $visitesLabels ?>,
-                datasets: [{
-                    label: 'Visites',
-                    data: <?= $visitesData ?>,
-                    borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99,102,241,0.08)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#6366f1',
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-        function showChart(type) {
-            const ac = document.getElementById('activityChart');
-            const vc = document.getElementById('visitesChart');
-            const bp = document.getElementById('btn-platform');
-            const bv = document.getElementById('btn-visites');
-            if (type === 'platform') {
-                ac.classList.remove('hidden'); vc.classList.add('hidden');
-                bp.className = 'text-xs px-3 py-1.5 bg-slate-800 text-white rounded-lg font-medium';
-                bv.className = 'text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg font-medium hover:bg-slate-200';
-            } else {
-                vc.classList.remove('hidden'); ac.classList.add('hidden');
-                bv.className = 'text-xs px-3 py-1.5 bg-slate-800 text-white rounded-lg font-medium';
-                bp.className = 'text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg font-medium hover:bg-slate-200';
-            }
-        }
-        </script>
-    </div>
-
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <div class="mb-6">
-            <h3 class="text-xl font-bold">Statistiques</h3>
-            <p class="text-sm text-gray-500 mt-1">Résumé de l'activité</p>
-        </div>
-        <div class="space-y-5">
-            <div class="border-b border-gray-100 pb-4">
-                <p class="font-medium">Utilisateurs inscrits</p>
-                <p class="text-sm text-gray-500 mt-1"><?= number_format($stats['total_utilisateurs'] ?? 0) ?> comptes</p>
-            </div>
-            <div class="border-b border-gray-100 pb-4">
-                <p class="font-medium">Annonces publiées</p>
-                <p class="text-sm text-gray-500 mt-1"><?= number_format($stats['total_annonces'] ?? 0) ?> annonces</p>
-            </div>
-            <div class="border-b border-gray-100 pb-4">
-                <p class="font-medium">Événements créés</p>
-                <p class="text-sm text-gray-500 mt-1"><?= number_format($stats['total_evenements'] ?? 0) ?> événements</p>
-            </div>
-            <div>
-                <p class="font-medium">Messages échangés</p>
-                <p class="text-sm text-gray-500 mt-1"><?= number_format($stats['total_messages'] ?? 0) ?> messages</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="grid lg:grid-cols-2 gap-6">
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold">Prestations récentes</h3>
-            <a href="/admin/services" class="text-sm text-gray-600 hover:text-black">Voir tout</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="text-sm text-gray-500 border-b border-gray-100">
-                        <th class="pb-3 font-medium">Titre</th>
-                        <th class="pb-3 font-medium">Catégorie</th>
-                        <th class="pb-3 font-medium">Prix</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm">
-                    <?php if (!empty($prestations)): ?>
-                        <?php foreach ($prestations as $p): ?>
-                        <tr class="border-b border-gray-100">
-                            <td class="py-4"><?= htmlspecialchars($p['titre'] ?? '') ?></td>
-                            <td class="py-4"><?= htmlspecialchars($p['categorie'] ?? '') ?></td>
-                            <td class="py-4"><?= htmlspecialchars($p['prix'] ?? '') ?>€</td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="3" class="py-4 text-gray-400 text-center">Aucune prestation</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="bg-white admin-card rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold">Actions rapides</h3>
-        </div>
-        <div class="grid sm:grid-cols-2 gap-4">
-            <a href="/admin/utilisateurs" class="rounded-2xl border border-gray-200 p-5 hover:bg-gray-50 transition">
-                <h4 class="font-semibold">Ajouter un utilisateur</h4>
-                <p class="text-sm text-gray-500 mt-2">Créer un nouveau compte dans la plateforme.</p>
-            </a>
-            <a href="/admin/evenements" class="rounded-2xl border border-gray-200 p-5 hover:bg-gray-50 transition">
-                <h4 class="font-semibold">Créer un événement</h4>
-                <p class="text-sm text-gray-500 mt-2">Planifier un atelier ou une rencontre.</p>
-            </a>
-            <a href="/admin/categories" class="rounded-2xl border border-gray-200 p-5 hover:bg-gray-50 transition">
-                <h4 class="font-semibold">Ajouter une catégorie</h4>
-                <p class="text-sm text-gray-500 mt-2">Structurer les prestations proposées.</p>
-            </a>
-            <a href="/admin/annonces" class="rounded-2xl border border-gray-200 p-5 hover:bg-gray-50 transition">
-                <h4 class="font-semibold">Voir les demandes</h4>
-                <p class="text-sm text-gray-500 mt-2">Consulter les validations en attente.</p>
-            </a>
-        </div>
-    </div>
-</section>
-<div class="admin-card p-6 min-h-[400px]">
-    <canvas id="dashboardStatsChart"></canvas>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const ctx = document.getElementById('dashboardStatsChart').getContext('2d');
-    
-    // Dégradé pour le côté Premium
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
     gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
     new Chart(ctx, {
@@ -273,15 +110,17 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
             datasets: [{
-                label: 'Activité',
-                data: [12, 19, 15, 25, 22, 30, 28],
+                data: [65, 59, 80, 81, 56, 55, 70],
                 borderColor: '#10b981',
                 borderWidth: 3,
+                tension: 0.4,
                 fill: true,
                 backgroundColor: gradient,
-                tension: 0.4,
-                pointRadius: 2,
-                pointBackgroundColor: '#10b981'
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#10b981',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3
             }]
         },
         options: {
@@ -289,9 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } },
-                x: { grid: { display: false }, ticks: { color: '#64748b' } }
-            }
+                y: { display: false },
+                x: { grid: { display: false }, border: { display: false }, ticks: { color: '#94a3b8', font: { weight: '600' } } }
+            },
+            interaction: { intersect: false, mode: 'index' }
         }
     });
 });

@@ -1,6 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="light">
+<html class="transition-colors duration-500" lang="fr" data-theme="light">
 <head>
+<script>
+const themeToggle = () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+};
+if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+} else {
+    document.documentElement.classList.remove('dark');
+}
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?? 'UpcycleConnect - Donnez une seconde vie à vos objets' ?></title>

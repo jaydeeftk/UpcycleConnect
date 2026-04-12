@@ -110,8 +110,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
         #sidebar { background-color: #0f172a !important; transition: width 250ms cubic-bezier(0.23, 1, 0.32, 1); }
-        .nav-link { transition: background 150ms ease-out, transform 150ms ease-out; }
-        .nav-link:active { transform: scale(0.97); }
+        .nav-link { transition: background 150ms ease-out; }
         .nav-link.active { background: #10b981; color: white !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .dark body { background-color: #020617; }

@@ -29,7 +29,10 @@ func GetUserMessages(w http.ResponseWriter, r *http.Request) {
 			COALESCE(m.Contenu, '') AS contenu,
 			COALESCE(DATE_FORMAT(m.Date_envoi, '%Y-%m-%d %H:%i:%s'), '') AS date_envoi,
 			CASE
-				WHEN m.Id_Particuliers IS NULL AND m.Id_Utilisateurs IS NOT NULL THEN 1
+				WHEN m.Id_Particuliers IS NULL
+				     AND m.Id_Utilisateurs IS NOT NULL
+				     AND EXISTS(SELECT 1 FROM Administrateurs a WHERE a.Id_Utilisateurs = m.Id_Utilisateurs)
+				THEN 1
 				ELSE 0
 			END AS is_admin
 		FROM Messages m

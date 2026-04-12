@@ -1,0 +1,3 @@
+*.exe
+frontend/.env
+.env

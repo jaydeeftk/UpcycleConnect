@@ -27,7 +27,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 </div>
 <?php endif; ?>
 
-<!-- Statistiques -->
+<!  Statistiques  >
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
@@ -62,7 +62,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     </div>
 </div>
 
-<!-- Tableau des formations -->
+<!  Tableau des formations  >
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <table class="min-w-full">
         <thead class="bg-gray-50">
@@ -134,7 +134,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 class="text-blue-600 hover:text-blue-800" title="Modifier">
                 <i class="fas fa-edit"></i>
             </button>
-            <a href="/UpcycleConnect-PA2526/frontend/public/salaries/formations/<?= $formation['id_formations'] ?>/delete"
+            <a href=" /salaries/formations/<?= $formation['id_formations'] ?>/delete"
                onclick="return confirm('Supprimer cette formation ?')"
                class="text-red-600 hover:text-red-800" title="Supprimer">
                 <i class="fas fa-trash"></i>
@@ -154,7 +154,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     </table>
 </div>
 
-<!-- Modal ajout -->
+<!  Modal ajout  >
 <div id="modal-add" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
@@ -164,7 +164,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/salaries/formations/store">
+        <form method="POST" action=" /salaries/formations/store">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Titre *</label>
                 <input type="text" name="titre" required
@@ -219,7 +219,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     </div>
 </div>
 
-<!-- Modal édition -->
+<!  Modal édition  >
 <div id="modal-edit" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
@@ -289,7 +289,7 @@ function openEditModal(id, titre, description, prix, duree, date, lieu) {
     document.getElementById('edit-date').value = date ?? '';
     document.getElementById('edit-lieu').value = lieu ?? '';
     document.getElementById('form-edit').action =
-        '/UpcycleConnect-PA2526/frontend/public/salaries/formations/' + id + '/update';
+        ' /salaries/formations/' + id + '/update';
     document.getElementById('modal-edit').classList.remove('hidden');
 }
 </script>

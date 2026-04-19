@@ -42,7 +42,7 @@
             }
         };
 
-        // Logique de Thème Unifiée
+        
         function applyTheme(theme) {
             const html = document.documentElement;
             if (theme === 'dark') {
@@ -73,7 +73,7 @@
             scroll-behavior: smooth;
         }
 
-        /* Glassmorphism Navbar */
+        
         header {
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -83,7 +83,7 @@
             background-color: rgba(2, 6, 23, 0.8);
         }
 
-        /* Animations Globales sur les Cartes */
+        
         .card, .bg-base-100 {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -92,7 +92,7 @@
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
 
-        /* Scrollbar Moderne */
+       
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { 
@@ -100,7 +100,7 @@
             border-radius: 20px;
         }
 
-        /* Utilitaires de Fade */
+       
         .reveal { animation: fade-in 0.6s ease-out; }
 
         .dark .bg-white { background-color: #0f172a !important; }

@@ -35,7 +35,18 @@ class AuthController
             if (isset($result['data'])) {
                 $_SESSION['user'] = $result['data'];
                 $_SESSION['token'] = $result['data']['token'] ?? null;
-                if (($_SESSION['user']['role'] ?? $_SESSION['user']['statut'] ?? '') === 'admin') { redirect('/admin/dashboard'); } else { redirect('/'); }
+
+                $role = $_SESSION['user']['role'] ?? '';
+
+                if ($role === 'admin') {
+                    redirect('/admin/dashboard');
+                } elseif ($role === 'salarie') {
+                    redirect('/salaries/dashboard');
+                } elseif ($role === 'professionnel') {
+                    redirect('/professionnel');
+                } else {
+                    redirect('/');
+                }
             }
 
         } catch (\Exception $e) {
@@ -56,34 +67,34 @@ class AuthController
     }
 
     public function register()
-{
-    $nom = $_POST['nom'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $role = $_POST['role'] ?? 'particulier';
+    {
+        $nom = $_POST['nom'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $role = $_POST['role'] ?? 'particulier';
 
-    $nomParts = explode(' ', trim($nom), 2);
-    $prenom = $nomParts[0] ?? '';
-    $nomFamille = $nomParts[1] ?? '';
+        $nomParts = explode(' ', trim($nom), 2);
+        $prenom = $nomParts[0] ?? '';
+        $nomFamille = $nomParts[1] ?? '';
 
-    try {
-        $this->api->post('/auth/register', [
-            'nom' => $nomFamille,
-            'prenom' => $prenom,
-            'email' => $email,
-            'mot_de_passe' => $password,
-            'role' => $role
-        ]);
+        try {
+            $this->api->post('/auth/register', [
+                'nom' => $nomFamille,
+                'prenom' => $prenom,
+                'email' => $email,
+                'mot_de_passe' => $password,
+                'role' => $role
+            ]);
 
-        redirect('/login');
+            redirect('/login');
 
-    } catch (\Exception $e) {
-        return view('front.auth.index', [
-            'title' => 'Inscription - UpcycleConnect',
-            'error' => 'Erreur lors de la création du compte : ' . $e->getMessage()
-        ]);
+        } catch (\Exception $e) {
+            return view('front.auth.index', [
+                'title' => 'Inscription - UpcycleConnect',
+                'error' => 'Erreur lors de la création du compte : ' . $e->getMessage()
+            ]);
+        }
     }
-}
 
     public function logout()
     {
@@ -91,15 +102,17 @@ class AuthController
         redirect('/');
     }
 
-    public function showAdminGate() {
+    public function showAdminGate()
+    {
         return view('auth.admin_login', [
-            'layout' => 'blank', 
-            'title' => 'Accès Restreint - Admin',
-            'error' => $_GET['error'] ?? null
+            'layout' => 'blank',
+            'title'  => 'Accès Restreint - Admin',
+            'error'  => $_GET['error'] ?? null
         ]);
     }
 
-    public function adminLogin() {
+    public function adminLogin()
+    {
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 

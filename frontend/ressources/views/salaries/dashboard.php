@@ -1,13 +1,11 @@
-<?php
-// ressources/views/salarie/dashboard.php
-?>
+
 
 <div class="mb-6">
     <h2 class="text-2xl font-bold">Tableau de bord</h2>
     <p class="text-gray-600">Bienvenue, <?= htmlspecialchars($_SESSION['user']['prenom'] ?? 'Salarié') ?> !</p>
 </div>
 
-<!-- Statistiques -->
+
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
@@ -17,7 +15,7 @@
             </div>
             <i class="fas fa-lightbulb text-4xl text-yellow-400"></i>
         </div>
-        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/conseils"
+        <a href=" /salaries/conseils"
            class="text-sm text-yellow-600 hover:underline mt-3 block">Gérer →</a>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
@@ -28,7 +26,7 @@
             </div>
             <i class="fas fa-calendar-alt text-4xl text-blue-400"></i>
         </div>
-        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/evenements"
+        <a href=" /salaries/evenements"
    class="text-sm text-blue-600 hover:underline mt-3 block">Gérer →</a>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
@@ -39,7 +37,7 @@
             </div>
             <i class="fas fa-graduation-cap text-4xl text-green-400"></i>
         </div>
-       <a href="/UpcycleConnect-PA2526/frontend/public/salaries/formations"
+       <a href=" /salaries/formations"
    class="text-sm text-green-600 hover:underline mt-3 block">Gérer →</a>
 
     </div>
@@ -51,7 +49,7 @@
             </div>
             <i class="fas fa-tools text-4xl text-purple-400"></i>
         </div>
-        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/ateliers"
+        <a href=" /salaries/ateliers"
    class="text-sm text-purple-600 hover:underline mt-3 block">Gérer →</a>
     </div>
 </div>
@@ -60,7 +58,7 @@
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
         <h3 class="text-lg font-bold">Prochaines activités</h3>
-        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/planning"
+        <a href=" /salaries/planning"
            class="text-sm text-green-600 hover:underline">Voir tout →</a>
     </div>
     <table class="min-w-full">

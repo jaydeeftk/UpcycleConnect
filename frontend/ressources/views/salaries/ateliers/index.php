@@ -127,7 +127,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                             class="text-blue-600 hover:text-blue-800" title="Modifier">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <a href="/UpcycleConnect-PA2526/frontend/public/salaries/ateliers/<?= $atelier['id_atelier'] ?>/delete"
+                        <a href=" /salaries/ateliers/<?= $atelier['id_atelier'] ?>/delete"
                            onclick="return confirm('Supprimer cet atelier ?')"
                            class="text-red-600 hover:text-red-800" title="Supprimer">
                             <i class="fas fa-trash"></i>
@@ -151,7 +151,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/salaries/ateliers/store">
+        <form method="POST" action=" /salaries/ateliers/store">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Thème *</label>
                 <input type="text" name="theme" required
@@ -236,7 +236,7 @@ function openEditModal(id, theme, date, lieu) {
     document.getElementById('edit-date').value = date ?? '';
     document.getElementById('edit-lieu').value = lieu ?? '';
     document.getElementById('form-edit').action =
-        '/UpcycleConnect-PA2526/frontend/public/salaries/ateliers/' + id + '/update';
+        ' /salaries/ateliers/' + id + '/update';
     document.getElementById('modal-edit').classList.remove('hidden');
 }
 </script>

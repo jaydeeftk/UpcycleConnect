@@ -13,7 +13,7 @@ class EvenementController
         $this->api = new ApiService();
 
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
 
         if (isset($_SESSION['token'])) {
@@ -24,7 +24,7 @@ class EvenementController
     public function index()
     {
         try {
-            $result = $this->api->get('/salarie/evenements');
+            $result = $this->api->get('/salaries/evenements');
 
             return view('salaries.evenements.index', [
                 'evenements'    => $result['data'] ?? [],
@@ -44,7 +44,7 @@ class EvenementController
     public function store()
     {
         try {
-            $this->api->post('/salarie/evenements/create', [
+            $this->api->post('/salaries/evenements/create', [
                 'titre'       => $_POST['titre'] ?? '',
                 'description' => $_POST['description'] ?? '',
                 'lieu'        => $_POST['lieu'] ?? '',
@@ -58,16 +58,16 @@ class EvenementController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/evenements');
+        redirect('/salaries/evenements');
     }
 
     public function edit($id)
     {
         try {
-            $result = $this->api->get('/salarie/evenements/' . $id);
+            $result = $this->api->get('/salaries/evenements/' . $id);
 
             return view('salaries.evenements.index', [
-                'evenements'     => $this->api->get('/salarie/evenements')['data'] ?? [],
+                'evenements'     => $this->api->get('/salaries/evenements')['data'] ?? [],
                 'evenement_edit' => $result['data'] ?? null,
                 'page_title'     => 'Modifier un événement',
                 'page_subtitle'  => 'Modifiez les informations de l\'événement'
@@ -85,7 +85,7 @@ class EvenementController
     public function update($id)
     {
         try {
-            $this->api->put('/salarie/evenements/' . $id, [
+            $this->api->put('/salaries/evenements/' . $id, [
                 'titre'       => $_POST['titre'] ?? '',
                 'description' => $_POST['description'] ?? '',
                 'lieu'        => $_POST['lieu'] ?? '',
@@ -98,18 +98,18 @@ class EvenementController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/evenements');
+        redirect('/salaries/evenements');
     }
 
     public function delete($id)
     {
         try {
-            $this->api->delete('/salarie/evenements/' . $id);
+            $this->api->delete('/salaries/evenements/' . $id);
             $_SESSION['success'] = 'Événement supprimé avec succès.';
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/evenements');
+        redirect('/salaries/evenements');
     }
 }

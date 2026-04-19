@@ -13,7 +13,7 @@ class FormationController
         $this->api = new ApiService();
 
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
 
         if (isset($_SESSION['token'])) {
@@ -24,7 +24,7 @@ class FormationController
     public function index()
     {
         try {
-            $result = $this->api->get('/salarie/formations');
+            $result = $this->api->get('/salaries/formations');
 
             return view('salaries.formations.index', [
                 'formations'    => $result['data'] ?? [],
@@ -44,7 +44,7 @@ class FormationController
     public function store()
     {
         try {
-           $this->api->post('/salarie/formations/create', [
+           $this->api->post('/salaries/formations/create', [
     'titre'       => $_POST['titre'] ?? '',
     'description' => $_POST['description'] ?? '',
     'prix'        => (float)($_POST['prix'] ?? 0),
@@ -59,16 +59,16 @@ class FormationController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/formations');
+        redirect('/salaries/formations');
     }
 
     public function edit($id)
     {
         try {
-            $result = $this->api->get('/salarie/formations/' . $id);
+            $result = $this->api->get('/salaries/formations/' . $id);
 
             return view('salaries.formations.index', [
-                'formations'     => $this->api->get('/salarie/formations')['data'] ?? [],
+                'formations'     => $this->api->get('/salaries/formations')['data'] ?? [],
                 'formation_edit' => $result['data'] ?? null,
                 'page_title'     => 'Modifier une formation',
                 'page_subtitle'  => 'Modifiez les informations de la formation'
@@ -86,7 +86,7 @@ class FormationController
     public function update($id)
     {
         try {
-            $this->api->put('/salarie/formations/' . $id, [
+            $this->api->put('/salaries/formations/' . $id, [
                 'titre'       => $_POST['titre'] ?? '',
                 'description' => $_POST['description'] ?? '',
                 'prix'        => (float)($_POST['prix'] ?? 0),
@@ -98,18 +98,18 @@ class FormationController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/formations');
+        redirect('/salaries/formations');
     }
 
     public function delete($id)
     {
         try {
-            $this->api->delete('/salarie/formations/' . $id);
+            $this->api->delete('/salaries/formations/' . $id);
             $_SESSION['success'] = 'Formation supprimée avec succès.';
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/formations');
+        redirect('/salaries/formations');
     }
 }

@@ -24,8 +24,9 @@ $config = require_once __DIR__ . '/../config/app.php';
 function view($view, $data = [])
 {
     extract($data);
-    $isAdmin = str_starts_with($view, 'admin');
-    $layout = $data['layout'] ?? ($isAdmin ? 'admin' : 'main');
+    $isAdmin    = str_starts_with($view, 'admin');
+    $isSalaries = str_starts_with($view, 'salaries');
+    $layout     = $data['layout'] ?? ($isAdmin ? 'admin' : ($isSalaries ? 'salaries' : 'main'));
     ob_start();
     $viewFile = __DIR__ . '/../ressources/views/' . str_replace('.', '/', $view) . '.php';
     if (file_exists($viewFile)) {
@@ -79,6 +80,7 @@ class Router
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = getCleanPath();
+       
 
         foreach ($this->routes[$method] ?? [] as $route => $handler) {
             $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $route);

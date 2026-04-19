@@ -1,0 +1,811 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "UpcycleConnect API",
+    "version": "1.0.0",
+    "description": "API REST du projet annuel UpcycleConnect — ESGI 2025-2026"
+  },
+  "servers": [
+    { "url": "http://145.241.169.248/api", "description": "Production" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Système"],
+        "summary": "Health check",
+        "responses": { "200": { "description": "API opérationnelle" } }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "Connexion utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "mot_de_passe": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Token JWT retourné" },
+          "401": { "description": "Identifiants incorrects" }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "Inscription utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nom": { "type": "string" },
+                  "prenom": { "type": "string" },
+                  "email": { "type": "string" },
+                  "mot_de_passe": { "type": "string" },
+                  "role": { "type": "string", "enum": ["particulier", "professionnel"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Compte créé" },
+          "409": { "description": "Email déjà utilisé" }
+        }
+      }
+    },
+    "/auth/verify": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "Vérifier le mot de passe",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "Mot de passe vérifié" } }
+      }
+    },
+    "/annonces": {
+      "get": {
+        "tags": ["Annonces"],
+        "summary": "Liste des annonces validées",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/annonces/{id}": {
+      "get": {
+        "tags": ["Annonces"],
+        "summary": "Détail d'une annonce",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/annonces/create": {
+      "post": {
+        "tags": ["Annonces"],
+        "summary": "Créer une annonce",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": { "type": "string" },
+                  "description": { "type": "string" },
+                  "categorie": { "type": "string" },
+                  "etat": { "type": "string" },
+                  "type_annonce": { "type": "string", "enum": ["don", "vente"] },
+                  "prix": { "type": "number" },
+                  "ville": { "type": "string" },
+                  "code_postal": { "type": "string" },
+                  "user_id": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Annonce créée" } }
+      }
+    },
+    "/evenements": {
+      "get": {
+        "tags": ["Événements"],
+        "summary": "Liste des événements",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/evenements/{id}": {
+      "get": {
+        "tags": ["Événements"],
+        "summary": "Détail d'un événement",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/evenements/{id}/participer": {
+      "post": {
+        "tags": ["Événements"],
+        "summary": "S'inscrire à un événement",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "properties": { "id_utilisateur": { "type": "integer" } } }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Inscrit" } }
+      }
+    },
+    "/evenements/{id}/desinscrire": {
+      "post": {
+        "tags": ["Événements"],
+        "summary": "Se désinscrire d'un événement",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Désinscrit" } }
+      }
+    },
+    "/formations": {
+      "get": {
+        "tags": ["Formations"],
+        "summary": "Liste des formations actives",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/formations/{id}": {
+      "get": {
+        "tags": ["Formations"],
+        "summary": "Détail d'une formation",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/formations/{id}/inscrire": {
+      "post": {
+        "tags": ["Formations"],
+        "summary": "S'inscrire à une formation",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "201": { "description": "Inscrit" } }
+      }
+    },
+    "/formations/{id}/desinscrire": {
+      "post": {
+        "tags": ["Formations"],
+        "summary": "Se désinscrire d'une formation",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Désinscrit" } }
+      }
+    },
+    "/services": {
+      "get": {
+        "tags": ["Services"],
+        "summary": "Liste des services",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/services/{id}": {
+      "get": {
+        "tags": ["Services"],
+        "summary": "Détail d'un service",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/conseils": {
+      "get": {
+        "tags": ["Conseils"],
+        "summary": "Liste des conseils",
+        "parameters": [{ "name": "categorie", "in": "query", "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/conseils/{id}": {
+      "get": {
+        "tags": ["Conseils"],
+        "summary": "Détail d'un conseil",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/forum/sujets": {
+      "get": {
+        "tags": ["Forum"],
+        "summary": "Liste des sujets du forum",
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Forum"],
+        "summary": "Créer un sujet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": { "type": "string" },
+                  "contenu": { "type": "string" },
+                  "categorie": { "type": "string" },
+                  "id_utilisateur": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Sujet créé" } }
+      }
+    },
+    "/forum/sujets/{id}/reponses": {
+      "post": {
+        "tags": ["Forum"],
+        "summary": "Répondre à un sujet",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "201": { "description": "Réponse ajoutée" } }
+      }
+    },
+    "/conteneurs": {
+      "get": {
+        "tags": ["Conteneurs"],
+        "summary": "Liste des conteneurs disponibles",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/conteneurs/demandes": {
+      "post": {
+        "tags": ["Conteneurs"],
+        "summary": "Créer une demande de dépôt",
+        "responses": { "201": { "description": "Demande créée" } }
+      }
+    },
+    "/conteneurs/user/{id}": {
+      "get": {
+        "tags": ["Conteneurs"],
+        "summary": "Demandes d'un utilisateur",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/score/{id}": {
+      "get": {
+        "tags": ["Score"],
+        "summary": "Score écologique d'un utilisateur",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/planning/{id}": {
+      "get": {
+        "tags": ["Planning"],
+        "summary": "Planning d'un utilisateur",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/messages": {
+      "post": {
+        "tags": ["Messages"],
+        "summary": "Envoyer un message au support",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "Message envoyé" } }
+      }
+    },
+    "/messages/user/{id}": {
+      "get": {
+        "tags": ["Messages"],
+        "summary": "Messages d'un utilisateur",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/salaries/profil": {
+      "get": {
+        "tags": ["Espace Salarié"],
+        "summary": "Profil du salarié connecté",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/salaries/formations": {
+      "get": {
+        "tags": ["Espace Salarié"],
+        "summary": "Formations du salarié",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Espace Salarié"],
+        "summary": "Créer une formation",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "Formation créée" } }
+      }
+    },
+    "/salaries/formations/{id}": {
+      "put": {
+        "tags": ["Espace Salarié"],
+        "summary": "Modifier une formation",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Espace Salarié"],
+        "summary": "Supprimer une formation",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/salaries/conseils": {
+      "get": {
+        "tags": ["Espace Salarié"],
+        "summary": "Conseils du salarié",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Espace Salarié"],
+        "summary": "Publier un conseil",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "Conseil créé" } }
+      }
+    },
+    "/salaries/evenements": {
+      "get": {
+        "tags": ["Espace Salarié"],
+        "summary": "Événements du salarié",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/salaries/evenements/{id}": {
+      "put": {
+        "tags": ["Espace Salarié"],
+        "summary": "Modifier un événement",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Espace Salarié"],
+        "summary": "Supprimer un événement",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/salaries/ateliers": {
+      "get": {
+        "tags": ["Espace Salarié"],
+        "summary": "Ateliers du salarié",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/salaries/ateliers/{id}": {
+      "put": {
+        "tags": ["Espace Salarié"],
+        "summary": "Modifier un atelier",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Espace Salarié"],
+        "summary": "Supprimer un atelier",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/professionnels/profil": {
+      "get": {
+        "tags": ["Espace Professionnel"],
+        "summary": "Profil du professionnel connecté",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/professionnels/projets": {
+      "get": {
+        "tags": ["Espace Professionnel"],
+        "summary": "Liste des projets",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Espace Professionnel"],
+        "summary": "Créer un projet",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "Projet créé" } }
+      }
+    },
+    "/professionnels/favoris": {
+      "get": {
+        "tags": ["Espace Professionnel"],
+        "summary": "Annonces favorites",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/professionnels/contrats": {
+      "get": {
+        "tags": ["Espace Professionnel"],
+        "summary": "Contrats du professionnel",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/dashboard": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Statistiques globales",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/utilisateurs": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des utilisateurs",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/utilisateurs/{id}": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Détail d'un utilisateur",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Modifier un utilisateur",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer un utilisateur",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/annonces": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Toutes les annonces",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/annonces/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Valider/Refuser une annonce",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "properties": { "statut": { "type": "string", "enum": ["validee", "rejetee"] } } }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer une annonce",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/evenements": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Tous les événements",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer un événement",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/evenements/{id}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer un événement",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/formations": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Toutes les formations",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer une formation",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/formations/{id}/valider": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Valider une formation",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/formations/{id}/rejeter": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Rejeter une formation",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/conteneurs": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Tous les conteneurs",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer un conteneur",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/demandes": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Demandes de dépôt conteneur",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/demandes/valider/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Valider une demande",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/demandes/refuser/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Refuser une demande",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/categories": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des catégories",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer une catégorie",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/categories/{id}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer une catégorie",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/contrats": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des contrats",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer un contrat",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/contrats/{id}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer un contrat",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/factures": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des factures",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/notifications": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des notifications",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Envoyer une notification",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/messages": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Conversations support",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/messages/": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Répondre à un utilisateur",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/conseils": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des conseils",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/conseils/{id}/valider": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Valider un conseil",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/conseils/{id}/rejeter": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Rejeter un conseil",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/forum": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Sujets du forum",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/forum/sujets/{id}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer un sujet",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/services": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Liste des services",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Créer un service",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "OK" } }
+      }
+    },
+    "/admin/services/{id}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Supprimer un service",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/finances": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Statistiques financières",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/planning": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Planning global",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/admin/visites": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Statistiques de visites",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/visites": {
+      "post": {
+        "tags": ["Système"],
+        "summary": "Enregistrer une visite",
+        "responses": { "204": { "description": "OK" } }
+      }
+    },
+    "/parametres": {
+      "get": {
+        "tags": ["Système"],
+        "summary": "Paramètres publics de la plateforme",
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  }
+}

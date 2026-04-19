@@ -13,7 +13,7 @@ class PlanningController
         $this->api = new ApiService();
 
         if (!isset($_SESSION['user'])) {
-    redirect('/UpcycleConnect-PA2526/frontend/public/login');
+    redirect('/login');
 }
 
         if (isset($_SESSION['token'])) {
@@ -41,7 +41,6 @@ class PlanningController
         }
     }
 
-    // Création d'un événement
     public function storeEvenement()
     {
         try {
@@ -59,10 +58,10 @@ class PlanningController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/planning');
+        redirect('/salaries/planning');
     }
 
-    // Création d'une formation
+    
     public function storeFormation()
     {
         try {
@@ -79,10 +78,10 @@ class PlanningController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/planning');
+        redirect('/salaries/planning');
     }
 
-    // Création d'un atelier
+ 
     public function storeAtelier()
     {
         try {
@@ -98,10 +97,10 @@ class PlanningController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/planning');
+        redirect('/salaries/planning');
     }
 
-    // Suppression d'un événement
+
     public function deleteEvenement($id)
     {
         try {
@@ -111,10 +110,10 @@ class PlanningController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/planning');
+        redirect('/salaries/planning');
     }
 
-    // Suppression d'une formation
+ 
     public function deleteFormation($id)
     {
         try {
@@ -124,10 +123,10 @@ class PlanningController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/planning');
+        redirect('/salaries/planning');
     }
 
-    // Suppression d'un atelier
+
     public function deleteAtelier($id)
     {
         try {
@@ -137,6 +136,6 @@ class PlanningController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/planning');
+        redirect('/salaries/planning');
     }
 }

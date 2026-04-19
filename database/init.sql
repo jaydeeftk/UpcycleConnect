@@ -247,6 +247,10 @@ CREATE TABLE IF NOT EXISTS Sujets(
    Date_Creation DATETIME,
    Id_Forum INT,
    Id_Particuliers INT NOT NULL,
+   Contenu TEXT,
+   Categorie VARCHAR(100) DEFAULT 'general',
+   Statut VARCHAR(100) DEFAULT 'ouvert',
+   Vues INT DEFAULT 0,
    PRIMARY KEY(Id_Sujets),
    FOREIGN KEY(Id_Forum) REFERENCES Forum(Id_Forum),
    FOREIGN KEY(Id_Particuliers) REFERENCES Particuliers(Id_Particuliers)
@@ -257,7 +261,7 @@ CREATE TABLE IF NOT EXISTS Reponses(
    Contenu VARCHAR(255),
    Date_ DATETIME,
    Id_Sujets INT NOT NULL,
-   Id_Professionnels INT NOT NULL,
+   Id_Professionnels INT NULL,
    PRIMARY KEY(Id_Reponses),
    FOREIGN KEY(Id_Sujets) REFERENCES Sujets(Id_Sujets),
    FOREIGN KEY(Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels)
@@ -743,6 +747,8 @@ ALTER TABLE Messages MODIFY COLUMN Id_Particuliers INT NULL;
 ALTER TABLE Messages ADD COLUMN IF NOT EXISTS Id_Utilisateurs INT NULL;
 
 
+
+
 INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu)
 VALUES ('Dupont', 'Marie', 'salarie@upcycleconnect.fr', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'actif', NOW(), 1, 1);
 
@@ -769,3 +775,19 @@ VALUES
 ('Conseil en Upcycling', 'Consultation personnalisée pour vos projets d upcycling.', 30.00, 1, 'Conseil', 1),
 ('Atelier Privé', 'Session privée avec un expert en upcycling.', 80.00, 2, 'Atelier', 1),
 ('Formation sur mesure', 'Formation adaptée à vos besoins spécifiques.', 150.00, 4, 'Formation', 1);
+
+INSERT INTO Forum (Id_Forum) VALUES (1);
+
+-- Administrateur de test
+INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu)
+VALUES ('Admin', 'System', 'admin@upcycleconnect.fr', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'actif', NOW(), 1, 1);
+
+INSERT INTO Administrateurs (Grade, Id_Utilisateurs) VALUES ('Super Admin', LAST_INSERT_ID());
+
+-- Conteneurs
+INSERT INTO Conteneurs (Localisation, Capacite, Statut, Id_Administrateurs)
+VALUES 
+('Paris 10ème - 174 rue La Fayette', 20, 'disponible', 1),
+('Paris 11ème - Centre communautaire', 15, 'disponible', 1),
+('Paris 13ème - Espace upcycling', 25, 'disponible', 1),
+('Montreuil - Entrepôt principal', 50, 'disponible', 1);

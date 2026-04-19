@@ -13,7 +13,7 @@ class AtelierController
         $this->api = new ApiService();
 
         if (!isset($_SESSION['user'])) {
-            redirect('/UpcycleConnect-PA2526/frontend/public/login');
+            redirect('/login');
         }
 
         if (isset($_SESSION['token'])) {
@@ -24,7 +24,7 @@ class AtelierController
     public function index()
     {
         try {
-            $result = $this->api->get('/salarie/ateliers');
+            $result = $this->api->get('/salaries/ateliers');
 
             return view('salaries.ateliers.index', [
                 'ateliers'      => $result['data'] ?? [],
@@ -44,7 +44,7 @@ class AtelierController
     public function store()
     {
         try {
-            $this->api->post('/salarie/ateliers/create', [
+            $this->api->post('/salaries/ateliers/create', [
                 'theme'        => $_POST['theme'] ?? '',
                 'date_atelier' => $_POST['date_atelier'] ?? '',
                 'lieu'         => $_POST['lieu'] ?? '',
@@ -56,16 +56,16 @@ class AtelierController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/ateliers');
+        redirect('/salaries/ateliers');
     }
 
     public function edit($id)
     {
         try {
-            $result = $this->api->get('/salarie/ateliers/' . $id);
+            $result = $this->api->get('/salaries/ateliers/' . $id);
 
             return view('salaries.ateliers.index', [
-                'ateliers'     => $this->api->get('/salarie/ateliers')['data'] ?? [],
+                'ateliers'     => $this->api->get('/salaries/ateliers')['data'] ?? [],
                 'atelier_edit' => $result['data'] ?? null,
                 'page_title'   => 'Modifier un atelier',
                 'page_subtitle'=> 'Modifiez les informations de l\'atelier'
@@ -83,7 +83,7 @@ class AtelierController
     public function update($id)
     {
         try {
-            $this->api->put('/salarie/ateliers/' . $id, [
+            $this->api->put('/salaries/ateliers/' . $id, [
                 'theme'        => $_POST['theme'] ?? '',
                 'date_atelier' => $_POST['date_atelier'] ?? '',
                 'lieu'         => $_POST['lieu'] ?? '',
@@ -94,18 +94,18 @@ class AtelierController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/ateliers');
+        redirect('/salaries/ateliers');
     }
 
     public function delete($id)
     {
         try {
-            $this->api->delete('/salarie/ateliers/' . $id);
+            $this->api->delete('/salaries/ateliers/' . $id);
             $_SESSION['success'] = 'Atelier supprimé avec succès.';
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/ateliers');
+        redirect('/salaries/ateliers');
     }
 }

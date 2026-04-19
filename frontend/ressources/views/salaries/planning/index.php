@@ -41,7 +41,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
 </div>
 <?php endif; ?>
 
-<!-- Statistiques -->
+<!  Statistiques  >
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
@@ -72,7 +72,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     </div>
 </div>
 
-<!-- Filtres -->
+<!  Filtres  >
 <div class="flex gap-2 mb-4">
     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-green-500 text-white text-sm font-medium transition"
             data-filter="all">Tout</button>
@@ -84,7 +84,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
             data-filter="atelier">Ateliers</button>
 </div>
 
-<!-- Tableau -->
+<!  Tableau  >
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <table class="min-w-full">
         <thead class="bg-gray-50">
@@ -151,7 +151,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                     </span>
                 </td>
                 <td class="px-6 py-4">
-                    <a href="/UpcycleConnect-PA2526/frontend/public/salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)$item['id'] ?>"
+                    <a href=" /salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)$item['id'] ?>"
                        onclick="return confirm('Supprimer cet élément ?')"
                        class="text-red-600 hover:text-red-800" title="Supprimer">
                         <i class="fas fa-trash"></i>
@@ -164,7 +164,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     </table>
 </div>
 
-<!-- Modal Événement -->
+<!  Modal Événement  >
 <div id="modal-evenement" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
@@ -174,7 +174,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/salaries/planning/evenement/create">
+        <form method="POST" action=" /salaries/planning/evenement/create">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
                 <input type="text" name="titre" required placeholder="Titre de l'événement"
@@ -215,7 +215,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     </div>
 </div>
 
-<!-- Modal Formation -->
+<!  Modal Formation  >
 <div id="modal-formation" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
@@ -225,7 +225,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/salaries/planning/formation/create">
+        <form method="POST" action=" /salaries/planning/formation/create">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
                 <input type="text" name="titre" required placeholder="Titre de la formation"
@@ -261,7 +261,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     </div>
 </div>
 
-<!-- Modal Atelier -->
+<!  Modal Atelier  >
 <div id="modal-atelier" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
@@ -271,7 +271,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
-        <form method="POST" action="/UpcycleConnect-PA2526/frontend/public/salaries/planning/atelier/create">
+        <form method="POST" action=" /salaries/planning/atelier/create">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Thème *</label>
                 <input type="text" name="theme" required placeholder="Thème de l'atelier"
@@ -303,7 +303,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
 </div>
 
 <script>
-// Filtres
+
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => {
@@ -320,7 +320,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     });
 });
 
-// Fermer modals en cliquant en dehors
+
 ['modal-evenement', 'modal-formation', 'modal-atelier'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) this.classList.add('hidden');

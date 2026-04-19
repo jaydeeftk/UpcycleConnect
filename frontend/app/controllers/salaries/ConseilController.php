@@ -13,7 +13,7 @@ class ConseilController
         $this->api = new ApiService();
 
        if (!isset($_SESSION['user'])) {
-    redirect('/UpcycleConnect-PA2526/frontend/public/login');
+    redirect('/login');
 }
 
         if (isset($_SESSION['token'])) {
@@ -56,7 +56,7 @@ class ConseilController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/conseils');
+        redirect('/salaries/conseils');
     }
 
     public function edit($id)
@@ -92,7 +92,7 @@ class ConseilController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/conseils');
+        redirect('/salaries/conseils');
     }
 
     public function delete($id)
@@ -104,6 +104,6 @@ class ConseilController
             $_SESSION['error'] = $e->getMessage();
         }
 
-        redirect('/UpcycleConnect-PA2526/frontend/public/salaries/conseils');
+        redirect('/salaries/conseils');
     }
 }

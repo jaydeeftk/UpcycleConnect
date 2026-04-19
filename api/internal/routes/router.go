@@ -197,5 +197,10 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/professionnels/favoris/", middleware.ProfessionnelOnly(handlers.ProfessionnelFavoriAction))
 	mux.HandleFunc("/api/professionnels/contrats", middleware.ProfessionnelOnly(handlers.ProfessionnelGetContrats))
 
+	mux.HandleFunc("/api/salaries/evenements", middleware.SalarieOnly(handlers.GetEvenementsSalarie))
+	mux.HandleFunc("/api/salaries/evenements/", middleware.SalarieOnly(handlers.EvenementSalarieAction))
+	mux.HandleFunc("/api/salaries/ateliers", middleware.SalarieOnly(handlers.GetAteliers))
+	mux.HandleFunc("/api/salaries/ateliers/", middleware.SalarieOnly(handlers.AtelierAction))
+
 	return corsMiddleware(mux)
 }

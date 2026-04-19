@@ -56,38 +56,34 @@ class AuthController
     }
 
     public function register()
-    {
-        $nom = $_POST['nom'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $role = $_POST['role'] ?? 'particulier';
+{
+    $nom = $_POST['nom'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $role = $_POST['role'] ?? 'particulier';
 
-        $nomParts = explode(' ', trim($nom), 2);
-        $prenom = $nomParts[0] ?? '';
-        $nomFamille = $nomParts[1] ?? '';
+    $nomParts = explode(' ', trim($nom), 2);
+    $prenom = $nomParts[0] ?? '';
+    $nomFamille = $nomParts[1] ?? '';
 
-        try {
-            $result = $this->api->post('/auth/register', [
-                'nom' => $nomFamille,
-                'prenom' => $prenom,
-                'email' => $email,
-                'mot_de_passe' => $password,
-                'role' => $role
-            ]);
+    try {
+        $this->api->post('/auth/register', [
+            'nom' => $nomFamille,
+            'prenom' => $prenom,
+            'email' => $email,
+            'mot_de_passe' => $password,
+            'role' => $role
+        ]);
 
-            if (isset($result['data'])) {
-                $_SESSION['user'] = $result['data'];
-                $_SESSION['token'] = $result['data']['token'] ?? null;
-                if (($_SESSION['user']['role'] ?? $_SESSION['user']['statut'] ?? '') === 'admin') { redirect('/admin/dashboard'); } else { redirect('/'); }
-            }
+        redirect('/login');
 
-        } catch (\Exception $e) {
-            return view('front.auth.index', [
-                'title' => 'Inscription - UpcycleConnect',
-                'error' => 'Erreur lors de la création du compte : ' . $e->getMessage()
-            ]);
-        }
+    } catch (\Exception $e) {
+        return view('front.auth.index', [
+            'title' => 'Inscription - UpcycleConnect',
+            'error' => 'Erreur lors de la création du compte : ' . $e->getMessage()
+        ]);
     }
+}
 
     public function logout()
     {

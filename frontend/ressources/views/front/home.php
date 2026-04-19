@@ -35,7 +35,7 @@
 
     <div class="grid md:grid-cols-3 gap-8">
         <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-            <img src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
+            <img src="https://images.unsplash.com/photo-1609205807107-2d29e8f53dd6?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
 
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-3">Réparer</h3>

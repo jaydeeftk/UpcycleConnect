@@ -221,13 +221,6 @@ func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, evts)
 }
 
-func AdminDeleteEvenement(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-	database.DB.Exec("DELETE FROM Evenements WHERE Id_Evenements = ?", id)
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement supprimé"})
-}
-
 func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/admin/evenements/")
 
@@ -292,4 +285,14 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}
+}
+
+func AdminDeleteEvenement(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	id := parts[len(parts)-1]
+	database.DB.Exec("DELETE FROM Animer WHERE Id_Evenements = ?", id)
+	database.DB.Exec("DELETE FROM Participer_evenements WHERE Id_Evenements = ?", id)
+	database.DB.Exec("DELETE FROM Planifier_evenements WHERE Id_Evenements = ?", id)
+	database.DB.Exec("DELETE FROM Evenements WHERE Id_Evenements = ?", id)
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement supprimé"})
 }

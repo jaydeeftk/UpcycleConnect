@@ -202,5 +202,34 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/salaries/ateliers", middleware.SalarieOnly(handlers.GetAteliers))
 	mux.HandleFunc("/api/salaries/ateliers/", middleware.SalarieOnly(handlers.AtelierAction))
 
+	mux.HandleFunc("/api/salaries/planning", middleware.SalarieOnly(handlers.GetEvenementsSalarie))
+
+	mux.HandleFunc("/api/salaries/planning/evenement/", middleware.SalarieOnly(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/api/salaries/planning/evenement/")
+		if r.Method == http.MethodPost && path == "create" {
+			handlers.CreateEvenement(w, r)
+			return
+		}
+		handlers.DeleteEvenement(w, r)
+	}))
+
+	mux.HandleFunc("/api/salaries/planning/formation/", middleware.SalarieOnly(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/api/salaries/planning/formation/")
+		if r.Method == http.MethodPost && path == "create" {
+			handlers.SalarieFormationsHandler(w, r)
+			return
+		}
+		handlers.DeleteFormation(w, r)
+	}))
+
+	mux.HandleFunc("/api/salaries/planning/atelier/", middleware.SalarieOnly(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/api/salaries/planning/atelier/")
+		if r.Method == http.MethodPost && path == "create" {
+			handlers.CreateAtelier(w, r)
+			return
+		}
+		handlers.DeleteAtelier(w, r)
+	}))
+
 	return corsMiddleware(mux)
 }

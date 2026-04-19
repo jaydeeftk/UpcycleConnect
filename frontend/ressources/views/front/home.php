@@ -1,6 +1,6 @@
 <section class="relative">
     <div class="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-black/40"></div>
     </div>
 
@@ -35,7 +35,7 @@
 
     <div class="grid md:grid-cols-3 gap-8">
         <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-            <img src="https://images.unsplash.com/photo-1604186838309-c6715f0d3e6d?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
+            <img src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
 
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-3">Réparer</h3>
@@ -46,7 +46,7 @@
         </div>
 
         <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
+            <img src="https://images.unsplash.com/photo-1595407753234-0882f1e77954?auto=format&fit=crop&w=900&q=80" class="w-full h-64 object-cover">
 
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-3">Transformer</h3>

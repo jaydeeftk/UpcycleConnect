@@ -109,19 +109,6 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func EvenementSalarieAction(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		GetEvenementSalarie(w, r)
-	case http.MethodPut:
-		UpdateEvenement(w, r)
-	case http.MethodDelete:
-		DeleteEvenement(w, r)
-	default:
-		http.Error(w, `{"message": "M├®thode non autoris├®e"}`, http.StatusMethodNotAllowed)
-	}
-}
-
 func GetEvenementSalarie(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 	id := parts[len(parts)-1]
@@ -193,12 +180,32 @@ func UpdateEvenement(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func EvenementSalarieAction(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	last := parts[len(parts)-1]
+	if r.Method == http.MethodPost && last == "create" {
+		CreateEvenement(w, r)
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+		GetEvenementSalarie(w, r)
+	case http.MethodPut:
+		UpdateEvenement(w, r)
+	case http.MethodDelete:
+		DeleteEvenement(w, r)
+	default:
+		http.Error(w, `{"message": "Méthode non autorisée"}`, http.StatusMethodNotAllowed)
+	}
+}
+
 func DeleteEvenement(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 	id := parts[len(parts)-1]
 
 	database.DB.Exec(`DELETE FROM Animer WHERE Id_Evenements = ?`, id)
 	database.DB.Exec(`DELETE FROM Planifier_evenements WHERE Id_Evenements = ?`, id)
+	database.DB.Exec(`DELETE FROM Participer_evenements WHERE Id_Evenements = ?`, id)
 
 	_, err := database.DB.Exec(`DELETE FROM Evenements WHERE Id_Evenements = ?`, id)
 	if err != nil {
@@ -208,6 +215,6 @@ func DeleteEvenement(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "├ëv├®nement supprim├® avec succ├¿s",
+		"message": "Événement supprimé avec succès",
 	})
 }

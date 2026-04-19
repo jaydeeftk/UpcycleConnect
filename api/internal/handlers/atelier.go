@@ -116,6 +116,12 @@ func CreateAtelier(w http.ResponseWriter, r *http.Request) {
 }
 
 func AtelierAction(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	last := parts[len(parts)-1]
+	if r.Method == http.MethodPost && last == "create" {
+		CreateAtelier(w, r)
+		return
+	}
 	switch r.Method {
 	case http.MethodGet:
 		GetAtelier(w, r)

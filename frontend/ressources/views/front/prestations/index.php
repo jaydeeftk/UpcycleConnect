@@ -28,8 +28,7 @@
                         <h3 class="text-xl font-semibold mb-3"><?= htmlspecialchars($prestation['titre'] ?? '') ?></h3>
                         <p class="text-base-content/70 mb-2"><?= htmlspecialchars($prestation['description'] ?? '') ?></p>
                         <p class="font-semibold mb-4">À partir de <?= htmlspecialchars($prestation['prix'] ?? '') ?>€</p>
-                        <a href="/prestations/<?= $prestation['id'] ?>"
-                            class="text-sm font-medium hover:underline">
+                        <a href="/prestations/<?= $prestation['id'] ?>" class="text-sm font-medium hover:underline">
                             Voir la prestation →
                         </a>
                     </div>

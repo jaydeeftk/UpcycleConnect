@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Langue(
    Nom VARCHAR(50),
    PRIMARY KEY(Id_Langue)
 );
+INSERT INTO Langue (Nom) VALUES ('Français'), ('English'), ('Deutsch'), ('Español');
 
 CREATE TABLE IF NOT EXISTS Abonnement(
    Id_Abonnement VARCHAR(50),
@@ -41,7 +42,8 @@ CREATE TABLE IF NOT EXISTS Utilisateurs(
    Email VARCHAR(100),
    Date_Inscription DATETIME,
    Date_naissance DATETIME,
-   Id_Langue INT NOT NULL,
+   Id_Langue INT NOT NULL DEFAULT 1,
+   Tutoriel_vu INT DEFAULT 0,
    PRIMARY KEY(Id_Utilisateurs),
    FOREIGN KEY(Id_Langue) REFERENCES Langue(Id_Langue)
 );
@@ -697,8 +699,7 @@ ALTER TABLE Objets MODIFY COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Avis MODIFY COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Avis MODIFY COLUMN Id_Evenements INT NULL;
 
-ALTER TABLE Utilisateurs ADD COLUMN IF NOT EXISTS Tutoriel_vu INT DEFAULT 0;
-ALTER TABLE Annonces ADD COLUMN IF NOT EXISTS Prix DECIMAL(10,2) DEFAULT 0;
+
 
 CREATE TABLE IF NOT EXISTS Demandes_conteneurs (
   Id_Demandes_conteneurs INT AUTO_INCREMENT PRIMARY KEY,
@@ -717,7 +718,7 @@ CREATE TABLE IF NOT EXISTS Demandes_conteneurs (
   FOREIGN KEY (Id_Particuliers) REFERENCES Particuliers(Id_Particuliers)
 );
 
-ALTER TABLE Utilisateurs ADD COLUMN Tutoriel_vu INT DEFAULT 0;
+
 ALTER TABLE Annonces ADD COLUMN Titre VARCHAR(100);
 ALTER TABLE Annonces ADD COLUMN Description TEXT;
 ALTER TABLE Annonces ADD COLUMN Categorie VARCHAR(50);
@@ -741,4 +742,30 @@ CREATE TABLE IF NOT EXISTS Visites (
 ALTER TABLE Messages MODIFY COLUMN Id_Particuliers INT NULL;
 ALTER TABLE Messages ADD COLUMN IF NOT EXISTS Id_Utilisateurs INT NULL;
 
-INSERT INTO Langue (Nom) VALUES ('Français'), ('English'), ('Deutsch'), ('Español');
+
+INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu)
+VALUES ('Dupont', 'Marie', 'salarie@upcycleconnect.fr', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'actif', NOW(), 1, 1);
+
+INSERT INTO Salaries (Poste, Responsable, Date_Debut_Contrat, Id_Utilisateurs)
+VALUES ('Animateur', 'Direction', NOW(), LAST_INSERT_ID());
+
+
+INSERT INTO Evenements (Date_, Titre, Description, Lieu, Capacite, Statut, Prix, Id_Salaries)
+VALUES 
+('2026-05-15 14:00:00', 'Atelier Upcycling Textile', 'Apprenez à transformer vos vieux vêtements en créations uniques.', 'Paris 10ème', 20, 'a_venir', 0.00, 1),
+('2026-05-22 10:00:00', 'Workshop Mobilier Recyclé', 'Créez des meubles à partir de matériaux récupérés.', 'Paris 11ème', 15, 'a_venir', 25.00, 1),
+('2026-06-01 09:00:00', 'Journée Zéro Déchet', 'Une journée pour découvrir les pratiques zéro déchet.', 'Paris 13ème', 50, 'a_venir', 0.00, 1);
+
+
+INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Date_formation, Places_total, Places_dispo, Localisation, Categorie, Id_Salaries)
+VALUES
+('Formation Upcycling Débutant', 'Découvrez les bases de l upcycling et créez vos premières créations.', 49.00, 3, 'actif', '2026-05-20 09:00:00', 20, 20, 'Paris 10ème', 'Débutant', 1),
+('Formation Couture Créative', 'Apprenez à coudre et transformer vos tissus.', 79.00, 6, 'actif', '2026-05-28 09:00:00', 15, 15, 'Paris 11ème', 'Couture', 1),
+('Formation Menuiserie Recyclée', 'Travaillez le bois de récupération pour créer des meubles.', 99.00, 8, 'actif', '2026-06-05 09:00:00', 10, 10, 'Montreuil', 'Menuiserie', 1);
+
+
+INSERT INTO Services (Titre, Description, Prix, Duree, Categorie, Id_Salaries)
+VALUES
+('Conseil en Upcycling', 'Consultation personnalisée pour vos projets d upcycling.', 30.00, 1, 'Conseil', 1),
+('Atelier Privé', 'Session privée avec un expert en upcycling.', 80.00, 2, 'Atelier', 1),
+('Formation sur mesure', 'Formation adaptée à vos besoins spécifiques.', 150.00, 4, 'Formation', 1);

@@ -1,3 +1,14 @@
+<?php
+$imagesByCategorie = [
+    'reparation'     => 'https://images.unsplash.com/photo-1609205807107-2d29e8f53dd6?auto=format&fit=crop&w=900&q=80',
+    'transformation' => 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80',
+    'recyclage'      => 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80',
+    'upcycling'      => 'https://images.unsplash.com/photo-1595407753234-0882f1e77954?auto=format&fit=crop&w=900&q=80',
+    'nettoyage'      => 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=900&q=80',
+    'default'        => 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80',
+];
+?>
+
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
 
     <div class="mb-10">
@@ -63,15 +74,21 @@
         </div>
     <?php else: ?>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php foreach ($services as $service): ?>
+        <?php foreach ($services as $service):
+            $cat    = strtolower($service['categorie'] ?? '');
+            $imgUrl = $imagesByCategorie[$cat] ?? $imagesByCategorie['default'];
+        ?>
             <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition group">
-                <div class="w-full h-40 bg-orange-50 flex items-center justify-center">
-                    <i class="fas fa-tools text-5xl text-orange-300 group-hover:text-orange-400 transition"></i>
+                <div class="w-full h-48 relative overflow-hidden">
+                    <img src="<?= $imgUrl ?>"
+                         alt="<?= htmlspecialchars($service['titre']) ?>"
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    <div class="absolute top-3 left-3">
+                        <span class="badge badge-sm bg-white/90 text-gray-700 border-0"><?= htmlspecialchars($service['categorie'] ?? '') ?></span>
+                    </div>
                 </div>
                 <div class="p-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="badge badge-ghost badge-sm"><?= htmlspecialchars($service['categorie'] ?? '') ?></span>
-                    </div>
                     <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($service['titre']) ?></h3>
                     <p class="text-sm text-base-content/60 mb-4 line-clamp-2"><?= htmlspecialchars($service['description']) ?></p>
                     <div class="flex items-center justify-between">
@@ -79,9 +96,7 @@
                             <span class="text-xl font-bold">À partir de <?= $service['prix'] ?? 0 ?>€</span>
                             <div class="text-xs text-base-content/40 mt-0.5"><i class="fas fa-clock mr-1"></i><?= $service['duree'] ?? '' ?>h</div>
                         </div>
-                        <a href="/services/<?= $service['id'] ?>" class="btn btn-neutral btn-sm">
-                            Voir
-                        </a>
+                        <a href="/services/<?= $service['id'] ?>" class="btn btn-neutral btn-sm">Voir</a>
                     </div>
                 </div>
             </div>

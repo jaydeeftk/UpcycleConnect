@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -19,6 +20,10 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+	if stripe.Key == "" {
+		httpx.JSONError(w, http.StatusInternalServerError, "Stripe non configuré")
+		return
+	}
 
 	var body struct {
 		IdUtilisateur int     `json:"id_utilisateur"`
@@ -32,6 +37,13 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
+
+	appURL := os.Getenv("APP_URL")
+	if appURL == "" {
+		appURL = "http://145.241.169.248"
+	}
+
+	idStr := fmt.Sprintf("%d", body.IdItem)
 
 	params := &stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
@@ -48,8 +60,8 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String("http://localhost/paiement/success?type=" + body.Type + "&id=" + string(rune(body.IdItem))),
-		CancelURL:  stripe.String("http://localhost/catalogue/" + body.Type + "s"),
+		SuccessURL: stripe.String(appURL + "/paiement/success?type=" + body.Type + "&id=" + idStr),
+		CancelURL:  stripe.String(appURL + "/catalogue/" + body.Type + "s"),
 	}
 
 	s, err := session.New(params)

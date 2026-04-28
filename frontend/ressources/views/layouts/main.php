@@ -123,6 +123,7 @@
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-500/30">
 
     <?php include __DIR__ . '/../components/front/navbar.php'; ?>
+    <?php include __DIR__ . '/../components/front/toast.php'; ?>
 
     <main class="reveal">
         <?php echo $content; ?>

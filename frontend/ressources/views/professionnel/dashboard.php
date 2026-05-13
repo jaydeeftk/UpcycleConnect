@@ -67,7 +67,7 @@
 
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
 
-            <!-- Stats -->
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow p-6 flex items-center space-x-4">
                     <div class="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -98,7 +98,7 @@
                 </div>
             </div>
 
-            <!-- Projets -->
+            
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold">Mes projets upcycling</h3>
@@ -141,7 +141,7 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Favoris -->
+           
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <h3 class="text-lg font-bold mb-4">Mes annonces favorites</h3>
                 <?php if (empty($favoris)): ?>
@@ -169,7 +169,7 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Contrats -->
+          
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-bold mb-4">Mes contrats</h3>
                 <?php if (empty($contrats)): ?>

@@ -1,6 +1,4 @@
--- =============================================
--- UpcycleConnect - Script de création BDD MySQL
--- =============================================
+
 
 CREATE TABLE IF NOT EXISTS Forum(
    Id_Forum INT AUTO_INCREMENT,
@@ -374,9 +372,7 @@ CREATE TABLE IF NOT EXISTS Codes_Barres(
    FOREIGN KEY(Id_Objets) REFERENCES Objets(Id_Objets)
 );
 
--- =============================================
--- FACTURATION
--- =============================================
+
 
 CREATE TABLE IF NOT EXISTS Factures(
    Id_Facture INT AUTO_INCREMENT,
@@ -437,9 +433,7 @@ CREATE TABLE IF NOT EXISTS Lignes_Facture(
    FOREIGN KEY(Id_Services) REFERENCES Services(Id_Services)
 );
 
--- =============================================
--- ASSOCIATIONS
--- =============================================
+
 
 CREATE TABLE IF NOT EXISTS Gagner(
    Id_Particuliers INT,
@@ -778,13 +772,13 @@ VALUES
 
 INSERT INTO Forum (Id_Forum) VALUES (1);
 
--- Administrateur de test
+
 INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu)
 VALUES ('Admin', 'System', 'admin@upcycleconnect.fr', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'actif', NOW(), 1, 1);
 
 INSERT INTO Administrateurs (Grade, Id_Utilisateurs) VALUES ('Super Admin', LAST_INSERT_ID());
 
--- Conteneurs
+
 INSERT INTO Conteneurs (Localisation, Capacite, Statut, Id_Administrateurs)
 VALUES 
 ('Paris 10ème - 174 rue La Fayette', 20, 'disponible', 1),

@@ -203,7 +203,7 @@
     <?php endif; ?>
 </section>
 
-<!-- Modal révélation code dépôt -->
+
 <div id="modal-reveal-front" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div class="bg-base-100 rounded-2xl shadow-xl w-full max-w-sm p-6 border border-base-300">
         <h3 class="text-lg font-bold mb-2"><i class="fas fa-lock mr-2 text-amber-500"></i>Confirmer votre identité</h3>

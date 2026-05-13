@@ -209,6 +209,6 @@
         });
     })();
     </script>
-
+    <?php include __DIR__ . '/../components/front/tutoriel.php'; ?>
 </body>
 </html>

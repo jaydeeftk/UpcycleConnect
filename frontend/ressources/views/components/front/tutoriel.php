@@ -2,52 +2,55 @@
 
 $role = $_SESSION['user']['role'] ?? '';
 if ($role !== 'particulier') return;
+
 ?>
+<?php var_dump($_SESSION['user']); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    const tutorielVu = localStorage.getItem('tutoriel_vu');
-    if (tutorielVu) return;
+    const tutorielVu = <?= intval($_SESSION['user']['tutoriel_vu'] ?? 1) ?>;
+if (tutorielVu) return;
+
 
     const etapes = [
         {
-            titre: '👋 Bienvenue sur UpcycleConnect !',
+            titre: ' Bienvenue sur UpcycleConnect !',
             texte: 'Nous allons vous faire découvrir les fonctionnalités principales de la plateforme en quelques étapes. Suivez le guide !',
             cible: null,
             position: 'center',
         },
         {
-            titre: '♻️ Déposer un objet',
+            titre: ' Déposer un objet',
             texte: 'Depuis le menu "Déposer", vous pouvez publier une annonce ou demander à déposer un objet dans l\'un de nos conteneurs.',
             cible: '[data-tuto="deposer"]',
             position: 'bottom',
         },
         {
-            titre: '🛠️ Les prestations',
+            titre: ' Les prestations',
             texte: 'Parcourez les prestations proposées par nos artisans et professionnels pour réparer, transformer ou recycler vos objets.',
             cible: '[data-tuto="prestations"]',
             position: 'bottom',
         },
         {
-            titre: '💡 Espace Conseils',
+            titre: ' Espace Conseils',
             texte: 'Accédez à des conseils d\'experts et échangez avec la communauté dans notre forum dédié à l\'upcycling.',
             cible: '[data-tuto="conseils"]',
             position: 'bottom',
         },
         {
-            titre: '🌱 Votre Upcycling Score',
+            titre: ' Votre Upcycling Score',
             texte: 'Suivez votre impact environnemental grâce à votre score. Plus vous participez, plus vous montez en niveau et débloquez des avantages !',
             cible: '[data-tuto="score"]',
             position: 'bottom',
         },
         {
-            titre: '📅 Votre Planning',
+            titre: ' Votre Planning',
             texte: 'Retrouvez tous vos cours, événements et activités dans votre planning personnel.',
             cible: '[data-tuto="planning"]',
             position: 'bottom',
         },
         {
-            titre: '🎉 Vous êtes prêt !',
+            titre: ' Vous êtes prêt !',
             texte: 'Vous connaissez maintenant les fonctionnalités essentielles d\'UpcycleConnect. Bonne exploration et bonne upcycling !',
             cible: null,
             position: 'center',
@@ -108,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button id="tuto-fermer" style="background:none; border:none; cursor:pointer; color:#9ca3af; font-size:20px; line-height:1; padding:0 4px;" title="Fermer">×</button>
             </div>
 
-            <!-- Barre de progression -->
+            
             <div style="background:#f3f4f6; border-radius:99px; height:4px; margin-bottom:20px;">
                 <div style="background:linear-gradient(to right, #10b981, #059669); height:4px; border-radius:99px; width:${((index + 1) / total) * 100}%; transition:width 0.3s ease;"></div>
             </div>
@@ -121,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div style="display:flex; gap:8px;">
                     ${index > 0 ? `<button id="tuto-precedent" style="background:#f3f4f6; border:none; cursor:pointer; padding:10px 18px; border-radius:10px; font-size:14px; font-weight:600; color:#374151;">← Précédent</button>` : ''}
                     <button id="tuto-suivant" style="background:#111827; border:none; cursor:pointer; padding:10px 22px; border-radius:10px; font-size:14px; font-weight:600; color:white;">
-                        ${index === total - 1 ? 'Terminer 🎉' : 'Suivant →'}
+                        ${index === total - 1 ? 'Terminer ' : 'Suivant →'}
                     </button>
                 </div>
             </div>
@@ -167,13 +170,20 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('tuto-passer').addEventListener('click', terminerTutoriel);
     }
 
-    function terminerTutoriel() {
-        localStorage.setItem('tutoriel_vu', 'true');
-        document.body.style.overflow = '';
-        overlay.remove();
-        bulle.remove();
-        spotlight.remove();
-    }
+    async function terminerTutoriel() {
+    try {
+        await fetch('/api/auth/tutoriel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: <?= intval($_SESSION['user']['id'] ?? 0) ?> })
+        });
+    } catch(e) {}
+    localStorage.setItem('tutoriel_vu', 'true');
+    document.body.style.overflow = '';
+    overlay.remove();
+    bulle.remove();
+    spotlight.remove();
+}
 
     afficherEtape(0);
 });

@@ -19,6 +19,12 @@ class DashboardController
             $stats = $result['data'] ?? [];
             $prestations = [];
             $visites = ['today' => 0, 'week' => 0, 'month' => 0, 'total' => 0, 'par_jour' => []];
+            $dernieres_annonces = [];
+        try {
+            $a = $this->api->get('/admin/annonces');
+            $toutes = $a['data'] ?? $a ?? [];
+            $dernieres_annonces = array_slice($toutes, 0, 3);
+            } catch (\Exception $e) {}
             try {
                 $p = $this->api->get('/services');
                 $prestations = $p['data'] ?? $p ?? [];
@@ -46,6 +52,7 @@ class DashboardController
             return view('admin.dashboard', [
                 'error' => $e->getMessage(),
                 'stats' => ['total_utilisateurs'=>0,'total_annonces'=>0,'total_evenements'=>0,'total_messages'=>0],
+                'dernieres_annonces' => $dernieres_annonces,
                 'prestations'=>[],'annonces_pending'=>[],'recent_users'=>[],'revenue_monthly'=>[]
             ]);
         }

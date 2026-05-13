@@ -21,7 +21,7 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
 <div class="max-w-2xl mx-auto">
     <div class="rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700" style="height:calc(100vh - 220px); min-height:500px; display:flex; flex-direction:column;">
 
-        <!-- Header WhatsApp style -->
+        
         <div class="flex items-center gap-3 px-4 py-3 bg-emerald-600 dark:bg-emerald-800">
             <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-sm">UC</div>
             <div class="flex-1">
@@ -30,7 +30,7 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
             </div>
         </div>
 
-        <!-- Messages -->
+        
         <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-2 chat-bg">
             <div class="flex items-center justify-center">
                 <span class="bg-white/70 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 text-xs px-3 py-1 rounded-full backdrop-blur-sm" id="loading-label">
@@ -39,7 +39,7 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
             </div>
         </div>
 
-        <!-- Saisie WhatsApp style -->
+        
         <div class="px-3 py-2 bg-slate-100 dark:bg-slate-800 flex items-end gap-2">
             <div class="flex-1 bg-white dark:bg-slate-700 rounded-2xl px-4 py-2.5 border border-slate-200 dark:border-slate-600 focus-within:border-emerald-400 transition-colors">
                 <textarea id="msg-input" rows="1"

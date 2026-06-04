@@ -18,7 +18,7 @@ func GetEvenementsSalarie(w http.ResponseWriter, r *http.Request) {
 		ORDER BY e.Id_Evenements DESC
 	`)
 	if err != nil {
-		http.Error(w, `{"message": "Erreur base de donn├®es"}`, http.StatusInternalServerError)
+		http.Error(w, `{"message": "Erreur base de données"}`, http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
@@ -67,7 +67,7 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, `{"message": "Donn├®es invalides"}`, http.StatusBadRequest)
+		http.Error(w, `{"message": "Données invalides"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -82,7 +82,7 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	`, body.IdUtilisateurs).Scan(&idSalaries)
 
 	if err != nil {
-		http.Error(w, `{"message": "Salari├® introuvable"}`, http.StatusNotFound)
+		http.Error(w, `{"message": "Salarié introuvable"}`, http.StatusNotFound)
 		return
 	}
 
@@ -92,7 +92,7 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	`, body.Titre, body.Description, body.Lieu, body.Date, body.Capacite, idSalaries)
 
 	if err != nil {
-		http.Error(w, `{"message": "Erreur lors de la cr├®ation"}`, http.StatusInternalServerError)
+		http.Error(w, `{"message": "Erreur lors de la création"}`, http.StatusInternalServerError)
 		return
 	}
 
@@ -105,7 +105,7 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message":       "├ëv├®nement cr├®├® avec succ├¿s",
+		"message":       "Événement créé avec succès",
 		"id_evenements": id,
 	})
 }
@@ -125,7 +125,7 @@ func GetEvenementSalarie(w http.ResponseWriter, r *http.Request) {
 	`, id).Scan(&idEvenement, &titre, &description, &lieu, &date, &capacite, &statut)
 
 	if err != nil {
-		http.Error(w, `{"message": "├ëv├®nement introuvable"}`, http.StatusNotFound)
+		http.Error(w, `{"message": "Événement introuvable"}`, http.StatusNotFound)
 		return
 	}
 
@@ -156,7 +156,7 @@ func UpdateEvenement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, `{"message": "Donn├®es invalides"}`, http.StatusBadRequest)
+		http.Error(w, `{"message": "Données invalides"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -171,13 +171,13 @@ func UpdateEvenement(w http.ResponseWriter, r *http.Request) {
 	`, body.Titre, body.Description, body.Lieu, body.Date, body.Capacite, id)
 
 	if err != nil {
-		http.Error(w, `{"message": "Erreur lors de la mise ├á jour"}`, http.StatusInternalServerError)
+		http.Error(w, `{"message": "Erreur lors de la mise à jour"}`, http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "├ëv├®nement mis ├á jour avec succ├¿s",
+		"message": "Événement mis à jour avec succès",
 	})
 }
 

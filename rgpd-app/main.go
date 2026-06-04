@@ -102,11 +102,7 @@ func auth(next http.Handler) http.Handler {
 			jsonError(w, http.StatusUnauthorized, "accès refusé")
 			return
 		}
-		identity := r.Header.Get("Teleport-Username")
-		if identity == "" {
-			identity = "inconnu"
-		}
-		ctx := context.WithValue(r.Context(), ctxIdentity, identity)
+		ctx := context.WithValue(r.Context(), ctxIdentity, teleportIdentity(r))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

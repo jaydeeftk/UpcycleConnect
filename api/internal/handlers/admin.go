@@ -398,10 +398,10 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 		var nom, prenom, email, dernierMsg, derniereDate string
 		rows.Scan(&idUser, &nom, &prenom, &email, &dernierMsg, &derniereDate)
 		msgs = append(msgs, map[string]interface{}{
-			"id_utilisateur": idUser,
-			"nom":            nom,
-			"prenom":         prenom,
-			"email":          email,
+			"id_utilisateur":  idUser,
+			"nom":             nom,
+			"prenom":          prenom,
+			"email":           email,
 			"dernier_message": dernierMsg,
 			"derniere_date":   derniereDate,
 		})

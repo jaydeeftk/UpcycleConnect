@@ -46,11 +46,11 @@ func AdminGetContrats(w http.ResponseWriter, r *http.Request) {
 
 func AdminCreateContrat(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Type          string `json:"type"`
-		DateSignature string `json:"date_signature"`
-		DateDebut     string `json:"date_debut"`
-		DateFin       string `json:"date_fin"`
-		IdProfessionnel int  `json:"id_professionnels"`
+		Type            string `json:"type"`
+		DateSignature   string `json:"date_signature"`
+		DateDebut       string `json:"date_debut"`
+		DateFin         string `json:"date_fin"`
+		IdProfessionnel int    `json:"id_professionnels"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")

@@ -42,6 +42,7 @@ func GetEvenementsSalarie(w http.ResponseWriter, r *http.Request) {
 			"capacite":      capacite,
 			"statut":        statut,
 			"auteur":        prenom + " " + nom,
+			"type":          "evenement",
 		})
 	}
 

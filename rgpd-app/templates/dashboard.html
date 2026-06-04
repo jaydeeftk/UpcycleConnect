@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application RGPD — Adhérents transités par la Suisse</title>
+<style>
+  :root { --vert:#059669; --vert-clair:#10b981; --gris:#6b7280; --bord:#e5e7eb; --fond:#f9fafb; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:#111827; background:var(--fond); }
+  header { background:#fff; border-bottom:1px solid var(--bord); padding:20px 28px; }
+  header h1 { margin:0; font-size:20px; }
+  header p { margin:6px 0 0; color:var(--gris); font-size:13px; }
+  .badge { display:inline-block; background:#ecfdf5; color:var(--vert); border:1px solid #a7f3d0; border-radius:99px; padding:2px 10px; font-size:12px; font-weight:600; }
+  main { padding:28px; max-width:1100px; margin:0 auto; }
+  .cartes { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:28px; }
+  .carte { flex:1; min-width:180px; background:#fff; border:1px solid var(--bord); border-radius:14px; padding:18px 20px; }
+  .carte .n { font-size:30px; font-weight:700; line-height:1; }
+  .carte .l { color:var(--gris); font-size:13px; margin-top:6px; }
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--bord); border-radius:14px; overflow:hidden; }
+  th, td { text-align:left; padding:11px 14px; font-size:13px; border-bottom:1px solid var(--bord); }
+  th { background:#f3f4f6; font-weight:600; color:#374151; }
+  tr:last-child td { border-bottom:none; }
+  .statut { font-size:12px; font-weight:600; padding:2px 8px; border-radius:99px; }
+  .statut.actif { background:#ecfdf5; color:var(--vert); }
+  .statut.anonymise { background:#f3f4f6; color:var(--gris); }
+  .note { margin-top:24px; font-size:12px; color:var(--gris); border-left:3px solid var(--vert-clair); padding:10px 14px; background:#fff; border-radius:0 10px 10px 0; }
+  .vide { text-align:center; color:var(--gris); padding:30px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>♻️ Application RGPD — Adhérents transités par la Suisse</h1>
+  <p>Service isolé de gestion des données personnelles · accès via le bastion <strong>Teleport</strong> · session ouverte par <span class="badge">{{.Identity}}</span></p>
+</header>
+<main>
+  <section class="cartes">
+    <div class="carte"><div class="n">{{.TotalActifs}}</div><div class="l">Adhérents actifs</div></div>
+    <div class="carte"><div class="n">{{.TotalAnonymes}}</div><div class="l">Anonymisés (art. 17)</div></div>
+    <div class="carte"><div class="n">{{.DemandesOuvertes}}</div><div class="l">Demandes de droits ouvertes</div></div>
+  </section>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Nom</th><th>Prénom</th><th>Email</th>
+        <th>Pays</th><th>Canton</th><th>Transit Suisse</th><th>Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Adherents}}
+      <tr>
+        <td>{{.ID}}</td>
+        <td>{{.Nom}}</td>
+        <td>{{.Prenom}}</td>
+        <td>{{.Email}}</td>
+        <td>{{.PaysResidence}}</td>
+        <td>{{.CantonSuisse}}</td>
+        <td>{{.DateTransitSuisse}}</td>
+        <td><span class="statut {{.Statut}}">{{.Statut}}</span></td>
+      </tr>
+      {{else}}
+      <tr><td colspan="8" class="vide">Aucun adhérent enregistré.</td></tr>
+      {{end}}
+    </tbody>
+  </table>
+
+  <p class="note">
+    Données minimisées et cloisonnées (base distincte de l'application principale). Tout accès est journalisé
+    (art. 5.2 &amp; 32 RGPD) et attribué à l'identité propagée par le bastion Teleport. Le transfert depuis la
+    Suisse est couvert par la décision d'adéquation de la Commission européenne (art. 45 RGPD).
+  </p>
+</main>
+</body>
+</html>

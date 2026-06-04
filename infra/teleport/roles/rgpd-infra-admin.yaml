@@ -1,0 +1,27 @@
+# Rôle Infra-Admin : administration de la pile RGPD (application + base)
+# et exploitation. MFA obligatoire, sessions enregistrées. L'administration
+# du cluster Teleport lui-même s'appuie sur le rôle préinstallé « editor ».
+kind: role
+version: v7
+metadata:
+  name: rgpd-infra-admin
+  description: "Infra — administration de la pile RGPD (app + base), MFA obligatoire."
+spec:
+  options:
+    max_session_ttl: 4h
+    require_session_mfa: true
+    record_session:
+      default: best_effort
+    lock: best_effort
+  allow:
+    app_labels:
+      env: ["rgpd"]
+    db_labels:
+      env: ["rgpd"]
+    db_names: ["rgpd"]
+    # Accès base complet (compte applicatif et compte lecture seule).
+    db_users: ["rgpd", "rgpd_ro"]
+    rules:
+      # Lecture du journal d'audit et des enregistrements pour exploitation.
+      - resources: ["event", "session"]
+        verbs: ["read", "list"]

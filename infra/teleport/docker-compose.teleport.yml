@@ -1,0 +1,44 @@
+# =============================================================
+#  Bastion Teleport — déploiement
+#
+#  Le bastion est le SEUL composant publiquement exposé (port 443).
+#  Il est multi-homé :
+#    - réseau « public »        : patte DMZ (entrée des clients tsh) ;
+#    - réseau « rgpd_rgpd-net » : patte interne pour joindre rgpd-app
+#                                 et rgpd-db (créé par infra/rgpd).
+#
+#  Prérequis : démarrer d'abord la pile RGPD (infra/rgpd) afin que le
+#  réseau interne existe. Renseigner le jeton dans teleport.yaml.
+#  Démarrage :
+#    docker compose -f docker-compose.teleport.yml up -d
+# =============================================================
+name: rgpd-teleport
+
+services:
+  teleport:
+    image: public.ecr.aws/gravitational/teleport-distroless:16
+    container_name: rgpd-bastion
+    restart: unless-stopped
+    command: ["start", "-c", "/etc/teleport.yaml"]
+    ports:
+      - "443:443" # Web UI + accès applicatif/base (multiplexé TLS)
+    volumes:
+      - ./teleport.yaml:/etc/teleport.yaml:ro
+      - teleport-data:/var/lib/teleport
+    networks:
+      - public
+      - rgpd-net
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  # Patte DMZ : exposition publique + egress (ACME éventuel).
+  public:
+    driver: bridge
+  # Patte interne : réseau créé par la pile RGPD (infra/rgpd).
+  rgpd-net:
+    external: true
+    name: rgpd_rgpd-net
+
+volumes:
+  teleport-data:

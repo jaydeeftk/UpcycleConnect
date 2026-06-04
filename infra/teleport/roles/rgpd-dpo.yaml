@@ -1,0 +1,35 @@
+# Rôle DPO : exploite les données RGPD via l'application et, si besoin,
+# en lecture seule sur la base. Moindre privilège : aucun accès SSH,
+# aucune administration du cluster.
+kind: role
+version: v7
+metadata:
+  name: rgpd-dpo
+  description: "DPO — accès à l'application RGPD et lecture auditée de la base."
+spec:
+  options:
+    max_session_ttl: 8h
+    # MFA par session pour les actions sensibles (re-vérification).
+    require_session_mfa: true
+    record_session:
+      default: best_effort
+    forward_agent: false
+    # Prise en compte des verrous (révocation d'accès immédiate).
+    lock: best_effort
+  allow:
+    # Accès à toute application étiquetée env=rgpd (ici rgpd-app).
+    app_labels:
+      env: ["rgpd"]
+    # Accès base limité à l'utilisateur applicatif EN LECTURE SEULE
+    # et à la seule base « rgpd ».
+    db_labels:
+      env: ["rgpd"]
+    db_names: ["rgpd"]
+    db_users: ["rgpd_ro"]
+  deny:
+    # Le DPO ne touche ni aux nœuds SSH ni à l'administration du cluster.
+    node_labels:
+      "*": ["*"]
+    rules:
+      - resources: ["role", "user", "token", "cert_authority", "cluster_auth_preference"]
+        verbs: ["*"]

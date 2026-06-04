@@ -1,0 +1,98 @@
+# =============================================================
+#  Bastion Teleport — accès distant RGPD (Module 3 / bloc INFRA)
+#
+#  Point d'entrée UNIQUE et identity-aware vers la pile RGPD :
+#   - auth + proxy  : le cœur du bastion (cluster mono-instance) ;
+#   - app_service   : publie l'application RGPD (rgpd-app:8090) ;
+#   - db_service    : publie la base RGPD (rgpd-db:3306) en accès
+#                     audité (chemin d'administration / break-glass).
+#
+#  Le bastion est multi-homé : une patte publique (DMZ) et une patte
+#  sur le réseau interne « rgpd_rgpd-net » pour joindre app et base.
+#  Tout accès est authentifié, soumis au MFA, journalisé et
+#  enregistré (session recording) — art. 5.2 & 32 RGPD.
+#
+#  Réf. schéma réseau : nœud « BASTION TELEPORT » + « Application RGPD ».
+# =============================================================
+version: v3
+
+teleport:
+  nodename: rgpd-bastion
+  data_dir: /var/lib/teleport
+  log:
+    output: stderr
+    severity: INFO
+    format:
+      output: text
+
+auth_service:
+  enabled: "yes"
+  cluster_name: "rgpd-bastion"
+  listen_addr: 0.0.0.0:3025
+  # Pas de load-balancer L4 à protocole PROXY devant le bastion.
+  proxy_protocol: "off"
+  # Multiplexage TLS : tout passe par le 443 du proxy (un seul port public).
+  proxy_listener_mode: multiplex
+  authentication:
+    type: local
+    # MFA exigé (OTP ou WebAuthn). WebAuthn recommandé en production ;
+    # OTP (application d'authentification) suffit pour l'amorçage.
+    second_factor: "on"
+    webauthn:
+      rp_id: bastion.rgpd.upcycleconnect.example
+  # Les enregistrements de session sont diffusés vers le backend d'audit.
+  session_recording: "proxy-sync"
+  message_of_the_day: |
+    Accès RGPD restreint. Données personnelles d'adhérents transités par la
+    Suisse. Toutes les actions sont journalisées et enregistrées (art. 5.2
+    & 32 RGPD). Accès réservé aux personnes habilitées (DPO, audit, infra).
+
+# Pas d'accès SSH par ce bastion : il ne protège que l'app et la base RGPD.
+ssh_service:
+  enabled: "no"
+
+proxy_service:
+  enabled: "yes"
+  web_listen_addr: 0.0.0.0:443
+  # public_addr doit résoudre vers le proxy ; l'accès applicatif se fait
+  # par sous-domaine (rgpd-app.<public_addr>) -> prévoir un DNS *.bastion...
+  public_addr: ["bastion.rgpd.upcycleconnect.example:443"]
+  # TLS : fournir un certificat (https_keypairs) ou activer ACME en prod.
+  # À défaut, Teleport génère un certificat auto-signé (avertissement).
+  acme:
+    enabled: "no"
+
+# ---- Application RGPD publiée en accès identity-aware --------------
+app_service:
+  enabled: "yes"
+  apps:
+    - name: "rgpd-app"
+      uri: "http://rgpd-app:8090"
+      public_addr: "rgpd-app.bastion.rgpd.upcycleconnect.example"
+      labels:
+        env: "rgpd"
+        data_classification: "donnees-personnelles"
+      rewrite:
+        headers:
+          # Le bastion injecte le jeton porteur attendu par l'application
+          # (portail de confiance). REMPLACER par la valeur de
+          # RGPD_API_TOKEN (cf. infra/rgpd/.env) au déploiement.
+          # Teleport ajoute par ailleurs automatiquement, à chaque requête,
+          # l'en-tête signé « Teleport-Jwt-Assertion » d'où l'application
+          # déduit l'identité du DPO pour son journal d'accès.
+          - "Authorization: Bearer CHANGEME_RGPD_API_TOKEN"
+
+# ---- Base RGPD publiée en accès audité (chemin d'administration) ---
+#  Prérequis : MySQL doit faire confiance à la CA de Teleport (mTLS).
+#  Étapes d'activation décrites dans infra/teleport/README.md. Tant que
+#  ce n'est pas configuré, l'accès applicatif ci-dessus reste le chemin
+#  nominal ; la base n'est ouverte qu'en « break-glass » au DPO/infra.
+db_service:
+  enabled: "yes"
+  databases:
+    - name: "rgpd-db"
+      protocol: "mysql"
+      uri: "rgpd-db:3306"
+      static_labels:
+        env: "rgpd"
+        data_classification: "donnees-personnelles"

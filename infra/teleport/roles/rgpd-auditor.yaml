@@ -1,0 +1,25 @@
+# Rôle Auditeur : séparation des pouvoirs (art. 5.2 RGPD). Contrôle les
+# accès — lecture du journal d'audit et des enregistrements de session —
+# SANS aucun accès aux données personnelles elles-mêmes.
+kind: role
+version: v7
+metadata:
+  name: rgpd-auditor
+  description: "Audit RGPD — lecture du journal et des sessions, sans accès aux données."
+spec:
+  options:
+    max_session_ttl: 8h
+    record_session:
+      default: best_effort
+  allow:
+    rules:
+      - resources: ["event", "session"]
+        verbs: ["read", "list"]
+  deny:
+    # Aucune donnée : ni application, ni base, ni nœud.
+    app_labels:
+      "*": ["*"]
+    db_labels:
+      "*": ["*"]
+    node_labels:
+      "*": ["*"]

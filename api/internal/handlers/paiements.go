@@ -38,6 +38,31 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Le montant et l'intitulé sont recalculés côté serveur depuis la base :
+	// on ne fait jamais confiance au prix transmis par le client (anti-falsification).
+	var montant float64
+	var titre string
+	switch body.Type {
+	case "formation":
+		if err := database.DB.QueryRow("SELECT COALESCE(Prix,0), COALESCE(Titre,'') FROM Formations WHERE Id_Formations = ?", body.IdItem).Scan(&montant, &titre); err != nil {
+			httpx.JSONError(w, http.StatusNotFound, "Formation introuvable")
+			return
+		}
+	case "evenement":
+		if err := database.DB.QueryRow("SELECT COALESCE(Prix,0), COALESCE(Titre,'') FROM Evenements WHERE Id_Evenements = ?", body.IdItem).Scan(&montant, &titre); err != nil {
+			httpx.JSONError(w, http.StatusNotFound, "Événement introuvable")
+			return
+		}
+	default:
+		httpx.JSONError(w, http.StatusBadRequest, "Type de paiement invalide")
+		return
+	}
+
+	if montant <= 0 {
+		httpx.JSONError(w, http.StatusBadRequest, "Cet article n'est pas payable en ligne")
+		return
+	}
+
 	appURL := os.Getenv("APP_URL")
 	if appURL == "" {
 		appURL = "http://145.241.169.248"
@@ -52,9 +77,9 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
 					Currency: stripe.String("eur"),
 					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-						Name: stripe.String(body.Titre),
+						Name: stripe.String(titre),
 					},
-					UnitAmount: stripe.Int64(int64(body.Montant * 100)),
+					UnitAmount: stripe.Int64(int64(montant * 100)),
 				},
 				Quantity: stripe.Int64(1),
 			},

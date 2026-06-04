@@ -23,7 +23,7 @@ class HomeController
         ];
 
         try {
-            $result = $this->api->get('/admin/dashboard');
+            $result = $this->api->get('/stats');
             $data = $result['data'] ?? [];
             $stats['utilisateurs']     = $data['total_utilisateurs'] ?? 0;
             $stats['objets_sauves']    = $data['total_annonces'] ?? 0;

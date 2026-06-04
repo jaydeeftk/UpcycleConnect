@@ -63,15 +63,6 @@ $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
 $router->get('/paiement/success', 'Front\UserController@paiementSuccess');
 
-$router->get('/salarie', 'Front\SalarieController@dashboard');
-$router->get('/salarie/planning', 'Front\SalarieController@planning');
-$router->get('/salarie/formations/create', 'Front\SalarieController@createFormation');
-$router->post('/salarie/formations/store', 'Front\SalarieController@storeFormation');
-$router->get('/salarie/formations/{id}/delete', 'Front\SalarieController@deleteFormation');
-$router->get('/salarie/conseils/create', 'Front\SalarieController@createConseil');
-$router->post('/salarie/conseils/store', 'Front\SalarieController@storeConseil');
-$router->get('/salarie/conseils/{id}/delete', 'Front\SalarieController@deleteConseil');
-
 $router->get('/professionnel', 'Front\ProfessionnelController@dashboard');
 $router->get('/professionnel/projets/create', 'Front\ProfessionnelController@createProjet');
 $router->post('/professionnel/projets/store', 'Front\ProfessionnelController@storeProjet');

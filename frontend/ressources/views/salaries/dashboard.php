@@ -82,11 +82,11 @@
             <?php foreach ($prochains_items as $item): ?>
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4">
-                    <?php if ($item['type'] === 'evenement'): ?>
+                    <?php if (($item['type'] ?? '') === 'evenement'): ?>
                         <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
                             <i class="fas fa-calendar-alt mr-1"></i>Événement
                         </span>
-                    <?php elseif ($item['type'] === 'formation'): ?>
+                    <?php elseif (($item['type'] ?? '') === 'formation'): ?>
                         <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
                             <i class="fas fa-graduation-cap mr-1"></i>Formation
                         </span>
@@ -100,7 +100,7 @@
                     <?= htmlspecialchars($item['titre'] ?? '—') ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">
-                    <?= $item['date_debut'] ? date('d/m/Y H:i', strtotime($item['date_debut'])) : '—' ?>
+                    <?= !empty($item['date']) ? date('d/m/Y H:i', strtotime($item['date'])) : '—' ?>
                 </td>
                 <td class="px-6 py-4">
                     <?php

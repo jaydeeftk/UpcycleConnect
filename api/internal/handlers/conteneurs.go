@@ -9,6 +9,7 @@ import (
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
 )
 
 func GetConteneurs(w http.ResponseWriter, r *http.Request) {
@@ -42,15 +43,15 @@ func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
 		Destination string  `json:"destination"`
 		PrixVente   float64 `json:"prix_vente"`
 		PhotoUrl    string  `json:"photo_url"`
-		IdUser      int     `json:"user_id"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
 
+	idUser := middleware.GetUserID(r)
 	var idParticulier int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUser).Scan(&idParticulier); err != nil {
+	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", idUser).Scan(&idParticulier); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non trouvé comme particulier")
 		return
 	}

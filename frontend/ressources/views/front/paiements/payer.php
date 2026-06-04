@@ -63,6 +63,7 @@
 
 <script>
 
+const TOKEN = <?= json_encode($_SESSION['user']['token'] ?? '') ?>;
 const stripe = Stripe('pk_test_51TJkt7GjiAXa1AoyxnXTnjNzOChs8pI9PbKxFmJGuYVYYtNBa8im7erdIn7p5eQR2woteHVaBcmo3g8Al10ghAs500LxVozkxR');
 
 async function handlePaiement() {
@@ -73,7 +74,7 @@ async function handlePaiement() {
     try {
         const res = await fetch('/api/paiements/checkout', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
             body: JSON.stringify({
                 id_utilisateur: <?= $_SESSION['user']['id'] ?? 0 ?>,
                 type: '<?= htmlspecialchars($_GET['type'] ?? '') ?>',

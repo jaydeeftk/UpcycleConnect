@@ -46,6 +46,37 @@ func JWTAuth(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// OptionalJWT n'IMPOSE pas l'authentification : si un Bearer valide est présent,
+// les claims sont injectés dans le contexte (GetUserID renverra l'identité) ;
+// sinon la requête passe en anonyme (GetUserID renverra 0). Utile pour les fiches
+// publiques dont l'état dérivé (est_inscrit, allowed_actions) dépend de l'identité
+// quand elle existe, sans fermer l'accès aux visiteurs non connectés.
+func OptionalJWT(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		header := r.Header.Get("Authorization")
+		if !strings.HasPrefix(header, "Bearer ") {
+			next(w, r)
+			return
+		}
+		tokenStr := strings.TrimPrefix(header, "Bearer ")
+		secret := []byte(os.Getenv("JWT_SECRET"))
+		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+			return secret, nil
+		}, jwt.WithValidMethods([]string{"HS256"}))
+		if err != nil || !token.Valid {
+			next(w, r) // jeton invalide => on reste anonyme, on ne rejette pas
+			return
+		}
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			next(w, r)
+			return
+		}
+		ctx := context.WithValue(r.Context(), ClaimsKey, claims)
+		next(w, r.WithContext(ctx))
+	}
+}
+
 func AdminOnly(next http.HandlerFunc) http.HandlerFunc {
 	return JWTAuth(func(w http.ResponseWriter, r *http.Request) {
 		claims := r.Context().Value(ClaimsKey).(jwt.MapClaims)

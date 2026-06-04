@@ -32,7 +32,7 @@ func GetForumSujets(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := database.DB.Query(query, args...)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -95,7 +95,7 @@ func GetForumSujet(w http.ResponseWriter, r *http.Request) {
 		ORDER BY r.Est_Solution DESC, r.Date_ ASC
 	`, id)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer repRows.Close()
@@ -167,7 +167,7 @@ func CreateForumSujet(w http.ResponseWriter, r *http.Request) {
 		body.Titre, body.Contenu, body.Categorie, body.IdUtilisateur,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 
@@ -218,7 +218,7 @@ func CreateForumReponse(w http.ResponseWriter, r *http.Request) {
 		body.Contenu, idSujet, body.IdUtilisateur,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 

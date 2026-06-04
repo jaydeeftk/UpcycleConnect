@@ -14,7 +14,7 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 		"SELECT Id_Evenements, Titre, Description, Date_, Lieu, Capacite, Statut, COALESCE(Prix,0) FROM Evenements ORDER BY Date_ DESC",
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -176,7 +176,7 @@ func ParticiperEvenement(w http.ResponseWriter, r *http.Request) {
 		idParticulier, idEvenement,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 
@@ -195,7 +195,7 @@ func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 		ORDER BY e.Date_ DESC`,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -245,7 +245,7 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, body.Prix, body.IdSalaries,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		newID, _ := result.LastInsertId()
@@ -269,7 +269,7 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, id,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement mis à jour"})
@@ -277,7 +277,7 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		_, err := database.DB.Exec("DELETE FROM Evenements WHERE Id_Evenements=?", id)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement supprimé"})

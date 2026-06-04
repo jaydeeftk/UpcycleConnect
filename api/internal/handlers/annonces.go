@@ -35,7 +35,7 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 	var idParticulier int
 	err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur).Scan(&idParticulier)
 	if err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non trouvé comme particulier : "+err.Error())
+		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non trouvé comme particulier")
 		return
 	}
 
@@ -45,7 +45,7 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		body.Titre, body.Description, body.Categorie, body.Etat, body.TypeAnnonce, body.Prix, body.Ville, body.CodePostal, idParticulier,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur BDD : "+err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 
@@ -118,7 +118,7 @@ func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 		WHERE a.Statut = 'validee' ORDER BY a.Date_publication DESC`,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -162,7 +162,7 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 		idParticulier,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -235,7 +235,7 @@ func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 		ORDER BY a.Id_Annonces DESC`,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()

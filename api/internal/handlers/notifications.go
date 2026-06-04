@@ -18,7 +18,7 @@ func AdminGetNotifications(w http.ResponseWriter, r *http.Request) {
 		ORDER BY n.Date_Envoi DESC`,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -60,7 +60,7 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 		if body.IdUtilisateurs == 0 {
 			rows, err := database.DB.Query("SELECT Id_Utilisateurs FROM Utilisateurs")
 			if err != nil {
-				httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+				httpx.JSONServerError(w, err)
 				return
 			}
 			defer rows.Close()
@@ -84,7 +84,7 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 			body.Contenu, body.IdAdministrateurs, body.IdUtilisateurs,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		newID, _ := result.LastInsertId()

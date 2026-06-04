@@ -61,7 +61,7 @@ func AdminCreateContrat(w http.ResponseWriter, r *http.Request) {
 		body.Type, body.DateSignature, body.DateDebut, body.DateFin, body.IdProfessionnel,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	id, _ := result.LastInsertId()

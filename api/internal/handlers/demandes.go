@@ -19,7 +19,7 @@ func GetDemandes(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -32,7 +32,7 @@ func GetDemandes(w http.ResponseWriter, r *http.Request) {
 		var date *string
 
 		if err := rows.Scan(&id, &contenu, &date, &statut); err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 
@@ -65,7 +65,7 @@ func CreateDemande(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 

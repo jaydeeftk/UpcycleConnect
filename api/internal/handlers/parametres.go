@@ -11,7 +11,7 @@ import (
 func AdminGetParametres(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query("SELECT Cle, Valeur FROM Parametres")
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur BDD: "+err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()

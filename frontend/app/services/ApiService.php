@@ -99,7 +99,7 @@ class ApiService
         }
 
         if ($httpCode >= 400) {
-            $errorMessage = isset($result['message']) ? $result['message'] : 'Erreur inconnue';
+            $errorMessage = $result['error'] ?? $result['message'] ?? 'Erreur inconnue';
             throw new \Exception("Erreur API ($httpCode): " . $errorMessage);
         }
 

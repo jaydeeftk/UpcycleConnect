@@ -242,15 +242,15 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		var body struct {
-			Titre          string  `json:"titre"`
-			Description    string  `json:"description"`
-			Prix           float64 `json:"prix"`
-			Duree          int     `json:"duree"`
-			Statut         string  `json:"statut"`
-			DateFormation  string  `json:"date_formation"`
-			PlacesTotal    int     `json:"places_total"`
-			Localisation   string  `json:"localisation"`
-			IdSalaries     int     `json:"id_salaries"`
+			Titre         string  `json:"titre"`
+			Description   string  `json:"description"`
+			Prix          float64 `json:"prix"`
+			Duree         int     `json:"duree"`
+			Statut        string  `json:"statut"`
+			DateFormation string  `json:"date_formation"`
+			PlacesTotal   int     `json:"places_total"`
+			Localisation  string  `json:"localisation"`
+			IdSalaries    int     `json:"id_salaries"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
 		if body.PlacesTotal == 0 {

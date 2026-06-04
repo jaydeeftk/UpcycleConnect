@@ -27,7 +27,7 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/auth/login", handlers.Login)
 	mux.HandleFunc("/api/auth/register", handlers.Register)
-	mux.HandleFunc("/api/auth/tutoriel", handlers.UpdateTutoriel)
+	mux.HandleFunc("/api/auth/tutoriel", middleware.JWTAuth(handlers.UpdateTutoriel))
 	mux.HandleFunc("/api/auth/verify", handlers.VerifyPassword)
 	mux.HandleFunc("/api/ws", handlers.ServeWS)
 
@@ -43,8 +43,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/conteneurs", handlers.GetConteneurs)
 	mux.HandleFunc("/api/messages", middleware.JWTAuth(handlers.CreateUserMessage))
 	mux.HandleFunc("/api/messages/upload", handlers.UploadMessageAttachment)
-	mux.HandleFunc("/api/conteneurs/demandes", handlers.CreateDemandeConteneur)
-	mux.HandleFunc("/api/conteneurs/user/", handlers.GetDemandesConteneurUser)
+	mux.HandleFunc("/api/conteneurs/demandes", middleware.JWTAuth(handlers.CreateDemandeConteneur))
+	mux.HandleFunc("/api/conteneurs/user/", middleware.OwnerFromPath(handlers.GetDemandesConteneurUser))
 
 	mux.HandleFunc("/api/conseils", handlers.GetConseils)
 	mux.HandleFunc("/api/conseils/", handlers.GetConseil)
@@ -54,12 +54,12 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/demandes/", middleware.JWTAuth(handlers.GetDemandes))
 	mux.HandleFunc("/api/demandes/create", middleware.JWTAuth(handlers.CreateDemande))
 
-	mux.HandleFunc("/api/score/", handlers.GetScore)
-	mux.HandleFunc("/api/planning/", handlers.GetPlanning)
-	mux.HandleFunc("/api/historique/", handlers.GetHistorique)
-	mux.HandleFunc("/api/paiements/checkout", handlers.CreateCheckoutSession)
+	mux.HandleFunc("/api/score/", middleware.OwnerFromPath(handlers.GetScore))
+	mux.HandleFunc("/api/planning/", middleware.OwnerFromPath(handlers.GetPlanning))
+	mux.HandleFunc("/api/historique/", middleware.OwnerFromPath(handlers.GetHistorique))
+	mux.HandleFunc("/api/paiements/checkout", middleware.JWTAuth(handlers.CreateCheckoutSession))
 	mux.HandleFunc("/api/paiements/success", handlers.PaiementSuccess)
-	mux.HandleFunc("/api/paiements/", handlers.GetPaiementsUser)
+	mux.HandleFunc("/api/paiements/", middleware.OwnerFromPath(handlers.GetPaiementsUser))
 
 	mux.HandleFunc("/api/parametres", handlers.AdminGetParametres)
 
@@ -172,7 +172,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/planning", middleware.AdminOnly(handlers.AdminGetPlanning))
 
 	mux.HandleFunc("/api/admin/salaries/list", middleware.AdminOnly(handlers.AdminGetSalariesList))
-	mux.HandleFunc("/api/messages/user/", handlers.GetUserMessages)
+	mux.HandleFunc("/api/messages/user/", middleware.OwnerFromPath(handlers.GetUserMessages))
 
 	mux.HandleFunc("/api/visites", handlers.RecordVisite)
 	mux.HandleFunc("/api/admin/visites", middleware.AdminOnly(handlers.AdminGetVisites))

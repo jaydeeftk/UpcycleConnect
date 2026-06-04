@@ -9,6 +9,7 @@ import (
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -134,11 +135,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTutoriel(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		Id int `json:"id"`
-	}
-	json.NewDecoder(r.Body).Decode(&body)
-	database.DB.Exec("UPDATE Utilisateurs SET Tutoriel_vu = 1 WHERE Id_Utilisateurs = ?", body.Id)
+	id := middleware.GetUserID(r)
+	database.DB.Exec("UPDATE Utilisateurs SET Tutoriel_vu = 1 WHERE Id_Utilisateurs = ?", id)
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Tutoriel à jour"})
 }
 

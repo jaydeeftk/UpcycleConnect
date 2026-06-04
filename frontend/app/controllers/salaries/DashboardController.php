@@ -27,9 +27,9 @@ class DashboardController
             $conseils    = $this->api->get('/salaries/conseils')['data'] ?? [];
             $planning    = $this->api->get('/salaries/planning')['data'] ?? [];
 
-            $evenements = array_filter($planning, fn($i) => $i['type'] === 'evenement');
-            $formations  = array_filter($planning, fn($i) => $i['type'] === 'formation');
-            $ateliers    = array_filter($planning, fn($i) => $i['type'] === 'atelier');
+            $evenements = array_filter($planning, fn($i) => ($i['type'] ?? '') === 'evenement');
+            $formations  = array_filter($planning, fn($i) => ($i['type'] ?? '') === 'formation');
+            $ateliers    = array_filter($planning, fn($i) => ($i['type'] ?? '') === 'atelier');
 
             return view('salaries.dashboard', [
                 'page_title'       => 'Tableau de bord',

@@ -45,6 +45,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/annonces", handlers.GetAnnonces)
 	mux.HandleFunc("/api/annonces/", handlers.GetAnnonceDispatch)
 
+	mux.HandleFunc("/api/stats", handlers.PublicStats)
+
 	mux.HandleFunc("/api/conteneurs", handlers.GetConteneurs)
 	mux.HandleFunc("/api/messages", middleware.JWTAuth(handlers.CreateUserMessage))
 	mux.HandleFunc("/api/messages/upload", handlers.UploadMessageAttachment)

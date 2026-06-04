@@ -1,3 +1,7 @@
 *.exe
 frontend/.env
 .env
+
+# Artefacts de build Go (Air) et fichiers temporaires
+api/tmp/
+*.dtmp

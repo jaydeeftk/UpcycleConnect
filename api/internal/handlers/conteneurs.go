@@ -61,7 +61,7 @@ func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
 		body.TypeObjet, body.Description, body.EtatUsure, body.IdConteneur, body.DateDepot, body.Destination, body.PrixVente, body.PhotoUrl, idParticulier,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur BDD : "+err.Error())
+		httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de l'enregistrement de la demande")
 		return
 	}
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Demande envoyée"})

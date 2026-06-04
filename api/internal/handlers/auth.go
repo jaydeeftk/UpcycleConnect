@@ -111,7 +111,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		body.Nom, body.Prenom, body.Email, string(hashed),
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de la création du compte")
 		return
 	}
 

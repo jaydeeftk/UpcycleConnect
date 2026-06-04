@@ -65,7 +65,7 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 
 	appURL := os.Getenv("APP_URL")
 	if appURL == "" {
-		appURL = "http://145.241.169.248"
+		appURL = "https://95.216.77.54.nip.io"
 	}
 
 	idStr := fmt.Sprintf("%d", body.IdItem)

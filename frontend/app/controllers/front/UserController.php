@@ -64,6 +64,7 @@ class UserController
     {
         if (isset($_SESSION['user'])) {
             $_SESSION['user']['tutoriel_vu'] = 1;
+            try { $this->api->post('/auth/tutoriel', []); } catch (\Exception $e) {}
         }
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);

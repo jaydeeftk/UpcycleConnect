@@ -2,6 +2,7 @@
 
 $role = $_SESSION['user']['role'] ?? '';
 if ($role !== 'particulier') return;
+if (!empty($_SESSION['user']['tutoriel_vu'])) return;
 ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -169,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function terminerTutoriel() {
         localStorage.setItem('tutoriel_vu', 'true');
+        fetch('/tutoriel/done').catch(function () {});
         document.body.style.overflow = '';
         overlay.remove();
         bulle.remove();

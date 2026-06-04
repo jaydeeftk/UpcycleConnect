@@ -12,7 +12,7 @@ import (
 func GetServices(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query("SELECT Id_Services, Titre, Description, Prix, Duree, Categorie FROM Services")
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -97,7 +97,7 @@ func AdminCreateService(w http.ResponseWriter, r *http.Request) {
 		body.Titre, body.Description, body.Prix, body.Duree, body.Categorie,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	id, _ := result.LastInsertId()

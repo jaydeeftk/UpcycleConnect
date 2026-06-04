@@ -109,7 +109,7 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 			body.PlacesTotal, body.PlacesTotal, body.Localisation, body.Categorie, salarieID,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		id, _ := result.LastInsertId()
@@ -205,7 +205,7 @@ func SalarieConseils(w http.ResponseWriter, r *http.Request) {
 			body.Titre, body.Contenu, body.Categorie, body.Tags, salarieID,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		id, _ := result.LastInsertId()

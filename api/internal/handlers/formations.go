@@ -18,7 +18,7 @@ func GetFormations(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -173,7 +173,7 @@ func InscrireFormation(w http.ResponseWriter, r *http.Request) {
 		idParticulier, idFormation,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 
@@ -199,7 +199,7 @@ func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
 		ORDER BY f.Id_Formations DESC`,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -266,7 +266,7 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 			body.DateFormation, body.PlacesTotal, body.PlacesTotal, body.Localisation, body.IdSalaries,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		newID, _ := result.LastInsertId()

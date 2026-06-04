@@ -2,6 +2,7 @@ package httpx
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -31,4 +32,11 @@ func JSONError(w http.ResponseWriter, status int, message string) {
 		Data:    nil,
 		Error:   message,
 	})
+}
+
+// JSONServerError journalise l'erreur réelle côté serveur (pour le diagnostic)
+// et ne renvoie au client qu'un message générique, sans détail interne (CWE-209).
+func JSONServerError(w http.ResponseWriter, err error) {
+	log.Printf("erreur serveur: %v", err)
+	JSONError(w, http.StatusInternalServerError, "Erreur interne du serveur")
 }

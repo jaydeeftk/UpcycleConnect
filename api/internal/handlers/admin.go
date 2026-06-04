@@ -108,7 +108,7 @@ func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 		LEFT JOIN Professionnels_artisans p ON p.Id_Utilisateurs = u.Id_Utilisateurs`,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -324,7 +324,7 @@ func adminUpdateRole(id, role string, w http.ResponseWriter) {
 func AdminGetCategories(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query("SELECT Id_Categories, COALESCE(Nom,''), COALESCE(Description,'') FROM Categories")
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	defer rows.Close()
@@ -469,7 +469,7 @@ func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
 			body.Localisation, body.Capacite, body.Statut,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		newID, _ := result.LastInsertId()
@@ -490,7 +490,7 @@ func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
 			body.Localisation, body.Capacite, body.Statut, id,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Conteneur mis à jour"})
@@ -498,7 +498,7 @@ func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		_, err := database.DB.Exec("DELETE FROM Conteneurs WHERE Id_Conteneurs=?", id)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Conteneur supprimé"})
@@ -819,7 +819,7 @@ func AdminReplyMessage(w http.ResponseWriter, r *http.Request) {
 		body.Contenu, body.IdUtilisateur,
 	)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur: "+err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Réponse envoyée"})

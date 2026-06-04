@@ -66,7 +66,7 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 
 	s, err := session.New(params)
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur Stripe : "+err.Error())
+		httpx.JSONServerError(w, err)
 		return
 	}
 

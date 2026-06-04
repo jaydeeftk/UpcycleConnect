@@ -106,7 +106,7 @@ func ProfessionnelProjetsHandler(w http.ResponseWriter, r *http.Request) {
 			body.Titre, body.Description, body.DateDebut, body.Statut, profID,
 		)
 		if err != nil {
-			httpx.JSONError(w, http.StatusInternalServerError, err.Error())
+			httpx.JSONServerError(w, err)
 			return
 		}
 		id, _ := result.LastInsertId()

@@ -3,11 +3,18 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/services"
 )
+
+// inscriptionSvc — cas d'usage d'inscription (événements & formations). Sans
+// état, partagé par les handlers du package.
+var inscriptionSvc = services.NewInscriptionService()
 
 func GetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
@@ -39,150 +46,84 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, evts)
 }
 
+// GetEvenement route la fiche publique et les actions d'inscription. Les
+// actions (participer/desinscrire) exigent un JWT valide : l'identité vient du
+// token (sub), jamais du corps. La fiche reste publique (identité optionnelle).
 func GetEvenement(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/evenements/")
 	parts := strings.Split(strings.Trim(path, "/"), "/")
 
 	if len(parts) >= 2 && parts[1] == "participer" {
-		ParticiperEvenement(w, r)
+		middleware.JWTAuth(ParticiperEvenement)(w, r)
 		return
 	}
-
 	if len(parts) >= 2 && parts[1] == "desinscrire" {
-		DesinscrireEvenement(w, r)
+		middleware.JWTAuth(DesinscrireEvenement)(w, r)
 		return
 	}
 
-	id := parts[0]
-	userId := r.URL.Query().Get("user_id")
+	middleware.OptionalJWT(ficheEvenement)(w, r)
+}
 
-	row := database.DB.QueryRow(
-		"SELECT Id_Evenements, Titre, Description, Date_, Lieu, Capacite, Statut, COALESCE(Prix,0) FROM Evenements WHERE Id_Evenements=?", id,
-	)
-	var e struct {
-		ID          int     `json:"id"`
-		Titre       string  `json:"titre"`
-		Description string  `json:"description"`
-		Date        string  `json:"date"`
-		Lieu        string  `json:"lieu"`
-		Capacite    int     `json:"capacite"`
-		Statut      string  `json:"statut"`
-		Prix        float64 `json:"prix"`
-	}
-	if err := row.Scan(&e.ID, &e.Titre, &e.Description, &e.Date, &e.Lieu, &e.Capacite, &e.Statut, &e.Prix); err != nil {
-		httpx.JSONError(w, http.StatusNotFound, "Événement introuvable")
+// ficheEvenement sert la fiche en lecture. L'identité (jeton si présent, sinon
+// hint legacy ?user_id) ne sert qu'à dériver est_inscrit/allowed_actions pour
+// l'affichage ; elle n'autorise aucune écriture.
+func ficheEvenement(w http.ResponseWriter, r *http.Request) {
+	id, err := idDepuisChemin(r.URL.Path, "/api/evenements/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
 		return
 	}
-
-	estInscrit := false
-	if userId != "" {
-		var idParticulier int
-		if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", userId).Scan(&idParticulier); err == nil {
-			var count int
-			database.DB.QueryRow("SELECT COUNT(*) FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?", idParticulier, id).Scan(&count)
-			estInscrit = count > 0
+	viewer := middleware.GetUserID(r)
+	if viewer == 0 {
+		if uid := r.URL.Query().Get("user_id"); uid != "" {
+			viewer, _ = strconv.Atoi(uid)
 		}
 	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"id": e.ID, "titre": e.Titre, "description": e.Description,
-		"date": e.Date, "lieu": e.Lieu, "capacite": e.Capacite,
-		"statut": e.Statut, "prix": e.Prix, "est_inscrit": estInscrit,
-	})
+	dto, err := inscriptionSvc.FicheEvenement(viewer, id)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
-func DesinscrireEvenement(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-		return
-	}
-
-	path := strings.TrimPrefix(r.URL.Path, "/api/evenements/")
-	parts := strings.Split(strings.Trim(path, "/"), "/")
-	idEvenement := parts[0]
-
-	var body struct {
-		IdUtilisateur int `json:"id_utilisateur"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-		return
-	}
-
-	var idParticulier int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur).Scan(&idParticulier); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
-		return
-	}
-
-	database.DB.Exec("DELETE FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?", idParticulier, idEvenement)
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription effectuée"})
-}
-
+// ParticiperEvenement : handler fin. Identité = JWT (sub) ; le corps éventuel
+// est ignoré. Toute la règle (état, capacité, doublon, transaction) vit dans le
+// service. Les erreurs métier typées sont mappées en 4xx par httpx.WriteError.
 func ParticiperEvenement(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-
-	parts := strings.Split(r.URL.Path, "/")
-	idEvenement := ""
-	for i, p := range parts {
-		if p == "evenements" && i+1 < len(parts) {
-			idEvenement = parts[i+1]
-			break
-		}
-	}
-
-	if idEvenement == "" {
+	id, err := idDepuisChemin(r.URL.Path, "/api/evenements/")
+	if err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "ID événement manquant")
 		return
 	}
-
-	var body struct {
-		IdUtilisateur int `json:"id_utilisateur"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+	if err := inscriptionSvc.ParticiperEvenement(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
 		return
 	}
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Inscription confirmée"})
+}
 
-	if body.IdUtilisateur == 0 {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur requis")
+// DesinscrireEvenement : handler fin, identité = JWT (sub).
+func DesinscrireEvenement(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-
-	var idParticulier int
-	if err := database.DB.QueryRow(
-		"SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur,
-	).Scan(&idParticulier); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
-		return
-	}
-
-	var count int
-	database.DB.QueryRow(
-		"SELECT COUNT(*) FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?",
-		idParticulier, idEvenement,
-	).Scan(&count)
-	if count > 0 {
-		httpx.JSONError(w, http.StatusConflict, "Vous participez déjà à cet événement")
-		return
-	}
-
-	_, err := database.DB.Exec(
-		"INSERT INTO Participer_evenements (Id_Particuliers, Id_Evenements) VALUES (?, ?)",
-		idParticulier, idEvenement,
-	)
+	id, err := idDepuisChemin(r.URL.Path, "/api/evenements/")
 	if err != nil {
-		httpx.JSONServerError(w, err)
+		httpx.JSONError(w, http.StatusBadRequest, "ID événement manquant")
 		return
 	}
-
-	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
-		"message": "Inscription confirmée",
-	})
+	if err := inscriptionSvc.DesinscrireEvenement(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription effectuée"})
 }
 
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {

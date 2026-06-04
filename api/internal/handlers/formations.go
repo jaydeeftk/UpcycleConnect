@@ -3,10 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
 )
 
 func GetFormations(w http.ResponseWriter, r *http.Request) {
@@ -47,144 +49,81 @@ func GetFormations(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, formations)
 }
 
+// GetFormation route la fiche publique et les actions d'inscription. Mêmes
+// règles que pour les événements : actions sous JWT (identité = sub), fiche
+// publique à identité optionnelle.
 func GetFormation(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/formations/")
 	parts := strings.Split(strings.Trim(path, "/"), "/")
 
 	if len(parts) >= 2 && parts[1] == "inscrire" {
-		InscrireFormation(w, r)
+		middleware.JWTAuth(InscrireFormation)(w, r)
 		return
 	}
-
 	if len(parts) >= 2 && parts[1] == "desinscrire" {
-		DesinscrireFormation(w, r)
+		middleware.JWTAuth(DesinscrireFormation)(w, r)
 		return
 	}
 
-	id := parts[0]
-	userId := r.URL.Query().Get("user_id")
+	middleware.OptionalJWT(ficheFormation)(w, r)
+}
 
-	row := database.DB.QueryRow(
-		`SELECT Id_Formations, Titre, Description, Prix, Duree, Statut,
-			COALESCE(Date_formation, ''), COALESCE(Places_total, 0),
-			COALESCE(Places_dispo, 0), COALESCE(Localisation, ''), COALESCE(Categorie, '')
-		FROM Formations WHERE Id_Formations = ?`, id,
-	)
-	var fid, duree, pTotal, pDispo int
-	var titre, desc, statut, date, loc, cat string
-	var prix float64
-	if err := row.Scan(&fid, &titre, &desc, &prix, &duree, &statut, &date, &pTotal, &pDispo, &loc, &cat); err != nil {
-		httpx.JSONError(w, http.StatusNotFound, "Formation introuvable")
+func ficheFormation(w http.ResponseWriter, r *http.Request) {
+	id, err := idDepuisChemin(r.URL.Path, "/api/formations/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
 		return
 	}
-
-	estInscrit := false
-	if userId != "" {
-		var idParticulier int
-		if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", userId).Scan(&idParticulier); err == nil {
-			var count int
-			database.DB.QueryRow("SELECT COUNT(*) FROM Reserver_formation WHERE Id_Particuliers = ? AND Id_Formations = ?", idParticulier, id).Scan(&count)
-			estInscrit = count > 0
+	viewer := middleware.GetUserID(r)
+	if viewer == 0 {
+		if uid := r.URL.Query().Get("user_id"); uid != "" {
+			viewer, _ = strconv.Atoi(uid)
 		}
 	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"id": fid, "titre": titre, "description": desc, "prix": prix,
-		"duree": duree, "statut": statut, "date": date,
-		"places_total": pTotal, "places_dispo": pDispo,
-		"localisation": loc, "categorie": cat,
-		"est_inscrit": estInscrit,
-	})
+	dto, err := inscriptionSvc.FicheFormation(viewer, id)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
-func DesinscrireFormation(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-		return
-	}
-
-	path := strings.TrimPrefix(r.URL.Path, "/api/formations/")
-	parts := strings.Split(strings.Trim(path, "/"), "/")
-	idFormation := parts[0]
-
-	var body struct {
-		IdUtilisateur int `json:"id_utilisateur"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-		return
-	}
-
-	var idParticulier int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur).Scan(&idParticulier); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
-		return
-	}
-
-	database.DB.Exec("DELETE FROM Reserver_formation WHERE Id_Particuliers = ? AND Id_Formations = ?", idParticulier, idFormation)
-	database.DB.Exec("UPDATE Formations SET Places_dispo = Places_dispo + 1 WHERE Id_Formations = ?", idFormation)
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription effectuée"})
-}
-
+// InscrireFormation : handler fin. Identité = JWT (sub). La règle (état, date,
+// places restantes) et la décrémentation ATOMIQUE des places vivent dans le
+// service, sous verrou FOR UPDATE — fin de la sur-réservation.
 func InscrireFormation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-
-	path := strings.TrimPrefix(r.URL.Path, "/api/formations/")
-	parts := strings.Split(strings.Trim(path, "/"), "/")
-	idFormation := parts[0]
-
-	var body struct {
-		IdUtilisateur int `json:"id_utilisateur"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-		return
-	}
-
-	if body.IdUtilisateur == 0 {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur requis")
-		return
-	}
-
-	var idParticulier int
-	if err := database.DB.QueryRow(
-		"SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur,
-	).Scan(&idParticulier); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
-		return
-	}
-
-	var count int
-	database.DB.QueryRow(
-		"SELECT COUNT(*) FROM Reserver_formation WHERE Id_Particuliers = ? AND Id_Formations = ?",
-		idParticulier, idFormation,
-	).Scan(&count)
-	if count > 0 {
-		httpx.JSONError(w, http.StatusConflict, "Vous êtes déjà inscrit à cette formation")
-		return
-	}
-
-	_, err := database.DB.Exec(
-		"INSERT INTO Reserver_formation (Id_Particuliers, Id_Formations, Date_reservation) VALUES (?, ?, NOW())",
-		idParticulier, idFormation,
-	)
+	id, err := idDepuisChemin(r.URL.Path, "/api/formations/")
 	if err != nil {
-		httpx.JSONServerError(w, err)
+		httpx.JSONError(w, http.StatusBadRequest, "ID formation manquant")
 		return
 	}
+	if err := inscriptionSvc.InscrireFormation(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Inscription confirmée"})
+}
 
-	database.DB.Exec(
-		"UPDATE Formations SET Places_dispo = Places_dispo - 1 WHERE Id_Formations = ? AND Places_dispo > 0",
-		idFormation,
-	)
-
-	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
-		"message": "Inscription confirmée",
-	})
+// DesinscrireFormation : handler fin, identité = JWT (sub).
+func DesinscrireFormation(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	id, err := idDepuisChemin(r.URL.Path, "/api/formations/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "ID formation manquant")
+		return
+	}
+	if err := inscriptionSvc.DesinscrireFormation(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription effectuée"})
 }
 
 func AdminGetFormations(w http.ResponseWriter, r *http.Request) {

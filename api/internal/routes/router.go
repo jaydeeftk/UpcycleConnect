@@ -222,7 +222,7 @@ func NewRouter() http.Handler {
 			handlers.SalarieFormationsHandler(w, r)
 			return
 		}
-		handlers.DeleteFormation(w, r)
+		handlers.SalarieFormationAction(w, r)
 	}))
 
 	mux.HandleFunc("/api/salaries/planning/atelier/", middleware.SalarieOnly(func(w http.ResponseWriter, r *http.Request) {

@@ -2,6 +2,11 @@
 -- UpcycleConnect - Script de création BDD MySQL
 -- =============================================
 
+-- Force l'encodage de la session de chargement : le fichier est en UTF-8.
+-- Sans cela, une session cliente en latin1 double-encode les accents
+-- (« Journée » stocké comme « JournÃ©e »), illisible côté API utf8mb4.
+SET NAMES utf8mb4;
+
 CREATE TABLE IF NOT EXISTS Forum(
    Id_Forum INT AUTO_INCREMENT,
    PRIMARY KEY(Id_Forum)

@@ -795,3 +795,50 @@ VALUES
 ('Paris 11ème - Centre communautaire', 15, 'disponible', 1),
 ('Paris 13ème - Espace upcycling', 25, 'disponible', 1),
 ('Montreuil - Entrepôt principal', 50, 'disponible', 1);
+
+
+-- =============================================
+-- Migrations rétro-portées (Phase 3 — schéma cible)
+-- Un `docker compose up` sur volume NEUF construit déjà le schéma final.
+-- Les fichiers database/migrations/00*.sql appliquent les MÊMES changements de
+-- schéma, à chaud et de façon idempotente, sur une base EXISTANTE. La
+-- normalisation de données et le backfill restent dans les migrations : une
+-- base neuve part de données propres.
+-- =============================================
+
+-- 001 — Conteneur 1—N Box (occupation dérivée, opposée à Box.Capacite côté service)
+CREATE TABLE IF NOT EXISTS Box(
+   Id_Box INT AUTO_INCREMENT,
+   Reference VARCHAR(50) NOT NULL,
+   Capacite INT NOT NULL DEFAULT 1,
+   Statut VARCHAR(50) NOT NULL DEFAULT 'disponible',
+   Id_Conteneurs INT NOT NULL,
+   PRIMARY KEY(Id_Box),
+   UNIQUE KEY uq_box_reference (Reference),
+   CONSTRAINT fk_box_conteneur FOREIGN KEY(Id_Conteneurs) REFERENCES Conteneurs(Id_Conteneurs),
+   CONSTRAINT chk_box_capacite CHECK (Capacite >= 0),
+   CONSTRAINT chk_box_statut CHECK (Statut IN ('disponible','pleine','maintenance','hors_service'))
+);
+ALTER TABLE Objets ADD COLUMN Id_Box INT NULL;
+ALTER TABLE Objets ADD CONSTRAINT fk_objets_box FOREIGN KEY (Id_Box) REFERENCES Box(Id_Box);
+
+-- 002 — unicité des codes (dernière ligne de défense anti-collision)
+ALTER TABLE Demandes_conteneurs ADD UNIQUE KEY uq_demande_code_acces (Code_acces);
+ALTER TABLE Codes_Barres ADD UNIQUE KEY uq_codebarres_code (Code);
+
+-- 003 — vocabulaires de statut bornés (CHECK)
+ALTER TABLE Contrats ADD COLUMN Statut VARCHAR(50) NOT NULL DEFAULT 'actif';
+ALTER TABLE Annonces            ADD CONSTRAINT chk_annonces_statut   CHECK (Statut IN ('en_attente','validee','refusee','retiree','vendue'));
+ALTER TABLE Evenements          ADD CONSTRAINT chk_evenements_statut CHECK (Statut IN ('brouillon','a_venir','en_cours','termine','annule'));
+ALTER TABLE Formations          ADD CONSTRAINT chk_formations_statut CHECK (Statut IN ('en_attente','actif','rejete','cloturee'));
+ALTER TABLE Contrats            ADD CONSTRAINT chk_contrats_statut   CHECK (Statut IN ('brouillon','actif','suspendu','resilie','expire'));
+ALTER TABLE Demandes_conteneurs ADD CONSTRAINT chk_demandes_statut   CHECK (Statut IN ('en_attente','validee','refusee','deposee'));
+ALTER TABLE Objets              ADD CONSTRAINT chk_objets_statut      CHECK (Statut IS NULL OR Statut IN ('en_stock','reserve_pro','recupere'));
+
+-- 004 — identité forum unifiée (auteur = Utilisateur ; réconcilie la dérive de schéma)
+ALTER TABLE Sujets   ADD COLUMN Id_Utilisateurs INT NULL;
+ALTER TABLE Reponses ADD COLUMN Id_Utilisateurs INT NULL;
+ALTER TABLE Reponses ADD COLUMN Est_Solution TINYINT(1) NOT NULL DEFAULT 0;
+ALTER TABLE Sujets   MODIFY COLUMN Id_Particuliers INT NULL;
+ALTER TABLE Sujets   ADD CONSTRAINT fk_sujets_utilisateur   FOREIGN KEY (Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs);
+ALTER TABLE Reponses ADD CONSTRAINT fk_reponses_utilisateur FOREIGN KEY (Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs);

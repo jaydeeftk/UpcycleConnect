@@ -131,13 +131,6 @@
                         <span class="sb-text font-semibold text-sm">Planning</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/salaries/forum"
-                       class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'forum') ? 'active' : '' ?>">
-                        <i class="fas fa-comments text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Modération forum</span>
-                    </a>
-                </li>
             </ul>
 
             <div class="border-t border-slate-800/50 mt-6 pt-6">

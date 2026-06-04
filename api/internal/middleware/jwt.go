@@ -28,7 +28,7 @@ func JWTAuth(next http.HandlerFunc) http.HandlerFunc {
 
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 			return secret, nil
-		})
+		}, jwt.WithValidMethods([]string{"HS256"}))
 
 		if err != nil || !token.Valid {
 			httpx.JSONError(w, http.StatusUnauthorized, "Token invalide")

@@ -1,0 +1,70 @@
+# =============================================================
+#  Module M3 (INFRA) — pile RGPD isolée
+#  Base MySQL dédiée + service applicatif, sur un réseau interne
+#  NON exposé publiquement. L'accès humain se fait uniquement via
+#  le bastion Teleport (cf. infra/teleport/), qui se raccorde à ce
+#  même réseau pour proxifier l'application et la base.
+#
+#  Aucun port n'est publié sur l'hôte : c'est volontaire.
+#  Démarrage :
+#    cd infra/rgpd && cp .env.example .env && (éditer les secrets)
+#    docker compose -f docker-compose.rgpd.yml up -d --build
+# =============================================================
+name: rgpd
+
+services:
+  rgpd-db:
+    image: mysql:8.0
+    container_name: rgpd-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: rgpd
+      MYSQL_USER: rgpd
+      MYSQL_PASSWORD: ${RGPD_DB_PASSWORD:?RGPD_DB_PASSWORD requis}
+      MYSQL_ROOT_PASSWORD: ${RGPD_DB_ROOT_PASSWORD:?RGPD_DB_ROOT_PASSWORD requis}
+    volumes:
+      - rgpd-db-data:/var/lib/mysql
+      - ../../rgpd-app/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - rgpd-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "rgpd", "-p${RGPD_DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    security_opt:
+      - no-new-privileges:true
+
+  rgpd-app:
+    build:
+      context: ../../rgpd-app
+    image: upcycleconnect/rgpd-app:latest
+    container_name: rgpd-app
+    restart: unless-stopped
+    depends_on:
+      rgpd-db:
+        condition: service_healthy
+    environment:
+      RGPD_DB_DSN: "rgpd:${RGPD_DB_PASSWORD:?RGPD_DB_PASSWORD requis}@tcp(rgpd-db:3306)/rgpd?charset=utf8mb4"
+      RGPD_API_TOKEN: ${RGPD_API_TOKEN:?RGPD_API_TOKEN requis}
+      RGPD_LISTEN_ADDR: ":8090"
+    networks:
+      - rgpd-net
+    # Durcissement : non-root (image), rootfs en lecture seule,
+    # aucune capability, pas d'escalade de privilèges.
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  # internal: true -> aucune route vers Internet. rgpd-db et rgpd-app
+  # ne communiquent qu'entre eux ; le bastion Teleport rejoindra ce
+  # réseau pour exposer l'app et la base de façon contrôlée.
+  rgpd-net:
+    driver: bridge
+    internal: true
+
+volumes:
+  rgpd-db-data:

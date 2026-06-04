@@ -61,8 +61,6 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/paiements/success", handlers.PaiementSuccess)
 	mux.HandleFunc("/api/paiements/", middleware.OwnerFromPath(handlers.GetPaiementsUser))
 
-	mux.HandleFunc("/api/parametres", handlers.AdminGetParametres)
-
 	mux.HandleFunc("/api/admin/dashboard", middleware.AdminOnly(handlers.AdminDashboard))
 	mux.HandleFunc("/api/admin/utilisateurs", middleware.AdminOnly(handlers.AdminGetUtilisateurs))
 	mux.HandleFunc("/api/admin/utilisateurs/", middleware.AdminOnly(handlers.AdminUtilisateurAction))

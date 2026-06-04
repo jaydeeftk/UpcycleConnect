@@ -1,0 +1,5 @@
+# Binaire compilé local (recompilé dans l'image)
+/rgpdapp
+# Le schéma est monté dans la base, pas dans l'image applicative
+schema.sql
+.gitignore

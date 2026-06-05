@@ -822,6 +822,15 @@ CREATE TABLE IF NOT EXISTS Box(
 ALTER TABLE Objets ADD COLUMN Id_Box INT NULL;
 ALTER TABLE Objets ADD CONSTRAINT fk_objets_box FOREIGN KEY (Id_Box) REFERENCES Box(Id_Box);
 
+-- 005 — une Box par conteneur (occupation dérivée = COUNT Objets 'en_stock' / Box.Capacite)
+INSERT INTO Box (Reference, Capacite, Statut, Id_Conteneurs)
+SELECT CONCAT('BOX-C', c.Id_Conteneurs),
+       GREATEST(COALESCE(NULLIF(CAST(c.Capacite AS UNSIGNED), 0), 1), 1),
+       'disponible',
+       c.Id_Conteneurs
+FROM Conteneurs c
+WHERE NOT EXISTS (SELECT 1 FROM Box b WHERE b.Id_Conteneurs = c.Id_Conteneurs);
+
 -- 002 — unicité des codes (dernière ligne de défense anti-collision)
 ALTER TABLE Demandes_conteneurs ADD UNIQUE KEY uq_demande_code_acces (Code_acces);
 ALTER TABLE Codes_Barres ADD UNIQUE KEY uq_codebarres_code (Code);

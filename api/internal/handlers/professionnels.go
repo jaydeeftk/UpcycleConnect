@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -51,123 +50,6 @@ func ProfessionnelGetProfile(w http.ResponseWriter, r *http.Request) {
 		"telephone": tel, "adresse": adresse,
 		"siret": siret, "nom_entreprise": entreprise, "type": typePA,
 	})
-}
-
-func ProfessionnelProjetsHandler(w http.ResponseWriter, r *http.Request) {
-	_, profID, ok := getProfessionnelFromContext(r)
-	if !ok {
-		httpx.JSONError(w, http.StatusForbidden, "Profil professionnel introuvable")
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		rows, err := database.DB.Query(
-			`SELECT p.Id_Projets, p.Titre, COALESCE(p.Description,''), COALESCE(p.Statut,'en_cours'),
-				COALESCE(p.Date_Debut,''), COUNT(e.Id_Etapes) AS nb_etapes
-			FROM Projets p
-			LEFT JOIN Etapes e ON e.Id_Projets = p.Id_Projets
-			WHERE p.Id_Professionnels=?
-			GROUP BY p.Id_Projets ORDER BY p.Id_Projets DESC`, profID,
-		)
-		if err != nil {
-			httpx.JSONOK(w, http.StatusOK, []interface{}{})
-			return
-		}
-		defer rows.Close()
-		projets := []map[string]interface{}{}
-		for rows.Next() {
-			var id, nbEtapes int
-			var titre, desc, statut, dateDebut string
-			rows.Scan(&id, &titre, &desc, &statut, &dateDebut, &nbEtapes)
-			projets = append(projets, map[string]interface{}{
-				"id": id, "titre": titre, "description": desc,
-				"statut": statut, "date_debut": dateDebut, "nb_etapes": nbEtapes,
-			})
-		}
-		httpx.JSONOK(w, http.StatusOK, projets)
-
-	case http.MethodPost:
-		var body struct {
-			Titre       string `json:"titre"`
-			Description string `json:"description"`
-			DateDebut   string `json:"date_debut"`
-			Statut      string `json:"statut"`
-		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-			return
-		}
-		if body.Statut == "" {
-			body.Statut = "en_cours"
-		}
-		result, err := database.DB.Exec(
-			"INSERT INTO Projets (Titre, Description, Date_Debut, Statut, Id_Professionnels) VALUES (?,?,?,?,?)",
-			body.Titre, body.Description, body.DateDebut, body.Statut, profID,
-		)
-		if err != nil {
-			httpx.JSONServerError(w, err)
-			return
-		}
-		id, _ := result.LastInsertId()
-		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Projet créé"})
-
-	default:
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-	}
-}
-
-func ProfessionnelProjetAction(w http.ResponseWriter, r *http.Request) {
-	_, profID, ok := getProfessionnelFromContext(r)
-	if !ok {
-		httpx.JSONError(w, http.StatusForbidden, "Profil professionnel introuvable")
-		return
-	}
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-
-	switch r.Method {
-	case http.MethodGet:
-		rows, err := database.DB.Query(
-			"SELECT Id_Etapes, Nom, COALESCE(Description,''), COALESCE(Visuel,'') FROM Etapes WHERE Id_Projets=?", id,
-		)
-		if err != nil {
-			httpx.JSONOK(w, http.StatusOK, []interface{}{})
-			return
-		}
-		defer rows.Close()
-		etapes := []map[string]interface{}{}
-		for rows.Next() {
-			var eid int
-			var nom, desc, visuel string
-			rows.Scan(&eid, &nom, &desc, &visuel)
-			etapes = append(etapes, map[string]interface{}{
-				"id": eid, "nom": nom, "description": desc, "visuel": visuel,
-			})
-		}
-		httpx.JSONOK(w, http.StatusOK, etapes)
-
-	case http.MethodPut:
-		var body struct {
-			Titre       string `json:"titre"`
-			Description string `json:"description"`
-			Statut      string `json:"statut"`
-		}
-		json.NewDecoder(r.Body).Decode(&body)
-		database.DB.Exec(
-			"UPDATE Projets SET Titre=?, Description=?, Statut=? WHERE Id_Projets=? AND Id_Professionnels=?",
-			body.Titre, body.Description, body.Statut, id, profID,
-		)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Projet mis à jour"})
-
-	case http.MethodDelete:
-		database.DB.Exec("DELETE FROM Etapes WHERE Id_Projets=?", id)
-		database.DB.Exec("DELETE FROM Projets WHERE Id_Projets=? AND Id_Professionnels=?", id, profID)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Projet supprimé"})
-
-	default:
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-	}
 }
 
 func ProfessionnelFavorisHandler(w http.ResponseWriter, r *http.Request) {
@@ -239,50 +121,4 @@ func ProfessionnelGetContrats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSONOK(w, http.StatusOK, contrats)
-}
-
-func ProfessionnelEtapeAction(w http.ResponseWriter, r *http.Request) {
-	_, profID, ok := getProfessionnelFromContext(r)
-	if !ok {
-		httpx.JSONError(w, http.StatusForbidden, "Profil professionnel introuvable")
-		return
-	}
-
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-
-	switch r.Method {
-	case http.MethodPost:
-		projetID := parts[len(parts)-2]
-		var body struct {
-			Nom         string `json:"nom"`
-			Description string `json:"description"`
-		}
-		json.NewDecoder(r.Body).Decode(&body)
-		var exists int
-		database.DB.QueryRow(
-			"SELECT COUNT(*) FROM Projets WHERE Id_Projets=? AND Id_Professionnels=?", projetID, profID,
-		).Scan(&exists)
-		if exists == 0 {
-			httpx.JSONError(w, http.StatusForbidden, "Projet introuvable")
-			return
-		}
-		result, _ := database.DB.Exec(
-			"INSERT INTO Etapes (Nom, Description, Id_Projets) VALUES (?,?,?)",
-			body.Nom, body.Description, projetID,
-		)
-		id, _ := result.LastInsertId()
-		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Étape ajoutée"})
-
-	case http.MethodDelete:
-		etapeID := parts[len(parts)-1]
-		database.DB.Exec(
-			`DELETE e FROM Etapes e
-			JOIN Projets p ON p.Id_Projets = e.Id_Projets
-			WHERE e.Id_Etapes=? AND p.Id_Professionnels=?`, etapeID, profID,
-		)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Étape supprimée"})
-
-	default:
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-	}
 }

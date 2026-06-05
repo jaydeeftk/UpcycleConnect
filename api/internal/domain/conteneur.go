@@ -19,8 +19,10 @@ const (
 	DestinationVente = "vente"
 )
 
-// Statuts d'un objet en conteneur (chk_objets_statut). Seul en_stock occupe une
-// place de box au sens de l'occupation dérivée.
+// Statuts d'un objet en conteneur (chk_objets_statut). Au sens de l'occupation
+// dérivée d'une box, en_stock ET reserve_pro occupent une place (l'objet réservé
+// reste physiquement dans la box jusqu'à son retrait par le pro) ; seul recupere
+// libère la place. Cf. machine à états de récupération dans objet.go.
 const (
 	StatutObjetEnStock    = "en_stock"
 	StatutObjetReservePro = "reserve_pro"
@@ -112,7 +114,7 @@ type BoxSnapshot struct {
 	ID         int
 	Capacite   int
 	Statut     string
-	Occupation int // COUNT des objets 'en_stock' rattachés à la box
+	Occupation int // COUNT des objets présents (en_stock + reserve_pro) dans la box
 }
 
 // PeutAccueillir : box disponible avec au moins une place libre.

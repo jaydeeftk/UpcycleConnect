@@ -78,6 +78,21 @@ class ProfessionnelController
         exit;
     }
 
+    // Transitions de la machine à états d'un projet. Le bouton n'a été affiché que
+    // parce que le serveur l'a listé dans allowed_actions ; le serveur revérifie de
+    // toute façon propriété + état avant d'agir (le front ne décide rien).
+    public function suspendreProjet($id) { $this->transitionProjet($id, 'suspendre'); }
+    public function reprendreProjet($id) { $this->transitionProjet($id, 'reprendre'); }
+    public function terminerProjet($id)  { $this->transitionProjet($id, 'terminer'); }
+    public function rouvrirProjet($id)   { $this->transitionProjet($id, 'rouvrir'); }
+
+    private function transitionProjet($id, $action)
+    {
+        try { $this->api->post('/professionnels/projets/' . $id . '/' . $action, []); } catch (\Exception $e) {}
+        header('Location: /professionnel');
+        exit;
+    }
+
     public function removeFavori($id)
     {
         try { $this->api->delete('/professionnels/favoris/' . $id); } catch (\Exception $e) {}

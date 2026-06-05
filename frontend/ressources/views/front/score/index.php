@@ -21,7 +21,13 @@
                 <span class="text-xs text-base-content/40">Mis à jour en temps réel</span>
             </div>
 
-            <?php $score = $score ?? 420; $scoreMax = 1000; $pct = min(100, round($score / $scoreMax * 100)); ?>
+            <?php
+            // Score, borne et pourcentage : tout vient du serveur (repli si l'API
+            // est injoignable, jamais une règle métier).
+            $score    = $score ?? 0;
+            $scoreMax = $score_max ?? 1000;
+            $pct      = $pct ?? ($scoreMax > 0 ? min(100, (int) round($score / $scoreMax * 100)) : 0);
+            ?>
 
             <div class="flex items-end gap-4 mb-6">
                 <div class="text-7xl font-extrabold text-emerald-500"><?= $score ?></div>
@@ -60,21 +66,10 @@
             <h2 class="text-lg font-semibold mb-6">Votre badge</h2>
 
             <?php
-            $badges = [
-                ['min' => 0,   'max' => 100,  'icon' => '🌱', 'label' => 'Éco-Débutant',      'color' => 'text-green-500',   'bg' => 'bg-green-50'],
-                ['min' => 100, 'max' => 300,  'icon' => '♻️', 'label' => 'Recycleur Actif',    'color' => 'text-blue-500',    'bg' => 'bg-blue-50'],
-                ['min' => 300, 'max' => 600,  'icon' => '🌍', 'label' => 'Éco-Engagé',         'color' => 'text-purple-500',  'bg' => 'bg-purple-50'],
-                ['min' => 600, 'max' => 1000, 'icon' => '🏆', 'label' => 'Phénix Vert',        'color' => 'text-yellow-500',  'bg' => 'bg-yellow-50'],
-            ];
-            $badgeActuel = $badges[0];
-            $badgeSuivant = $badges[1] ?? null;
-            foreach ($badges as $i => $badge) {
-                if ($score >= $badge['min'] && $score < $badge['max']) {
-                    $badgeActuel = $badge;
-                    $badgeSuivant = $badges[$i + 1] ?? null;
-                    break;
-                }
-            }
+            // Badge actuel / suivant : DÉRIVÉS PAR LE SERVEUR (plus aucun seuil ici).
+            // Repli minimal seulement si l'API est injoignable (affichage, pas règle).
+            $badgeActuel  = $badge_actuel  ?? ['icon' => '🌱', 'label' => 'Éco-Débutant', 'color' => 'text-green-500', 'bg' => 'bg-green-50'];
+            $badgeSuivant = $badge_suivant ?? null;
             ?>
 
             <div class="w-28 h-28 <?= $badgeActuel['bg'] ?> rounded-full flex items-center justify-center text-6xl mb-4 shadow-inner">
@@ -85,7 +80,7 @@
             <?php if ($badgeSuivant): ?>
                 <div class="mt-4 text-xs text-base-content/50">
                     Prochain badge : <span class="font-medium"><?= $badgeSuivant['label'] ?></span>
-                    <br>dans <?= $badgeSuivant['min'] - $score ?> points
+                    <br>dans <?= (int) ($points_vers_suivant ?? max(0, ($badgeSuivant['min'] ?? 0) - $score)) ?> points
                 </div>
             <?php else: ?>
                 <div class="mt-4 text-xs text-emerald-600 font-medium">🎉 Niveau maximum atteint !</div>
@@ -114,8 +109,8 @@
     <div class="bg-base-100 rounded-2xl shadow-sm p-8 mb-8">
         <h2 class="text-lg font-semibold mb-6">Tous les badges</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <?php foreach ($badges as $badge): ?>
-                <?php $debloque = $score >= $badge['min']; ?>
+            <?php foreach (($badges ?? []) as $badge): ?>
+                <?php $debloque = $badge['debloque'] ?? ($score >= ($badge['min'] ?? 0)); ?>
                 <div class="text-center p-4 rounded-xl border-2 <?= $debloque ? 'border-emerald-200 ' . $badge['bg'] : 'border-base-300 opacity-40' ?>">
                     <div class="text-4xl mb-2"><?= $badge['icon'] ?></div>
                     <div class="font-semibold text-sm <?= $debloque ? $badge['color'] : '' ?>"><?= $badge['label'] ?></div>

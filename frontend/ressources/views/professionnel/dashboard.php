@@ -115,26 +115,45 @@
                 <?php else: ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <?php foreach ($projets as $projet): ?>
+                            <?php $aa = $projet['allowed_actions'] ?? []; ?>
                             <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($projet['titre'] ?? '') ?></h4>
-                                        <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars(substr($projet['description'] ?? '', 0, 80)) ?><?= strlen($projet['description'] ?? '') > 80 ? '...' : '' ?></p>
-                                        <div class="flex items-center gap-2 mt-2">
-                                            <?php
-                                            $statutColors = ['en_cours' => 'bg-blue-100 text-blue-700', 'termine' => 'bg-green-100 text-green-700', 'pause' => 'bg-yellow-100 text-yellow-700'];
-                                            $sc = $statutColors[$projet['statut'] ?? ''] ?? 'bg-gray-100 text-gray-600';
-                                            ?>
-                                            <span class="text-xs px-2 py-1 rounded-full <?= $sc ?>"><?= htmlspecialchars($projet['statut'] ?? '') ?></span>
-                                            <span class="text-xs text-gray-400"><?= $projet['nb_etapes'] ?? 0 ?> étape(s)</span>
-                                        </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($projet['titre'] ?? '') ?></h4>
+                                    <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars(substr($projet['description'] ?? '', 0, 80)) ?><?= strlen($projet['description'] ?? '') > 80 ? '...' : '' ?></p>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <?php
+                                        $statutColors = ['en_cours' => 'bg-blue-100 text-blue-700', 'termine' => 'bg-green-100 text-green-700', 'pause' => 'bg-yellow-100 text-yellow-700'];
+                                        $sc = $statutColors[$projet['statut'] ?? ''] ?? 'bg-gray-100 text-gray-600';
+                                        ?>
+                                        <span class="text-xs px-2 py-1 rounded-full <?= $sc ?>"><?= htmlspecialchars($projet['statut'] ?? '') ?></span>
+                                        <span class="text-xs text-gray-400"><?= $projet['nb_etapes'] ?? 0 ?> étape(s)</span>
                                     </div>
-                                    <form method="POST" action="/professionnel/projets/<?= $projet['id'] ?>/delete" onsubmit="return confirm('Supprimer ce projet ?')">
-                                        <button type="submit" class="text-red-400 hover:text-red-600 ml-2">
-                                            <i class="fas fa-trash text-sm"></i>
-                                        </button>
-                                    </form>
                                 </div>
+                                <?php
+                                // Boutons DÉRIVÉS du serveur : on ne rend qu'une action présente dans
+                                // allowed_actions (mapping = présentation, pas une règle d'état). La vue
+                                // n'expose jamais plus que ce que le serveur autorise.
+                                $actionsUI = [
+                                    'suspendre' => ['suspendre', 'Pause',     'fa-pause',       'text-amber-600 hover:bg-amber-50', false],
+                                    'reprendre' => ['reprendre', 'Reprendre', 'fa-play',        'text-blue-600 hover:bg-blue-50',  false],
+                                    'terminer'  => ['terminer',  'Terminer',  'fa-check',       'text-green-600 hover:bg-green-50', false],
+                                    'rouvrir'   => ['rouvrir',   'Rouvrir',   'fa-rotate-left', 'text-blue-600 hover:bg-blue-50',  false],
+                                    'supprimer' => ['delete',    'Supprimer', 'fa-trash',       'text-red-500 hover:bg-red-50',    true],
+                                ];
+                                $rendus = array_intersect(array_keys($actionsUI), $aa);
+                                ?>
+                                <?php if (!empty($rendus)): ?>
+                                    <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                                        <?php foreach ($rendus as $a): ?>
+                                            <?php [$suffix, $label, $icon, $cls, $confirm] = $actionsUI[$a]; ?>
+                                            <form method="POST" action="/professionnel/projets/<?= $projet['id'] ?>/<?= $suffix ?>"<?= $confirm ? ' onsubmit="return confirm(\'Supprimer ce projet ?\')"' : '' ?>>
+                                                <button type="submit" class="text-xs px-2 py-1 rounded <?= $cls ?> transition">
+                                                    <i class="fas <?= $icon ?> mr-1"></i><?= $label ?>
+                                                </button>
+                                            </form>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     </div>

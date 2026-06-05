@@ -19,7 +19,8 @@ import (
 // sinon erreur métier typée (403/409/422), jamais 500. L'occupation des box est
 // DÉRIVÉE (comptage d'objets en_stock), jamais stockée.
 type ConteneurService struct {
-	repo repository.ConteneurRepo
+	repo     repository.ConteneurRepo
+	barcodes repository.CodeBarreRepo
 }
 
 func NewConteneurService() *ConteneurService { return &ConteneurService{} }
@@ -147,10 +148,16 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 		if err != nil {
 			return err
 		}
-		return s.repo.CreerObjetEnStock(tx, repository.ObjetCreation{
+		idObjet, err := s.repo.CreerObjetEnStock(tx, repository.ObjetCreation{
 			Type: snap.Type, IdConteneur: snap.IdConteneur,
 			IdParticulier: snap.Proprietaire, IdBox: idBox,
 		})
+		if err != nil {
+			return err
+		}
+		// L'objet naît avec son code-barres de récupération, dans la même
+		// transaction : aucun objet en_stock ne peut exister sans code scannable.
+		return s.assignerCodeBarreUnique(tx, idObjet)
 	})
 	if err != nil {
 		return "", err
@@ -173,6 +180,24 @@ func (s *ConteneurService) assignerCodeUnique(tx *sql.Tx, idDemande int) (string
 		return "", err
 	}
 	return "", domain.Conflit("Impossible de générer un code d'accès unique, réessayez")
+}
+
+// assignerCodeBarreUnique génère et attribue un code-barres 'active' à l'objet
+// fraîchement matérialisé, en regénérant en cas de collision sur uq_codebarres_code
+// (jamais de 500). Appelé dans la transaction de validation : tout objet en_stock
+// possède exactement un code-barres dès sa création.
+func (s *ConteneurService) assignerCodeBarreUnique(tx *sql.Tx, idObjet int) error {
+	for i := 0; i < nbTentativesCode; i++ {
+		err := s.barcodes.Creer(tx, idObjet, genererCodeBarre())
+		if err == nil {
+			return nil
+		}
+		if s.barcodes.EstViolationUnicite(err) {
+			continue
+		}
+		return err
+	}
+	return domain.Conflit("Impossible de générer un code-barres unique, réessayez")
 }
 
 // RefuserDemande : transition ADMIN en_attente -> refusee (aucun objet n'a encore
@@ -454,6 +479,20 @@ func genererCodeAcces() string {
 		out[i] = alphabetCode[int(b[i])%len(alphabetCode)]
 	}
 	return "UC-" + string(out)
+}
+
+// genererCodeBarre produit un code-barres « UCB-XXXXXXXXXXXX » (entropie
+// cryptographique). Distinct du Code_acces (UC-) : le code-barres identifie un
+// OBJET pour sa récupération, là où le Code_acces ouvre un conteneur. Génération
+// dans le service (effet de bord aléatoire), pas dans le domaine pur.
+func genererCodeBarre() string {
+	b := make([]byte, 12)
+	_, _ = rand.Read(b)
+	out := make([]byte, 12)
+	for i := range out {
+		out[i] = alphabetCode[int(b[i])%len(alphabetCode)]
+	}
+	return "UCB-" + string(out)
 }
 
 // genererReferenceBox : référence lisible d'une box, alignée sur la convention de

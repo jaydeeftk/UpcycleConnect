@@ -22,6 +22,7 @@ type ObjetLigne struct {
 	IdPro       sql.NullInt64
 	IdConteneur int
 	Conteneur   string
+	CodeBarre   string // code-barres ACTIF de l'objet ('' si aucun) — ce que le pro scanne
 }
 
 // ListerDisponibles renvoie les objets en_stock (le catalogue à réserver). Si
@@ -29,7 +30,10 @@ type ObjetLigne struct {
 func (ObjetRepo) ListerDisponibles(q Querier, idConteneur int) ([]ObjetLigne, error) {
 	base := `SELECT o.Id_Objets, COALESCE(o.Type,''), COALESCE(o.Poids,''),
 	                COALESCE(o.Statut,'en_stock'), o.Id_Professionnels,
-	                o.Id_Conteneurs, COALESCE(c.Localisation,'')
+	                o.Id_Conteneurs, COALESCE(c.Localisation,''),
+	                COALESCE((SELECT cb.Code FROM Codes_Barres cb
+	                          WHERE cb.Id_Objets = o.Id_Objets AND cb.Statut = 'active'
+	                          ORDER BY cb.Id_Codes_Barres DESC LIMIT 1),'')
 	         FROM Objets o
 	         JOIN Conteneurs c ON c.Id_Conteneurs = o.Id_Conteneurs
 	         WHERE o.Statut = 'en_stock'`
@@ -47,7 +51,10 @@ func (ObjetRepo) ListerDisponibles(q Querier, idConteneur int) ([]ObjetLigne, er
 func (ObjetRepo) ListerParPro(q Querier, idPro int) ([]ObjetLigne, error) {
 	const base = `SELECT o.Id_Objets, COALESCE(o.Type,''), COALESCE(o.Poids,''),
 	                     COALESCE(o.Statut,'en_stock'), o.Id_Professionnels,
-	                     o.Id_Conteneurs, COALESCE(c.Localisation,'')
+	                     o.Id_Conteneurs, COALESCE(c.Localisation,''),
+	                     COALESCE((SELECT cb.Code FROM Codes_Barres cb
+	                               WHERE cb.Id_Objets = o.Id_Objets AND cb.Statut = 'active'
+	                               ORDER BY cb.Id_Codes_Barres DESC LIMIT 1),'')
 	              FROM Objets o
 	              JOIN Conteneurs c ON c.Id_Conteneurs = o.Id_Conteneurs
 	              WHERE o.Id_Professionnels = ? AND o.Statut IN ('reserve_pro','recupere')
@@ -64,7 +71,7 @@ func scanObjets(q Querier, query string, args ...interface{}) ([]ObjetLigne, err
 	liste := []ObjetLigne{}
 	for rows.Next() {
 		var o ObjetLigne
-		if err := rows.Scan(&o.ID, &o.Type, &o.Poids, &o.Statut, &o.IdPro, &o.IdConteneur, &o.Conteneur); err != nil {
+		if err := rows.Scan(&o.ID, &o.Type, &o.Poids, &o.Statut, &o.IdPro, &o.IdConteneur, &o.Conteneur, &o.CodeBarre); err != nil {
 			return nil, err
 		}
 		liste = append(liste, o)

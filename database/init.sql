@@ -851,3 +851,10 @@ ALTER TABLE Reponses ADD COLUMN Est_Solution TINYINT(1) NOT NULL DEFAULT 0;
 ALTER TABLE Sujets   MODIFY COLUMN Id_Particuliers INT NULL;
 ALTER TABLE Sujets   ADD CONSTRAINT fk_sujets_utilisateur   FOREIGN KEY (Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs);
 ALTER TABLE Reponses ADD CONSTRAINT fk_reponses_utilisateur FOREIGN KEY (Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs);
+
+-- 006 — vocabulaires de statut/méthode du vertical facturation (CHECK)
+-- Dernière ligne de défense, miroir des constantes domaine (domain/facturation.go).
+ALTER TABLE Factures    ADD CONSTRAINT chk_factures_statut    CHECK (Statut IN ('brouillon','emise','payee','annulee'));
+ALTER TABLE Paiements   ADD CONSTRAINT chk_paiements_statut   CHECK (Statut IS NULL OR Statut IN ('en_attente','paye','echoue','rembourse'));
+ALTER TABLE Paiements   ADD CONSTRAINT chk_paiements_methode  CHECK (Methode IS NULL OR Methode IN ('carte','virement','especes','cheque'));
+ALTER TABLE Abonnement  ADD CONSTRAINT chk_abonnement_statut  CHECK (Statut IS NULL OR Statut IN ('actif','suspendu','resilie','expire'));

@@ -113,15 +113,17 @@ func (ConteneurRepo) DemandePourMAJ(q Querier, idDemande int) (domain.DemandeSna
 }
 
 // BoxesDuConteneurPourMAJ verrouille les box d'un conteneur (FOR UPDATE) et calcule
-// pour chacune son occupation DÉRIVÉE = COUNT des objets 'en_stock' rattachés. La
-// sous-requête de comptage est volontairement non verrouillante : sous READ
-// COMMITTED (cf. services/tx.go) elle reflète les insertions committées des
-// transactions concurrentes une fois le verrou FOR UPDATE obtenu. C'est le point
-// de sérialisation qui empêche deux validations simultanées de sur-remplir la box.
+// pour chacune son occupation DÉRIVÉE = COUNT des objets PHYSIQUEMENT présents
+// (en_stock OU reserve_pro : un objet réservé reste dans la box tant que le pro ne
+// l'a pas récupéré ; seul recupere libère la place). La sous-requête de comptage
+// est volontairement non verrouillante : sous READ COMMITTED (cf. services/tx.go)
+// elle reflète les insertions committées des transactions concurrentes une fois le
+// verrou FOR UPDATE obtenu. C'est le point de sérialisation qui empêche deux
+// validations simultanées de sur-remplir la box.
 func (ConteneurRepo) BoxesDuConteneurPourMAJ(q Querier, idConteneur int) ([]domain.BoxSnapshot, error) {
 	rows, err := q.Query(
 		`SELECT b.Id_Box, b.Capacite, b.Statut,
-		        (SELECT COUNT(*) FROM Objets o WHERE o.Id_Box = b.Id_Box AND o.Statut = 'en_stock') AS occupation
+		        (SELECT COUNT(*) FROM Objets o WHERE o.Id_Box = b.Id_Box AND o.Statut IN ('en_stock','reserve_pro')) AS occupation
 		 FROM Box b
 		 WHERE b.Id_Conteneurs = ?
 		 ORDER BY b.Id_Box
@@ -300,15 +302,15 @@ func (ConteneurRepo) ListerConteneursDisponibles(q Querier) ([]ConteneurPublic, 
 }
 
 // ConteneurAdmin : ligne back-office. Occupation et CapaciteBox sont DÉRIVÉES des
-// box (objets en_stock vs somme des capacités de box) — le service en tire le taux
-// de remplissage réel, sans jamais le stocker.
+// box (objets physiquement présents vs somme des capacités de box) — le service en
+// tire le taux de remplissage réel, sans jamais le stocker.
 type ConteneurAdmin struct {
 	ID           int
 	Localisation string
 	Capacite     int
 	Statut       string
 	NbDemandes   int // demandes validées rattachées
-	Occupation   int // objets en_stock dans les box du conteneur
+	Occupation   int // objets présents (en_stock + reserve_pro) dans les box du conteneur
 	CapaciteBox  int // somme des capacités des box du conteneur
 }
 
@@ -320,7 +322,7 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 		           WHERE d.Id_Conteneurs = c.Id_Conteneurs AND d.Statut = 'validee') AS nb_demandes,
 		        COALESCE((SELECT COUNT(*) FROM Objets o
 		           JOIN Box b2 ON b2.Id_Box = o.Id_Box
-		           WHERE b2.Id_Conteneurs = c.Id_Conteneurs AND o.Statut = 'en_stock'),0) AS occupation,
+		           WHERE b2.Id_Conteneurs = c.Id_Conteneurs AND o.Statut IN ('en_stock','reserve_pro')),0) AS occupation,
 		        COALESCE((SELECT SUM(b.Capacite) FROM Box b WHERE b.Id_Conteneurs = c.Id_Conteneurs),0) AS capacite_box
 		 FROM Conteneurs c
 		 ORDER BY c.Id_Conteneurs DESC`,

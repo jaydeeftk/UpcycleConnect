@@ -3,10 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/services"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -409,109 +412,57 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, msgs)
 }
 
+// AdminGetConteneurs : liste back-office (GET) ou création (POST). Le taux de
+// remplissage renvoyé est désormais dérivé de l'occupation RÉELLE des box.
 func AdminGetConteneurs(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		AdminCreateConteneur(w, r)
 		return
 	}
-	rows, err := database.DB.Query(
-		`SELECT c.Id_Conteneurs, COALESCE(c.Localisation,''), COALESCE(c.Capacite,0), COALESCE(c.Statut,'disponible'),
-			COUNT(d.Id_Demandes_conteneurs) AS nb_demandes
-		FROM Conteneurs c
-		LEFT JOIN Demandes_conteneurs d ON d.Id_Conteneurs = c.Id_Conteneurs AND d.Statut = 'validee'
-		GROUP BY c.Id_Conteneurs ORDER BY c.Id_Conteneurs DESC`,
-	)
+	liste, err := conteneurSvc.AdminListerConteneurs()
 	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		httpx.WriteError(w, err)
 		return
 	}
-	defer rows.Close()
-	conteneurs := []map[string]interface{}{}
-	for rows.Next() {
-		var id, capacite, nbDemandes int
-		var localisation, statut string
-		rows.Scan(&id, &localisation, &capacite, &statut, &nbDemandes)
-		fillRate := 0
-		if capacite > 0 {
-			fillRate = (nbDemandes * 100) / capacite
-			if fillRate > 100 {
-				fillRate = 100
-			}
-		}
-		conteneurs = append(conteneurs, map[string]interface{}{
-			"id": id, "localisation": localisation, "capacite": capacite,
-			"statut": statut, "nb_demandes": nbDemandes, "fill_rate": fillRate,
-		})
-	}
-	httpx.JSONOK(w, http.StatusOK, conteneurs)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
+// AdminCreateConteneur : création d'un conteneur (POST). Le service insère le
+// conteneur sous l'identité de l'admin (Id_Administrateurs NOT NULL, dont l'oubli
+// provoquait un 500) ET matérialise sa box dans la même transaction.
 func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/conteneurs/")
-	id = strings.TrimSuffix(id, "/")
-
-	switch r.Method {
-	case http.MethodPost:
-		var body struct {
-			Localisation string `json:"localisation"`
-			Capacite     int    `json:"capacite"`
-			Statut       string `json:"statut"`
-		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-			return
-		}
-		if body.Statut == "" {
-			body.Statut = "disponible"
-		}
-		result, err := database.DB.Exec(
-			"INSERT INTO Conteneurs (Localisation, Capacite, Statut) VALUES (?, ?, ?)",
-			body.Localisation, body.Capacite, body.Statut,
-		)
-		if err != nil {
-			httpx.JSONServerError(w, err)
-			return
-		}
-		newID, _ := result.LastInsertId()
-		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": newID, "message": "Conteneur créé"})
-
-	case http.MethodPut:
-		var body struct {
-			Localisation string `json:"localisation"`
-			Capacite     int    `json:"capacite"`
-			Statut       string `json:"statut"`
-		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-			return
-		}
-		_, err := database.DB.Exec(
-			"UPDATE Conteneurs SET Localisation=?, Capacite=?, Statut=? WHERE Id_Conteneurs=?",
-			body.Localisation, body.Capacite, body.Statut, id,
-		)
-		if err != nil {
-			httpx.JSONServerError(w, err)
-			return
-		}
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Conteneur mis à jour"})
-
-	case http.MethodDelete:
-		_, err := database.DB.Exec("DELETE FROM Conteneurs WHERE Id_Conteneurs=?", id)
-		if err != nil {
-			httpx.JSONServerError(w, err)
-			return
-		}
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Conteneur supprimé"})
-
-	default:
+	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
 	}
+	var body struct {
+		Localisation string `json:"localisation"`
+		Capacite     int    `json:"capacite"`
+		Statut       string `json:"statut"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	id, err := conteneurSvc.CreerConteneur(middleware.GetUserID(r), services.ConteneurInput{
+		Localisation: body.Localisation, Capacite: body.Capacite, Statut: body.Statut,
+	})
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Conteneur créé"})
 }
 
+// AdminConteneurAction : édition (PUT/PATCH) ou suppression (DELETE) d'un conteneur.
+// La suppression échoue proprement (409) si le conteneur n'est pas vide, au lieu
+// d'avaler silencieusement la violation de clé étrangère.
 func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-
+	id, err := idDepuisChemin(r.URL.Path, "/api/admin/conteneurs/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
 	switch r.Method {
 	case http.MethodPut, http.MethodPatch:
 		var body struct {
@@ -519,50 +470,37 @@ func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
 			Capacite     int    `json:"capacite"`
 			Statut       string `json:"statut"`
 		}
-		json.NewDecoder(r.Body).Decode(&body)
-		database.DB.Exec(
-			"UPDATE Conteneurs SET Localisation=?, Capacite=?, Statut=? WHERE Id_Conteneurs=?",
-			body.Localisation, body.Capacite, body.Statut, id,
-		)
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+			return
+		}
+		if err := conteneurSvc.ModifierConteneur(id, services.ConteneurInput{
+			Localisation: body.Localisation, Capacite: body.Capacite, Statut: body.Statut,
+		}); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Conteneur mis à jour"})
 	case http.MethodDelete:
-		database.DB.Exec("DELETE FROM Conteneurs WHERE Id_Conteneurs = ?", id)
+		if err := conteneurSvc.SupprimerConteneur(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Conteneur supprimé"})
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}
 }
 
+// AdminGetDemandes : file de modération des demandes de dépôt, avec actions
+// autorisées dérivées côté serveur (allowed_actions).
 func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		`SELECT d.Id_Demandes_conteneurs, COALESCE(d.Type_objet,''), COALESCE(d.Description,''), COALESCE(d.Etat_usure,''), COALESCE(d.Statut,'en_attente'), COALESCE(d.Date_demande,''),
-			COALESCE(d.Prix_vente,0), COALESCE(c.Localisation,''), COALESCE(d.Code_acces,''),
-			COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(u.Email,'')
-		FROM Demandes_conteneurs d
-		LEFT JOIN Conteneurs c ON c.Id_Conteneurs = d.Id_Conteneurs
-		JOIN Particuliers p ON p.Id_Particuliers = d.Id_Particuliers
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-		ORDER BY d.Date_demande DESC`,
-	)
+	liste, err := conteneurSvc.AdminListerDemandes()
 	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		httpx.WriteError(w, err)
 		return
 	}
-	defer rows.Close()
-	demandes := []map[string]interface{}{}
-	for rows.Next() {
-		var id int
-		var typeObjet, description, etatUsure, statut, date, localisation, code, nom, prenom, email string
-		var prix float64
-		rows.Scan(&id, &typeObjet, &description, &etatUsure, &statut, &date, &prix, &localisation, &code, &nom, &prenom, &email)
-		demandes = append(demandes, map[string]interface{}{
-			"id": id, "type_objet": typeObjet, "description": description,
-			"etat_usure": etatUsure, "statut": statut, "date": date,
-			"prix_vente": prix, "localisation": localisation, "code_acces": code,
-			"nom": nom, "prenom": prenom, "email": email,
-		})
-	}
-	httpx.JSONOK(w, http.StatusOK, demandes)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
 func AdminGetFinances(w http.ResponseWriter, r *http.Request) {
@@ -715,6 +653,10 @@ func AdminGetForumSujets(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, sujets)
 }
 
+// AdminDemandeAction : modération depuis la page « Demandes Dépôt ».
+// valider -> réserve une box + code ; refuser -> refuse ; deposer -> confirme le
+// dépôt physique. Toutes les transitions passent par le MÊME service que la page
+// « Conteneurs & Box » (source de vérité unique), avec gardes d'état et capacité.
 func AdminDemandeAction(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/")
 	parts := strings.Split(strings.TrimSuffix(path, "/"), "/")
@@ -723,15 +665,31 @@ func AdminDemandeAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	action := parts[0]
-	id := parts[1]
+	id, err := strconv.Atoi(parts[1])
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
 	switch action {
 	case "valider":
-		code := genererCode()
-		database.DB.Exec("UPDATE Demandes_conteneurs SET Statut='validee', Code_acces=? WHERE Id_Demandes_conteneurs=?", code, id)
+		code, err := conteneurSvc.ValiderDemande(id)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Demande validée", "code_acces": code})
 	case "refuser":
-		database.DB.Exec("UPDATE Demandes_conteneurs SET Statut='refusee' WHERE Id_Demandes_conteneurs=?", id)
+		if err := conteneurSvc.RefuserDemande(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Demande refusée"})
+	case "deposer":
+		if err := conteneurSvc.MarquerDeposee(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Dépôt confirmé"})
 	default:
 		httpx.JSONError(w, http.StatusBadRequest, "Action inconnue")
 	}

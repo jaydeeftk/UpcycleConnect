@@ -503,48 +503,16 @@ func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
+// AdminGetFinances : agrégat du tableau de bord financier (nb factures, totaux
+// HT/TTC, commissions, CA par mois, répartition par statut). Toute l'agrégation
+// SQL vit dans le repository ; le handler ne fait que déléguer et sérialiser.
 func AdminGetFinances(w http.ResponseWriter, r *http.Request) {
-	var totalHT, totalTTC, totalCommissions float64
-	var nbFactures int
-	database.DB.QueryRow("SELECT COUNT(*), COALESCE(SUM(Montant_HT),0), COALESCE(SUM(Montant_TTC),0) FROM Factures").Scan(&nbFactures, &totalHT, &totalTTC)
-	database.DB.QueryRow("SELECT COALESCE(SUM(Montant),0) FROM Commissions").Scan(&totalCommissions)
-
-	rows, _ := database.DB.Query(
-		`SELECT DATE_FORMAT(Date_emission,'%Y-%m') AS mois, COALESCE(SUM(Montant_TTC),0)
-		FROM Factures
-		WHERE Date_emission >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-		GROUP BY mois ORDER BY mois ASC`,
-	)
-	caParMois := []map[string]interface{}{}
-	if rows != nil {
-		defer rows.Close()
-		for rows.Next() {
-			var mois string
-			var ca float64
-			rows.Scan(&mois, &ca)
-			caParMois = append(caParMois, map[string]interface{}{"mois": mois, "ca": ca})
-		}
+	agg, err := facturationSvc.Finances()
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
 	}
-	statuts := map[string]int{}
-	sRows, _ := database.DB.Query("SELECT COALESCE(Statut,'inconnu'), COUNT(*) FROM Factures GROUP BY Statut")
-	if sRows != nil {
-		defer sRows.Close()
-		for sRows.Next() {
-			var s string
-			var c int
-			sRows.Scan(&s, &c)
-			statuts[s] = c
-		}
-	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"nb_factures":       nbFactures,
-		"total_ht":          totalHT,
-		"total_ttc":         totalTTC,
-		"total_commissions": totalCommissions,
-		"ca_par_mois":       caParMois,
-		"statuts":           statuts,
-	})
+	httpx.JSONOK(w, http.StatusOK, agg)
 }
 
 func AdminForumSujetAction(w http.ResponseWriter, r *http.Request) {

@@ -2,17 +2,21 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	"math"
 	"net/http"
 	"os"
-	"strings"
+	"strconv"
 
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/checkout/session"
-	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
 )
 
+// CreateCheckoutSession ouvre une session de paiement Stripe. L'IDENTITÉ vient du
+// JWT (sub), jamais du corps : le client ne désigne QUE l'article (type + id). Le
+// prix et l'intitulé sont recalculés en base (anti-falsification). L'utilisateur et
+// l'article sont scellés dans les métadonnées de session, relus à la confirmation.
 func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -25,41 +29,25 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		IdUtilisateur int     `json:"id_utilisateur"`
-		Type          string  `json:"type"`
-		IdItem        int     `json:"id_item"`
-		Montant       float64 `json:"montant"`
-		Titre         string  `json:"titre"`
+	userID := middleware.GetUserID(r)
+	if userID == 0 {
+		httpx.JSONError(w, http.StatusUnauthorized, "Authentification requise")
+		return
 	}
 
+	var body struct {
+		Type   string `json:"type"`
+		IdItem int    `json:"id_item"`
+	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
 
-	// Le montant et l'intitulé sont recalculés côté serveur depuis la base :
-	// on ne fait jamais confiance au prix transmis par le client (anti-falsification).
-	var montant float64
-	var titre string
-	switch body.Type {
-	case "formation":
-		if err := database.DB.QueryRow("SELECT COALESCE(Prix,0), COALESCE(Titre,'') FROM Formations WHERE Id_Formations = ?", body.IdItem).Scan(&montant, &titre); err != nil {
-			httpx.JSONError(w, http.StatusNotFound, "Formation introuvable")
-			return
-		}
-	case "evenement":
-		if err := database.DB.QueryRow("SELECT COALESCE(Prix,0), COALESCE(Titre,'') FROM Evenements WHERE Id_Evenements = ?", body.IdItem).Scan(&montant, &titre); err != nil {
-			httpx.JSONError(w, http.StatusNotFound, "Événement introuvable")
-			return
-		}
-	default:
-		httpx.JSONError(w, http.StatusBadRequest, "Type de paiement invalide")
-		return
-	}
-
-	if montant <= 0 {
-		httpx.JSONError(w, http.StatusBadRequest, "Cet article n'est pas payable en ligne")
+	// Montant (TTC) et intitulé déterminés SERVEUR. Un article gratuit -> 422.
+	checkout, err := facturationSvc.PreparerCheckout(body.Type, body.IdItem)
+	if err != nil {
+		httpx.WriteError(w, err)
 		return
 	}
 
@@ -67,27 +55,31 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	if appURL == "" {
 		appURL = "https://95.216.77.54.nip.io"
 	}
-
-	idStr := fmt.Sprintf("%d", body.IdItem)
+	userStr := strconv.Itoa(userID)
+	itemStr := strconv.Itoa(body.IdItem)
 
 	params := &stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
+		ClientReferenceID:  stripe.String(userStr),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
 				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
 					Currency: stripe.String("eur"),
 					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-						Name: stripe.String(titre),
+						Name: stripe.String(checkout.Titre),
 					},
-					UnitAmount: stripe.Int64(int64(montant * 100)),
+					UnitAmount: stripe.Int64(int64(math.Round(checkout.Montant * 100))),
 				},
 				Quantity: stripe.Int64(1),
 			},
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String(appURL + "/paiement/success?type=" + body.Type + "&id=" + idStr),
+		SuccessURL: stripe.String(appURL + "/paiement/success?session_id={CHECKOUT_SESSION_ID}"),
 		CancelURL:  stripe.String(appURL + "/catalogue/" + body.Type + "s"),
 	}
+	params.AddMetadata("type", body.Type)
+	params.AddMetadata("item_id", itemStr)
+	params.AddMetadata("user_id", userStr)
 
 	s, err := session.New(params)
 	if err != nil {
@@ -95,45 +87,71 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"checkout_url": s.URL,
-	})
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"checkout_url": s.URL})
 }
 
+// PaiementSuccess rapproche un paiement après la redirection Stripe. L'endpoint
+// n'est pas authentifié (le navigateur y arrive depuis Stripe), donc on ne fait
+// confiance qu'à ce que Stripe scelle : on RÉCUPÈRE la session côté serveur,
+// on EXIGE payment_status == "paid", puis on relit l'identité et l'article dans
+// les métadonnées posées à la création (jamais dans l'URL côté client).
+// L'enregistrement (facture + ligne + paiement) est idempotent sur l'id de
+// session. Aucun chemin ne produit de 500 métier.
 func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"message": "Paiement confirmé",
-	})
-}
-
-func GetPaiementsUser(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	idUtilisateur := parts[len(parts)-1]
-
-	rows, err := database.DB.Query(
-		`SELECT p.Id_Paiements, COALESCE(p.Montant,0), COALESCE(p.Statut,''), COALESCE(p.Methode,''),
-			COALESCE(p.Date_,''), COALESCE(f.Numero_facture,'')
-		FROM Paiements p
-		LEFT JOIN Factures f ON f.Id_Facture = p.Id_Facture
-		WHERE p.Id_Utilisateurs = ?
-		ORDER BY p.Id_Paiements DESC`, idUtilisateur,
-	)
-	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+	sessionID := r.URL.Query().Get("session_id")
+	if sessionID == "" {
+		httpx.JSONError(w, http.StatusBadRequest, "Session de paiement manquante")
 		return
 	}
-	defer rows.Close()
 
-	paiements := []map[string]interface{}{}
-	for rows.Next() {
-		var id int
-		var montant float64
-		var statut, methode, date, facture string
-		rows.Scan(&id, &montant, &statut, &methode, &date, &facture)
-		paiements = append(paiements, map[string]interface{}{
-			"id": id, "montant": montant, "statut": statut,
-			"methode": methode, "date": date, "facture": facture,
-		})
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+	if stripe.Key == "" {
+		httpx.JSONError(w, http.StatusInternalServerError, "Stripe non configuré")
+		return
 	}
-	httpx.JSONOK(w, http.StatusOK, paiements)
+
+	s, err := session.Get(sessionID, nil)
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadGateway, "Session de paiement introuvable")
+		return
+	}
+	if s.PaymentStatus != stripe.CheckoutSessionPaymentStatusPaid {
+		httpx.JSONError(w, http.StatusPaymentRequired, "Paiement non confirmé")
+		return
+	}
+
+	typ := s.Metadata["type"]
+	itemID, _ := strconv.Atoi(s.Metadata["item_id"])
+	userID, _ := strconv.Atoi(s.Metadata["user_id"])
+	if userID == 0 {
+		// Repli : compat sessions ne portant l'utilisateur que dans ClientReferenceID.
+		userID, _ = strconv.Atoi(s.ClientReferenceID)
+	}
+	if userID == 0 || itemID == 0 || typ == "" {
+		httpx.JSONError(w, http.StatusUnprocessableEntity, "Session de paiement incomplète")
+		return
+	}
+
+	if err := facturationSvc.EnregistrerPaiementItem(userID, typ, itemID, s.ID); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Paiement confirmé"})
+}
+
+// GetPaiementsUser : historique des paiements d'un utilisateur. La route est
+// gardée par OwnerFromPath (l'id final doit être celui de l'appelant, sauf admin) ;
+// l'identifiant sert donc à cibler l'historique, l'autorisation étant déjà tranchée.
+func GetPaiementsUser(w http.ResponseWriter, r *http.Request) {
+	id, err := idDepuisChemin(r.URL.Path, "/api/paiements/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	liste, err := facturationSvc.PaiementsDeLUtilisateur(id)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, liste)
 }

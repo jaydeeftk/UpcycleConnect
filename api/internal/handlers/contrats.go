@@ -3,90 +3,103 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
-	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/services"
 )
 
+// facturationSvc — cas d'usage du vertical Contrat / Abonnement / Facture /
+// Commission / Paiement. Sans état, partagé entre handlers.
+var facturationSvc = services.NewFacturationService()
+
+// AdminGetContrats : liste admin des contrats, chacun enrichi de allowed_actions
+// (dérivées du statut CÔTÉ SERVEUR) — l'UI n'affiche que les transitions licites.
 func AdminGetContrats(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		`SELECT c.Id_Contrats, COALESCE(c.Date_signature,''), COALESCE(c.Date_debut,''), COALESCE(c.Date_fin,''), COALESCE(c.Type,''),
-			COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(p.Nom_Entreprise,'')
-		FROM Contrats c
-		LEFT JOIN Professionnels_artisans p ON p.Id_Professionnels = c.Id_Professionnels
-		LEFT JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-		ORDER BY c.Date_debut DESC`,
-	)
+	liste, err := facturationSvc.ListerContrats()
 	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		httpx.WriteError(w, err)
 		return
 	}
-	defer rows.Close()
-
-	type Contrat struct {
-		ID            int    `json:"id"`
-		DateSignature string `json:"date_signature"`
-		DateDebut     string `json:"date_debut"`
-		DateFin       string `json:"date_fin"`
-		Type          string `json:"type"`
-		Nom           string `json:"nom"`
-		Prenom        string `json:"prenom"`
-		Entreprise    string `json:"nom_entreprise"`
-	}
-
-	contrats := []Contrat{}
-	for rows.Next() {
-		var c Contrat
-		rows.Scan(&c.ID, &c.DateSignature, &c.DateDebut, &c.DateFin, &c.Type, &c.Nom, &c.Prenom, &c.Entreprise)
-		contrats = append(contrats, c)
-	}
-	httpx.JSONOK(w, http.StatusOK, contrats)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
+// AdminCreateContrat : création d'un contrat rattaché à un professionnel. La
+// validation (type, dates, état initial, pro existant) vit dans le service.
 func AdminCreateContrat(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Type            string `json:"type"`
 		DateSignature   string `json:"date_signature"`
 		DateDebut       string `json:"date_debut"`
 		DateFin         string `json:"date_fin"`
+		Statut          string `json:"statut"`
 		IdProfessionnel int    `json:"id_professionnels"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
-	result, err := database.DB.Exec(
-		"INSERT INTO Contrats (Type, Date_signature, Date_debut, Date_fin, Id_Professionnels) VALUES (?,?,?,?,?)",
-		body.Type, body.DateSignature, body.DateDebut, body.DateFin, body.IdProfessionnel,
-	)
+	id, err := facturationSvc.CreerContrat(services.ContratInput{
+		Type: body.Type, DateSignature: body.DateSignature, DateDebut: body.DateDebut,
+		DateFin: body.DateFin, Statut: body.Statut, IdProfessionnel: body.IdProfessionnel,
+	})
 	if err != nil {
-		httpx.JSONServerError(w, err)
+		httpx.WriteError(w, err)
 		return
 	}
-	id, _ := result.LastInsertId()
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Contrat créé"})
 }
 
+// AdminContratAction route les opérations sur un contrat :
+//   - PUT /{id}/{action} : transition de la machine à états (activer, suspendre,
+//     reactiver, resilier, expirer) appliquée sous verrou par le domaine ;
+//   - PUT /{id}           : mise à jour non destructive (échéance, type) ;
+//   - DELETE /{id}        : suppression.
+//
+// Une action de transition inconnue ou illicite est refusée par le domaine
+// (409/422), jamais silencieusement ignorée.
 func AdminContratAction(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/contrats/")
-	id = strings.Split(id, "/")[0]
+	id, err := idDepuisChemin(r.URL.Path, "/api/admin/contrats/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	segs := segmentsApres(r.URL.Path, "/api/admin/contrats/")
+	action := ""
+	if len(segs) > 1 {
+		action = segs[1]
+	}
 
 	switch r.Method {
 	case http.MethodPut:
+		if action != "" {
+			if err := facturationSvc.TransitionContrat(id, action); err != nil {
+				httpx.WriteError(w, err)
+				return
+			}
+			httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Contrat mis à jour"})
+			return
+		}
 		var body struct {
 			DateFin string `json:"date_fin"`
 			Type    string `json:"type"`
 		}
-		json.NewDecoder(r.Body).Decode(&body)
-		database.DB.Exec(
-			"UPDATE Contrats SET Date_fin=?, Type=? WHERE Id_Contrats=?",
-			body.DateFin, body.Type, id,
-		)
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+			return
+		}
+		if err := facturationSvc.ModifierContrat(id, services.ContratUpdateInput{
+			DateFin: body.DateFin, Type: body.Type,
+		}); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Contrat mis à jour"})
 
 	case http.MethodDelete:
-		database.DB.Exec("DELETE FROM Contrats WHERE Id_Contrats=?", id)
+		if err := facturationSvc.SupprimerContrat(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Contrat supprimé"})
 
 	default:
@@ -94,10 +107,73 @@ func AdminContratAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// AdminGetAbonnements : catalogue des abonnements + allowed_actions par statut.
 func AdminGetAbonnements(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusOK, []interface{}{})
+	liste, err := facturationSvc.ListerAbonnements()
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
+// AdminCreateAbonnement : création d'un type d'abonnement. L'identifiant est
+// généré côté serveur ; la validation (type, prix) vit dans le service.
+func AdminCreateAbonnement(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Type      string  `json:"type"`
+		Prix      float64 `json:"prix"`
+		DateDebut string  `json:"date_debut"`
+		DateFin   string  `json:"date_fin"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	id, err := facturationSvc.CreerAbonnement(services.AbonnementInput{
+		Type: body.Type, Prix: body.Prix, DateDebut: body.DateDebut, DateFin: body.DateFin,
+	})
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Abonnement créé"})
+}
+
+// AdminAbonnementAction : PUT /{id}/{action} applique une transition sous verrou ;
+// DELETE /{id} supprime. L'identifiant d'abonnement est une chaîne (Id_Abonnement).
 func AdminAbonnementAction(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Non implémenté"})
+	segs := segmentsApres(r.URL.Path, "/api/admin/abonnements/")
+	if len(segs) == 0 {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	id := segs[0]
+	action := ""
+	if len(segs) > 1 {
+		action = segs[1]
+	}
+
+	switch r.Method {
+	case http.MethodPut:
+		if action == "" {
+			httpx.JSONError(w, http.StatusBadRequest, "Action inconnue")
+			return
+		}
+		if err := facturationSvc.TransitionAbonnement(id, action); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Abonnement mis à jour"})
+
+	case http.MethodDelete:
+		if err := facturationSvc.SupprimerAbonnement(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Abonnement supprimé"})
+
+	default:
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+	}
 }

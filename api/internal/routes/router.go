@@ -135,7 +135,13 @@ func NewRouter() http.Handler {
 	}))
 	mux.HandleFunc("/api/admin/contrats/", middleware.AdminOnly(handlers.AdminContratAction))
 
-	mux.HandleFunc("/api/admin/abonnements", middleware.AdminOnly(handlers.AdminGetAbonnements))
+	mux.HandleFunc("/api/admin/abonnements", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.AdminCreateAbonnement(w, r)
+		} else {
+			handlers.AdminGetAbonnements(w, r)
+		}
+	}))
 	mux.HandleFunc("/api/admin/abonnements/", middleware.AdminOnly(handlers.AdminAbonnementAction))
 
 	mux.HandleFunc("/api/admin/factures", middleware.AdminOnly(handlers.AdminGetFactures))

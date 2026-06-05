@@ -67,6 +67,10 @@ $router->get('/professionnel', 'Front\ProfessionnelController@dashboard');
 $router->get('/professionnel/projets/create', 'Front\ProfessionnelController@createProjet');
 $router->post('/professionnel/projets/store', 'Front\ProfessionnelController@storeProjet');
 $router->post('/professionnel/projets/{id}/delete', 'Front\ProfessionnelController@deleteProjet');
+$router->post('/professionnel/projets/{id}/suspendre', 'Front\ProfessionnelController@suspendreProjet');
+$router->post('/professionnel/projets/{id}/reprendre', 'Front\ProfessionnelController@reprendreProjet');
+$router->post('/professionnel/projets/{id}/terminer', 'Front\ProfessionnelController@terminerProjet');
+$router->post('/professionnel/projets/{id}/rouvrir', 'Front\ProfessionnelController@rouvrirProjet');
 $router->post('/professionnel/favoris/{id}/remove', 'Front\ProfessionnelController@removeFavori');
 
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');

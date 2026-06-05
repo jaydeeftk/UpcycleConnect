@@ -17,22 +17,26 @@ class ScoreController
 
     public function index()
     {
-        $score = 0;
-        $historique = [];
-
+        // Tout vient du serveur : score, historique ET badges. La vue n'applique
+        // plus aucune règle de palier (règle d'or — la vérité est serveur).
+        $data = [];
         if (!empty($_SESSION['user']['id'])) {
             try {
                 $result = $this->api->get('/score/' . $_SESSION['user']['id']);
                 $data = isset($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
-                $score      = $data['score']      ?? 0;
-                $historique = $data['historique']  ?? [];
             } catch (\Exception $e) {}
         }
 
         return view('front.score.index', [
-            'score'      => $score,
-            'historique' => $historique,
-            'page_title' => 'Mon Score Écologique',
+            'score'               => $data['score']               ?? 0,
+            'score_max'           => $data['score_max']           ?? 1000,
+            'pct'                 => $data['pct']                  ?? 0,
+            'historique'          => $data['historique']          ?? [],
+            'badge_actuel'        => $data['badge_actuel']        ?? null,
+            'badge_suivant'       => $data['badge_suivant']       ?? null,
+            'points_vers_suivant' => $data['points_vers_suivant'] ?? 0,
+            'badges'              => $data['badges']              ?? [],
+            'page_title'          => 'Mon Score Écologique',
         ]);
     }
 }

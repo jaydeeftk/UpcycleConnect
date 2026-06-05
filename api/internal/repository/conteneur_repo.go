@@ -178,13 +178,22 @@ type ObjetCreation struct {
 	IdBox         int
 }
 
-func (ConteneurRepo) CreerObjetEnStock(q Querier, o ObjetCreation) error {
-	_, err := q.Exec(
+// Renvoie l'Id_Objets créé : l'appelant s'en sert pour rattacher, dans la même
+// transaction, le code-barres de récupération (tout objet en_stock naît avec son code).
+func (ConteneurRepo) CreerObjetEnStock(q Querier, o ObjetCreation) (int, error) {
+	res, err := q.Exec(
 		`INSERT INTO Objets (Type, Statut, Id_Conteneurs, Id_Particuliers, Id_Box)
 		 VALUES (?, 'en_stock', ?, ?, ?)`,
 		o.Type, o.IdConteneur, o.IdParticulier, o.IdBox,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
 }
 
 // DemandeLigne : projection de liste pour le PROPRIÉTAIRE (sa propre file). Pas de

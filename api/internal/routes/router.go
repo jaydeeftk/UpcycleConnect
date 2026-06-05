@@ -210,6 +210,9 @@ func NewRouter() http.Handler {
 	// Récupération pro : catalogue d'objets en_stock à réserver, puis cycle
 	// reserver -> recuperer / annuler. Identité (Id_Professionnels) tirée du JWT.
 	mux.HandleFunc("/api/professionnels/objets", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetsHandler))
+	// Récupération par scan du code-barres (corps {code}). Motif EXACT : il prime
+	// sur le sous-arbre /objets/ ci-dessous pour ce chemin précis.
+	mux.HandleFunc("/api/professionnels/objets/recuperer-par-code", middleware.ProfessionnelOnly(handlers.ProfessionnelRecupererParCode))
 	mux.HandleFunc("/api/professionnels/objets/", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetAction))
 
 	mux.HandleFunc("/api/salaries/evenements", middleware.SalarieOnly(handlers.GetEvenementsSalarie))

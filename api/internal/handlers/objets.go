@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -89,4 +90,32 @@ func ProfessionnelObjetAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": msg})
+}
+
+// ProfessionnelRecupererParCode : récupération par SCAN du code-barres physique de
+// l'objet. POST /api/professionnels/objets/recuperer-par-code, corps {"code":"UCB-…"}.
+// Le code voyage dans le CORPS (jamais l'URL/query). Identité du JWT ; le service
+// garde l'état du code + de l'objet et la propriété (403/404/409 selon le cas).
+func ProfessionnelRecupererParCode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	_, profID, ok := getProfessionnelFromContext(r)
+	if !ok {
+		httpx.JSONError(w, http.StatusForbidden, "Profil professionnel introuvable")
+		return
+	}
+	var body struct {
+		Code string `json:"code"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	if err := recuperationSvc.RecupererParCodeBarre(profID, body.Code); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Objet récupéré"})
 }

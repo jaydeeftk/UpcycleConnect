@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/domain"
@@ -19,6 +20,7 @@ import (
 // (le pro qui a réservé) avant d'écrire : rôle + propriété + précondition d'état.
 type RecuperationService struct {
 	objets repository.ObjetRepo
+	codes  repository.CodeBarreRepo
 }
 
 func NewRecuperationService() *RecuperationService {
@@ -34,6 +36,7 @@ type ObjetDTO struct {
 	Statut         string   `json:"statut"`
 	IdConteneur    int      `json:"id_conteneur"`
 	Conteneur      string   `json:"conteneur"`
+	CodeBarre      string   `json:"code_barre"` // code à scanner pour récupérer ('' si consommé)
 	AllowedActions []string `json:"allowed_actions"`
 }
 
@@ -72,6 +75,7 @@ func (s *RecuperationService) versDTO(lignes []repository.ObjetLigne, idPro int)
 			Statut:         l.Statut,
 			IdConteneur:    l.IdConteneur,
 			Conteneur:      l.Conteneur,
+			CodeBarre:      l.CodeBarre,
 			AllowedActions: domain.ActionsObjetPro(l.Statut, proprio, idPro),
 		})
 	}
@@ -118,7 +122,50 @@ func (s *RecuperationService) Recuperer(idPro, idObjet int) error {
 		if !snap.AppartientAuPro(idPro) {
 			return domain.Forbidden("Cette réservation n'est pas la vôtre")
 		}
-		return s.objets.Recuperer(tx, idObjet)
+		if err := s.objets.Recuperer(tx, idObjet); err != nil {
+			return err
+		}
+		// L'objet est récupéré : son code-barres est consommé dans la même
+		// transaction (objet recupere <-> code utilise, jamais désynchronisés).
+		return s.codes.MarquerUtiliseParObjet(tx, idObjet)
+	})
+}
+
+// RecupererParCodeBarre : récupération déclenchée par le SCAN du code-barres
+// physique de l'objet (le pro ne saisit aucun identifiant interne, qui voyagerait
+// dans l'URL). Le code est résolu vers son objet SOUS VERROU, puis on rejoue
+// EXACTEMENT les gardes de la récupération par identifiant — code encore actif,
+// objet en reserve_pro, propriété du pro — avant de consommer l'objet ET le code
+// dans la même transaction. Code inconnu -> 404, déjà utilisé -> 409, objet d'un
+// autre pro -> 403.
+func (s *RecuperationService) RecupererParCodeBarre(idPro int, code string) error {
+	if idPro <= 0 {
+		return domain.Forbidden("Action réservée aux professionnels")
+	}
+	if strings.TrimSpace(code) == "" {
+		return domain.Invalide("Code-barres manquant")
+	}
+	return withTx(func(tx *sql.Tx) error {
+		snap, err := s.codes.ResoudrePourMAJ(tx, code)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Code-barres inconnu")
+		} else if err != nil {
+			return err
+		}
+		if err := snap.PeutServirARecuperer(); err != nil {
+			return err
+		}
+		obj := snap.Objet()
+		if err := obj.PeutRecuperer(); err != nil {
+			return err
+		}
+		if !obj.AppartientAuPro(idPro) {
+			return domain.Forbidden("Cette réservation n'est pas la vôtre")
+		}
+		if err := s.objets.Recuperer(tx, snap.IdObjet); err != nil {
+			return err
+		}
+		return s.codes.MarquerUtilise(tx, snap.ID)
 	})
 }
 

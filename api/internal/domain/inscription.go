@@ -58,7 +58,10 @@ func (e EvenementSnapshot) PeutDesinscrire(now time.Time) error {
 // ActionsParticulier renvoie les actions d'inscription autorisées POUR CE
 // requérant, dérivées de l'état serveur — base de la règle d'or « le front
 // n'affiche que ce que le serveur autorise ». Liste vide pour un anonyme.
-func (e EvenementSnapshot) ActionsParticulier(now time.Time, estParticulier, dejaInscrit bool) []string {
+// aPaye : l'utilisateur a-t-il déjà réglé cet événement ? Pour un événement
+// payant non réglé, l'action exposée est « payer » (et NON « participer »),
+// strict reflet du 402 que renverrait le serveur.
+func (e EvenementSnapshot) ActionsParticulier(now time.Time, estParticulier, dejaInscrit, aPaye bool) []string {
 	actions := []string{}
 	if !estParticulier {
 		return actions
@@ -70,7 +73,11 @@ func (e EvenementSnapshot) ActionsParticulier(now time.Time, estParticulier, dej
 		return actions
 	}
 	if e.PeutParticiper(now) == nil {
-		actions = append(actions, "participer")
+		if e.Prix > 0 && !aPaye {
+			actions = append(actions, "payer")
+		} else {
+			actions = append(actions, "participer")
+		}
 	}
 	return actions
 }
@@ -108,7 +115,9 @@ func (f FormationSnapshot) PeutDesinscrire(now time.Time) error {
 	return nil
 }
 
-func (f FormationSnapshot) ActionsParticulier(now time.Time, estParticulier, dejaInscrit bool) []string {
+// aPaye : cf. EvenementSnapshot.ActionsParticulier — une formation payante non
+// réglée expose « payer », pas « inscrire ».
+func (f FormationSnapshot) ActionsParticulier(now time.Time, estParticulier, dejaInscrit, aPaye bool) []string {
 	actions := []string{}
 	if !estParticulier {
 		return actions
@@ -120,7 +129,11 @@ func (f FormationSnapshot) ActionsParticulier(now time.Time, estParticulier, dej
 		return actions
 	}
 	if f.PeutInscrire(now) == nil {
-		actions = append(actions, "inscrire")
+		if f.Prix > 0 && !aPaye {
+			actions = append(actions, "payer")
+		} else {
+			actions = append(actions, "inscrire")
+		}
 	}
 	return actions
 }

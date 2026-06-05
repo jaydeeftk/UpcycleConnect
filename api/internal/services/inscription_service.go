@@ -17,6 +17,7 @@ import (
 // domaine — rôle + propriété + état source vérifiés avant toute mutation.
 type InscriptionService struct {
 	repo repository.InscriptionRepo
+	fact repository.FacturationRepo
 }
 
 func NewInscriptionService() *InscriptionService { return &InscriptionService{} }
@@ -68,6 +69,17 @@ func (s *InscriptionService) ParticiperEvenement(idUtilisateur, idEvenement int)
 			return err
 		}
 		if err := snap.PeutParticiper(time.Now()); err != nil {
+			return err
+		}
+
+		// Garde paiement (402) : un événement payant exige un règlement 'paye'
+		// rattaché à CET événement avant l'inscription. Un événement gratuit
+		// (Prix <= 0) passe sans condition — aucune régression du flux gratuit.
+		aPaye, err := s.fact.UtilisateurAPayeEvenement(tx, idUtilisateur, idEvenement)
+		if err != nil {
+			return err
+		}
+		if err := domain.ExigePaiement(snap.Prix, aPaye); err != nil {
 			return err
 		}
 
@@ -131,7 +143,7 @@ func (s *InscriptionService) FicheEvenement(idUtilisateur, idEvenement int) (Fic
 		return dto, err
 	}
 
-	estParticulier, dejaInscrit := s.contexteParticulierEvenement(idUtilisateur, idEvenement)
+	estParticulier, dejaInscrit, aPaye := s.contexteParticulierEvenement(idUtilisateur, idEvenement)
 
 	snap := domain.EvenementSnapshot{
 		Statut:       f.Statut,
@@ -144,21 +156,26 @@ func (s *InscriptionService) FicheEvenement(idUtilisateur, idEvenement int) (Fic
 		ID: f.ID, Titre: f.Titre, Description: f.Description, Lieu: f.Lieu,
 		Date: formatDate(f.Date), Capacite: f.Capacite, Participants: f.Participants,
 		Statut: f.Statut, Prix: f.Prix, EstInscrit: dejaInscrit,
-		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit),
+		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit, aPaye),
 	}
 	return dto, nil
 }
 
-func (s *InscriptionService) contexteParticulierEvenement(idUtilisateur, idEvenement int) (estParticulier, dejaInscrit bool) {
+// contexteParticulierEvenement renvoie, pour le requérant, son statut de
+// particulier, s'il est déjà inscrit et s'il a déjà réglé l'événement. aPaye
+// pilote l'action exposée : un événement payant non réglé montre « payer »,
+// strict reflet du 402 que renverrait l'inscription.
+func (s *InscriptionService) contexteParticulierEvenement(idUtilisateur, idEvenement int) (estParticulier, dejaInscrit, aPaye bool) {
 	if idUtilisateur == 0 {
-		return false, false
+		return false, false, false
 	}
 	idPart, err := s.repo.IdParticulier(database.DB, idUtilisateur)
 	if err != nil {
-		return false, false
+		return false, false, false
 	}
 	deja, _ := s.repo.EstInscritEvenement(database.DB, idPart, idEvenement)
-	return true, deja
+	paye, _ := s.fact.UtilisateurAPayeEvenement(database.DB, idUtilisateur, idEvenement)
+	return true, deja, paye
 }
 
 // --- Formations --------------------------------------------------------------
@@ -191,6 +208,17 @@ func (s *InscriptionService) InscrireFormation(idUtilisateur, idFormation int) e
 		if err := snap.PeutInscrire(time.Now()); err != nil {
 			return err
 		}
+
+		// Garde paiement (402) : une formation payante exige un règlement 'paye'
+		// rattaché à CETTE formation. Une formation gratuite (Prix <= 0) passe.
+		aPaye, err := s.fact.UtilisateurAPayeFormation(tx, idUtilisateur, idFormation)
+		if err != nil {
+			return err
+		}
+		if err := domain.ExigePaiement(snap.Prix, aPaye); err != nil {
+			return err
+		}
+
 		if err := s.repo.InsererReservationFormation(tx, idPart, idFormation); err != nil {
 			return err
 		}
@@ -255,7 +283,7 @@ func (s *InscriptionService) FicheFormation(idUtilisateur, idFormation int) (Fic
 		return dto, err
 	}
 
-	estParticulier, dejaInscrit := s.contexteParticulierFormation(idUtilisateur, idFormation)
+	estParticulier, dejaInscrit, aPaye := s.contexteParticulierFormation(idUtilisateur, idFormation)
 
 	snap := domain.FormationSnapshot{
 		Statut:      f.Statut,
@@ -269,21 +297,24 @@ func (s *InscriptionService) FicheFormation(idUtilisateur, idFormation int) (Fic
 		Duree: f.Duree, Statut: f.Statut, Date: formatDate(f.Date),
 		PlacesTotal: f.PlacesTotal, PlacesDispo: f.PlacesDispo,
 		Localisation: f.Localisation, Categorie: f.Categorie, EstInscrit: dejaInscrit,
-		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit),
+		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit, aPaye),
 	}
 	return dto, nil
 }
 
-func (s *InscriptionService) contexteParticulierFormation(idUtilisateur, idFormation int) (estParticulier, dejaInscrit bool) {
+// contexteParticulierFormation : cf. contexteParticulierEvenement — aPaye expose
+// « payer » plutôt qu'« inscrire » pour une formation payante non encore réglée.
+func (s *InscriptionService) contexteParticulierFormation(idUtilisateur, idFormation int) (estParticulier, dejaInscrit, aPaye bool) {
 	if idUtilisateur == 0 {
-		return false, false
+		return false, false, false
 	}
 	idPart, err := s.repo.IdParticulier(database.DB, idUtilisateur)
 	if err != nil {
-		return false, false
+		return false, false, false
 	}
 	deja, _ := s.repo.EstInscritFormation(database.DB, idPart, idFormation)
-	return true, deja
+	paye, _ := s.fact.UtilisateurAPayeFormation(database.DB, idUtilisateur, idFormation)
+	return true, deja, paye
 }
 
 // formatDate reproduit la sérialisation héritée (driver MySQL, parseTime=true)

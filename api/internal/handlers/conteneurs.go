@@ -1,39 +1,36 @@
 package handlers
 
 import (
-	"crypto/rand"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
-	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/services"
 )
 
+// conteneurSvc — cas d'usage du vertical Demande / Conteneur / Box. Sans état, partagé.
+var conteneurSvc = services.NewConteneurService()
+
+// GetConteneurs : liste publique des points de dépôt (conteneurs disponibles).
 func GetConteneurs(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		"SELECT Id_Conteneurs, COALESCE(Localisation,''), COALESCE(Capacite,0), COALESCE(Statut,'disponible') FROM Conteneurs WHERE Statut='disponible'",
-	)
+	liste, err := conteneurSvc.ListerConteneursDisponibles()
 	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		httpx.WriteError(w, err)
 		return
 	}
-	defer rows.Close()
-	conteneurs := []map[string]interface{}{}
-	for rows.Next() {
-		var id, capacite int
-		var localisation, statut string
-		rows.Scan(&id, &localisation, &capacite, &statut)
-		conteneurs = append(conteneurs, map[string]interface{}{
-			"id": id, "localisation": localisation, "capacite": capacite, "statut": statut,
-		})
-	}
-	httpx.JSONOK(w, http.StatusOK, conteneurs)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
+// CreateDemandeConteneur : dépôt d'une demande. Identité = JWT (sub) ; le champ
+// user_id éventuel du corps est ignoré. Validation des invariants et insertion
+// vivent dans le service.
 func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
 	var body struct {
 		TypeObjet   string  `json:"type_objet"`
 		Description string  `json:"description"`
@@ -48,119 +45,65 @@ func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
-
-	idUser := middleware.GetUserID(r)
-	var idParticulier int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", idUser).Scan(&idParticulier); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non trouvé comme particulier")
-		return
-	}
-
-	_, err := database.DB.Exec(
-		"INSERT INTO Demandes_conteneurs (Type_objet, Description, Etat_usure, Id_Conteneurs, Date_depot, Destination, Prix_vente, Photo_url, Statut, Date_demande, Id_Particuliers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)",
-		body.TypeObjet, body.Description, body.EtatUsure, body.IdConteneur, body.DateDepot, body.Destination, body.PrixVente, body.PhotoUrl, idParticulier,
-	)
+	id, err := conteneurSvc.CreerDemande(middleware.GetUserID(r), services.CreationDepotInput{
+		TypeObjet: body.TypeObjet, Description: body.Description, EtatUsure: body.EtatUsure,
+		IdConteneur: body.IdConteneur, DateDepot: body.DateDepot, Destination: body.Destination,
+		PrixVente: body.PrixVente, PhotoUrl: body.PhotoUrl,
+	})
 	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de l'enregistrement de la demande")
+		httpx.WriteError(w, err)
 		return
 	}
-	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Demande envoyée"})
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
+		"id":      id,
+		"message": "Demande envoyée, en attente de validation",
+	})
 }
 
+// GetDemandesConteneurUser : file privée d'un utilisateur. La route est gardée par
+// OwnerFromPath (l'id en fin d'URL doit être celui de l'appelant, sauf admin) ;
+// l'identifiant sert donc à cibler la file, l'autorisation étant déjà tranchée.
 func GetDemandesConteneurUser(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	idUtilisateur := parts[len(parts)-1]
-
-	var idParticulier int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", idUtilisateur).Scan(&idParticulier); err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
-		return
-	}
-
-	rows, err := database.DB.Query(
-		`SELECT Id_Demandes_conteneurs, COALESCE(Type_objet,''), COALESCE(Description,''), COALESCE(Etat_usure,''),
-			COALESCE(Statut,'en_attente'), COALESCE(Code_acces,''), COALESCE(Date_demande,'')
-		FROM Demandes_conteneurs WHERE Id_Particuliers = ? ORDER BY Date_demande DESC`,
-		idParticulier,
-	)
+	idUtilisateur, err := idDepuisChemin(r.URL.Path, "/api/conteneurs/user/")
 	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
 		return
 	}
-	defer rows.Close()
-
-	list := []map[string]interface{}{}
-	for rows.Next() {
-		var id int
-		var typeObjet, desc, etat, statut, code, date string
-		rows.Scan(&id, &typeObjet, &desc, &etat, &statut, &code, &date)
-		list = append(list, map[string]interface{}{
-			"id": id, "type_objet": typeObjet, "description": desc,
-			"etat_usure": etat, "statut": statut, "code_acces": code, "date": date,
-		})
+	liste, err := conteneurSvc.DemandesDeLUtilisateur(idUtilisateur)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
 	}
-	httpx.JSONOK(w, http.StatusOK, list)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-func AdminGetDemandesConteneurs(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		`SELECT d.Id_Demandes_conteneurs, COALESCE(d.Type_objet,''), COALESCE(d.Description,''),
-			COALESCE(d.Etat_usure,''), COALESCE(d.Statut,'en_attente'), COALESCE(d.Date_demande,''),
-			COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(u.Email,''), COALESCE(d.Code_acces,'')
-		FROM Demandes_conteneurs d
-		JOIN Particuliers p ON p.Id_Particuliers = d.Id_Particuliers
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-		ORDER BY d.Date_demande DESC`,
-	)
-	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
-		return
-	}
-	defer rows.Close()
-	demandes := []map[string]interface{}{}
-	for rows.Next() {
-		var id int
-		var typeObjet, desc, etat, statut, date, nom, prenom, email, code string
-		rows.Scan(&id, &typeObjet, &desc, &etat, &statut, &date, &nom, &prenom, &email, &code)
-		demandes = append(demandes, map[string]interface{}{
-			"id": id, "type_objet": typeObjet, "description": desc,
-			"etat_usure": etat, "statut": statut, "date": date,
-			"nom": nom, "prenom": prenom, "email": email, "code_acces": code,
-		})
-	}
-	httpx.JSONOK(w, http.StatusOK, demandes)
-}
-
+// AdminDemandeConteneurAction : modération depuis la page « Conteneurs & Box ».
+// accept -> valider (réserve une box + code), refuse -> refuser. Toute autre action
+// est rejetée (fini la suppression silencieuse sur action inconnue).
 func AdminDemandeConteneurAction(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	if len(parts) < 2 {
-		httpx.JSONError(w, http.StatusBadRequest, "Paramètres manquants")
+	id, err := idDepuisChemin(r.URL.Path, "/api/admin/conteneurs/demandes/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
 		return
 	}
-	id := parts[len(parts)-2]
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	action := parts[len(parts)-1]
 
 	switch action {
 	case "accept":
-		code := genererCode()
-		database.DB.Exec("UPDATE Demandes_conteneurs SET Statut='validee', Code_acces=? WHERE Id_Demandes_conteneurs=?", code, id)
+		code, err := conteneurSvc.ValiderDemande(id)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Demande acceptée", "code_acces": code})
 	case "refuse":
-		database.DB.Exec("UPDATE Demandes_conteneurs SET Statut='refusee' WHERE Id_Demandes_conteneurs=?", id)
+		if err := conteneurSvc.RefuserDemande(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Demande refusée"})
 	default:
-		database.DB.Exec("DELETE FROM Demandes_conteneurs WHERE Id_Demandes_conteneurs=?", id)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Demande supprimée"})
+		httpx.JSONError(w, http.StatusBadRequest, "Action inconnue")
 	}
-}
-
-func genererCode() string {
-	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, 8)
-	rand.Read(b)
-	result := make([]byte, 8)
-	for i := range result {
-		result[i] = chars[int(b[i])%len(chars)]
-	}
-	return fmt.Sprintf("UC-%s", string(result))
 }

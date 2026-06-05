@@ -207,6 +207,10 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/professionnels/favoris", middleware.ProfessionnelOnly(handlers.ProfessionnelFavorisHandler))
 	mux.HandleFunc("/api/professionnels/favoris/", middleware.ProfessionnelOnly(handlers.ProfessionnelFavoriAction))
 	mux.HandleFunc("/api/professionnels/contrats", middleware.ProfessionnelOnly(handlers.ProfessionnelGetContrats))
+	// Récupération pro : catalogue d'objets en_stock à réserver, puis cycle
+	// reserver -> recuperer / annuler. Identité (Id_Professionnels) tirée du JWT.
+	mux.HandleFunc("/api/professionnels/objets", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetsHandler))
+	mux.HandleFunc("/api/professionnels/objets/", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetAction))
 
 	mux.HandleFunc("/api/salaries/evenements", middleware.SalarieOnly(handlers.GetEvenementsSalarie))
 	mux.HandleFunc("/api/salaries/evenements/", middleware.SalarieOnly(handlers.EvenementSalarieAction))

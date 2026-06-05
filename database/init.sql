@@ -863,3 +863,9 @@ ALTER TABLE Abonnement  ADD CONSTRAINT chk_abonnement_statut  CHECK (Statut IS N
 -- Miroir des constantes domaine (domain/forum.go) : un sujet est ouvert, resolu
 -- ou ferme. Statut nullable -> NULL toléré (MySQL : CHECK passe sur UNKNOWN).
 ALTER TABLE Sujets ADD CONSTRAINT chk_sujets_statut CHECK (Statut IS NULL OR Statut IN ('ouvert','resolu','ferme'));
+
+-- 008 — vocabulaire de statut du vertical code-barres (CHECK)
+-- Miroir des constantes domaine (domain/codebarres.go) : un code-barres est
+-- 'active' (l'objet est récupérable) ou 'utilise' (consommé à la récupération,
+-- terminal). Statut nullable -> NULL toléré (MySQL : CHECK passe sur UNKNOWN).
+ALTER TABLE Codes_Barres ADD CONSTRAINT chk_codes_barres_statut CHECK (Statut IS NULL OR Statut IN ('active','utilise'));

@@ -869,3 +869,9 @@ ALTER TABLE Sujets ADD CONSTRAINT chk_sujets_statut CHECK (Statut IS NULL OR Sta
 -- 'active' (l'objet est récupérable) ou 'utilise' (consommé à la récupération,
 -- terminal). Statut nullable -> NULL toléré (MySQL : CHECK passe sur UNKNOWN).
 ALTER TABLE Codes_Barres ADD CONSTRAINT chk_codes_barres_statut CHECK (Statut IS NULL OR Statut IN ('active','utilise'));
+
+-- 009 — vocabulaire de statut du vertical projet upcycling (CHECK)
+-- Miroir des constantes domaine (domain/projet.go) : un projet est 'en_cours',
+-- 'pause' ou 'termine'. Avant ce vertical, Statut était un VARCHAR libre. Statut
+-- nullable -> NULL toléré (MySQL : CHECK passe sur UNKNOWN).
+ALTER TABLE Projets ADD CONSTRAINT chk_projets_statut CHECK (Statut IS NULL OR Statut IN ('en_cours','pause','termine'));

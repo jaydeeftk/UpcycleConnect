@@ -55,8 +55,11 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/conseils", handlers.GetConseils)
 	mux.HandleFunc("/api/conseils/", handlers.GetConseil)
-	mux.HandleFunc("/api/forum/sujets", handlers.ForumSujetsHandler)
-	mux.HandleFunc("/api/forum/sujets/", handlers.ForumSujetDispatch)
+	// OptionalJWT : la lecture reste publique (sub absent => anonyme), mais quand
+	// un jeton est présent le handler en tire l'identité (sub) et le rôle — base
+	// de l'autorisation des écritures (401 si anonyme) et des allowed_actions.
+	mux.HandleFunc("/api/forum/sujets", middleware.OptionalJWT(handlers.ForumSujetsHandler))
+	mux.HandleFunc("/api/forum/sujets/", middleware.OptionalJWT(handlers.ForumSujetDispatch))
 
 	mux.HandleFunc("/api/score/", middleware.OwnerFromPath(handlers.GetScore))
 	mux.HandleFunc("/api/planning/", middleware.OwnerFromPath(handlers.GetPlanning))

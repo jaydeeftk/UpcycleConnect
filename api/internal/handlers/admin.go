@@ -515,16 +515,43 @@ func AdminGetFinances(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, agg)
 }
 
+// AdminForumSujetAction : modération d'un sujet.
+//   - PATCH /{id}/{action} : transition (fermer / rouvrir) sous verrou ;
+//   - DELETE /{id}         : suppression (sujet + réponses) en une transaction.
 func AdminForumSujetAction(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+	id, err := idDepuisChemin(r.URL.Path, "/api/admin/forum/sujets/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
 		return
 	}
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-	database.DB.Exec("DELETE FROM Reponses WHERE Id_Sujets=?", id)
-	database.DB.Exec("DELETE FROM Sujets WHERE Id_Sujets=?", id)
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Sujet supprimé"})
+	segs := segmentsApres(r.URL.Path, "/api/admin/forum/sujets/")
+	action := ""
+	if len(segs) > 1 {
+		action = segs[1]
+	}
+
+	switch r.Method {
+	case http.MethodPatch:
+		if action == "" {
+			httpx.JSONError(w, http.StatusBadRequest, "Action inconnue")
+			return
+		}
+		if err := forumSvc.ModererSujet(id, action); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Sujet mis à jour"})
+
+	case http.MethodDelete:
+		if err := forumSvc.SupprimerSujet(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Sujet supprimé"})
+
+	default:
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+	}
 }
 
 func AdminForumReponseAction(w http.ResponseWriter, r *http.Request) {
@@ -532,9 +559,15 @@ func AdminForumReponseAction(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	id := parts[len(parts)-1]
-	database.DB.Exec("DELETE FROM Reponses WHERE Id_Reponses=?", id)
+	id, err := idDepuisChemin(r.URL.Path, "/api/admin/forum/reponses/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	if err := forumSvc.SupprimerReponse(id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Réponse supprimée"})
 }
 
@@ -592,33 +625,15 @@ func AdminConseilAction(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 }
 
+// AdminGetForumSujets : vue de modération du forum (tous les sujets + compteur de
+// réponses). L'agrégation SQL vit dans le repository ; le handler délègue.
 func AdminGetForumSujets(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		`SELECT s.Id_Sujets, s.Titre, COALESCE(s.Categorie,'general'), COALESCE(s.Statut,'ouvert'), s.Date_Creation,
-			u.Nom, u.Prenom,
-			COUNT(rep.Id_Reponses) AS nb_reponses
-		FROM Sujets s
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = s.Id_Utilisateurs
-		LEFT JOIN Reponses rep ON rep.Id_Sujets = s.Id_Sujets
-		GROUP BY s.Id_Sujets ORDER BY s.Date_Creation DESC`,
-	)
+	liste, err := forumSvc.AdminListerSujets()
 	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		httpx.WriteError(w, err)
 		return
 	}
-	defer rows.Close()
-	sujets := []map[string]interface{}{}
-	for rows.Next() {
-		var id, nbRep int
-		var titre, cat, statut, nom, prenom string
-		var date *string
-		rows.Scan(&id, &titre, &cat, &statut, &date, &nom, &prenom, &nbRep)
-		sujets = append(sujets, map[string]interface{}{
-			"id": id, "titre": titre, "categorie": cat, "statut": statut,
-			"date": date, "auteur": nom + " " + prenom, "nb_reponses": nbRep,
-		})
-	}
-	httpx.JSONOK(w, http.StatusOK, sujets)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
 // AdminDemandeAction : modération depuis la page « Demandes Dépôt ».

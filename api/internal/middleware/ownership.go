@@ -28,9 +28,16 @@ func GetUserID(r *http.Request) int {
 }
 
 func isAdmin(r *http.Request) bool {
+	return GetRole(r) == "admin"
+}
+
+// GetRole retourne le rôle porté par le JWT ("admin", "particulier", "salarie",
+// "professionnel") ou "" si absent/anonyme. Permet aux handlers de dériver la
+// visibilité et les actions sans manipuler directement les claims.
+func GetRole(r *http.Request) string {
 	claims, _ := r.Context().Value(ClaimsKey).(jwt.MapClaims)
 	role, _ := claims["role"].(string)
-	return role == "admin"
+	return role
 }
 
 // OwnerFromPath exige un token valide et vérifie que l'identifiant en fin d'URL

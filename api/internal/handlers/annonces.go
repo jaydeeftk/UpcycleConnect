@@ -7,220 +7,151 @@ import (
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/services"
 )
 
+// annonceSvc — cas d'usage du cycle de vie des annonces. Sans état, partagé.
+var annonceSvc = services.NewAnnonceService()
+
+// GetAnnonces : place de marché publique (annonces publiées uniquement, sans PII).
+func GetAnnonces(w http.ResponseWriter, r *http.Request) {
+	liste, err := annonceSvc.ListerPubliees()
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, liste)
+}
+
+// GetAnnonceDispatch route les sous-chemins de /api/annonces/. Les ACTIONS
+// (create/annuler/vendre) et la liste privée (user) exigent un JWT — l'identité
+// vient du token (sub), jamais de l'URL ni du corps. La fiche est à identité
+// optionnelle : la visibilité et les actions en sont dérivées côté serveur.
+func GetAnnonceDispatch(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/annonces/")
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+
+	if parts[0] == "create" {
+		middleware.JWTAuth(CreateAnnonce)(w, r)
+		return
+	}
+	if parts[0] == "user" {
+		middleware.JWTAuth(GetAnnoncesUser)(w, r)
+		return
+	}
+	if len(parts) >= 2 && parts[1] == "annuler" {
+		middleware.JWTAuth(AnnulerAnnonce)(w, r)
+		return
+	}
+	if len(parts) >= 2 && parts[1] == "vendre" {
+		middleware.JWTAuth(VendreAnnonce)(w, r)
+		return
+	}
+	middleware.OptionalJWT(ficheAnnonce)(w, r)
+}
+
+// CreateAnnonce : handler fin. Identité = JWT (sub) ; le champ user_id du corps
+// est ignoré. La validation (titre, cohérence type↔prix) et l'insertion vivent
+// dans le service.
 func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-
 	var body struct {
-		Titre         string  `json:"titre"`
-		Description   string  `json:"description"`
-		Categorie     string  `json:"categorie"`
-		Etat          string  `json:"etat"`
-		TypeAnnonce   string  `json:"type_annonce"`
-		Prix          float64 `json:"prix"`
-		Ville         string  `json:"ville"`
-		CodePostal    string  `json:"code_postal"`
-		IdUtilisateur int     `json:"user_id"`
+		Titre       string  `json:"titre"`
+		Description string  `json:"description"`
+		Categorie   string  `json:"categorie"`
+		Etat        string  `json:"etat"`
+		TypeAnnonce string  `json:"type_annonce"`
+		Prix        float64 `json:"prix"`
+		Ville       string  `json:"ville"`
+		CodePostal  string  `json:"code_postal"`
 	}
-
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
 	}
-
-	var idParticulier int
-	err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur).Scan(&idParticulier)
+	id, err := annonceSvc.CreerAnnonce(middleware.GetUserID(r), services.CreationAnnonceInput{
+		Titre: body.Titre, Description: body.Description, Categorie: body.Categorie,
+		Etat: body.Etat, Type: body.TypeAnnonce, Prix: body.Prix,
+		Ville: body.Ville, CodePostal: body.CodePostal,
+	})
 	if err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non trouvé comme particulier")
+		httpx.WriteError(w, err)
 		return
 	}
-
-	result, err := database.DB.Exec(
-		`INSERT INTO Annonces (Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal, Statut, Date_publication, Id_Particuliers)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?)`,
-		body.Titre, body.Description, body.Categorie, body.Etat, body.TypeAnnonce, body.Prix, body.Ville, body.CodePostal, idParticulier,
-	)
-	if err != nil {
-		httpx.JSONServerError(w, err)
-		return
-	}
-
-	id, _ := result.LastInsertId()
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
 		"id":      id,
 		"message": "Annonce soumise avec succès, en attente de validation",
 	})
 }
 
-func GetAnnonceDispatch(w http.ResponseWriter, r *http.Request) {
-	path := strings.TrimPrefix(r.URL.Path, "/api/annonces/")
-	parts := strings.Split(strings.Trim(path, "/"), "/")
-
-	if parts[0] == "user" {
-		GetAnnoncesUser(w, r)
-		return
-	}
-	if parts[0] == "create" {
-		CreateAnnonce(w, r)
-		return
-	}
-	if len(parts) >= 2 && parts[1] == "annuler" {
-		AnnulerAnnonce(w, r)
-		return
-	}
-	GetAnnonce(w, r)
-}
-
-func GetAnnonce(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	id := parts[len(parts)-1]
-
-	row := database.DB.QueryRow(
-		`SELECT a.Id_Annonces, a.Titre, a.Description, a.Categorie, COALESCE(a.Etat,''), COALESCE(a.Type_annonce,''), COALESCE(a.Prix,0), COALESCE(a.Ville,''), COALESCE(a.Code_postal,''), COALESCE(a.Statut,''), COALESCE(a.Date_publication,''),
-			u.Nom, u.Prenom, u.Email
-		FROM Annonces a
-		JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-		WHERE a.Id_Annonces = ?`, id,
-	)
-
-	var aid int
-	var titre, description, categorie, etat, typeAnnonce, ville, codePostal, statut, date, nom, prenom, email string
-	var prix float64
-
-	if err := row.Scan(&aid, &titre, &description, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date, &nom, &prenom, &email); err != nil {
-		httpx.JSONError(w, http.StatusNotFound, "Annonce non trouvée")
-		return
-	}
-
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"id": aid, "titre": titre, "description": description,
-		"categorie": categorie, "etat": etat, "type_annonce": typeAnnonce,
-		"prix": prix, "ville": ville, "code_postal": codePostal,
-		"statut": statut, "date": date,
-		"auteur": nom + " " + prenom, "email": email,
-	})
-}
-
-func GetAnnonces(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		`SELECT a.Id_Annonces, COALESCE(a.Titre,''), COALESCE(a.Description,''), COALESCE(a.Categorie,''),
-			COALESCE(a.Etat,''), COALESCE(a.Type_annonce,''), COALESCE(a.Prix,0),
-			COALESCE(a.Ville,''), COALESCE(a.Code_postal,''), COALESCE(a.Statut,''),
-			COALESCE(a.Date_publication,''), COALESCE(u.Nom,''), COALESCE(u.Prenom,'')
-		FROM Annonces a
-		JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-		WHERE a.Statut = 'validee' ORDER BY a.Date_publication DESC`,
-	)
+// ficheAnnonce sert la fiche en lecture. L'identité (token si présent) ne sert
+// qu'à dériver la visibilité, est_proprietaire, l'email et allowed_actions ;
+// elle n'autorise aucune écriture.
+func ficheAnnonce(w http.ResponseWriter, r *http.Request) {
+	id, err := idDepuisChemin(r.URL.Path, "/api/annonces/")
 	if err != nil {
-		httpx.JSONServerError(w, err)
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
 		return
 	}
-	defer rows.Close()
-	var annonces []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var prix float64
-		var titre, description, categorie, etat, typeAnnonce, ville, codePostal, statut, date, nom, prenom string
-		if err := rows.Scan(&id, &titre, &description, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date, &nom, &prenom); err != nil {
-			continue
-		}
-		annonces = append(annonces, map[string]interface{}{
-			"id": id, "titre": titre, "description": description,
-			"categorie": categorie, "etat": etat, "type_annonce": typeAnnonce,
-			"prix": prix, "ville": ville, "code_postal": codePostal,
-			"statut": statut, "date": date,
-			"auteur": nom + " " + prenom,
-		})
+	dto, err := annonceSvc.FicheAnnonce(middleware.GetUserID(r), middleware.GetRole(r), id)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
 	}
-	if annonces == nil {
-		annonces = []map[string]interface{}{}
-	}
-	httpx.JSONOK(w, http.StatusOK, annonces)
+	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
+// GetAnnoncesUser : liste privée de l'utilisateur AUTHENTIFIÉ. L'identifiant
+// éventuel en fin d'URL est ignoré — l'identité vient du JWT, fermant la fuite
+// « lister les annonces de n'importe qui ».
 func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	idUtilisateur := parts[len(parts)-1]
-
-	var idParticulier int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", idUtilisateur).Scan(&idParticulier); err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
-		return
-	}
-
-	rows, err := database.DB.Query(
-		`SELECT Id_Annonces, COALESCE(Titre,''), COALESCE(Description,''), COALESCE(Categorie,''),
-			COALESCE(Etat,''), COALESCE(Type_annonce,''), COALESCE(Prix, 0),
-			COALESCE(Ville,''), COALESCE(Code_postal,''), COALESCE(Statut,'en_attente'), COALESCE(Date_publication,'')
-		FROM Annonces WHERE Id_Particuliers = ? ORDER BY Id_Annonces DESC`,
-		idParticulier,
-	)
+	liste, err := annonceSvc.MesAnnonces(middleware.GetUserID(r))
 	if err != nil {
-		httpx.JSONServerError(w, err)
+		httpx.WriteError(w, err)
 		return
 	}
-	defer rows.Close()
-
-	var annonces []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var titre, description, categorie, etat, typeAnnonce, ville, codePostal, statut, date string
-		var prix float64
-		rows.Scan(&id, &titre, &description, &categorie, &etat, &typeAnnonce, &prix, &ville, &codePostal, &statut, &date)
-		annonces = append(annonces, map[string]interface{}{
-			"id": id, "titre": titre, "description": description,
-			"categorie": categorie, "etat": etat, "type_annonce": typeAnnonce,
-			"prix": prix, "ville": ville, "code_postal": codePostal,
-			"statut": statut, "date": date,
-		})
-	}
-	if annonces == nil {
-		annonces = []map[string]interface{}{}
-	}
-	httpx.JSONOK(w, http.StatusOK, annonces)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
+// AnnulerAnnonce : retrait DOUX par le propriétaire (en_attente|validee ->
+// retiree). Identité = JWT (sub) ; le corps est ignoré.
 func AnnulerAnnonce(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-
-	parts := strings.Split(r.URL.Path, "/")
-	id := ""
-	for i, p := range parts {
-		if p == "annonces" && i+1 < len(parts) {
-			id = parts[i+1]
-			break
-		}
-	}
-
-	var body struct {
-		IdUtilisateur int `json:"id_utilisateur"`
-	}
-	json.NewDecoder(r.Body).Decode(&body)
-
-	var idParticulier int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", body.IdUtilisateur).Scan(&idParticulier); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
+	id, err := idDepuisChemin(r.URL.Path, "/api/annonces/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "ID annonce manquant")
 		return
 	}
-
-	var count int
-	database.DB.QueryRow("SELECT COUNT(*) FROM Annonces WHERE Id_Annonces = ? AND Id_Particuliers = ? AND Statut = 'en_attente'", id, idParticulier).Scan(&count)
-	if count == 0 {
-		httpx.JSONError(w, http.StatusForbidden, "Annonce non trouvée ou non annulable")
+	if err := annonceSvc.RetirerAnnonce(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
 		return
 	}
+	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce retirée"})
+}
 
-	database.DB.Exec("DELETE FROM Annonces WHERE Id_Annonces = ? AND Id_Particuliers = ?", id, idParticulier)
-	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce annulée"})
+// VendreAnnonce : transition propriétaire validee -> vendue. Identité = JWT (sub).
+func VendreAnnonce(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	id, err := idDepuisChemin(r.URL.Path, "/api/annonces/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "ID annonce manquant")
+		return
+	}
+	if err := annonceSvc.MarquerVendue(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce marquée comme vendue"})
 }
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
@@ -255,9 +186,15 @@ func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }
 
+// AdminAnnonceAction : actions admin sur une annonce. Le PUT ne reçoit plus un
+// statut LIBRE (qui violait chk_annonces_statut en 500) : on mappe l'intention
+// (validee / refusee|rejetee) vers une transition canonique gardée par le domaine.
 func AdminAnnonceAction(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/admin/annonces/")
-	id = strings.Split(id, "/")[0]
+	id, err := idDepuisChemin(r.URL.Path, "/api/admin/annonces/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
 
 	switch r.Method {
 	case http.MethodPut:
@@ -265,11 +202,30 @@ func AdminAnnonceAction(w http.ResponseWriter, r *http.Request) {
 			Statut string `json:"statut"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
-		database.DB.Exec("UPDATE Annonces SET Statut = ? WHERE Id_Annonces = ?", body.Statut, id)
+
+		var serr error
+		switch body.Statut {
+		case "validee":
+			serr = annonceSvc.ValiderAnnonce(id)
+		case "refusee", "rejetee":
+			serr = annonceSvc.RefuserAnnonce(id)
+		default:
+			httpx.JSONError(w, http.StatusUnprocessableEntity, "Transition non supportée")
+			return
+		}
+		if serr != nil {
+			httpx.WriteError(w, serr)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Statut mis à jour"})
+
 	case http.MethodDelete:
-		database.DB.Exec("DELETE FROM Annonces WHERE Id_Annonces = ?", id)
+		if err := annonceSvc.SupprimerAnnonce(id); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce supprimée"})
+
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}

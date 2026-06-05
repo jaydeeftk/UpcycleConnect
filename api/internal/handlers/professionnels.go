@@ -227,35 +227,16 @@ func ProfessionnelFavoriAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ProfessionnelGetContrats : un professionnel ne voit QUE ses contrats. L'identité
+// vient du JWT (sub) ; le service la résout en Id_Professionnels et lit les contrats
+// par cette VRAIE clé. (Corrige l'ancienne requête qui interrogeait des colonnes
+// inexistantes — Type_contrat, Montant, Id_Utilisateurs sur Contrats — et renvoyait
+// donc toujours une liste vide après avoir avalé l'erreur SQL.)
 func ProfessionnelGetContrats(w http.ResponseWriter, r *http.Request) {
-	userID, _, ok := getProfessionnelFromContext(r)
-	if !ok {
-		httpx.JSONError(w, http.StatusForbidden, "Profil professionnel introuvable")
-		return
-	}
-
-	rows, err := database.DB.Query(
-		`SELECT c.Id_Contrats, COALESCE(c.Type_contrat,''), COALESCE(c.Statut,''),
-			COALESCE(c.Date_debut,''), COALESCE(c.Date_fin,''), COALESCE(c.Montant,0)
-		FROM Contrats c
-		WHERE c.Id_Utilisateurs=?
-		ORDER BY c.Id_Contrats DESC`, userID,
-	)
+	contrats, err := facturationSvc.ContratsDuProfessionnel(middleware.GetUserID(r))
 	if err != nil {
-		httpx.JSONOK(w, http.StatusOK, []interface{}{})
+		httpx.WriteError(w, err)
 		return
-	}
-	defer rows.Close()
-	contrats := []map[string]interface{}{}
-	for rows.Next() {
-		var id int
-		var typeC, statut, dateDebut, dateFin string
-		var montant float64
-		rows.Scan(&id, &typeC, &statut, &dateDebut, &dateFin, &montant)
-		contrats = append(contrats, map[string]interface{}{
-			"id": id, "type": typeC, "statut": statut,
-			"date_debut": dateDebut, "date_fin": dateFin, "montant": montant,
-		})
 	}
 	httpx.JSONOK(w, http.StatusOK, contrats)
 }

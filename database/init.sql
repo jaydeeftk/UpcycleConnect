@@ -858,3 +858,8 @@ ALTER TABLE Factures    ADD CONSTRAINT chk_factures_statut    CHECK (Statut IN (
 ALTER TABLE Paiements   ADD CONSTRAINT chk_paiements_statut   CHECK (Statut IS NULL OR Statut IN ('en_attente','paye','echoue','rembourse'));
 ALTER TABLE Paiements   ADD CONSTRAINT chk_paiements_methode  CHECK (Methode IS NULL OR Methode IN ('carte','virement','especes','cheque'));
 ALTER TABLE Abonnement  ADD CONSTRAINT chk_abonnement_statut  CHECK (Statut IS NULL OR Statut IN ('actif','suspendu','resilie','expire'));
+
+-- 007 — vocabulaire de statut du vertical forum (CHECK)
+-- Miroir des constantes domaine (domain/forum.go) : un sujet est ouvert, resolu
+-- ou ferme. Statut nullable -> NULL toléré (MySQL : CHECK passe sur UNKNOWN).
+ALTER TABLE Sujets ADD CONSTRAINT chk_sujets_statut CHECK (Statut IS NULL OR Statut IN ('ouvert','resolu','ferme'));

@@ -122,6 +122,15 @@ Correctif uniforme : **identité du JWT** (non-admin → soi ; admin → via URL
 - Anti-injection SQL (titre malveillant stocké littéralement ; sweep : **259 requêtes, 0 concaténation**).
 - Matrice de rôles (401/403) + hygiène d'erreurs CWE-209 (aucune fuite SQL/stack/panic).
 
+**Balayage élargi (tout le back, pas seulement les verticals de la session)**
+- **Upload non authentifié fermé** : `/api/messages/upload` exige désormais un JWT
+  (commit `fix(secu)`) — l'endpoint acceptait des fichiers anonymement (orphelin côté front).
+- Toutes les routes **sans middleware** auditées : lectures publiques, endpoints d'auth,
+  dispatchers (annonces/événements/formations) qui gardent leurs mutations par `JWTAuth`
+  en interne, succès Stripe validé via l'API (`PaymentStatus==Paid`).
+- **Aucune identité d'autorisation tirée du body ou de l'URL** : tout passe par le JWT
+  (la seule lecture d'`user_id` hors-JWT est une métadonnée Stripe vérifiée).
+
 ---
 
 ## 4. Dettes connues & hors-scope

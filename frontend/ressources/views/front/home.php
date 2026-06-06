@@ -168,7 +168,7 @@
     </div>
 </section>
 
-<section class="bg-green-50 border-t border-green-100">
+<section class="bg-green-50 dark:bg-emerald-900 border-t border-green-100 dark:border-emerald-800">
     <div class="max-w-7xl mx-auto px-6 lg:px-10 py-16 text-center fade-up">
         <h2 class="text-3xl font-bold mb-4">Rejoignez la communauté UpcycleConnect</h2>
         <p class="text-base-content/70 max-w-2xl mx-auto mb-8">

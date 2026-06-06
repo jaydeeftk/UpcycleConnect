@@ -22,8 +22,6 @@
             </div>
 
             <?php
-            // Score, borne et pourcentage : tout vient du serveur (repli si l'API
-            // est injoignable, jamais une règle métier).
             $score    = $score ?? 0;
             $scoreMax = $score_max ?? 1000;
             $pct      = $pct ?? ($scoreMax > 0 ? min(100, (int) round($score / $scoreMax * 100)) : 0);
@@ -66,8 +64,6 @@
             <h2 class="text-lg font-semibold mb-6">Votre badge</h2>
 
             <?php
-            // Badge actuel / suivant : DÉRIVÉS PAR LE SERVEUR (plus aucun seuil ici).
-            // Repli minimal seulement si l'API est injoignable (affichage, pas règle).
             $badgeActuel  = $badge_actuel  ?? ['icon' => '🌱', 'label' => 'Éco-Débutant', 'color' => 'text-green-500', 'bg' => 'bg-green-50'];
             $badgeSuivant = $badge_suivant ?? null;
             ?>

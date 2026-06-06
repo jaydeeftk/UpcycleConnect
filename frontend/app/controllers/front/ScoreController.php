@@ -17,8 +17,6 @@ class ScoreController
 
     public function index()
     {
-        // Tout vient du serveur : score, historique ET badges. La vue n'applique
-        // plus aucune règle de palier (règle d'or — la vérité est serveur).
         $data = [];
         if (!empty($_SESSION['user']['id'])) {
             try {

@@ -78,9 +78,6 @@ class ProfessionnelController
         exit;
     }
 
-    // Transitions de la machine à états d'un projet. Le bouton n'a été affiché que
-    // parce que le serveur l'a listé dans allowed_actions ; le serveur revérifie de
-    // toute façon propriété + état avant d'agir (le front ne décide rien).
     public function suspendreProjet($id) { $this->transitionProjet($id, 'suspendre'); }
     public function reprendreProjet($id) { $this->transitionProjet($id, 'reprendre'); }
     public function terminerProjet($id)  { $this->transitionProjet($id, 'terminer'); }
@@ -100,9 +97,6 @@ class ProfessionnelController
         exit;
     }
 
-    // --- Récupération pro : catalogue d'objets en_stock, réservation, récupération
-    // (par bouton ou par scan du code-barres), annulation. Les boutons affichés
-    // viennent UNIQUEMENT de allowed_actions renvoyé par l'API (la vérité est serveur).
     public function recuperation()
     {
         $catalogue = [];

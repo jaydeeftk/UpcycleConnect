@@ -59,7 +59,6 @@
 
         <main class="flex-1 overflow-y-auto p-6 space-y-6">
 
-            <!-- Récupération par scan du code-barres -->
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-bold mb-1"><i class="fas fa-barcode text-gray-500 mr-2"></i>Récupérer par code-barres</h3>
                 <p class="text-sm text-gray-500 mb-4">Scannez ou saisissez le code (UCB-…) de l'objet que vous venez chercher.</p>
@@ -72,7 +71,6 @@
                 </form>
             </div>
 
-            <!-- Mes réservations -->
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-bold mb-4">Mes réservations</h3>
                 <?php if (empty($reservations)): ?>
@@ -115,7 +113,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Catalogue des objets disponibles -->
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-bold mb-4">Objets disponibles</h3>
                 <?php if (empty($catalogue)): ?>

@@ -1,0 +1,3 @@
+95.216.77.54.nip.io {
+    reverse_proxy frontend:80
+}

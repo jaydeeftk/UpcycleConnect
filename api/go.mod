@@ -12,4 +12,7 @@ require filippo.io/edwards25519 v1.1.0 // indirect
 
 require github.com/stripe/stripe-go/v76 v76.25.0
 
-require github.com/gorilla/websocket v1.5.3
+require (
+	github.com/gorilla/websocket v1.5.3
+	github.com/jung-kurt/gofpdf v1.16.2
+)

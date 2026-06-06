@@ -66,6 +66,14 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/paiements/success", handlers.PaiementSuccess)
 	mux.HandleFunc("/api/paiements/", middleware.OwnerFromPath(handlers.GetPaiementsUser))
 
+	mux.HandleFunc("/api/factures/", middleware.JWTAuth(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.GenerateFacturePDF(w, r)
+		} else {
+			handlers.ServeFacturePDF(w, r)
+		}
+	}))
+
 	mux.HandleFunc("/api/admin/dashboard", middleware.AdminOnly(handlers.AdminDashboard))
 	mux.HandleFunc("/api/admin/utilisateurs", middleware.AdminOnly(handlers.AdminGetUtilisateurs))
 	mux.HandleFunc("/api/admin/utilisateurs/", middleware.AdminOnly(handlers.AdminUtilisateurAction))

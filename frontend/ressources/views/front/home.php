@@ -31,7 +31,7 @@
             </p>
             <div class="mt-8 flex flex-col sm:flex-row gap-4">
                 <a href="/catalogue/services"
-                   class="bg-white text-black px-7 py-4 rounded-xl font-semibold hover:bg-gray-100 transition text-center">
+                   class="bg-white text-black dark:text-white px-7 py-4 rounded-xl font-semibold hover:bg-gray-100 transition text-center">
                     Découvrir les services
                 </a>
                 <a href="/catalogue/evenements"

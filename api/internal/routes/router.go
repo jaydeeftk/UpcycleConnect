@@ -55,9 +55,7 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/conseils", handlers.GetConseils)
 	mux.HandleFunc("/api/conseils/", handlers.GetConseil)
-	// OptionalJWT : la lecture reste publique (sub absent => anonyme), mais quand
-	// un jeton est présent le handler en tire l'identité (sub) et le rôle — base
-	// de l'autorisation des écritures (401 si anonyme) et des allowed_actions.
+
 	mux.HandleFunc("/api/forum/sujets", middleware.OptionalJWT(handlers.ForumSujetsHandler))
 	mux.HandleFunc("/api/forum/sujets/", middleware.OptionalJWT(handlers.ForumSujetDispatch))
 
@@ -207,11 +205,9 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/professionnels/favoris", middleware.ProfessionnelOnly(handlers.ProfessionnelFavorisHandler))
 	mux.HandleFunc("/api/professionnels/favoris/", middleware.ProfessionnelOnly(handlers.ProfessionnelFavoriAction))
 	mux.HandleFunc("/api/professionnels/contrats", middleware.ProfessionnelOnly(handlers.ProfessionnelGetContrats))
-	// Récupération pro : catalogue d'objets en_stock à réserver, puis cycle
-	// reserver -> recuperer / annuler. Identité (Id_Professionnels) tirée du JWT.
+
 	mux.HandleFunc("/api/professionnels/objets", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetsHandler))
-	// Récupération par scan du code-barres (corps {code}). Motif EXACT : il prime
-	// sur le sous-arbre /objets/ ci-dessous pour ce chemin précis.
+
 	mux.HandleFunc("/api/professionnels/objets/recuperer-par-code", middleware.ProfessionnelOnly(handlers.ProfessionnelRecupererParCode))
 	mux.HandleFunc("/api/professionnels/objets/", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetAction))
 

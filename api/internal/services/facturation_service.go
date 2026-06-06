@@ -12,10 +12,6 @@ import (
 	"upcycleconnect/internal/repository"
 )
 
-// FacturationService porte les cas d'usage du vertical Contrat / Abonnement /
-// Facture / Commission / Paiement. L'IDENTITÉ vient toujours du JWT (jamais du
-// corps) ; les transitions verrouillent l'agrégat (FOR UPDATE) et délèguent la
-// décision au domaine ; aucun montant n'est cru sur parole : tout est recalculé.
 type FacturationService struct {
 	repo repository.FacturationRepo
 }
@@ -25,8 +21,6 @@ func NewFacturationService() *FacturationService { return &FacturationService{} 
 const alphabetFacture = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const nbTentativesNumero = 6
 
-// suffixeAleatoire : segment aléatoire (crypto/rand) pour numéros de facture et
-// identifiants d'abonnement uniques.
 func suffixeAleatoire(n int) string {
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
@@ -38,8 +32,6 @@ func suffixeAleatoire(n int) string {
 	return string(b)
 }
 
-// parseDateSouple accepte les formats que le front peut envoyer (date seule,
-// RFC3339, datetime SQL). Chaîne vide ou illisible => temps zéro (= non fournie).
 func parseDateSouple(s string) time.Time {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -52,10 +44,6 @@ func parseDateSouple(s string) time.Time {
 	}
 	return time.Time{}
 }
-
-// ===========================================================================
-// Contrat
-// ===========================================================================
 
 type ContratAdminDTO struct {
 	ID                int      `json:"id"`
@@ -94,9 +82,6 @@ type ContratProDTO struct {
 	DateFin   string `json:"date_fin"`
 }
 
-// ContratsDuProfessionnel : un professionnel ne voit QUE ses contrats. L'identité
-// (idUtilisateur) vient du JWT ; on la résout en Id_Professionnels — absence =>
-// l'appelant n'est pas un pro (403 métier).
 func (s *FacturationService) ContratsDuProfessionnel(idUtilisateur int) ([]ContratProDTO, error) {
 	idPro, err := s.repo.IdProfessionnel(database.DB, idUtilisateur)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -134,8 +119,6 @@ func (s *FacturationService) CreerContrat(in ContratInput) (int64, error) {
 		return 0, err
 	}
 
-	// Un contrat naît en 'actif' (défaut), ou explicitement en 'brouillon'. On
-	// n'autorise PAS la création directe dans un état terminal/suspendu.
 	statut := strings.TrimSpace(in.Statut)
 	if statut == "" {
 		statut = domain.StatutContratActif
@@ -168,10 +151,7 @@ type ContratUpdateInput struct {
 }
 
 func (s *FacturationService) ModifierContrat(idContrat int, in ContratUpdateInput) error {
-	// L'existence se vérifie sous verrou (comme TransitionContrat) : RowsAffected
-	// de MySQL compte les lignes CHANGÉES, pas APPARIÉES. Une mise à jour partielle
-	// non destructive (COALESCE qui réécrit la valeur courante) touche 0 ligne sans
-	// que le contrat soit absent ; on ne doit donc PAS dériver un 404 de RowsAffected.
+
 	return withTx(func(tx *sql.Tx) error {
 		if _, err := s.repo.ContratStatutPourMAJ(tx, idContrat); errors.Is(err, sql.ErrNoRows) {
 			return domain.Introuvable("Contrat introuvable")
@@ -183,8 +163,6 @@ func (s *FacturationService) ModifierContrat(idContrat int, in ContratUpdateInpu
 	})
 }
 
-// TransitionContrat applique une transition de la machine à états sous verrou :
-// lit le statut FOR UPDATE, délègue la décision au domaine, écrit le statut cible.
 func (s *FacturationService) TransitionContrat(idContrat int, action string) error {
 	return withTx(func(tx *sql.Tx) error {
 		statut, err := s.repo.ContratStatutPourMAJ(tx, idContrat)
@@ -212,10 +190,6 @@ func (s *FacturationService) SupprimerContrat(idContrat int) error {
 	}
 	return nil
 }
-
-// ===========================================================================
-// Facture
-// ===========================================================================
 
 type FactureDTO struct {
 	ID           int     `json:"id"`
@@ -261,10 +235,6 @@ func (s *FacturationService) ObtenirFacture(idFacture int) (FactureDTO, error) {
 	return factureVersDTO(f), nil
 }
 
-// ===========================================================================
-// Paiement
-// ===========================================================================
-
 type PaiementDTO struct {
 	ID      int     `json:"id"`
 	Montant float64 `json:"montant"`
@@ -289,15 +259,11 @@ func (s *FacturationService) PaiementsDeLUtilisateur(idUtilisateur int) ([]Paiem
 	return out, nil
 }
 
-// CheckoutData : montant (TTC, recalculé en base) et intitulé d'un article
-// payable. Le handler Stripe ne reçoit ces valeurs que du serveur.
 type CheckoutData struct {
 	Montant float64
 	Titre   string
 }
 
-// resoudrePrixItem mappe (type, id) -> (prix, titre) en lisant la base. Renvoie
-// 404 si l'article n'existe pas, 422 si le type est inconnu.
 func (s *FacturationService) resoudrePrixItem(q repository.Querier, typ string, idItem int) (float64, string, error) {
 	var (
 		prix  float64
@@ -321,8 +287,6 @@ func (s *FacturationService) resoudrePrixItem(q repository.Querier, typ string, 
 	return prix, titre, nil
 }
 
-// PreparerCheckout valide et calcule, CÔTÉ SERVEUR, ce qui sera facturé. Un
-// article gratuit (prix <= 0) n'est pas payable en ligne (422).
 func (s *FacturationService) PreparerCheckout(typ string, idItem int) (CheckoutData, error) {
 	prix, titre, err := s.resoudrePrixItem(database.DB, typ, idItem)
 	if err != nil {
@@ -334,11 +298,6 @@ func (s *FacturationService) PreparerCheckout(typ string, idItem int) (CheckoutD
 	return CheckoutData{Montant: domain.Round2(prix), Titre: titre}, nil
 }
 
-// EnregistrerPaiementItem matérialise un paiement CONFIRMÉ (appelé uniquement
-// après vérification Stripe côté serveur). Idempotent sur la référence de session.
-// Le prix catalogue est traité comme TTC payé : on en dérive un HT/TVA cohérent
-// pour satisfaire l'invariant de facture, puis on enregistre facture + ligne +
-// paiement dans une seule transaction.
 func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ string, idItem int, referenceStripe string) error {
 	return withTx(func(tx *sql.Tx) error {
 		deja, err := s.repo.PaiementReferenceExiste(tx, referenceStripe)
@@ -346,7 +305,7 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 			return err
 		}
 		if deja {
-			return nil // rapprochement déjà fait : rien à refaire
+			return nil
 		}
 
 		prix, titre, err := s.resoudrePrixItem(tx, typ, idItem)
@@ -394,8 +353,6 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 	})
 }
 
-// creerFactureUnique insère une facture en régénérant le numéro tant qu'il
-// collisionne (uq Numero_facture) — bornée pour ne pas boucler indéfiniment.
 func (s *FacturationService) creerFactureUnique(tx *sql.Tx, f repository.FactureCreation) (string, int64, error) {
 	for i := 0; i < nbTentativesNumero; i++ {
 		f.Numero = "FAC-" + time.Now().Format("20060102") + "-" + suffixeAleatoire(6)
@@ -409,10 +366,6 @@ func (s *FacturationService) creerFactureUnique(tx *sql.Tx, f repository.Facture
 	}
 	return "", 0, domain.Conflit("Impossible de générer un numéro de facture unique")
 }
-
-// ===========================================================================
-// Abonnement
-// ===========================================================================
 
 type AbonnementDTO struct {
 	ID                string   `json:"id"`
@@ -489,10 +442,6 @@ func (s *FacturationService) SupprimerAbonnement(id string) error {
 	}
 	return nil
 }
-
-// ===========================================================================
-// Finances
-// ===========================================================================
 
 func (s *FacturationService) Finances() (repository.FinancesAgregat, error) {
 	return s.repo.AgregatFinances(database.DB)

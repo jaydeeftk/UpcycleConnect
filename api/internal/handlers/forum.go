@@ -11,10 +11,8 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// forumSvc — cas d'usage du vertical Forum (Sujet / Réponse). Sans état, partagé.
 var forumSvc = services.NewForumService()
 
-// GetForumSujets : liste publique des sujets, filtrable par ?categorie=.
 func GetForumSujets(w http.ResponseWriter, r *http.Request) {
 	liste, err := forumSvc.ListerSujets(r.URL.Query().Get("categorie"))
 	if err != nil {
@@ -24,8 +22,6 @@ func GetForumSujets(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// GetForumSujet : détail d'un sujet + réponses + allowed_actions dérivées de
-// l'état serveur POUR LE REQUÉRANT (anonyme via OptionalJWT => aucune action).
 func GetForumSujet(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/forum/sujets/")
 	if err != nil {
@@ -41,8 +37,6 @@ func GetForumSujet(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
-// CreateForumSujet : publication d'un sujet. L'identité vient du JWT (sub), jamais
-// du corps — le client ne fournit que le contenu.
 func CreateForumSujet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -72,8 +66,6 @@ func CreateForumSujet(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Sujet créé avec succès"})
 }
 
-// CreateForumReponse : ajout d'une réponse à un sujet. Identité du JWT ; le service
-// refuse un sujet fermé (409) ou inexistant (404).
 func CreateForumReponse(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -104,9 +96,6 @@ func CreateForumReponse(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Réponse ajoutée avec succès"})
 }
 
-// MarquerSolution : désigne une réponse comme solution. Identité du JWT ; le
-// service vérifie que le requérant EST l'auteur du sujet (403 sinon) et que la
-// réponse appartient au sujet.
 func MarquerSolution(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPatch {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -117,7 +106,7 @@ func MarquerSolution(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusUnauthorized, "Authentification requise")
 		return
 	}
-	// /api/forum/sujets/{id}/reponses/{idR}/solution -> segs = [id, reponses, idR, solution]
+
 	segs := segmentsApres(r.URL.Path, "/api/forum/sujets/")
 	if len(segs) < 3 {
 		httpx.JSONError(w, http.StatusBadRequest, "Chemin invalide")
@@ -136,7 +125,6 @@ func MarquerSolution(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Réponse marquée comme solution"})
 }
 
-// ForumSujetsHandler : GET liste / POST création sur /api/forum/sujets.
 func ForumSujetsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -148,10 +136,6 @@ func ForumSujetsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ForumSujetDispatch route le sous-arbre /api/forum/sujets/… :
-//   - /{id}                          GET    -> détail
-//   - /{id}/reponses                 POST   -> ajout d'une réponse
-//   - /{id}/reponses/{idR}/solution  PATCH  -> désignation de la solution
 func ForumSujetDispatch(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	switch {

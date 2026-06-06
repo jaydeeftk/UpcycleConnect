@@ -9,7 +9,7 @@ func TestCodeBarreSnapshot_PeutServirARecuperer(t *testing.T) {
 	cas := []struct {
 		nom     string
 		statut  string
-		attendu error // nil ou catégorie attendue
+		attendu error
 	}{
 		{"actif -> OK", StatutCodeBarreActive, nil},
 		{"déjà utilisé -> 409", StatutCodeBarreUtilise, ErrEtatInvalide},
@@ -32,8 +32,6 @@ func TestCodeBarreSnapshot_PeutServirARecuperer(t *testing.T) {
 	}
 }
 
-// Le code-barres délègue les gardes d'objet à ObjetSnapshot : l'instantané
-// reconstruit doit donner les mêmes verdicts que la récupération par identifiant.
 func TestCodeBarreSnapshot_Objet(t *testing.T) {
 	cb := CodeBarreSnapshot{IdObjet: 42, StatutObjet: StatutObjetReservePro, IdProprietairePro: 7}
 	o := cb.Objet()
@@ -50,8 +48,6 @@ func TestCodeBarreSnapshot_Objet(t *testing.T) {
 		t.Fatalf("objet ne devrait pas appartenir au pro 8")
 	}
 
-	// Un code qui désigne un objet encore en_stock ne permet pas la récupération
-	// (il faut l'avoir réservé) : la garde d'état le refuse.
 	enStock := CodeBarreSnapshot{StatutObjet: StatutObjetEnStock}.Objet()
 	if err := enStock.PeutRecuperer(); !errors.Is(err, ErrEtatInvalide) {
 		t.Fatalf("objet en_stock ne devrait pas être récupérable, obtenu %v", err)

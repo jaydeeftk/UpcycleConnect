@@ -11,13 +11,6 @@ import (
 	"upcycleconnect/internal/repository"
 )
 
-// ConteneurService porte les cas d'usage du vertical Demande / Conteneur / Box :
-// dépôt d'une demande, modération (valider/refuser/déposer), et administration des
-// conteneurs. L'IDENTITÉ vient toujours de l'utilisateur AUTHENTIFIÉ (jamais du
-// corps/URL). Chaque transition verrouille l'agrégat (FOR UPDATE) et délègue la
-// décision au domaine : état source + capacité vérifiés AVANT toute mutation,
-// sinon erreur métier typée (403/409/422), jamais 500. L'occupation des box est
-// DÉRIVÉE (comptage d'objets en_stock), jamais stockée.
 type ConteneurService struct {
 	repo     repository.ConteneurRepo
 	barcodes repository.CodeBarreRepo
@@ -25,13 +18,8 @@ type ConteneurService struct {
 
 func NewConteneurService() *ConteneurService { return &ConteneurService{} }
 
-// nbTentativesCode : nombre d'essais de génération d'un Code_acces unique avant
-// d'abandonner. Une collision sur 36^8 codes est quasi impossible ; la boucle
-// existe pour ne JAMAIS renvoyer un 500 sur la contrainte uq_demande_code_acces.
 const nbTentativesCode = 6
 
-// resoudreParticulier mappe l'utilisateur authentifié vers son Id_Particuliers.
-// Absence de ligne => compte non particulier : 403 métier.
 func (s *ConteneurService) resoudreParticulier(q repository.Querier, idUtilisateur int) (int, error) {
 	idPart, err := s.repo.IdParticulier(q, idUtilisateur)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -43,9 +31,6 @@ func (s *ConteneurService) resoudreParticulier(q repository.Querier, idUtilisate
 	return idPart, nil
 }
 
-// resoudreAdministrateur mappe l'utilisateur authentifié vers son
-// Id_Administrateurs (NOT NULL exigé pour créer un conteneur). Le middleware garde
-// déjà le rôle ; cette résolution est la défense en profondeur côté donnée.
 func (s *ConteneurService) resoudreAdministrateur(q repository.Querier, idUtilisateur int) (int, error) {
 	idAdmin, err := s.repo.IdAdministrateur(q, idUtilisateur)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -57,8 +42,6 @@ func (s *ConteneurService) resoudreAdministrateur(q repository.Querier, idUtilis
 	return idAdmin, nil
 }
 
-// CreationDepotInput : intention de dépôt reçue du handler (sans identité ni
-// statut — tous deux dérivés côté serveur).
 type CreationDepotInput struct {
 	TypeObjet   string
 	Description string
@@ -70,10 +53,6 @@ type CreationDepotInput struct {
 	PhotoUrl    string
 }
 
-// CreerDemande valide les invariants (type d'objet, cohérence destination↔prix),
-// vérifie que le conteneur cible existe et accepte des dépôts (disponible), PUIS
-// insère la demande sous l'identité du particulier authentifié, au statut
-// en_attente (modération).
 func (s *ConteneurService) CreerDemande(idUtilisateur int, in CreationDepotInput) (int64, error) {
 	if err := domain.ValiderCreationDepot(in.TypeObjet, in.Destination, in.PrixVente); err != nil {
 		return 0, err
@@ -112,12 +91,6 @@ func (s *ConteneurService) CreerDemande(idUtilisateur int, in CreationDepotInput
 	return newID, err
 }
 
-// ValiderDemande : transition ADMIN en_attente -> validee. C'est l'acte qui RÉSERVE
-// physiquement une place : on choisit une box avec de la place dans le conteneur
-// de la demande (occupation dérivée lue FOR UPDATE), on matérialise un objet
-// 'en_stock' dans cette box, et on attribue un Code_acces unique. Sans place :
-// 409. La transaction tourne en READ COMMITTED pour que la décision de capacité
-// voie les insertions committées des validations concurrentes (anti sur-remplissage).
 func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 	var code string
 	err := withTxIso(sql.LevelReadCommitted, func(tx *sql.Tx) error {
@@ -155,8 +128,7 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 		if err != nil {
 			return err
 		}
-		// L'objet naît avec son code-barres de récupération, dans la même
-		// transaction : aucun objet en_stock ne peut exister sans code scannable.
+
 		return s.assignerCodeBarreUnique(tx, idObjet)
 	})
 	if err != nil {
@@ -165,8 +137,6 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 	return code, nil
 }
 
-// assignerCodeUnique génère un Code_acces et l'attribue, en regénérant en cas de
-// collision sur la contrainte d'unicité (jamais de 500 sur uq_demande_code_acces).
 func (s *ConteneurService) assignerCodeUnique(tx *sql.Tx, idDemande int) (string, error) {
 	for i := 0; i < nbTentativesCode; i++ {
 		code := genererCodeAcces()
@@ -182,10 +152,6 @@ func (s *ConteneurService) assignerCodeUnique(tx *sql.Tx, idDemande int) (string
 	return "", domain.Conflit("Impossible de générer un code d'accès unique, réessayez")
 }
 
-// assignerCodeBarreUnique génère et attribue un code-barres 'active' à l'objet
-// fraîchement matérialisé, en regénérant en cas de collision sur uq_codebarres_code
-// (jamais de 500). Appelé dans la transaction de validation : tout objet en_stock
-// possède exactement un code-barres dès sa création.
 func (s *ConteneurService) assignerCodeBarreUnique(tx *sql.Tx, idObjet int) error {
 	for i := 0; i < nbTentativesCode; i++ {
 		err := s.barcodes.Creer(tx, idObjet, genererCodeBarre())
@@ -200,20 +166,14 @@ func (s *ConteneurService) assignerCodeBarreUnique(tx *sql.Tx, idObjet int) erro
 	return domain.Conflit("Impossible de générer un code-barres unique, réessayez")
 }
 
-// RefuserDemande : transition ADMIN en_attente -> refusee (aucun objet n'a encore
-// été matérialisé, rien à libérer).
 func (s *ConteneurService) RefuserDemande(idDemande int) error {
 	return s.transitionDemande(idDemande, domain.DemandeSnapshot.PeutRefuser, domain.StatutDemandeRefusee)
 }
 
-// MarquerDeposee : transition ADMIN validee -> deposee (le particulier a
-// physiquement déposé l'objet ; l'objet reste en_stock).
 func (s *ConteneurService) MarquerDeposee(idDemande int) error {
 	return s.transitionDemande(idDemande, domain.DemandeSnapshot.PeutDeposer, domain.StatutDemandeDeposee)
 }
 
-// transitionDemande factorise les transitions de statut SANS effet de box : verrou
-// FOR UPDATE, garde d'état du domaine, écriture.
 func (s *ConteneurService) transitionDemande(
 	idDemande int,
 	garde func(domain.DemandeSnapshot) error,
@@ -234,7 +194,6 @@ func (s *ConteneurService) transitionDemande(
 	})
 }
 
-// DemandeDTO : ligne de la file privée du propriétaire.
 type DemandeDTO struct {
 	ID          int    `json:"id"`
 	TypeObjet   string `json:"type_objet"`
@@ -245,8 +204,6 @@ type DemandeDTO struct {
 	Date        string `json:"date"`
 }
 
-// DemandesDeLUtilisateur : file privée de l'utilisateur (tous statuts). Un compte
-// non particulier n'a simplement aucune demande -> liste vide (pas une erreur).
 func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeDTO, error) {
 	idPart, err := s.repo.IdParticulier(database.DB, idUtilisateur)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -269,8 +226,6 @@ func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeD
 	return out, nil
 }
 
-// DemandeAdminDTO : ligne de modération + actions DÉRIVÉES côté serveur. Le front
-// n'affiche que les boutons listés dans allowed_actions.
 type DemandeAdminDTO struct {
 	ID                int      `json:"id"`
 	TypeObjet         string   `json:"type_objet"`
@@ -304,7 +259,6 @@ func (s *ConteneurService) AdminListerDemandes() ([]DemandeAdminDTO, error) {
 	return out, nil
 }
 
-// ConteneurPublicDTO : ligne de la liste publique (choix d'un point de dépôt).
 type ConteneurPublicDTO struct {
 	ID           int    `json:"id"`
 	Localisation string `json:"localisation"`
@@ -326,9 +280,6 @@ func (s *ConteneurService) ListerConteneursDisponibles() ([]ConteneurPublicDTO, 
 	return out, nil
 }
 
-// ConteneurAdminDTO : ligne back-office. FillRate est le taux de remplissage RÉEL,
-// dérivé de l'occupation des box (objets en_stock) rapportée à leur capacité
-// cumulée — fini le taux calculé à partir d'un simple comptage de demandes.
 type ConteneurAdminDTO struct {
 	ID           int    `json:"id"`
 	Localisation string `json:"localisation"`
@@ -355,16 +306,12 @@ func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) 
 	return out, nil
 }
 
-// ConteneurInput : intention de création/édition d'un conteneur (back-office).
 type ConteneurInput struct {
 	Localisation string
 	Capacite     int
 	Statut       string
 }
 
-// CreerConteneur insère un conteneur ET sa box, en une transaction. La box est
-// indispensable : sans elle, le modèle d'occupation n'a aucune place où loger un
-// objet et toute validation de dépôt échouerait. Identité admin = JWT (sub).
 func (s *ConteneurService) CreerConteneur(idUtilisateur int, in ConteneurInput) (int64, error) {
 	localisation := in.Localisation
 	if localisation == "" {
@@ -395,8 +342,6 @@ func (s *ConteneurService) CreerConteneur(idUtilisateur int, in ConteneurInput) 
 	return newID, err
 }
 
-// ModifierConteneur met à jour le conteneur et synchronise la capacité de ses box
-// (sinon l'UI mentirait sur la capacité réelle de dépôt). 404 si inexistant.
 func (s *ConteneurService) ModifierConteneur(idConteneur int, in ConteneurInput) error {
 	if in.Localisation == "" {
 		return domain.Invalide("La localisation du conteneur est obligatoire")
@@ -420,10 +365,6 @@ func (s *ConteneurService) ModifierConteneur(idConteneur int, in ConteneurInput)
 	})
 }
 
-// SupprimerConteneur supprime un conteneur ET ses box, mais SEULEMENT s'il est
-// vide (aucun objet rattaché) et sans demande en cours — sinon 409 explicite
-// (jamais un échec FK silencieux). READ COMMITTED + verrou des box sérialisent la
-// suppression face à une validation concurrente.
 func (s *ConteneurService) SupprimerConteneur(idConteneur int) error {
 	return withTxIso(sql.LevelReadCommitted, func(tx *sql.Tx) error {
 		if _, err := s.repo.ConteneurStatutPourMAJ(tx, idConteneur); err != nil {
@@ -432,7 +373,7 @@ func (s *ConteneurService) SupprimerConteneur(idConteneur int) error {
 			}
 			return err
 		}
-		// Verrou des box : bloque toute validation concurrente jusqu'au commit.
+
 		if _, err := s.repo.BoxesDuConteneurPourMAJ(tx, idConteneur); err != nil {
 			return err
 		}
@@ -464,13 +405,8 @@ func (s *ConteneurService) SupprimerConteneur(idConteneur int) error {
 	})
 }
 
-// alphabetCode : sans voyelles ni caractères ambigus (0/O, 1/I) déjà exclus par
-// construction — on garde lettres et chiffres pour un code lisible et copiable.
 const alphabetCode = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// genererCodeAcces produit un Code_acces « UC-XXXXXXXX » à partir d'entropie
-// cryptographique. La génération vit dans le service (effet de bord aléatoire),
-// pas dans le domaine pur.
 func genererCodeAcces() string {
 	b := make([]byte, 8)
 	_, _ = rand.Read(b)
@@ -481,10 +417,6 @@ func genererCodeAcces() string {
 	return "UC-" + string(out)
 }
 
-// genererCodeBarre produit un code-barres « UCB-XXXXXXXXXXXX » (entropie
-// cryptographique). Distinct du Code_acces (UC-) : le code-barres identifie un
-// OBJET pour sa récupération, là où le Code_acces ouvre un conteneur. Génération
-// dans le service (effet de bord aléatoire), pas dans le domaine pur.
 func genererCodeBarre() string {
 	b := make([]byte, 12)
 	_, _ = rand.Read(b)
@@ -495,8 +427,6 @@ func genererCodeBarre() string {
 	return "UCB-" + string(out)
 }
 
-// genererReferenceBox : référence lisible d'une box, alignée sur la convention de
-// seed (BOX-C<idConteneur>).
 func genererReferenceBox(idConteneur int64) string {
 	return "BOX-C" + strconv.FormatInt(idConteneur, 10)
 }

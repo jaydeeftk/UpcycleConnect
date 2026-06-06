@@ -6,13 +6,8 @@ import (
 	"upcycleconnect/internal/domain"
 )
 
-// InscriptionRepo : accès SQL pour les inscriptions aux événements et formations.
-// Sans état — les méthodes reçoivent le Querier (DB ou Tx) à utiliser.
 type InscriptionRepo struct{}
 
-// IdParticulier résout l'identifiant Particulier à partir de l'utilisateur
-// AUTHENTIFIÉ. Renvoie sql.ErrNoRows si l'utilisateur n'est pas un particulier
-// (ex. admin/salarié/pro) : la couche service en fait un 403 métier.
 func (InscriptionRepo) IdParticulier(q Querier, idUtilisateur int) (int, error) {
 	var id int
 	err := q.QueryRow(
@@ -22,9 +17,6 @@ func (InscriptionRepo) IdParticulier(q Querier, idUtilisateur int) (int, error) 
 	return id, err
 }
 
-// --- Événements --------------------------------------------------------------
-
-// EvenementFiche : vue de lecture complète (affichage), participants comptés.
 type EvenementFiche struct {
 	ID           int
 	Titre        string
@@ -37,7 +29,6 @@ type EvenementFiche struct {
 	Prix         float64
 }
 
-// FicheEvenement charge l'événement pour AFFICHAGE (pas de verrou).
 func (InscriptionRepo) FicheEvenement(q Querier, idEvenement int) (EvenementFiche, error) {
 	var f EvenementFiche
 	err := q.QueryRow(
@@ -50,9 +41,6 @@ func (InscriptionRepo) FicheEvenement(q Querier, idEvenement int) (EvenementFich
 	return f, err
 }
 
-// EvenementPourMAJ verrouille la ligne (FOR UPDATE) et renvoie le snapshot métier
-// MINIMAL nécessaire à la décision. Le verrou sérialise les inscriptions
-// concurrentes au MÊME événement : la lecture du COUNT qui suit est cohérente.
 func (InscriptionRepo) EvenementPourMAJ(q Querier, idEvenement int) (domain.EvenementSnapshot, error) {
 	var s domain.EvenementSnapshot
 	var date sql.NullTime
@@ -67,7 +55,6 @@ func (InscriptionRepo) EvenementPourMAJ(q Querier, idEvenement int) (domain.Even
 	return s, nil
 }
 
-// CompterParticipantsEvenement : occupation dérivée (à lire APRÈS le verrou).
 func (InscriptionRepo) CompterParticipantsEvenement(q Querier, idEvenement int) (int, error) {
 	var n int
 	err := q.QueryRow(
@@ -94,8 +81,6 @@ func (InscriptionRepo) InsererParticipationEvenement(q Querier, idParticulier, i
 	return err
 }
 
-// SupprimerParticipationEvenement renvoie le nombre de lignes supprimées, ce qui
-// permet au service de distinguer « désinscrit » de « n'était pas inscrit ».
 func (InscriptionRepo) SupprimerParticipationEvenement(q Querier, idParticulier, idEvenement int) (int64, error) {
 	res, err := q.Exec(
 		"DELETE FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?",
@@ -106,8 +91,6 @@ func (InscriptionRepo) SupprimerParticipationEvenement(q Querier, idParticulier,
 	}
 	return res.RowsAffected()
 }
-
-// --- Formations --------------------------------------------------------------
 
 type FormationFiche struct {
 	ID           int
@@ -136,8 +119,6 @@ func (InscriptionRepo) FicheFormation(q Querier, idFormation int) (FormationFich
 	return f, err
 }
 
-// FormationPourMAJ verrouille la ligne et renvoie le snapshot (compteur de places
-// inclus) : la décrémentation devient atomique, fermant la fenêtre de sur-réservation.
 func (InscriptionRepo) FormationPourMAJ(q Querier, idFormation int) (domain.FormationSnapshot, error) {
 	var s domain.FormationSnapshot
 	var date sql.NullTime
@@ -181,8 +162,6 @@ func (InscriptionRepo) SupprimerReservationFormation(q Querier, idParticulier, i
 	return res.RowsAffected()
 }
 
-// DecrementerPlacesFormation / IncrementerPlacesFormation : maintien du compteur
-// SOUS le verrou déjà pris par le service (cohérence du compteur garantie).
 func (InscriptionRepo) DecrementerPlacesFormation(q Querier, idFormation int) error {
 	_, err := q.Exec(
 		"UPDATE Formations SET Places_dispo = Places_dispo - 1 WHERE Id_Formations = ?",
@@ -191,7 +170,6 @@ func (InscriptionRepo) DecrementerPlacesFormation(q Querier, idFormation int) er
 	return err
 }
 
-// IncrementerPlacesFormation borne la remontée à Places_total (pas de sur-comptage).
 func (InscriptionRepo) IncrementerPlacesFormation(q Querier, idFormation int) error {
 	_, err := q.Exec(
 		"UPDATE Formations SET Places_dispo = LEAST(Places_dispo + 1, Places_total) WHERE Id_Formations = ?",

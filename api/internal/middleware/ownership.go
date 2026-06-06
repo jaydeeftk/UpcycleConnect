@@ -10,8 +10,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// GetUserID retourne l'Id_Utilisateurs authentifié, lu dans le claim "sub" du JWT.
-// Les nombres JSON arrivent en float64 dans MapClaims. Renvoie 0 si absent.
 func GetUserID(r *http.Request) int {
 	claims, _ := r.Context().Value(ClaimsKey).(jwt.MapClaims)
 	if claims == nil {
@@ -31,17 +29,12 @@ func isAdmin(r *http.Request) bool {
 	return GetRole(r) == "admin"
 }
 
-// GetRole retourne le rôle porté par le JWT ("admin", "particulier", "salarie",
-// "professionnel") ou "" si absent/anonyme. Permet aux handlers de dériver la
-// visibilité et les actions sans manipuler directement les claims.
 func GetRole(r *http.Request) string {
 	claims, _ := r.Context().Value(ClaimsKey).(jwt.MapClaims)
 	role, _ := claims["role"].(string)
 	return role
 }
 
-// OwnerFromPath exige un token valide et vérifie que l'identifiant en fin d'URL
-// correspond à l'utilisateur authentifié. Les admins gardent un accès transverse.
 func OwnerFromPath(next http.HandlerFunc) http.HandlerFunc {
 	return JWTAuth(func(w http.ResponseWriter, r *http.Request) {
 		parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")

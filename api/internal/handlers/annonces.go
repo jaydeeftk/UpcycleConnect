@@ -11,10 +11,8 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// annonceSvc — cas d'usage du cycle de vie des annonces. Sans état, partagé.
 var annonceSvc = services.NewAnnonceService()
 
-// GetAnnonces : place de marché publique (annonces publiées uniquement, sans PII).
 func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 	liste, err := annonceSvc.ListerPubliees()
 	if err != nil {
@@ -24,10 +22,6 @@ func GetAnnonces(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// GetAnnonceDispatch route les sous-chemins de /api/annonces/. Les ACTIONS
-// (create/annuler/vendre) et la liste privée (user) exigent un JWT — l'identité
-// vient du token (sub), jamais de l'URL ni du corps. La fiche est à identité
-// optionnelle : la visibilité et les actions en sont dérivées côté serveur.
 func GetAnnonceDispatch(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/annonces/")
 	parts := strings.Split(strings.Trim(path, "/"), "/")
@@ -51,9 +45,6 @@ func GetAnnonceDispatch(w http.ResponseWriter, r *http.Request) {
 	middleware.OptionalJWT(ficheAnnonce)(w, r)
 }
 
-// CreateAnnonce : handler fin. Identité = JWT (sub) ; le champ user_id du corps
-// est ignoré. La validation (titre, cohérence type↔prix) et l'insertion vivent
-// dans le service.
 func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -88,9 +79,6 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ficheAnnonce sert la fiche en lecture. L'identité (token si présent) ne sert
-// qu'à dériver la visibilité, est_proprietaire, l'email et allowed_actions ;
-// elle n'autorise aucune écriture.
 func ficheAnnonce(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/annonces/")
 	if err != nil {
@@ -105,9 +93,6 @@ func ficheAnnonce(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
-// GetAnnoncesUser : liste privée de l'utilisateur AUTHENTIFIÉ. L'identifiant
-// éventuel en fin d'URL est ignoré — l'identité vient du JWT, fermant la fuite
-// « lister les annonces de n'importe qui ».
 func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 	liste, err := annonceSvc.MesAnnonces(middleware.GetUserID(r))
 	if err != nil {
@@ -117,8 +102,6 @@ func GetAnnoncesUser(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// AnnulerAnnonce : retrait DOUX par le propriétaire (en_attente|validee ->
-// retiree). Identité = JWT (sub) ; le corps est ignoré.
 func AnnulerAnnonce(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -136,7 +119,6 @@ func AnnulerAnnonce(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce retirée"})
 }
 
-// VendreAnnonce : transition propriétaire validee -> vendue. Identité = JWT (sub).
 func VendreAnnonce(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -186,9 +168,6 @@ func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }
 
-// AdminAnnonceAction : actions admin sur une annonce. Le PUT ne reçoit plus un
-// statut LIBRE (qui violait chk_annonces_statut en 500) : on mappe l'intention
-// (validee / refusee|rejetee) vers une transition canonique gardée par le domaine.
 func AdminAnnonceAction(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/admin/annonces/")
 	if err != nil {

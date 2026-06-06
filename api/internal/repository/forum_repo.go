@@ -2,15 +2,7 @@ package repository
 
 import "database/sql"
 
-// ForumRepo isole l'accès SQL du vertical Forum (Sujets / Reponses). Aucune règle
-// métier ici : uniquement lecture/écriture, chaque méthode acceptant un Querier
-// (DB ou Tx) pour fonctionner dans ou hors transaction.
 type ForumRepo struct{}
-
-// ---------------------------------------------------------------------------
-// Lignes brutes renvoyées par le repo (dates en sql.NullTime : le formatage
-// RFC3339 est fait par le service, comme le reste du code).
-// ---------------------------------------------------------------------------
 
 type SujetLigne struct {
 	ID           int
@@ -49,13 +41,6 @@ type ReponseLigne struct {
 	AuteurStatut string
 }
 
-// ---------------------------------------------------------------------------
-// Lectures
-// ---------------------------------------------------------------------------
-
-// ListerSujets renvoie les sujets (avec le compte de réponses), filtrés par
-// catégorie si fournie. LEFT JOIN sur l'auteur : un sujet dont l'auteur n'aurait
-// pas été rattaché reste visible (l'admin doit pouvoir le modérer).
 func (ForumRepo) ListerSujets(q Querier, categorie string) ([]SujetLigne, error) {
 	base := `
 		SELECT s.Id_Sujets, s.Titre, COALESCE(s.Contenu,''), COALESCE(s.Categorie,'general'),
@@ -90,7 +75,6 @@ func (ForumRepo) ListerSujets(q Querier, categorie string) ([]SujetLigne, error)
 	return out, rows.Err()
 }
 
-// SujetParID renvoie l'entête d'un sujet (sql.ErrNoRows si absent).
 func (ForumRepo) SujetParID(q Querier, idSujet int) (SujetEntete, error) {
 	var s SujetEntete
 	err := q.QueryRow(`
@@ -105,7 +89,6 @@ func (ForumRepo) SujetParID(q Querier, idSujet int) (SujetEntete, error) {
 	return s, err
 }
 
-// ReponsesDuSujet renvoie les réponses d'un sujet, la solution d'abord.
 func (ForumRepo) ReponsesDuSujet(q Querier, idSujet int) ([]ReponseLigne, error) {
 	rows, err := q.Query(`
 		SELECT r.Id_Reponses, COALESCE(r.Contenu,''), r.Date_, COALESCE(r.Est_Solution,0),
@@ -134,9 +117,6 @@ func (ForumRepo) ReponsesDuSujet(q Querier, idSujet int) ([]ReponseLigne, error)
 	return out, rows.Err()
 }
 
-// SujetStatutAuteurPourMAJ verrouille le sujet (FOR UPDATE) et renvoie son statut
-// courant et l'identifiant de son auteur — base des décisions de transition et
-// d'autorisation sous verrou. sql.ErrNoRows si le sujet est absent.
 func (ForumRepo) SujetStatutAuteurPourMAJ(q Querier, idSujet int) (statut string, idAuteur int, err error) {
 	err = q.QueryRow(
 		"SELECT COALESCE(Statut,'ouvert'), COALESCE(Id_Utilisateurs,0) FROM Sujets WHERE Id_Sujets = ? FOR UPDATE",
@@ -145,8 +125,6 @@ func (ForumRepo) SujetStatutAuteurPourMAJ(q Querier, idSujet int) (statut string
 	return statut, idAuteur, err
 }
 
-// ReponseDansSujet : la réponse appartient-elle bien à ce sujet ? Garde contre la
-// désignation d'une solution étrangère au fil.
 func (ForumRepo) ReponseDansSujet(q Querier, idReponse, idSujet int) (bool, error) {
 	var existe bool
 	err := q.QueryRow(
@@ -156,18 +134,11 @@ func (ForumRepo) ReponseDansSujet(q Querier, idReponse, idSujet int) (bool, erro
 	return existe, err
 }
 
-// ---------------------------------------------------------------------------
-// Écritures
-// ---------------------------------------------------------------------------
-
-// IncrementerVues : compteur de consultations (effet de bord assumé d'un GET de
-// détail). Id_Forum reste implicite (forum unique seedé Id=1).
 func (ForumRepo) IncrementerVues(q Querier, idSujet int) error {
 	_, err := q.Exec("UPDATE Sujets SET Vues = COALESCE(Vues,0) + 1 WHERE Id_Sujets = ?", idSujet)
 	return err
 }
 
-// CreerSujet insère un sujet OUVERT au nom de l'utilisateur (identité du JWT).
 func (ForumRepo) CreerSujet(q Querier, idUtilisateur int, titre, contenu, categorie string) (int64, error) {
 	res, err := q.Exec(
 		"INSERT INTO Sujets (Titre, Contenu, Categorie, Statut, Date_Creation, Vues, Id_Forum, Id_Utilisateurs) VALUES (?,?,?,?,NOW(),0,1,?)",
@@ -179,7 +150,6 @@ func (ForumRepo) CreerSujet(q Querier, idUtilisateur int, titre, contenu, catego
 	return res.LastInsertId()
 }
 
-// CreerReponse insère une réponse au nom de l'utilisateur (identité du JWT).
 func (ForumRepo) CreerReponse(q Querier, idSujet, idUtilisateur int, contenu string) (int64, error) {
 	res, err := q.Exec(
 		"INSERT INTO Reponses (Contenu, Date_, Est_Solution, Id_Sujets, Id_Utilisateurs) VALUES (?,NOW(),0,?,?)",
@@ -191,34 +161,26 @@ func (ForumRepo) CreerReponse(q Querier, idSujet, idUtilisateur int, contenu str
 	return res.LastInsertId()
 }
 
-// ReinitialiserSolutions retire la marque de solution sur toutes les réponses d'un
-// sujet (étape 1 du marquage : une seule solution à la fois).
 func (ForumRepo) ReinitialiserSolutions(q Querier, idSujet int) error {
 	_, err := q.Exec("UPDATE Reponses SET Est_Solution = 0 WHERE Id_Sujets = ?", idSujet)
 	return err
 }
 
-// MarquerReponseSolution pose la marque de solution sur une réponse.
 func (ForumRepo) MarquerReponseSolution(q Querier, idReponse int) error {
 	_, err := q.Exec("UPDATE Reponses SET Est_Solution = 1 WHERE Id_Reponses = ?", idReponse)
 	return err
 }
 
-// MajStatutSujet écrit le statut cible (le vocabulaire est garanti par le domaine
-// puis par chk_sujets_statut).
 func (ForumRepo) MajStatutSujet(q Querier, idSujet int, statut string) error {
 	_, err := q.Exec("UPDATE Sujets SET Statut = ? WHERE Id_Sujets = ?", statut, idSujet)
 	return err
 }
 
-// SupprimerReponsesDuSujet retire les réponses d'un sujet (étape de la suppression
-// de sujet : pas de réponse orpheline).
 func (ForumRepo) SupprimerReponsesDuSujet(q Querier, idSujet int) error {
 	_, err := q.Exec("DELETE FROM Reponses WHERE Id_Sujets = ?", idSujet)
 	return err
 }
 
-// SupprimerSujet retire un sujet ; renvoie le nombre de lignes touchées (0 => 404).
 func (ForumRepo) SupprimerSujet(q Querier, idSujet int) (int64, error) {
 	res, err := q.Exec("DELETE FROM Sujets WHERE Id_Sujets = ?", idSujet)
 	if err != nil {
@@ -227,7 +189,6 @@ func (ForumRepo) SupprimerSujet(q Querier, idSujet int) (int64, error) {
 	return res.RowsAffected()
 }
 
-// SupprimerReponse retire une réponse ; renvoie le nombre de lignes touchées.
 func (ForumRepo) SupprimerReponse(q Querier, idReponse int) (int64, error) {
 	res, err := q.Exec("DELETE FROM Reponses WHERE Id_Reponses = ?", idReponse)
 	if err != nil {

@@ -109,11 +109,6 @@ func ProfessionnelFavoriAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ProfessionnelGetContrats : un professionnel ne voit QUE ses contrats. L'identité
-// vient du JWT (sub) ; le service la résout en Id_Professionnels et lit les contrats
-// par cette VRAIE clé. (Corrige l'ancienne requête qui interrogeait des colonnes
-// inexistantes — Type_contrat, Montant, Id_Utilisateurs sur Contrats — et renvoyait
-// donc toujours une liste vide après avoir avalé l'erreur SQL.)
 func ProfessionnelGetContrats(w http.ResponseWriter, r *http.Request) {
 	contrats, err := facturationSvc.ContratsDuProfessionnel(middleware.GetUserID(r))
 	if err != nil {

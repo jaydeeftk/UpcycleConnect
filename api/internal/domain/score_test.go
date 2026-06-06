@@ -3,7 +3,6 @@ package domain
 import "testing"
 
 func TestCalculerScore_Bareme(t *testing.T) {
-	// 2 annonces(60) + 1 evt(20) + 3 sujets(30) + 1 depot(50) + 2 formations(30) = 190
 	a := ActiviteParticulier{Annonces: 2, Evenements: 1, Sujets: 3, Depots: 1, Formations: 2}
 	total, hist := CalculerScore(a)
 	if total != 190 {
@@ -21,14 +20,13 @@ func TestCalculerScore_Bareme(t *testing.T) {
 }
 
 func TestCalculerScore_LignesNullesAbsentes(t *testing.T) {
-	total, hist := CalculerScore(ActiviteParticulier{}) // aucune activité
+	total, hist := CalculerScore(ActiviteParticulier{})
 	if total != 0 {
 		t.Fatalf("score attendu 0, obtenu %d", total)
 	}
 	if len(hist) != 0 {
 		t.Fatalf("historique attendu vide, obtenu %d lignes", len(hist))
 	}
-	// Seules les règles à compte > 0 apparaissent.
 	_, hist2 := CalculerScore(ActiviteParticulier{Depots: 1})
 	if len(hist2) != 1 || hist2[0].Action != "Dépôts en conteneur validés" {
 		t.Fatalf("attendu 1 ligne dépôt, obtenu %+v", hist2)
@@ -39,8 +37,8 @@ func TestBadgesPour(t *testing.T) {
 	cas := []struct {
 		score       int
 		wantActuel  string
-		wantSuivant string // "" => nil (palier terminal)
-		wantDeb     int    // nombre de paliers débloqués
+		wantSuivant string
+		wantDeb     int
 	}{
 		{0, "Éco-Débutant", "Recycleur Actif", 1},
 		{99, "Éco-Débutant", "Recycleur Actif", 1},
@@ -49,7 +47,7 @@ func TestBadgesPour(t *testing.T) {
 		{300, "Éco-Engagé", "Phénix Vert", 3},
 		{599, "Éco-Engagé", "Phénix Vert", 3},
 		{600, "Phénix Vert", "", 4},
-		{1000, "Phénix Vert", "", 4}, // borne haute : ne retombe PAS sur le 1er badge
+		{1000, "Phénix Vert", "", 4},
 	}
 	for _, c := range cas {
 		actuel, suivant, tous := BadgesPour(c.score)

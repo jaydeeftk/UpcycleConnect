@@ -10,10 +10,6 @@ import (
 	"upcycleconnect/internal/repository"
 )
 
-// ScoreService assemble la vue de gamification d'un particulier. Le score et les
-// badges sont DÉRIVÉS (lecture pure) : contrairement à l'ancien handler, un GET
-// n'écrit RIEN (le cache Particuliers.Score, jamais relu, n'est plus alimenté en
-// effet de bord — un GET doit être sans effet).
 type ScoreService struct {
 	repo repository.ScoreRepo
 }
@@ -22,8 +18,6 @@ func NewScoreService() *ScoreService {
 	return &ScoreService{}
 }
 
-// HistoriqueDTO : une entrée d'historique. Clés JSON préservées à l'identique de
-// l'ancienne réponse (le front les lit déjà : icon/color/action/points/detail).
 type HistoriqueDTO struct {
 	Action string `json:"action"`
 	Points string `json:"points"`
@@ -32,8 +26,6 @@ type HistoriqueDTO struct {
 	Color  string `json:"color"`
 }
 
-// BadgeDTO : un palier de badge servi par l'API (le front cesse de coder ces
-// seuils en PHP — la vérité est désormais serveur).
 type BadgeDTO struct {
 	Label    string `json:"label"`
 	Icon     string `json:"icon"`
@@ -44,9 +36,6 @@ type BadgeDTO struct {
 	Debloque bool   `json:"debloque"`
 }
 
-// ScoreDTO : réponse complète de /api/score/{id}. score + historique sont le
-// contrat existant ; les champs badge_* sont additifs (n'altèrent pas le front
-// actuel, mais lui permettent d'arrêter de calculer les paliers lui-même).
 type ScoreDTO struct {
 	Score             int             `json:"score"`
 	ScoreMax          int             `json:"score_max"`
@@ -58,10 +47,6 @@ type ScoreDTO struct {
 	Badges            []BadgeDTO      `json:"badges"`
 }
 
-// ScoreDuParticulier calcule la vue de gamification de l'utilisateur visé. Si
-// l'utilisateur n'est pas un particulier, on renvoie une vue « zéro » (score 0,
-// historique vide, badges au palier initial) — pas une erreur : un pro ou un
-// admin consultant son propre score voit 0, comme avant.
 func (s *ScoreService) ScoreDuParticulier(idUtilisateur int) (ScoreDTO, error) {
 	var activite domain.ActiviteParticulier
 	idParticulier, err := s.repo.ResoudreParticulier(database.DB, idUtilisateur)
@@ -72,7 +57,6 @@ func (s *ScoreService) ScoreDuParticulier(idUtilisateur int) (ScoreDTO, error) {
 	} else if !errors.Is(err, sql.ErrNoRows) {
 		return ScoreDTO{}, err
 	}
-	// (ErrNoRows -> activite reste zéro -> score 0, vue cohérente.)
 
 	score, lignes := domain.CalculerScore(activite)
 	return s.assembler(score, lignes), nil
@@ -81,9 +65,7 @@ func (s *ScoreService) ScoreDuParticulier(idUtilisateur int) (ScoreDTO, error) {
 func (s *ScoreService) assembler(score int, lignes []domain.LigneHistorique) ScoreDTO {
 	hist := make([]HistoriqueDTO, 0, len(lignes))
 	for _, l := range lignes {
-		hist = append(hist, HistoriqueDTO{
-			Action: l.Action, Points: l.Points, Detail: l.Detail, Icon: l.Icone, Color: l.Couleur,
-		})
+		hist = append(hist, HistoriqueDTO{Action: l.Action, Points: l.Points, Detail: l.Detail, Icon: l.Icone, Color: l.Couleur})
 	}
 
 	actuel, suivant, tous := domain.BadgesPour(score)
@@ -120,8 +102,5 @@ func (s *ScoreService) assembler(score int, lignes []domain.LigneHistorique) Sco
 }
 
 func versBadgeDTO(p domain.PalierBadge, debloque bool) BadgeDTO {
-	return BadgeDTO{
-		Label: p.Label, Icon: p.Icone, Color: p.Couleur, Bg: p.Bg,
-		Min: p.Min, Max: p.Max, Debloque: debloque,
-	}
+	return BadgeDTO{Label: p.Label, Icon: p.Icone, Color: p.Couleur, Bg: p.Bg, Min: p.Min, Max: p.Max, Debloque: debloque}
 }

@@ -10,10 +10,8 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// conteneurSvc — cas d'usage du vertical Demande / Conteneur / Box. Sans état, partagé.
 var conteneurSvc = services.NewConteneurService()
 
-// GetConteneurs : liste publique des points de dépôt (conteneurs disponibles).
 func GetConteneurs(w http.ResponseWriter, r *http.Request) {
 	liste, err := conteneurSvc.ListerConteneursDisponibles()
 	if err != nil {
@@ -23,9 +21,6 @@ func GetConteneurs(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// CreateDemandeConteneur : dépôt d'une demande. Identité = JWT (sub) ; le champ
-// user_id éventuel du corps est ignoré. Validation des invariants et insertion
-// vivent dans le service.
 func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -60,11 +55,6 @@ func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetDemandesConteneurUser : file privée d'un utilisateur. IDENTITÉ DU JWT, JAMAIS
-// DE L'URL : un non-admin ne voit QUE sa propre file. On n'utilise pas le segment
-// d'URL pour cibler (OwnerFromPath valide le DERNIER segment, mais une URL du type
-// /api/conteneurs/user/{victime}/{moi} le contournerait — IDOR). Un admin peut
-// cibler un autre utilisateur via l'URL.
 func GetDemandesConteneurUser(w http.ResponseWriter, r *http.Request) {
 	idUtilisateur := middleware.GetUserID(r)
 	if middleware.GetRole(r) == "admin" {
@@ -80,9 +70,6 @@ func GetDemandesConteneurUser(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// AdminDemandeConteneurAction : modération depuis la page « Conteneurs & Box ».
-// accept -> valider (réserve une box + code), refuse -> refuser. Toute autre action
-// est rejetée (fini la suppression silencieuse sur action inconnue).
 func AdminDemandeConteneurAction(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/admin/conteneurs/demandes/")
 	if err != nil {

@@ -8,12 +8,8 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// facturationSvc — cas d'usage du vertical Contrat / Abonnement / Facture /
-// Commission / Paiement. Sans état, partagé entre handlers.
 var facturationSvc = services.NewFacturationService()
 
-// AdminGetContrats : liste admin des contrats, chacun enrichi de allowed_actions
-// (dérivées du statut CÔTÉ SERVEUR) — l'UI n'affiche que les transitions licites.
 func AdminGetContrats(w http.ResponseWriter, r *http.Request) {
 	liste, err := facturationSvc.ListerContrats()
 	if err != nil {
@@ -23,8 +19,6 @@ func AdminGetContrats(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// AdminCreateContrat : création d'un contrat rattaché à un professionnel. La
-// validation (type, dates, état initial, pro existant) vit dans le service.
 func AdminCreateContrat(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Type            string `json:"type"`
@@ -49,14 +43,6 @@ func AdminCreateContrat(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Contrat créé"})
 }
 
-// AdminContratAction route les opérations sur un contrat :
-//   - PUT /{id}/{action} : transition de la machine à états (activer, suspendre,
-//     reactiver, resilier, expirer) appliquée sous verrou par le domaine ;
-//   - PUT /{id}           : mise à jour non destructive (échéance, type) ;
-//   - DELETE /{id}        : suppression.
-//
-// Une action de transition inconnue ou illicite est refusée par le domaine
-// (409/422), jamais silencieusement ignorée.
 func AdminContratAction(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/admin/contrats/")
 	if err != nil {
@@ -107,7 +93,6 @@ func AdminContratAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminGetAbonnements : catalogue des abonnements + allowed_actions par statut.
 func AdminGetAbonnements(w http.ResponseWriter, r *http.Request) {
 	liste, err := facturationSvc.ListerAbonnements()
 	if err != nil {
@@ -117,8 +102,6 @@ func AdminGetAbonnements(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// AdminCreateAbonnement : création d'un type d'abonnement. L'identifiant est
-// généré côté serveur ; la validation (type, prix) vit dans le service.
 func AdminCreateAbonnement(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Type      string  `json:"type"`
@@ -140,8 +123,6 @@ func AdminCreateAbonnement(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Abonnement créé"})
 }
 
-// AdminAbonnementAction : PUT /{id}/{action} applique une transition sous verrou ;
-// DELETE /{id} supprime. L'identifiant d'abonnement est une chaîne (Id_Abonnement).
 func AdminAbonnementAction(w http.ResponseWriter, r *http.Request) {
 	segs := segmentsApres(r.URL.Path, "/api/admin/abonnements/")
 	if len(segs) == 0 {

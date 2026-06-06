@@ -10,18 +10,11 @@ import (
 	"upcycleconnect/internal/repository"
 )
 
-// ForumService porte les cas d'usage du vertical Forum. L'IDENTITÉ de l'auteur
-// vient toujours du JWT (jamais du corps). Les opérations sensibles (réponse,
-// désignation de solution, modération) verrouillent le sujet (FOR UPDATE) et
-// délèguent la décision d'état au domaine ; la désignation de solution vérifie en
-// plus la PROPRIÉTÉ (seul l'auteur du sujet l'accepte).
 type ForumService struct {
 	repo repository.ForumRepo
 }
 
 func NewForumService() *ForumService { return &ForumService{} }
-
-// --- DTO ---------------------------------------------------------------------
 
 type SujetInput struct {
 	Titre     string
@@ -81,9 +74,6 @@ func nomComplet(nom, prenom string) string {
 	return strings.TrimSpace(strings.TrimSpace(nom) + " " + strings.TrimSpace(prenom))
 }
 
-// --- Lectures ----------------------------------------------------------------
-
-// ListerSujets : liste publique des sujets, filtrée par catégorie si fournie.
 func (s *ForumService) ListerSujets(categorie string) ([]SujetListeDTO, error) {
 	lignes, err := s.repo.ListerSujets(database.DB, categorie)
 	if err != nil {
@@ -101,14 +91,9 @@ func (s *ForumService) ListerSujets(categorie string) ([]SujetListeDTO, error) {
 	return out, nil
 }
 
-// ConsulterSujet incrémente le compteur de vues puis renvoie le détail du sujet,
-// ses réponses et les actions autorisées POUR LE REQUÉRANT (dérivées de l'état
-// serveur). idUtilisateur == 0 => anonyme (aucune action).
 func (s *ForumService) ConsulterSujet(idUtilisateur int, estAdmin bool, idSujet int) (SujetDetailDTO, error) {
 	var dto SujetDetailDTO
 
-	// Effet de bord assumé du GET de détail. Sur un sujet absent, l'UPDATE ne
-	// touche aucune ligne (pas d'erreur) : l'existence est tranchée juste après.
 	if err := s.repo.IncrementerVues(database.DB, idSujet); err != nil {
 		return dto, err
 	}
@@ -148,7 +133,6 @@ func (s *ForumService) ConsulterSujet(idUtilisateur int, estAdmin bool, idSujet 
 	return dto, nil
 }
 
-// AdminListerSujets : vue de modération (toutes catégories).
 func (s *ForumService) AdminListerSujets() ([]SujetAdminDTO, error) {
 	lignes, err := s.repo.ListerSujets(database.DB, "")
 	if err != nil {
@@ -165,9 +149,6 @@ func (s *ForumService) AdminListerSujets() ([]SujetAdminDTO, error) {
 	return out, nil
 }
 
-// --- Écritures ----------------------------------------------------------------
-
-// CreerSujet crée un sujet OUVERT au nom de l'utilisateur (identité du JWT).
 func (s *ForumService) CreerSujet(idUtilisateur int, in SujetInput) (int64, error) {
 	if idUtilisateur <= 0 {
 		return 0, domain.Forbidden("Authentification requise pour publier")
@@ -180,8 +161,6 @@ func (s *ForumService) CreerSujet(idUtilisateur int, in SujetInput) (int64, erro
 		strings.TrimSpace(in.Titre), strings.TrimSpace(in.Contenu), cat)
 }
 
-// RepondreSujet ajoute une réponse. Le sujet est verrouillé : on refuse une
-// réponse sur un sujet fermé (409), un sujet absent donne 404.
 func (s *ForumService) RepondreSujet(idUtilisateur, idSujet int, contenu string) (int64, error) {
 	if idUtilisateur <= 0 {
 		return 0, domain.Forbidden("Authentification requise pour répondre")
@@ -207,10 +186,6 @@ func (s *ForumService) RepondreSujet(idUtilisateur, idSujet int, contenu string)
 	return id, err
 }
 
-// MarquerSolution désigne LA réponse-solution d'un sujet. Autorisation : SEUL
-// l'auteur du sujet (propriété) ; état : sujet non fermé ; intégrité : la réponse
-// doit appartenir au sujet. L'opération (reset des marques, pose de la nouvelle,
-// passage du sujet en 'resolu') est atomique sous verrou.
 func (s *ForumService) MarquerSolution(idUtilisateur, idSujet, idReponse int) error {
 	if idUtilisateur <= 0 {
 		return domain.Forbidden("Authentification requise")
@@ -246,8 +221,6 @@ func (s *ForumService) MarquerSolution(idUtilisateur, idSujet, idReponse int) er
 	})
 }
 
-// ModererSujet applique une transition de modération admin (fermer/rouvrir) sous
-// verrou, en déléguant la décision au domaine.
 func (s *ForumService) ModererSujet(idSujet int, action string) error {
 	return withTx(func(tx *sql.Tx) error {
 		statut, _, err := s.repo.SujetStatutAuteurPourMAJ(tx, idSujet)
@@ -265,8 +238,6 @@ func (s *ForumService) ModererSujet(idSujet int, action string) error {
 	})
 }
 
-// SupprimerSujet retire un sujet et ses réponses (admin), en une transaction —
-// pas de réponse orpheline. 404 si le sujet n'existe pas.
 func (s *ForumService) SupprimerSujet(idSujet int) error {
 	return withTx(func(tx *sql.Tx) error {
 		if err := s.repo.SupprimerReponsesDuSujet(tx, idSujet); err != nil {
@@ -283,7 +254,6 @@ func (s *ForumService) SupprimerSujet(idSujet int) error {
 	})
 }
 
-// SupprimerReponse retire une réponse (admin). 404 si elle n'existe pas.
 func (s *ForumService) SupprimerReponse(idReponse int) error {
 	n, err := s.repo.SupprimerReponse(database.DB, idReponse)
 	if err != nil {

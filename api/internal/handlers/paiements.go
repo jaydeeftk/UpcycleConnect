@@ -13,10 +13,6 @@ import (
 	"upcycleconnect/internal/middleware"
 )
 
-// CreateCheckoutSession ouvre une session de paiement Stripe. L'IDENTITÉ vient du
-// JWT (sub), jamais du corps : le client ne désigne QUE l'article (type + id). Le
-// prix et l'intitulé sont recalculés en base (anti-falsification). L'utilisateur et
-// l'article sont scellés dans les métadonnées de session, relus à la confirmation.
 func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -44,7 +40,6 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Montant (TTC) et intitulé déterminés SERVEUR. Un article gratuit -> 422.
 	checkout, err := facturationSvc.PreparerCheckout(body.Type, body.IdItem)
 	if err != nil {
 		httpx.WriteError(w, err)
@@ -90,13 +85,6 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"checkout_url": s.URL})
 }
 
-// PaiementSuccess rapproche un paiement après la redirection Stripe. L'endpoint
-// n'est pas authentifié (le navigateur y arrive depuis Stripe), donc on ne fait
-// confiance qu'à ce que Stripe scelle : on RÉCUPÈRE la session côté serveur,
-// on EXIGE payment_status == "paid", puis on relit l'identité et l'article dans
-// les métadonnées posées à la création (jamais dans l'URL côté client).
-// L'enregistrement (facture + ligne + paiement) est idempotent sur l'id de
-// session. Aucun chemin ne produit de 500 métier.
 func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.URL.Query().Get("session_id")
 	if sessionID == "" {
@@ -124,7 +112,7 @@ func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
 	itemID, _ := strconv.Atoi(s.Metadata["item_id"])
 	userID, _ := strconv.Atoi(s.Metadata["user_id"])
 	if userID == 0 {
-		// Repli : compat sessions ne portant l'utilisateur que dans ClientReferenceID.
+
 		userID, _ = strconv.Atoi(s.ClientReferenceID)
 	}
 	if userID == 0 || itemID == 0 || typ == "" {
@@ -139,9 +127,6 @@ func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Paiement confirmé"})
 }
 
-// GetPaiementsUser : historique des paiements d'un utilisateur. La route est
-// gardée par OwnerFromPath (l'id final doit être celui de l'appelant, sauf admin) ;
-// l'identifiant sert donc à cibler l'historique, l'autorisation étant déjà tranchée.
 func GetPaiementsUser(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/paiements/")
 	if err != nil {

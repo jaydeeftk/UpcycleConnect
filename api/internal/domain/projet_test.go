@@ -11,25 +11,20 @@ func TestProjetSnapshot_Transitions(t *testing.T) {
 		nom     string
 		statut  string
 		garde   func(ProjetSnapshot) error
-		wantErr error // nil = autorisé ; sinon catégorie attendue
+		wantErr error
 	}{
-		// suspendre : en_cours -> pause
 		{"suspendre depuis en_cours", StatutProjetEnCours, ProjetSnapshot.PeutSuspendre, nil},
 		{"suspendre depuis pause", StatutProjetPause, ProjetSnapshot.PeutSuspendre, ErrEtatInvalide},
 		{"suspendre depuis termine", StatutProjetTermine, ProjetSnapshot.PeutSuspendre, ErrEtatInvalide},
-		// reprendre : pause -> en_cours
 		{"reprendre depuis pause", StatutProjetPause, ProjetSnapshot.PeutReprendre, nil},
 		{"reprendre depuis en_cours", StatutProjetEnCours, ProjetSnapshot.PeutReprendre, ErrEtatInvalide},
 		{"reprendre depuis termine", StatutProjetTermine, ProjetSnapshot.PeutReprendre, ErrEtatInvalide},
-		// terminer : {en_cours, pause} -> termine
 		{"terminer depuis en_cours", StatutProjetEnCours, ProjetSnapshot.PeutTerminer, nil},
 		{"terminer depuis pause", StatutProjetPause, ProjetSnapshot.PeutTerminer, nil},
 		{"terminer depuis termine", StatutProjetTermine, ProjetSnapshot.PeutTerminer, ErrEtatInvalide},
-		// rouvrir : termine -> en_cours
 		{"rouvrir depuis termine", StatutProjetTermine, ProjetSnapshot.PeutRouvrir, nil},
 		{"rouvrir depuis en_cours", StatutProjetEnCours, ProjetSnapshot.PeutRouvrir, ErrEtatInvalide},
 		{"rouvrir depuis pause", StatutProjetPause, ProjetSnapshot.PeutRouvrir, ErrEtatInvalide},
-		// modifier le contenu : autorisé tant que non figé
 		{"modifier depuis en_cours", StatutProjetEnCours, ProjetSnapshot.PeutModifierContenu, nil},
 		{"modifier depuis pause", StatutProjetPause, ProjetSnapshot.PeutModifierContenu, nil},
 		{"modifier depuis termine", StatutProjetTermine, ProjetSnapshot.PeutModifierContenu, ErrEtatInvalide},
@@ -56,10 +51,10 @@ func TestProjetSnapshot_AppartientAuPro(t *testing.T) {
 		t.Fatal("un autre pro ne doit pas être propriétaire")
 	}
 	if p.AppartientAuPro(0) {
-		t.Fatal("idPro=0 (non-pro) ne doit jamais être propriétaire")
+		t.Fatal("idPro=0 ne doit jamais être propriétaire")
 	}
 	if (ProjetSnapshot{IdProprietairePro: 0}).AppartientAuPro(0) {
-		t.Fatal("0 == 0 ne doit pas valoir propriété (garde idPro>0)")
+		t.Fatal("0 == 0 ne doit pas valoir propriété")
 	}
 }
 

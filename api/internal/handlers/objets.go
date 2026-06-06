@@ -9,16 +9,8 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// recuperationSvc — cas d'usage de la récupération pro. Sans état, partagé.
 var recuperationSvc = services.NewRecuperationService()
 
-// ProfessionnelObjetsHandler : catalogue d'objets pour le professionnel.
-//   - ?filtre=mes-reservations -> ses objets réservés / récupérés ;
-//   - sinon (défaut)           -> objets disponibles (en_stock), ?conteneur=<id>
-//     restreint à un conteneur.
-//
-// L'identité (Id_Professionnels) vient du JWT via getProfessionnelFromContext —
-// jamais d'un paramètre. Un admin (sans profil pro) reçoit 403.
 func ProfessionnelObjetsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -40,7 +32,7 @@ func ProfessionnelObjetsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idConteneur, _ := strconv.Atoi(r.URL.Query().Get("conteneur")) // 0 si absent => tous
+	idConteneur, _ := strconv.Atoi(r.URL.Query().Get("conteneur"))
 	liste, err := recuperationSvc.ListerDisponibles(profID, idConteneur)
 	if err != nil {
 		httpx.WriteError(w, err)
@@ -49,9 +41,6 @@ func ProfessionnelObjetsHandler(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// ProfessionnelObjetAction : transition de récupération sur un objet.
-// POST /api/professionnels/objets/{id}/{reserver|recuperer|annuler}. Identité du
-// JWT ; le service garde l'état + la propriété (403/404/409 selon le cas).
 func ProfessionnelObjetAction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -92,10 +81,6 @@ func ProfessionnelObjetAction(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": msg})
 }
 
-// ProfessionnelRecupererParCode : récupération par SCAN du code-barres physique de
-// l'objet. POST /api/professionnels/objets/recuperer-par-code, corps {"code":"UCB-…"}.
-// Le code voyage dans le CORPS (jamais l'URL/query). Identité du JWT ; le service
-// garde l'état du code + de l'objet et la propriété (403/404/409 selon le cas).
 func ProfessionnelRecupererParCode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

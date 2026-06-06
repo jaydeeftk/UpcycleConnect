@@ -11,10 +11,6 @@ import (
 
 var DB *sql.DB
 
-// Connect ouvre la connexion à MySQL et patiente jusqu'à ce qu'elle réponde.
-// Au démarrage de la pile Docker, MySQL peut ne pas encore accepter de
-// connexion quand l'API démarre (course d'initialisation) : on réessaie le
-// Ping pendant un délai borné plutôt que de quitter au premier échec.
 func Connect() {
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {

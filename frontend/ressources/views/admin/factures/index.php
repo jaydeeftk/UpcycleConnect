@@ -54,11 +54,12 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
             <?php if (empty($factures)): ?>
-                <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucune facture</td></tr>
+                <tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Aucune facture</td></tr>
             <?php else: ?>
                 <?php foreach ($factures as $f): ?>
                 <tr>
@@ -72,6 +73,11 @@
                     <td class="px-6 py-4">
                         <?php $sc = $f['statut'] === 'payé' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'; ?>
                         <span class="px-3 py-1 rounded-full text-sm <?= $sc ?>"><?= htmlspecialchars($f['statut']) ?></span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="/admin/factures/<?= $f['id'] ?>/pdf" target="_blank" class="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm hover:bg-green-200">
+                            <i class="fas fa-file-pdf mr-1"></i> PDF
+                        </a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

@@ -27,9 +27,22 @@ class FactureController
         }
 
         return view('admin.factures.index', [
-            'factures' => $factures, 
+            'factures' => $factures,
             'page_title' => 'Gestion des Factures',
             'page_subtitle' => 'Historique des transactions et commissions'
         ]);
+    }
+
+    public function pdf($id)
+    {
+        $res = $this->api->getRaw('/factures/' . (int)$id . '/pdf');
+        if (($res['code'] ?? 0) >= 400 || empty($res['body'])) {
+            http_response_code($res['code'] ?: 502);
+            echo 'Impossible de générer la facture PDF';
+            return;
+        }
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="facture-' . (int)$id . '.pdf"');
+        echo $res['body'];
     }
 }

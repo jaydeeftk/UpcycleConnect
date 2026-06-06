@@ -135,9 +135,6 @@
                                     </div>
                                 </div>
                                 <?php
-                                // Boutons DÉRIVÉS du serveur : on ne rend qu'une action présente dans
-                                // allowed_actions (mapping = présentation, pas une règle d'état). La vue
-                                // n'expose jamais plus que ce que le serveur autorise.
                                 $actionsUI = [
                                     'suspendre' => ['suspendre', 'Pause',     'fa-pause',       'text-amber-600 hover:bg-amber-50', false],
                                     'reprendre' => ['reprendre', 'Reprendre', 'fa-play',        'text-blue-600 hover:bg-blue-50',  false],

@@ -7,9 +7,6 @@ class AnnonceController
     public function __construct()
     {
         $this->api = new ApiService();
-        // Le token doit voyager sur TOUTES les requêtes authentifiées (annuler,
-        // vendre, mes-annonces) — sans lui le serveur renvoie 401. (Auparavant
-        // absent : annuler échouait silencieusement.)
         if (!empty($_SESSION['user']['token'])) {
             $this->api->setToken($_SESSION['user']['token']);
         }

@@ -18,8 +18,6 @@
         <div class="space-y-3">
             <?php foreach ($annonces as $a): ?>
                 <?php
-                // Statut = affichage. Les ACTIONS viennent du serveur (allowed_actions) :
-                // la vue n'applique aucune règle d'état.
                 $aa = $a['allowed_actions'] ?? [];
                 $badge = [
                     'en_attente' => 'badge-warning', 'validee' => 'badge-success',

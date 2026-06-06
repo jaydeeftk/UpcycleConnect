@@ -62,7 +62,8 @@ class AuthController
     {
         return view('front.auth.index', [
             'title' => 'Inscription - UpcycleConnect',
-            'error' => null
+            'error' => null,
+            'activeTab' => 'register'
         ]);
     }
 
@@ -91,7 +92,8 @@ class AuthController
         } catch (\Exception $e) {
             return view('front.auth.index', [
                 'title' => 'Inscription - UpcycleConnect',
-                'error' => 'Erreur lors de la création du compte : ' . $e->getMessage()
+                'error' => 'Erreur lors de la création du compte : ' . $e->getMessage(),
+                'activeTab' => 'register'
             ]);
         }
     }

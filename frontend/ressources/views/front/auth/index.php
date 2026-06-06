@@ -1,3 +1,4 @@
+<?php $activeTab = $activeTab ?? 'login'; ?>
 <section class="py-16 px-6">
     <div class="max-w-6xl mx-auto">
         <div class="grid lg:grid-cols-2 gap-10 items-center">
@@ -39,16 +40,16 @@
 
                     <div class="flex bg-base-200 rounded-xl p-1 mb-8 w-fit mx-auto">
                         <button id="tab-login"
-                            class="px-6 py-2 rounded-lg text-sm font-medium bg-base-100 shadow transition">
+                            class="px-6 py-2 rounded-lg text-sm font-medium transition <?= $activeTab === 'register' ? 'text-base-content/60' : 'bg-base-100 shadow' ?>">
                             Connexion
                         </button>
                         <button id="tab-register"
-                            class="px-6 py-2 rounded-lg text-sm font-medium text-base-content/60 transition">
+                            class="px-6 py-2 rounded-lg text-sm font-medium transition <?= $activeTab === 'register' ? 'bg-base-100 shadow' : 'text-base-content/60' ?>">
                             Inscription
                         </button>
                     </div>
 
-                    <div id="login-form">
+                    <div id="login-form" class="<?= $activeTab === 'register' ? 'hidden' : '' ?>">
                         <h2 class="text-3xl font-bold text-center mb-2">Connexion</h2>
                         <p class="text-center text-base-content/70 mb-8">Accédez à votre espace personnel.</p>
 
@@ -78,7 +79,7 @@
                         </form>
                     </div>
 
-                    <div id="register-form" class="hidden">
+                    <div id="register-form" class="<?= $activeTab === 'register' ? '' : 'hidden' ?>">
                         <h2 class="text-3xl font-bold text-center mb-2">Inscription</h2>
                         <p class="text-center text-base-content/70 mb-8">Créez votre compte UpcycleConnect.</p>
 

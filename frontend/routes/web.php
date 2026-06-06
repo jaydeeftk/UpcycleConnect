@@ -135,6 +135,7 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/contrats/{id}/supprimer', 'Admin\ContratController@delete');
 
     $router->get('/factures', 'Admin\FactureController@index');
+    $router->get('/factures/{id}/pdf', 'Admin\FactureController@pdf');
     $router->get('/notifications', 'Admin\NotificationController@index');
     $router->post('/notifications/store', 'Admin\NotificationController@store');
     $router->get('/notifications/{id}/delete', 'Admin\NotificationController@delete');

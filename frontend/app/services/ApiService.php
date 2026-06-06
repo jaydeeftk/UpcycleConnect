@@ -58,6 +58,23 @@ class ApiService
         return $this->request('DELETE', $url);
     }
 
+    public function getRaw($endpoint)
+    {
+        $ch = curl_init();
+        $headers = [];
+        if ($this->token) {
+            $headers[] = 'Authorization: Bearer ' . $this->token;
+        }
+        curl_setopt($ch, CURLOPT_URL, $this->baseUrl . $endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $body = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return ['body' => $body, 'code' => $code];
+    }
+
     private function request($method, $url, $data = null)
     {
         $ch = curl_init();

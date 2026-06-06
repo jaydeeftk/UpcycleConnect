@@ -238,15 +238,23 @@ type AnnonceListeDTO struct {
 	Statut      string  `json:"statut"`
 	Date        string  `json:"date"`
 	Auteur      string  `json:"auteur,omitempty"`
+	// allowed_actions : dérivé de l'état (vide sur la place publique, actions du
+	// propriétaire sur « mes annonces ») — le front n'affiche que ça.
+	ActionsAutorisees []string `json:"allowed_actions"`
 }
 
-func versListeDTO(rows []repository.AnnonceListe) []AnnonceListeDTO {
+// versListeDTO mappe les lignes en DTO et dérive allowed_actions CÔTÉ SERVEUR.
+// estProprietaire vaut true pour la liste privée (« mes annonces ») et false pour
+// la place publique — où ActionsAnnonce renvoie [] (un visiteur n'a aucune action).
+func versListeDTO(rows []repository.AnnonceListe, estProprietaire bool) []AnnonceListeDTO {
 	out := make([]AnnonceListeDTO, 0, len(rows))
 	for _, a := range rows {
+		snap := domain.AnnonceSnapshot{Statut: a.Statut, Type: a.Type, Prix: a.Prix}
 		out = append(out, AnnonceListeDTO{
 			ID: a.ID, Titre: a.Titre, Description: a.Description, Categorie: a.Categorie,
 			Etat: a.Etat, TypeAnnonce: a.Type, Prix: a.Prix, Ville: a.Ville,
 			CodePostal: a.CodePostal, Statut: a.Statut, Date: a.Date, Auteur: a.Auteur,
+			ActionsAutorisees: snap.ActionsAnnonce(estProprietaire, false),
 		})
 	}
 	return out
@@ -258,7 +266,7 @@ func (s *AnnonceService) ListerPubliees() ([]AnnonceListeDTO, error) {
 	if err != nil {
 		return nil, err
 	}
-	return versListeDTO(rows), nil
+	return versListeDTO(rows, false), nil
 }
 
 // MesAnnonces : liste privée de l'utilisateur AUTHENTIFIÉ (tous statuts). Un
@@ -275,5 +283,5 @@ func (s *AnnonceService) MesAnnonces(idUtilisateur int) ([]AnnonceListeDTO, erro
 	if err != nil {
 		return nil, err
 	}
-	return versListeDTO(rows), nil
+	return versListeDTO(rows, true), nil
 }

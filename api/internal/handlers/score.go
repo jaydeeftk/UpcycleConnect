@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
 	"upcycleconnect/internal/services"
 )
 
@@ -14,19 +15,22 @@ var scoreSvc = services.NewScoreService()
 // historique des points + badges dérivés du score) de l'utilisateur visé par
 // l'URL.
 //
-// Autorisation portée par le middleware OwnerFromPath : seul le propriétaire (ou
-// un admin) atteint ce handler, l'identifiant du chemin ayant été comparé au JWT.
-// LECTURE PURE : contrairement à l'ancienne version, ce GET n'écrit rien (il ne
-// rafraîchit plus un cache Particuliers.Score qui n'était jamais relu).
+// IDENTITÉ DEPUIS LE JWT, JAMAIS L'URL : un utilisateur non-admin ne peut consulter
+// QUE son propre score (idUtilisateur = sub du JWT, l'URL est ignorée). Un admin
+// peut cibler un autre utilisateur via l'URL. OwnerFromPath garde déjà la route,
+// mais on ne se repose pas sur le segment d'URL pour choisir la cible — sinon une
+// URL du type /api/score/{victime}/{monId} contournerait la garde (IDOR).
+// LECTURE PURE : ce GET n'écrit rien (plus de rafraîchissement de cache).
 func GetScore(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 		return
 	}
-	idUtilisateur, err := idDepuisChemin(r.URL.Path, "/api/score/")
-	if err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
-		return
+	idUtilisateur := middleware.GetUserID(r)
+	if middleware.GetRole(r) == "admin" {
+		if pathID, err := idDepuisChemin(r.URL.Path, "/api/score/"); err == nil {
+			idUtilisateur = pathID
+		}
 	}
 	dto, err := scoreSvc.ScoreDuParticulier(idUtilisateur)
 	if err != nil {

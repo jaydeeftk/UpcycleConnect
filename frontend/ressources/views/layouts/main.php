@@ -106,6 +106,9 @@
         .dark .bg-white { background-color: #0f172a !important; }
         .dark .bg-gray-50, .dark .bg-slate-50 { background-color: #020617 !important; }
         .dark .text-gray-900, .dark .text-slate-900, .dark .text-gray-800, .dark .text-slate-800 { color: #f1f5f9 !important; }
+        .dark .text-gray-700, .dark .text-slate-700 { color: #e2e8f0 !important; }
+        .dark .text-gray-600, .dark .text-slate-600 { color: #cbd5e1 !important; }
+        .dark .text-gray-500, .dark .text-slate-500 { color: #94a3b8 !important; }
         .dark .border-gray-200, .dark .border-slate-200 { border-color: #1e293b !important; }
         .dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,.4) !important; }
         .dark input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([class*="bg-"]),

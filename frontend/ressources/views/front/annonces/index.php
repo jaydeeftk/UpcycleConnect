@@ -13,9 +13,14 @@
                 <p class="text-base-content/60 mt-2">Trouvez des objets à récupérer ou à acheter près de chez vous.</p>
             </div>
             <?php if (isset($_SESSION['user'])): ?>
-                <a href="/annonces/create" class="btn btn-neutral">
-                    <i class="fas fa-plus mr-2"></i> Déposer une annonce
-                </a>
+                <div class="flex items-center gap-2">
+                    <a href="/mes-annonces" class="btn btn-ghost">
+                        <i class="fas fa-list mr-2"></i> Mes annonces
+                    </a>
+                    <a href="/annonces/create" class="btn btn-neutral">
+                        <i class="fas fa-plus mr-2"></i> Déposer une annonce
+                    </a>
+                </div>
             <?php endif; ?>
         </div>
     </div>

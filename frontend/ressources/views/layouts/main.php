@@ -121,6 +121,8 @@
         .dark .text-purple-600,.dark .text-violet-600,.dark .text-purple-700,.dark .text-violet-700,.dark .text-purple-800 { color:#d8b4fe !important; }
         .dark .text-amber-600,.dark .text-yellow-600,.dark .text-orange-600,.dark .text-amber-700,.dark .text-yellow-700,.dark .text-orange-700,.dark .text-amber-800,.dark .text-orange-800 { color:#fcd34d !important; }
         .dark .text-red-600,.dark .text-rose-600,.dark .text-pink-600,.dark .text-red-700,.dark .text-rose-700,.dark .text-pink-700,.dark .text-red-800,.dark .text-rose-800 { color:#fca5a5 !important; }
+        .dark .bg-gray-100,.dark .bg-slate-100 { background-color:#1e293b !important; }
+        .dark .bg-gray-200,.dark .bg-slate-200 { background-color:#334155 !important; }
         .dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,.4) !important; }
         .dark input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([class*="bg-"]),
         .dark select:not([class*="bg-"]),

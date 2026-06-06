@@ -412,8 +412,6 @@ func AdminGetMessages(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, msgs)
 }
 
-// AdminGetConteneurs : liste back-office (GET) ou création (POST). Le taux de
-// remplissage renvoyé est désormais dérivé de l'occupation RÉELLE des box.
 func AdminGetConteneurs(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		AdminCreateConteneur(w, r)
@@ -427,9 +425,6 @@ func AdminGetConteneurs(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// AdminCreateConteneur : création d'un conteneur (POST). Le service insère le
-// conteneur sous l'identité de l'admin (Id_Administrateurs NOT NULL, dont l'oubli
-// provoquait un 500) ET matérialise sa box dans la même transaction.
 func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -454,9 +449,6 @@ func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Conteneur créé"})
 }
 
-// AdminConteneurAction : édition (PUT/PATCH) ou suppression (DELETE) d'un conteneur.
-// La suppression échoue proprement (409) si le conteneur n'est pas vide, au lieu
-// d'avaler silencieusement la violation de clé étrangère.
 func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/admin/conteneurs/")
 	if err != nil {
@@ -492,8 +484,6 @@ func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminGetDemandes : file de modération des demandes de dépôt, avec actions
-// autorisées dérivées côté serveur (allowed_actions).
 func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
 	liste, err := conteneurSvc.AdminListerDemandes()
 	if err != nil {
@@ -503,9 +493,6 @@ func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// AdminGetFinances : agrégat du tableau de bord financier (nb factures, totaux
-// HT/TTC, commissions, CA par mois, répartition par statut). Toute l'agrégation
-// SQL vit dans le repository ; le handler ne fait que déléguer et sérialiser.
 func AdminGetFinances(w http.ResponseWriter, r *http.Request) {
 	agg, err := facturationSvc.Finances()
 	if err != nil {
@@ -515,9 +502,6 @@ func AdminGetFinances(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, agg)
 }
 
-// AdminForumSujetAction : modération d'un sujet.
-//   - PATCH /{id}/{action} : transition (fermer / rouvrir) sous verrou ;
-//   - DELETE /{id}         : suppression (sujet + réponses) en une transaction.
 func AdminForumSujetAction(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/admin/forum/sujets/")
 	if err != nil {
@@ -625,8 +609,6 @@ func AdminConseilAction(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 }
 
-// AdminGetForumSujets : vue de modération du forum (tous les sujets + compteur de
-// réponses). L'agrégation SQL vit dans le repository ; le handler délègue.
 func AdminGetForumSujets(w http.ResponseWriter, r *http.Request) {
 	liste, err := forumSvc.AdminListerSujets()
 	if err != nil {
@@ -636,10 +618,6 @@ func AdminGetForumSujets(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// AdminDemandeAction : modération depuis la page « Demandes Dépôt ».
-// valider -> réserve une box + code ; refuser -> refuse ; deposer -> confirme le
-// dépôt physique. Toutes les transitions passent par le MÊME service que la page
-// « Conteneurs & Box » (source de vérité unique), avec gardes d'état et capacité.
 func AdminDemandeAction(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/admin/demandes/")
 	parts := strings.Split(strings.TrimSuffix(path, "/"), "/")

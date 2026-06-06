@@ -7,25 +7,14 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-// FacturationRepo isole l'accès SQL du vertical Contrat / Abonnement / Facture /
-// Commission / Paiement. Aucune règle métier ici : uniquement lecture/écriture,
-// chaque méthode acceptant un Querier (DB ou Tx) pour fonctionner dans ou hors
-// transaction.
 type FacturationRepo struct{}
 
-// codeMySQLDuplicate : ER_DUP_ENTRY, levé sur violation d'unicité (Numero_facture).
 const codeFacturationDuplicate = 1062
 
-// EstViolationUnicite reconnaît une collision de clé unique, pour distinguer un
-// numéro de facture déjà pris (à régénérer) d'une vraie erreur SQL.
 func (FacturationRepo) EstViolationUnicite(err error) bool {
 	var me *mysql.MySQLError
 	return errors.As(err, &me) && me.Number == codeFacturationDuplicate
 }
-
-// ===========================================================================
-// Contrat
-// ===========================================================================
 
 type ContratAdminLigne struct {
 	ID            int
@@ -82,9 +71,6 @@ func (FacturationRepo) AdminListerContrats(q Querier) ([]ContratAdminLigne, erro
 	return out, rows.Err()
 }
 
-// ContratsDuProfessionnel lit les contrats d'UN professionnel via la VRAIE clé
-// (Id_Professionnels). Corrige la requête historique qui interrogeait des
-// colonnes inexistantes (Type_contrat, Montant, Id_Utilisateurs).
 func (FacturationRepo) ContratsDuProfessionnel(q Querier, idProfessionnel int) ([]ContratProLigne, error) {
 	rows, err := q.Query(
 		`SELECT c.Id_Contrats, COALESCE(c.Type,''), COALESCE(c.Statut,''),
@@ -117,8 +103,6 @@ func (FacturationRepo) ProfessionnelExiste(q Querier, idProfessionnel int) (bool
 	return n != 0, err
 }
 
-// IdProfessionnel mappe l'utilisateur authentifié vers son Id_Professionnels.
-// sql.ErrNoRows => l'appelant n'est pas un professionnel (403 décidé en service).
 func (FacturationRepo) IdProfessionnel(q Querier, idUtilisateur int) (int, error) {
 	var id int
 	err := q.QueryRow(
@@ -128,8 +112,6 @@ func (FacturationRepo) IdProfessionnel(q Querier, idUtilisateur int) (int, error
 	return id, err
 }
 
-// PrixFormation / PrixEvenement : montant et intitulé d'un article payable, lus
-// EN BASE (jamais transmis par le client) — socle anti-falsification du checkout.
 func (FacturationRepo) PrixFormation(q Querier, idFormation int) (float64, string, error) {
 	var prix float64
 	var titre string
@@ -162,8 +144,6 @@ func (FacturationRepo) CreerContrat(q Querier, c ContratCreation) (int64, error)
 	return res.LastInsertId()
 }
 
-// ContratStatutPourMAJ verrouille la ligne (FOR UPDATE) et renvoie son statut
-// courant : base de toute transition concurrente-sûre.
 func (FacturationRepo) ContratStatutPourMAJ(q Querier, idContrat int) (string, error) {
 	var statut string
 	err := q.QueryRow(
@@ -178,8 +158,6 @@ func (FacturationRepo) MajStatutContrat(q Querier, idContrat int, statut string)
 	return err
 }
 
-// MajContrat met à jour échéance et type. Un champ vide ne SUPPRIME pas la valeur
-// existante (COALESCE/NULLIF) : une mise à jour partielle reste non destructive.
 func (FacturationRepo) MajContrat(q Querier, idContrat int, dateFin, typ string) (int64, error) {
 	res, err := q.Exec(
 		"UPDATE Contrats SET Date_fin = NULLIF(?,''), Type = COALESCE(NULLIF(?,''), Type) WHERE Id_Contrats = ?",
@@ -198,10 +176,6 @@ func (FacturationRepo) SupprimerContrat(q Querier, idContrat int) (int64, error)
 	}
 	return res.RowsAffected()
 }
-
-// ===========================================================================
-// Facture
-// ===========================================================================
 
 type FactureLigne struct {
 	ID           int
@@ -305,10 +279,6 @@ func (FacturationRepo) CreerLigneFacture(q Querier, l LigneFactureCreation) erro
 	return err
 }
 
-// ===========================================================================
-// Paiement
-// ===========================================================================
-
 type PaiementLigne struct {
 	ID      int
 	Montant float64
@@ -363,8 +333,6 @@ func (FacturationRepo) CreerPaiement(q Querier, p PaiementCreation) (int64, erro
 	return res.LastInsertId()
 }
 
-// PaiementReferenceExiste assure l'idempotence du rapprochement Stripe : une même
-// référence de session ne crée jamais deux paiements.
 func (FacturationRepo) PaiementReferenceExiste(q Querier, reference string) (bool, error) {
 	if reference == "" {
 		return false, nil
@@ -376,8 +344,6 @@ func (FacturationRepo) PaiementReferenceExiste(q Querier, reference string) (boo
 	return n != 0, err
 }
 
-// UtilisateurAPayeFormation : existe-t-il un paiement 'paye' de cet utilisateur
-// dont une ligne de facture porte cette formation ? Base de la garde 402.
 func (FacturationRepo) UtilisateurAPayeFormation(q Querier, idUtilisateur, idFormation int) (bool, error) {
 	var n int
 	err := q.QueryRow(
@@ -401,10 +367,6 @@ func (FacturationRepo) UtilisateurAPayeEvenement(q Querier, idUtilisateur, idEve
 	).Scan(&n)
 	return n != 0, err
 }
-
-// ===========================================================================
-// Abonnement
-// ===========================================================================
 
 type AbonnementLigne struct {
 	ID        string
@@ -474,10 +436,6 @@ func (FacturationRepo) SupprimerAbonnement(q Querier, id string) (int64, error) 
 	}
 	return res.RowsAffected()
 }
-
-// ===========================================================================
-// Finances (agrégat dashboard admin)
-// ===========================================================================
 
 type MoisCA struct {
 	Mois string  `json:"mois"`

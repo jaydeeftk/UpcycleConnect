@@ -9,22 +9,14 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// projetSvc — cas d'usage des projets d'upcycling. Sans état, partagé.
 var projetSvc = services.NewProjetService()
 
-// ProfessionnelProjetsHandler : collection des projets du professionnel.
-//   - GET  -> liste de SES projets (avec nb_etapes et allowed_actions) ;
-//   - POST -> création d'un projet (titre obligatoire, statut canonique).
-//
-// L'identité (Id_Professionnels) vient du JWT — jamais d'un paramètre. Un admin
-// sans profil pro reçoit 403.
 func ProfessionnelProjetsHandler(w http.ResponseWriter, r *http.Request) {
 	_, profID, ok := getProfessionnelFromContext(r)
 	if !ok {
 		httpx.JSONError(w, http.StatusForbidden, "Profil professionnel introuvable")
 		return
 	}
-
 	switch r.Method {
 	case http.MethodGet:
 		liste, err := projetSvc.ListerProjets(profID)
@@ -33,7 +25,6 @@ func ProfessionnelProjetsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, liste)
-
 	case http.MethodPost:
 		var body struct {
 			Titre       string `json:"titre"`
@@ -46,28 +37,18 @@ func ProfessionnelProjetsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		id, err := projetSvc.CreerProjet(profID, services.ProjetInput{
-			Titre: body.Titre, Description: body.Description,
-			DateDebut: body.DateDebut, Statut: body.Statut,
+			Titre: body.Titre, Description: body.Description, DateDebut: body.DateDebut, Statut: body.Statut,
 		})
 		if err != nil {
 			httpx.WriteError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Projet créé"})
-
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}
 }
 
-// ProfessionnelProjetAction : opérations sur UN projet identifié par l'URL.
-//   - GET    /projets/{id}            -> liste des étapes du projet ;
-//   - PUT    /projets/{id}            -> édition du contenu (titre/description) ;
-//   - DELETE /projets/{id}            -> suppression (projet + étapes) ;
-//   - POST   /projets/{id}/{action}   -> transition d'état
-//     (suspendre | reprendre | terminer | rouvrir).
-//
-// Le service garde propriété + état (403/404/409). L'identité vient du JWT.
 func ProfessionnelProjetAction(w http.ResponseWriter, r *http.Request) {
 	_, profID, ok := getProfessionnelFromContext(r)
 	if !ok {
@@ -85,7 +66,6 @@ func ProfessionnelProjetAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Transition d'état : POST /projets/{id}/{action}.
 	if len(segs) >= 2 {
 		if r.Method != http.MethodPost {
 			httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -121,7 +101,6 @@ func ProfessionnelProjetAction(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, liste)
-
 	case http.MethodPut:
 		var body struct {
 			Titre       string `json:"titre"`
@@ -131,31 +110,22 @@ func ProfessionnelProjetAction(w http.ResponseWriter, r *http.Request) {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 			return
 		}
-		if err := projetSvc.ModifierProjet(profID, idProjet, services.ProjetContenuInput{
-			Titre: body.Titre, Description: body.Description,
-		}); err != nil {
+		if err := projetSvc.ModifierProjet(profID, idProjet, services.ProjetContenuInput{Titre: body.Titre, Description: body.Description}); err != nil {
 			httpx.WriteError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Projet mis à jour"})
-
 	case http.MethodDelete:
 		if err := projetSvc.SupprimerProjet(profID, idProjet); err != nil {
 			httpx.WriteError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Projet supprimé"})
-
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}
 }
 
-// ProfessionnelEtapeAction : CRUD des étapes d'un projet.
-//   - POST   /projets/{id}/etapes        -> ajoute une étape (projet non figé) ;
-//   - DELETE /projets/{id}/etapes/{eid}  -> supprime une étape.
-//
-// Le service garde propriété + état du projet parent. L'identité vient du JWT.
 func ProfessionnelEtapeAction(w http.ResponseWriter, r *http.Request) {
 	_, profID, ok := getProfessionnelFromContext(r)
 	if !ok {
@@ -166,7 +136,7 @@ func ProfessionnelEtapeAction(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
-		if len(segs) != 2 { // {id}/etapes
+		if len(segs) != 2 {
 			httpx.JSONError(w, http.StatusBadRequest, "Chemin d'étape invalide")
 			return
 		}
@@ -184,17 +154,14 @@ func ProfessionnelEtapeAction(w http.ResponseWriter, r *http.Request) {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 			return
 		}
-		id, err := projetSvc.AjouterEtape(profID, idProjet, services.EtapeInput{
-			Nom: body.Nom, Description: body.Description, Visuel: body.Visuel,
-		})
+		id, err := projetSvc.AjouterEtape(profID, idProjet, services.EtapeInput{Nom: body.Nom, Description: body.Description, Visuel: body.Visuel})
 		if err != nil {
 			httpx.WriteError(w, err)
 			return
 		}
 		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Étape ajoutée"})
-
 	case http.MethodDelete:
-		if len(segs) != 3 { // {id}/etapes/{eid}
+		if len(segs) != 3 {
 			httpx.JSONError(w, http.StatusBadRequest, "Identifiant d'étape manquant")
 			return
 		}
@@ -208,7 +175,6 @@ func ProfessionnelEtapeAction(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Étape supprimée"})
-
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}

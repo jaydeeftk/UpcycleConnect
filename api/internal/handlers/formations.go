@@ -49,9 +49,6 @@ func GetFormations(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, formations)
 }
 
-// GetFormation route la fiche publique et les actions d'inscription. Mêmes
-// règles que pour les événements : actions sous JWT (identité = sub), fiche
-// publique à identité optionnelle.
 func GetFormation(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/formations/")
 	parts := strings.Split(strings.Trim(path, "/"), "/")
@@ -88,9 +85,6 @@ func ficheFormation(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
-// InscrireFormation : handler fin. Identité = JWT (sub). La règle (état, date,
-// places restantes) et la décrémentation ATOMIQUE des places vivent dans le
-// service, sous verrou FOR UPDATE — fin de la sur-réservation.
 func InscrireFormation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -108,7 +102,6 @@ func InscrireFormation(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Inscription confirmée"})
 }
 
-// DesinscrireFormation : handler fin, identité = JWT (sub).
 func DesinscrireFormation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

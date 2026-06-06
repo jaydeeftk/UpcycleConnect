@@ -8,26 +8,15 @@ import (
 	"upcycleconnect/internal/domain"
 )
 
-// ConteneurRepo : accès SQL pour le vertical Demande / Conteneur / Box. Sans état
-// — chaque méthode reçoit le Querier (DB ou Tx) sur lequel exécuter, de sorte que
-// les décisions de capacité s'exécutent dans la transaction (et sous les verrous
-// FOR UPDATE) ouverte par le service.
 type ConteneurRepo struct{}
 
-// codeMySQLDuplicate : violation d'unicité (ER_DUP_ENTRY). Sert au service à
-// regénérer un Code_acces en cas de collision sur uq_demande_code_acces.
 const codeMySQLDuplicate = 1062
 
-// EstViolationUnicite indique si err est une violation de contrainte d'unicité
-// MySQL. Le service s'en sert pour réessayer une génération de code, sans que la
-// couche au-dessus n'ait à connaître le pilote SQL.
 func (ConteneurRepo) EstViolationUnicite(err error) bool {
 	var me *mysql.MySQLError
 	return errors.As(err, &me) && me.Number == codeMySQLDuplicate
 }
 
-// IdParticulier résout l'Id_Particuliers de l'utilisateur AUTHENTIFIÉ. Renvoie
-// sql.ErrNoRows si le compte n'est pas un particulier : le service en fait un 403.
 func (ConteneurRepo) IdParticulier(q Querier, idUtilisateur int) (int, error) {
 	var id int
 	err := q.QueryRow(
@@ -37,8 +26,6 @@ func (ConteneurRepo) IdParticulier(q Querier, idUtilisateur int) (int, error) {
 	return id, err
 }
 
-// IdAdministrateur résout l'Id_Administrateurs de l'utilisateur AUTHENTIFIÉ.
-// Renvoie sql.ErrNoRows si le compte n'est pas administrateur.
 func (ConteneurRepo) IdAdministrateur(q Querier, idUtilisateur int) (int, error) {
 	var id int
 	err := q.QueryRow(
@@ -48,7 +35,6 @@ func (ConteneurRepo) IdAdministrateur(q Querier, idUtilisateur int) (int, error)
 	return id, err
 }
 
-// ConteneurStatut renvoie le statut d'un conteneur (sql.ErrNoRows si inexistant).
 func (ConteneurRepo) ConteneurStatut(q Querier, idConteneur int) (string, error) {
 	var statut string
 	err := q.QueryRow(
@@ -58,8 +44,6 @@ func (ConteneurRepo) ConteneurStatut(q Querier, idConteneur int) (string, error)
 	return statut, err
 }
 
-// ConteneurStatutPourMAJ verrouille la ligne conteneur (FOR UPDATE) — utilisé par
-// la suppression pour sérialiser face aux écritures concurrentes.
 func (ConteneurRepo) ConteneurStatutPourMAJ(q Querier, idConteneur int) (string, error) {
 	var statut string
 	err := q.QueryRow(
@@ -69,9 +53,6 @@ func (ConteneurRepo) ConteneurStatutPourMAJ(q Querier, idConteneur int) (string,
 	return statut, err
 }
 
-// DemandeCreation : données d'une demande de dépôt, DÉJÀ validées par le domaine.
-// Le statut initial (en_attente) et la date sont imposés par le repo, jamais par
-// le client. Code_acces reste NULL jusqu'à la validation.
 type DemandeCreation struct {
 	TypeObjet     string
 	Description   string
@@ -99,9 +80,6 @@ func (ConteneurRepo) CreerDemande(q Querier, d DemandeCreation) (int64, error) {
 	return res.LastInsertId()
 }
 
-// DemandePourMAJ verrouille la demande (FOR UPDATE) et renvoie le snapshot métier
-// nécessaire à la décision de transition. Id_Conteneurs étant nullable, il
-// remonte à 0 si absent — le service refuse alors la validation (pas de box cible).
 func (ConteneurRepo) DemandePourMAJ(q Querier, idDemande int) (domain.DemandeSnapshot, error) {
 	var s domain.DemandeSnapshot
 	err := q.QueryRow(
@@ -112,14 +90,6 @@ func (ConteneurRepo) DemandePourMAJ(q Querier, idDemande int) (domain.DemandeSna
 	return s, err
 }
 
-// BoxesDuConteneurPourMAJ verrouille les box d'un conteneur (FOR UPDATE) et calcule
-// pour chacune son occupation DÉRIVÉE = COUNT des objets PHYSIQUEMENT présents
-// (en_stock OU reserve_pro : un objet réservé reste dans la box tant que le pro ne
-// l'a pas récupéré ; seul recupere libère la place). La sous-requête de comptage
-// est volontairement non verrouillante : sous READ COMMITTED (cf. services/tx.go)
-// elle reflète les insertions committées des transactions concurrentes une fois le
-// verrou FOR UPDATE obtenu. C'est le point de sérialisation qui empêche deux
-// validations simultanées de sur-remplir la box.
 func (ConteneurRepo) BoxesDuConteneurPourMAJ(q Querier, idConteneur int) ([]domain.BoxSnapshot, error) {
 	rows, err := q.Query(
 		`SELECT b.Id_Box, b.Capacite, b.Statut,
@@ -146,10 +116,6 @@ func (ConteneurRepo) BoxesDuConteneurPourMAJ(q Querier, idConteneur int) ([]doma
 	return boxes, rows.Err()
 }
 
-// AssignerCodeEtValider applique la transition en_attente -> validee en posant le
-// Code_acces. La garde « AND Statut='en_attente' » est une ceinture de sécurité
-// (la ligne est déjà verrouillée). Une collision sur uq_demande_code_acces remonte
-// telle quelle : le service la détecte (EstViolationUnicite) et regénère un code.
 func (ConteneurRepo) AssignerCodeEtValider(q Querier, idDemande int, code string) error {
 	_, err := q.Exec(
 		"UPDATE Demandes_conteneurs SET Statut='validee', Code_acces=? WHERE Id_Demandes_conteneurs=? AND Statut='en_attente'",
@@ -158,8 +124,6 @@ func (ConteneurRepo) AssignerCodeEtValider(q Querier, idDemande int, code string
 	return err
 }
 
-// MajStatutDemande applique une transition d'état déjà décidée par le domaine
-// (refuser, déposer).
 func (ConteneurRepo) MajStatutDemande(q Querier, idDemande int, statut string) error {
 	_, err := q.Exec(
 		"UPDATE Demandes_conteneurs SET Statut=? WHERE Id_Demandes_conteneurs=?",
@@ -168,9 +132,6 @@ func (ConteneurRepo) MajStatutDemande(q Querier, idDemande int, statut string) e
 	return err
 }
 
-// ObjetCreation : matérialisation physique d'une demande validée — un objet
-// 'en_stock' rattaché à la box choisie. C'est cet objet qui OCCUPE la place (le
-// modèle d'occupation compte les objets en_stock par box).
 type ObjetCreation struct {
 	Type          string
 	IdConteneur   int
@@ -178,8 +139,6 @@ type ObjetCreation struct {
 	IdBox         int
 }
 
-// Renvoie l'Id_Objets créé : l'appelant s'en sert pour rattacher, dans la même
-// transaction, le code-barres de récupération (tout objet en_stock naît avec son code).
 func (ConteneurRepo) CreerObjetEnStock(q Querier, o ObjetCreation) (int, error) {
 	res, err := q.Exec(
 		`INSERT INTO Objets (Type, Statut, Id_Conteneurs, Id_Particuliers, Id_Box)
@@ -196,8 +155,6 @@ func (ConteneurRepo) CreerObjetEnStock(q Querier, o ObjetCreation) (int, error) 
 	return int(id), nil
 }
 
-// DemandeLigne : projection de liste pour le PROPRIÉTAIRE (sa propre file). Pas de
-// PII tierce — c'est l'utilisateur qui regarde ses demandes.
 type DemandeLigne struct {
 	ID          int
 	TypeObjet   string
@@ -232,8 +189,6 @@ func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, 
 	return liste, rows.Err()
 }
 
-// DemandeAdminLigne : projection de modération (admin). La PII du déposant est
-// destinée au back-office (traitement de la demande), pas au public.
 type DemandeAdminLigne struct {
 	ID           int
 	TypeObjet    string
@@ -278,7 +233,6 @@ func (ConteneurRepo) AdminListerDemandes(q Querier) ([]DemandeAdminLigne, error)
 	return liste, rows.Err()
 }
 
-// ConteneurPublic : ligne de la liste publique (choix d'un point de dépôt).
 type ConteneurPublic struct {
 	ID           int
 	Localisation string
@@ -286,8 +240,6 @@ type ConteneurPublic struct {
 	Statut       string
 }
 
-// ListerConteneursDisponibles : seuls les conteneurs disponibles acceptent de
-// nouvelles demandes. Capacite est un VARCHAR en base : CAST pour l'exposer en int.
 func (ConteneurRepo) ListerConteneursDisponibles(q Querier) ([]ConteneurPublic, error) {
 	rows, err := q.Query(
 		`SELECT Id_Conteneurs, COALESCE(Localisation,''), COALESCE(CAST(Capacite AS UNSIGNED),0),
@@ -310,17 +262,14 @@ func (ConteneurRepo) ListerConteneursDisponibles(q Querier) ([]ConteneurPublic, 
 	return liste, rows.Err()
 }
 
-// ConteneurAdmin : ligne back-office. Occupation et CapaciteBox sont DÉRIVÉES des
-// box (objets physiquement présents vs somme des capacités de box) — le service en
-// tire le taux de remplissage réel, sans jamais le stocker.
 type ConteneurAdmin struct {
 	ID           int
 	Localisation string
 	Capacite     int
 	Statut       string
-	NbDemandes   int // demandes validées rattachées
-	Occupation   int // objets présents (en_stock + reserve_pro) dans les box du conteneur
-	CapaciteBox  int // somme des capacités des box du conteneur
+	NbDemandes   int
+	Occupation   int
+	CapaciteBox  int
 }
 
 func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) {
@@ -353,9 +302,6 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 	return liste, rows.Err()
 }
 
-// CreerConteneur insère un conteneur sous l'identité de l'administrateur (NOT NULL
-// Id_Administrateurs — l'omettre provoquait un 500). Capacite est stockée telle
-// quelle dans la colonne VARCHAR.
 func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int, statut string, idAdmin int) (int64, error) {
 	res, err := q.Exec(
 		"INSERT INTO Conteneurs (Localisation, Capacite, Statut, Id_Administrateurs) VALUES (?, ?, ?, ?)",
@@ -367,9 +313,6 @@ func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int
 	return res.LastInsertId()
 }
 
-// CreerBox crée une box pour un conteneur. À la création d'un conteneur on
-// matérialise systématiquement sa box, sinon ChoisirBox ne trouverait jamais de
-// place et toute validation finirait en 409.
 func (ConteneurRepo) CreerBox(q Querier, reference string, capacite, idConteneur int) error {
 	_, err := q.Exec(
 		"INSERT INTO Box (Reference, Capacite, Statut, Id_Conteneurs) VALUES (?, ?, 'disponible', ?)",
@@ -378,8 +321,6 @@ func (ConteneurRepo) CreerBox(q Querier, reference string, capacite, idConteneur
 	return err
 }
 
-// ModifierConteneur met à jour les champs du conteneur ; renvoie le nombre de
-// lignes touchées pour distinguer « modifié » de « introuvable » (404).
 func (ConteneurRepo) ModifierConteneur(q Querier, idConteneur int, localisation string, capacite int, statut string) (int64, error) {
 	res, err := q.Exec(
 		"UPDATE Conteneurs SET Localisation=?, Capacite=?, Statut=? WHERE Id_Conteneurs=?",
@@ -391,25 +332,17 @@ func (ConteneurRepo) ModifierConteneur(q Querier, idConteneur int, localisation 
 	return res.RowsAffected()
 }
 
-// SyncBoxCapacite aligne la capacité des box d'un conteneur sur sa nouvelle
-// capacité : sans cela l'édition de capacité côté UI ne changerait rien à la
-// capacité RÉELLE de dépôt (qui est portée par les box).
 func (ConteneurRepo) SyncBoxCapacite(q Querier, idConteneur, capacite int) error {
 	_, err := q.Exec("UPDATE Box SET Capacite=? WHERE Id_Conteneurs=?", capacite, idConteneur)
 	return err
 }
 
-// CompterObjetsConteneur compte TOUS les objets rattachés au conteneur (quel que
-// soit leur statut) : un conteneur ayant un historique d'objets n'est pas
-// supprimable (intégrité référentielle + piste d'audit).
 func (ConteneurRepo) CompterObjetsConteneur(q Querier, idConteneur int) (int, error) {
 	var n int
 	err := q.QueryRow("SELECT COUNT(*) FROM Objets WHERE Id_Conteneurs = ?", idConteneur).Scan(&n)
 	return n, err
 }
 
-// CompterDemandesActives compte les demandes non terminales (en attente ou
-// validées) rattachées au conteneur — elles bloquent la suppression.
 func (ConteneurRepo) CompterDemandesActives(q Querier, idConteneur int) (int, error) {
 	var n int
 	err := q.QueryRow(
@@ -419,15 +352,11 @@ func (ConteneurRepo) CompterDemandesActives(q Querier, idConteneur int) (int, er
 	return n, err
 }
 
-// SupprimerBoxesConteneur supprime les box d'un conteneur. N'est appelé qu'après
-// avoir vérifié qu'aucun objet n'y est rattaché (sinon fk_objets_box bloquerait).
 func (ConteneurRepo) SupprimerBoxesConteneur(q Querier, idConteneur int) error {
 	_, err := q.Exec("DELETE FROM Box WHERE Id_Conteneurs = ?", idConteneur)
 	return err
 }
 
-// SupprimerConteneur supprime le conteneur ; renvoie le nombre de lignes pour
-// distinguer « supprimé » de « introuvable » (404).
 func (ConteneurRepo) SupprimerConteneur(q Querier, idConteneur int) (int64, error) {
 	res, err := q.Exec("DELETE FROM Conteneurs WHERE Id_Conteneurs = ?", idConteneur)
 	if err != nil {

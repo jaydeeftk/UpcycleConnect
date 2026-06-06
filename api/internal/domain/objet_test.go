@@ -11,7 +11,7 @@ func TestObjetSnapshot_Gardes(t *testing.T) {
 		nom     string
 		statut  string
 		garde   func(ObjetSnapshot) error
-		attendu error // nil ou catégorie attendue
+		attendu error
 	}{
 		{"reserver depuis en_stock OK", StatutObjetEnStock, ObjetSnapshot.PeutReserver, nil},
 		{"reserver depuis reserve_pro -> 409", StatutObjetReservePro, ObjetSnapshot.PeutReserver, ErrEtatInvalide},

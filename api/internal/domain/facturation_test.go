@@ -12,10 +12,10 @@ func TestCalculerTTC(t *testing.T) {
 	}{
 		{100, 20, 120},
 		{0, 20, 0},
-		{99.99, 20, 119.99}, // 119.988 -> 119.99
-		{33.33, 5.5, 35.16}, // 35.163... -> 35.16
-		{1000, 0, 1000},     // TVA nulle
-		{49.90, 20, 59.88},  // 59.88
+		{99.99, 20, 119.99},
+		{33.33, 5.5, 35.16},
+		{1000, 0, 1000},
+		{49.90, 20, 59.88},
 	}
 	for _, c := range cases {
 		if got := CalculerTTC(c.ht, c.tva); got != c.want {
@@ -59,7 +59,7 @@ func TestValiderCommission(t *testing.T) {
 		wantErr             bool
 	}{
 		{"10% de 200", 10, 200, 20, false},
-		{"5% de 99.90", 5, 99.90, 5.00, false}, // 4.995 -> 5.00
+		{"5% de 99.90", 5, 99.90, 5.00, false},
 		{"montant gonflé", 10, 200, 50, true},
 		{"taux hors borne", 120, 200, 240, true},
 		{"base négative", 10, -5, -0.5, true},
@@ -82,7 +82,7 @@ func TestTransitionContrat(t *testing.T) {
 		{StatutContratSuspendu, "reactiver", StatutContratActif, false},
 		{StatutContratActif, "resilier", StatutContratResilie, false},
 		{StatutContratSuspendu, "expirer", StatutContratExpire, false},
-		// transitions interdites
+
 		{StatutContratBrouillon, "suspendre", "", true},
 		{StatutContratResilie, "activer", "", true},
 		{StatutContratExpire, "reactiver", "", true},
@@ -100,8 +100,6 @@ func TestTransitionContrat(t *testing.T) {
 	}
 }
 
-// Invariant croisé : ActionsContratAdmin ne propose JAMAIS une action que
-// TransitionContrat refuserait, et propose TOUTES celles qu'elle accepte.
 func TestActionsContratAdminCoherentesAvecTransition(t *testing.T) {
 	toutes := []string{"activer", "suspendre", "reactiver", "resilier", "expirer"}
 	statuts := []string{

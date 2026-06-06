@@ -16,9 +16,6 @@ import (
 )
 
 func GetUserMessages(w http.ResponseWriter, r *http.Request) {
-	// Identité du JWT, jamais de l'URL : un non-admin ne lit QUE ses propres
-	// messages. Sinon /api/messages/user/{victime}/{moi} fuiterait les messages
-	// d'autrui (OwnerFromPath ne valide que le dernier segment). Admin -> via URL.
 	idUtilisateur := middleware.GetUserID(r)
 	if middleware.GetRole(r) == "admin" {
 		if pid, err := idDepuisChemin(r.URL.Path, "/api/messages/user/"); err == nil {

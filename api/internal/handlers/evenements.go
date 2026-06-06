@@ -12,8 +12,6 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// inscriptionSvc — cas d'usage d'inscription (événements & formations). Sans
-// état, partagé par les handlers du package.
 var inscriptionSvc = services.NewInscriptionService()
 
 func GetEvenements(w http.ResponseWriter, r *http.Request) {
@@ -46,9 +44,6 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, evts)
 }
 
-// GetEvenement route la fiche publique et les actions d'inscription. Les
-// actions (participer/desinscrire) exigent un JWT valide : l'identité vient du
-// token (sub), jamais du corps. La fiche reste publique (identité optionnelle).
 func GetEvenement(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/evenements/")
 	parts := strings.Split(strings.Trim(path, "/"), "/")
@@ -65,9 +60,6 @@ func GetEvenement(w http.ResponseWriter, r *http.Request) {
 	middleware.OptionalJWT(ficheEvenement)(w, r)
 }
 
-// ficheEvenement sert la fiche en lecture. L'identité (jeton si présent, sinon
-// hint legacy ?user_id) ne sert qu'à dériver est_inscrit/allowed_actions pour
-// l'affichage ; elle n'autorise aucune écriture.
 func ficheEvenement(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/evenements/")
 	if err != nil {
@@ -88,9 +80,6 @@ func ficheEvenement(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
-// ParticiperEvenement : handler fin. Identité = JWT (sub) ; le corps éventuel
-// est ignoré. Toute la règle (état, capacité, doublon, transaction) vit dans le
-// service. Les erreurs métier typées sont mappées en 4xx par httpx.WriteError.
 func ParticiperEvenement(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -108,7 +97,6 @@ func ParticiperEvenement(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Inscription confirmée"})
 }
 
-// DesinscrireEvenement : handler fin, identité = JWT (sub).
 func DesinscrireEvenement(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

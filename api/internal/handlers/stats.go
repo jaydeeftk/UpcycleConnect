@@ -7,8 +7,6 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
-// PublicStats expose des compteurs agrégés pour la page d'accueil.
-// Endpoint public : ce sont des chiffres de vitrine, sans aucune donnée personnelle.
 func PublicStats(w http.ResponseWriter, r *http.Request) {
 	var utilisateurs, annonces, evenements int
 	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs").Scan(&utilisateurs)

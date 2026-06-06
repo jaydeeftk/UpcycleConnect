@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'nav_home' => 'Inicio',
+    'nav_catalogue' => 'Catálogo',
+    'nav_services' => 'Servicios',
+    'nav_formations' => 'Formaciones',
+    'nav_evenements' => 'Eventos',
+    'nav_objets' => 'Objetos',
+    'nav_annonces' => 'Anuncios',
+    'nav_deposer' => 'Depositar',
+    'nav_conseils' => 'Consejos',
+    'nav_apropos' => 'Acerca de',
+    'nav_login' => 'Iniciar sesión',
+    'nav_register' => 'Registrarse',
+    'nav_logout' => 'Cerrar sesión',
+    'nav_mes_demandes' => 'Mis solicitudes',
+    'nav_mes_prestations' => 'Mis servicios',
+    'nav_planning' => 'Mi agenda',
+    'nav_mon_score' => 'Mi puntuación',
+    'nav_messages' => 'Mis mensajes',
+    'nav_paiements' => 'Pagos',
+    'nav_admin' => 'Administración',
+    'lang_label' => 'Idioma',
+];

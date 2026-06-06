@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'nav_home' => 'Home',
+    'nav_catalogue' => 'Catalog',
+    'nav_services' => 'Services',
+    'nav_formations' => 'Courses',
+    'nav_evenements' => 'Events',
+    'nav_objets' => 'Items',
+    'nav_annonces' => 'Listings',
+    'nav_deposer' => 'Drop off',
+    'nav_conseils' => 'Tips',
+    'nav_apropos' => 'About',
+    'nav_login' => 'Log in',
+    'nav_register' => 'Sign up',
+    'nav_logout' => 'Log out',
+    'nav_mes_demandes' => 'My requests',
+    'nav_mes_prestations' => 'My services',
+    'nav_planning' => 'My schedule',
+    'nav_mon_score' => 'My score',
+    'nav_messages' => 'My messages',
+    'nav_paiements' => 'Payments',
+    'nav_admin' => 'Administration',
+    'lang_label' => 'Language',
+];

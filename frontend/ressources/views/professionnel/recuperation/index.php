@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Récupération - UpcycleConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<div class="flex h-screen overflow-hidden">
+    <aside class="w-64 bg-gray-800 text-white flex flex-col flex-shrink-0">
+        <div class="p-6 border-b border-gray-700">
+            <h1 class="text-xl font-bold text-green-400">UpcycleConnect</h1>
+            <p class="text-xs text-gray-400 mt-1">Espace Professionnel</p>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="/professionnel" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-tachometer-alt w-5"></i><span>Tableau de bord</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/professionnel/recuperation" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-gray-700 text-white">
+                        <i class="fas fa-recycle w-5"></i><span>Récupération</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/professionnel/projets/create" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-project-diagram w-5"></i><span>Nouveau projet</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/annonces" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-bullhorn w-5"></i><span>Annonces</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/catalogue/services" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-tools w-5"></i><span>Services</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-700">
+            <a href="/logout" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition text-red-400 hover:text-white">
+                <i class="fas fa-sign-out-alt w-5"></i><span>Déconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <h2 class="text-2xl font-bold text-gray-800">Récupération d'objets</h2>
+            <p class="text-gray-600 text-sm">Réservez un objet déposé, puis récupérez-le (bouton ou scan du code-barres).</p>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- Récupération par scan du code-barres -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-bold mb-1"><i class="fas fa-barcode text-gray-500 mr-2"></i>Récupérer par code-barres</h3>
+                <p class="text-sm text-gray-500 mb-4">Scannez ou saisissez le code (UCB-…) de l'objet que vous venez chercher.</p>
+                <form method="POST" action="/professionnel/objets/scanner" class="flex gap-2">
+                    <input type="text" name="code" placeholder="UCB-XXXXXXXXXXXX" required
+                        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <button type="submit" class="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition font-medium">
+                        <i class="fas fa-box-open mr-2"></i>Récupérer
+                    </button>
+                </form>
+            </div>
+
+            <!-- Mes réservations -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-bold mb-4">Mes réservations</h3>
+                <?php if (empty($reservations)): ?>
+                    <p class="text-sm text-gray-400">Aucune réservation pour le moment.</p>
+                <?php else: ?>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <?php foreach ($reservations as $objet): ?>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($objet['type'] ?? 'Objet') ?></h4>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            <?= htmlspecialchars($objet['poids'] ?? '') ?> · <?= htmlspecialchars($objet['conteneur'] ?? '') ?>
+                                        </p>
+                                    </div>
+                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600"><?= htmlspecialchars($objet['statut'] ?? '') ?></span>
+                                </div>
+                                <?php if (!empty($objet['code_barre'])): ?>
+                                    <p class="text-xs text-gray-400 mb-2"><i class="fas fa-barcode mr-1"></i><?= htmlspecialchars($objet['code_barre']) ?></p>
+                                <?php endif; ?>
+                                <div class="flex flex-wrap gap-2">
+                                    <?php
+                                    $aa = $objet['allowed_actions'] ?? [];
+                                    $ui = [
+                                        'recuperer' => ['recuperer', 'Récupérer', 'fa-box-open', 'bg-green-500 hover:bg-green-600'],
+                                        'annuler'   => ['annuler',   'Annuler',   'fa-times',    'bg-gray-400 hover:bg-gray-500'],
+                                    ];
+                                    foreach ($ui as $a => $b):
+                                        if (!in_array($a, $aa, true)) continue; ?>
+                                        <form method="POST" action="/professionnel/objets/<?= htmlspecialchars($objet['id'] ?? '') ?>/<?= $b[0] ?>">
+                                            <button type="submit" class="text-white text-xs px-3 py-1.5 rounded <?= $b[3] ?> transition">
+                                                <i class="fas <?= $b[2] ?> mr-1"></i><?= $b[1] ?>
+                                            </button>
+                                        </form>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Catalogue des objets disponibles -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-bold mb-4">Objets disponibles</h3>
+                <?php if (empty($catalogue)): ?>
+                    <p class="text-sm text-gray-400">Aucun objet disponible à la réservation.</p>
+                <?php else: ?>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <?php foreach ($catalogue as $objet): ?>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($objet['type'] ?? 'Objet') ?></h4>
+                                <p class="text-xs text-gray-500 mt-1 mb-3">
+                                    <?= htmlspecialchars($objet['poids'] ?? '') ?> · <?= htmlspecialchars($objet['conteneur'] ?? '') ?>
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    <?php
+                                    $aa = $objet['allowed_actions'] ?? [];
+                                    if (in_array('reserver', $aa, true)): ?>
+                                        <form method="POST" action="/professionnel/objets/<?= htmlspecialchars($objet['id'] ?? '') ?>/reserver">
+                                            <button type="submit" class="text-white text-xs px-3 py-1.5 rounded bg-blue-500 hover:bg-blue-600 transition">
+                                                <i class="fas fa-hand-holding mr-1"></i>Réserver
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+        </main>
+    </div>
+</div>
+</body>
+</html>

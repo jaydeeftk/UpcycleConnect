@@ -72,6 +72,11 @@ $router->post('/professionnel/projets/{id}/reprendre', 'Front\ProfessionnelContr
 $router->post('/professionnel/projets/{id}/terminer', 'Front\ProfessionnelController@terminerProjet');
 $router->post('/professionnel/projets/{id}/rouvrir', 'Front\ProfessionnelController@rouvrirProjet');
 $router->post('/professionnel/favoris/{id}/remove', 'Front\ProfessionnelController@removeFavori');
+$router->get('/professionnel/recuperation', 'Front\ProfessionnelController@recuperation');
+$router->post('/professionnel/objets/scanner', 'Front\ProfessionnelController@scannerCode');
+$router->post('/professionnel/objets/{id}/reserver', 'Front\ProfessionnelController@reserverObjet');
+$router->post('/professionnel/objets/{id}/recuperer', 'Front\ProfessionnelController@recupererObjet');
+$router->post('/professionnel/objets/{id}/annuler', 'Front\ProfessionnelController@annulerObjet');
 
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
 $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');

@@ -99,4 +99,45 @@ class ProfessionnelController
         header('Location: /professionnel');
         exit;
     }
+
+    // --- Récupération pro : catalogue d'objets en_stock, réservation, récupération
+    // (par bouton ou par scan du code-barres), annulation. Les boutons affichés
+    // viennent UNIQUEMENT de allowed_actions renvoyé par l'API (la vérité est serveur).
+    public function recuperation()
+    {
+        $catalogue = [];
+        $reservations = [];
+        try {
+            $r = $this->api->get('/professionnels/objets');
+            $catalogue = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+        try {
+            $r = $this->api->get('/professionnels/objets', ['filtre' => 'mes-reservations']);
+            $reservations = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        return view('professionnel.recuperation.index', [
+            'catalogue'    => $catalogue,
+            'reservations' => $reservations,
+            'page_title'   => 'Récupération',
+        ]);
+    }
+
+    public function reserverObjet($id)  { $this->actionObjet($id, 'reserver'); }
+    public function recupererObjet($id) { $this->actionObjet($id, 'recuperer'); }
+    public function annulerObjet($id)   { $this->actionObjet($id, 'annuler'); }
+
+    private function actionObjet($id, $action)
+    {
+        try { $this->api->post('/professionnels/objets/' . $id . '/' . $action, []); } catch (\Exception $e) {}
+        header('Location: /professionnel/recuperation');
+        exit;
+    }
+
+    public function scannerCode()
+    {
+        try { $this->api->post('/professionnels/objets/recuperer-par-code', ['code' => $_POST['code'] ?? '']); } catch (\Exception $e) {}
+        header('Location: /professionnel/recuperation');
+        exit;
+    }
 }

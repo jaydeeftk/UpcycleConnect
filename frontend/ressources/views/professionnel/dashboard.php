@@ -23,6 +23,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/professionnel/recuperation" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-recycle w-5"></i><span>Récupération</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/professionnel/projets/create" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-project-diagram w-5"></i><span>Nouveau projet</span>
                     </a>

@@ -6,6 +6,8 @@
     <title>Récupération - UpcycleConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -61,9 +63,14 @@
 
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-bold mb-1"><i class="fas fa-barcode text-gray-500 mr-2"></i>Récupérer par code-barres</h3>
-                <p class="text-sm text-gray-500 mb-4">Scannez ou saisissez le code (UCB-…) de l'objet que vous venez chercher.</p>
-                <form method="POST" action="/professionnel/objets/scanner" class="flex gap-2">
-                    <input type="text" name="code" placeholder="UCB-XXXXXXXXXXXX" required
+                <p class="text-sm text-gray-500 mb-4">Scannez le QR avec la caméra, ou saisissez le code (UCB-…).</p>
+                <button type="button" id="scan-btn" class="mb-3 bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-900 transition font-medium">
+                    <i class="fas fa-camera mr-2"></i>Scanner avec la caméra
+                </button>
+                <div id="reader" class="hidden mb-3 max-w-xs"></div>
+                <div class="text-xs text-gray-400 mb-2">— ou saisie manuelle —</div>
+                <form id="scan-form" method="POST" action="/professionnel/objets/scanner" class="flex gap-2">
+                    <input type="text" id="code-input" name="code" placeholder="UCB-XXXXXXXXXXXX" required
                         class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                     <button type="submit" class="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition font-medium">
                         <i class="fas fa-box-open mr-2"></i>Récupérer
@@ -90,6 +97,7 @@
                                 </div>
                                 <?php if (!empty($objet['code_barre'])): ?>
                                     <p class="text-xs text-gray-400 mb-2"><i class="fas fa-barcode mr-1"></i><?= htmlspecialchars($objet['code_barre']) ?></p>
+                                    <div class="qrcode mb-2" data-code="<?= htmlspecialchars($objet['code_barre']) ?>"></div>
                                 <?php endif; ?>
                                 <div class="flex flex-wrap gap-2">
                                     <?php
@@ -145,5 +153,28 @@
         </main>
     </div>
 </div>
+<script>
+(function () {
+    var btn = document.getElementById('scan-btn');
+    var input = document.getElementById('code-input');
+    var form = document.getElementById('scan-form');
+    if (!btn || typeof Html5Qrcode === 'undefined') { if (btn) { btn.style.display = 'none'; } return; }
+    Html5Qrcode.getCameras().then(function (cams) {
+        if (!cams || cams.length === 0) { btn.style.display = 'none'; }
+    }).catch(function () { btn.style.display = 'none'; });
+    btn.addEventListener('click', function () {
+        document.getElementById('reader').classList.remove('hidden');
+        var scanner = new Html5Qrcode('reader');
+        scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: 220 }, function (decoded) {
+            scanner.stop().then(function () { input.value = decoded; form.submit(); });
+        }, function () {});
+    });
+})();
+document.querySelectorAll('.qrcode').forEach(function (el) {
+    if (el.dataset.code && typeof QRCode !== 'undefined') {
+        new QRCode(el, { text: el.dataset.code, width: 90, height: 90 });
+    }
+});
+</script>
 </body>
 </html>

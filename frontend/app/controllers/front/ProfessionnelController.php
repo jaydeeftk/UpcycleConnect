@@ -47,6 +47,7 @@ class ProfessionnelController
             'favoris'  => $favoris,
             'contrats' => $contrats,
             'page_title' => 'Espace Professionnel',
+            'layout' => 'raw',
         ]);
     }
 
@@ -54,6 +55,7 @@ class ProfessionnelController
     {
         return view('professionnel.projets.create', [
             'page_title' => 'Nouveau projet',
+            'layout' => 'raw',
         ]);
     }
 
@@ -114,6 +116,7 @@ class ProfessionnelController
             'catalogue'    => $catalogue,
             'reservations' => $reservations,
             'page_title'   => 'Récupération',
+            'layout' => 'raw',
         ]);
     }
 

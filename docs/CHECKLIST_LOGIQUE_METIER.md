@@ -135,10 +135,12 @@ Correctif uniforme : **identité du JWT** (non-admin → soi ; admin → via URL
 3. ⚠️ **Drive navigateur (P6)** : table-driven + concurrence + dérivation front prouvés ;
    le *drive visuel* desktop/mobile reste à faire (nécessite d'exposer la stack jetable —
    décision réseau). Les règles serveur sont déjà prouvées au niveau HTTP.
-4. ⚠️ **Front partiel pour certains verticals** : la **récupération pro (#26/#27) a
-   désormais son UI** (`/professionnel/recuperation` : catalogue, réservation, scan,
-   boutons dérivés de `allowed_actions` — commit `cc5b83d`). Reste l'absence d'une vue
-   « mes annonces » propriétaire (le particulier ne peut pas gérer ses propres annonces).
+4. ✅ **Front complété pour les verticals qui manquaient d'UI** :
+   - **Récupération pro (#26/#27)** : `/professionnel/recuperation` (catalogue, réservation,
+     scan), boutons dérivés de `allowed_actions` — commit `cc5b83d`.
+   - **Mes annonces (#22)** : `/mes-annonces` (retirer / vendre), `allowed_actions` ajouté
+     à la liste côté serveur (commit `34e6586`) puis consommé par la vue (commit `5af182b`).
+     Au passage, correction d'un token JWT manquant qui faisait échouer l'annulation.
 5. ⚠️ **CHECK en production** : les migrations CHECK supposent des données déjà conformes ;
    les valeurs héritées réelles en prod sont « inconnues » et doivent être vérifiées avant
    application (lecture prod approuvée requise) — aucune normalisation inventée.

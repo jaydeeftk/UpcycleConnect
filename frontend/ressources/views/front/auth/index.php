@@ -65,12 +65,11 @@
                                 <input type="password" name="password" placeholder="••••••••"
                                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
-                            <div class="flex justify-between items-center text-sm">
+                            <div class="flex items-center text-sm">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="checkbox" name="remember" class="rounded" />
                                     <span>Se souvenir de moi</span>
                                 </label>
-                                <a href="#" class="hover:underline">Mot de passe oublié ?</a>
                             </div>
                             <button type="submit"
                                 class="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-neutral-800 transition">

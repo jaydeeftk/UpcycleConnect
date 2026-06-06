@@ -116,6 +116,9 @@
 
         .dark .bg-white { background-color: #0f172a !important; }
         .dark .text-slate-800, .dark .text-slate-900, .dark .text-gray-900, .dark .text-gray-800 { color: #f1f5f9 !important; }
+        .dark .text-slate-700, .dark .text-gray-700 { color: #e2e8f0 !important; }
+        .dark .text-slate-600, .dark .text-gray-600 { color: #cbd5e1 !important; }
+        .dark .text-slate-500, .dark .text-gray-500 { color: #94a3b8 !important; }
         .dark .border-slate-200, .dark .border-gray-200 { border-color: #1e293b !important; }
         .dark input:not([class*="bg-"]), .dark select:not([class*="bg-"]), .dark textarea:not([class*="bg-"]) {
             background-color: #1e293b; color: #f1f5f9; border-color: #334155;

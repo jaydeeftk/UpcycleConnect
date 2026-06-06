@@ -7,20 +7,45 @@ class AnnonceController
     public function __construct()
     {
         $this->api = new ApiService();
+        // Le token doit voyager sur TOUTES les requêtes authentifiées (annuler,
+        // vendre, mes-annonces) — sans lui le serveur renvoie 401. (Auparavant
+        // absent : annuler échouait silencieusement.)
+        if (!empty($_SESSION['user']['token'])) {
+            $this->api->setToken($_SESSION['user']['token']);
+        }
     }
     public function annuler($id)
     {
         if (!isset($_SESSION['user'])) {
             redirect('/login');
         }
+        try { $this->api->post('/annonces/' . $id . '/annuler', []); } catch (\Exception $e) {}
+        redirect('/mes-annonces');
+    }
 
+    public function vendre($id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        try { $this->api->post('/annonces/' . $id . '/vendre', []); } catch (\Exception $e) {}
+        redirect('/mes-annonces');
+    }
+
+    public function mesAnnonces()
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $annonces = [];
         try {
-            $this->api->post('/annonces/' . $id . '/annuler', [
-                'id_utilisateur' => $_SESSION['user']['id'] ?? 0,
-            ]);
+            $res = $this->api->get('/annonces/user');
+            $annonces = isset($res['data']) && is_array($res['data']) ? $res['data'] : (is_array($res) && !isset($res['success']) ? $res : []);
         } catch (\Exception $e) {}
-
-        redirect('/mes-demandes');
+        return view('front.annonces.mes', [
+            'title'    => 'Mes annonces - UpcycleConnect',
+            'annonces' => $annonces,
+        ]);
     }
 
     public function show($id)

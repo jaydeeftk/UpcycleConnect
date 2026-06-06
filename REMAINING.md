@@ -17,3 +17,52 @@ par mot de passe — l'afficher en QR ouvert le divulguerait.
 3. Afficher le QR du code-barres sur la demande validée + bouton de téléchargement.
 4. Décider quel code le particulier présente au pro (le code-barres objet, pas le code
    d'accès conteneur).
+
+---
+
+# Audit UI/UX (juin 2026)
+
+## Corrigés et vérifiés au navigateur (espaces accessibles sans connexion)
+1. **admin/factures** : la vue contenait deux tableaux empilés et une balise `</div>`
+   orpheline qui fermait `<main>` trop tôt — le vrai tableau sortait du layout et
+   s'affichait comme une 3e colonne à côté de la sidebar. Vue nettoyée (un seul tableau).
+2. **Contraste dark mode** (layouts admin, salariés, front) : `text-gray/slate-700/600/500`
+   n'étaient pas remappés en sombre (ex. la colonne Date des factures ressortait trop foncée).
+   Overrides ajoutés. Mode clair inchangé.
+3. **/register** ouvre désormais directement l'onglet Inscription (avant : onglet Connexion).
+4. **Pages 404 et 403** : étaient des documents HTML complets rendus à travers le layout
+   `main` (document imbriqué → fond sombre en mode clair, 404 illisible). Transformées en
+   fragments : elles héritent de la navbar, du footer et du thème. Vérifiées clair + sombre.
+5. **Lien mort** « Mot de passe oublié ? » (`href="#"`, aucune route) retiré de la connexion.
+
+## Corrigé au code, à confirmer en session connectée
+6. **Pages professionnelles en pleine page** : les vues pro sont des documents complets
+   (sidebar propre) mais étaient rendues via le layout `main` → on cumulait la navbar et le
+   footer publics par-dessus l'app pro. Ajout d'un layout passe-plat `raw` utilisé par le
+   dashboard, la création de projet et la récupération. **À confirmer visuellement** lors
+   d'une connexion pro.
+
+## Audité au code — aucun bug bloquant trouvé
+- **Particulier** (score, conteneurs/create, planning, mes-annonces) : empty states présents,
+  structure HTML équilibrée, dark géré par le layout.
+- **Salarié** (dashboard, formations, événements, ateliers, conseils, planning) : dark géré
+  par le layout (`bg-white` remappé), empty states présents.
+- **Admin** (utilisateurs, annonces, conteneurs, demandes, contrats, etc.) : dark géré par le
+  layout ; factures corrigé.
+- **Jointure contrats** : correcte (`Contrats → Professionnels_artisans → Utilisateurs`).
+- **KPIs dashboard admin** : réels (API `/admin/dashboard`), non codés en dur.
+
+## À finir (nécessite un accès dont l'agent ne dispose pas)
+- **Pass visuel des espaces connectés** (particulier / pro / salarié / admin) en clair ET
+  sombre : nécessite une connexion. L'agent ne saisit pas de mots de passe (règle de sécurité) ;
+  une connexion par espace dans le navigateur suffit pour que l'audit visuel soit terminé.
+- **Pass responsive 375px** : l'environnement navigateur est figé à 1536px de large (le
+  redimensionnement ne change pas le viewport de rendu). La navbar et les layouts utilisent
+  déjà les classes responsive (`md:hidden` hamburger, `lg:grid-cols-2`). À valider sur un vrai
+  mobile ou via les DevTools.
+
+## Dette / nettoyage (non bloquant)
+- `ressources/views/admin/maintenance/index.php` n'est routé nulle part (mort) et contient un
+  bloc dupliqué (la page « Site en maintenance » publique). À supprimer si confirmé inutile.
+- « Mot de passe oublié » : fonctionnalité absente (lien retiré). À implémenter si souhaité.
+- i18n : navigation traduite (fr/en/es/de), corps des pages en FR (cf. note i18n existante).

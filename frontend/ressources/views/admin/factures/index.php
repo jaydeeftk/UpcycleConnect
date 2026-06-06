@@ -34,10 +34,10 @@
                     <td class="px-6 py-4">
                         <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"><?= htmlspecialchars($f['type']) ?></span>
                     </td>
-                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($f['date_emission']) ?></td>
+                    <td class="px-6 py-4 text-gray-600"><?= formatDate($f['date_emission'], true) ?></td>
                     <td class="px-6 py-4">
-                        <?php $sc = $f['statut'] === 'payé' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'; ?>
-                        <span class="px-3 py-1 rounded-full text-sm <?= $sc ?>"><?= htmlspecialchars($f['statut']) ?></span>
+                        <?php $sc = in_array($f['statut'], ['payee', 'paye'], true) ? 'bg-green-100 text-green-700' : (in_array($f['statut'], ['impayee', 'annulee'], true) ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'); ?>
+                        <span class="px-3 py-1 rounded-full text-sm <?= $sc ?>"><?= formatStatut($f['statut']) ?></span>
                     </td>
                     <td class="px-6 py-4">
                         <a href="/admin/factures/<?= $f['id'] ?>/pdf" target="_blank" class="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm hover:bg-green-200">

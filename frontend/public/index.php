@@ -20,6 +20,7 @@ spl_autoload_register(function ($class) {
 });
 
 require_once __DIR__ . '/../app/helpers/lang.php';
+require_once __DIR__ . '/../app/helpers/format.php';
 
 $config = require_once __DIR__ . '/../config/app.php';
 

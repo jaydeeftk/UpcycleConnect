@@ -25,7 +25,7 @@
                     <p class="text-sm text-slate-500"><i class="fas fa-map-marker-alt text-slate-400 mr-1"></i><?= htmlspecialchars($box['localisation']) ?></p>
                 </div>
                 <span class="px-2 py-1 bg-<?= $statusColor ?>-50 text-<?= $statusColor ?>-600 border border-<?= $statusColor ?>-200 rounded text-xs font-bold uppercase">
-                    <?= htmlspecialchars($box['statut']) ?>
+                    <?= formatStatut($box['statut']) ?>
                 </span>
             </div>
 

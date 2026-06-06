@@ -13,7 +13,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
   api:
     build:
       context: ./api
@@ -22,22 +21,32 @@ services:
     environment:
       DB_DSN: ${DB_DSN}
       JWT_SECRET: ${JWT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      APP_URL: ${APP_URL}
     depends_on:
       mysql:
         condition: service_healthy
-
   frontend:
     build: ./frontend
     restart: unless-stopped
-    ports:
-      - "80:80"
     environment:
       API_BASE_URL: ${API_BASE_URL}
     volumes:
       - ./frontend:/var/www/html
     depends_on:
       - api
-
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
   adminer:
     image: adminer
     restart: unless-stopped
@@ -45,6 +54,7 @@ services:
       - "127.0.0.1:8081:8080"
     depends_on:
       - mysql
-
 volumes:
   mysql_data:
+  caddy_data:
+  caddy_config:

@@ -16,9 +16,16 @@ import (
 )
 
 func GetUserMessages(w http.ResponseWriter, r *http.Request) {
-	userID := strings.TrimPrefix(r.URL.Path, "/api/messages/user/")
-	userID = strings.TrimSuffix(userID, "/")
-	if userID == "" {
+	// Identité du JWT, jamais de l'URL : un non-admin ne lit QUE ses propres
+	// messages. Sinon /api/messages/user/{victime}/{moi} fuiterait les messages
+	// d'autrui (OwnerFromPath ne valide que le dernier segment). Admin -> via URL.
+	idUtilisateur := middleware.GetUserID(r)
+	if middleware.GetRole(r) == "admin" {
+		if pid, err := idDepuisChemin(r.URL.Path, "/api/messages/user/"); err == nil {
+			idUtilisateur = pid
+		}
+	}
+	if idUtilisateur <= 0 {
 		httpx.JSONOK(w, http.StatusOK, []interface{}{})
 		return
 	}
@@ -39,7 +46,7 @@ func GetUserMessages(w http.ResponseWriter, r *http.Request) {
 		LEFT JOIN Particuliers p ON p.Id_Particuliers = m.Id_Particuliers
 		WHERE m.Id_Utilisateurs = ? OR p.Id_Utilisateurs = ?
 		ORDER BY m.Id_Messages ASC`,
-		userID, userID,
+		idUtilisateur, idUtilisateur,
 	)
 	if err != nil {
 		httpx.JSONOK(w, http.StatusOK, []interface{}{})

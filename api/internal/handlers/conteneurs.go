@@ -60,14 +60,17 @@ func CreateDemandeConteneur(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetDemandesConteneurUser : file privée d'un utilisateur. La route est gardée par
-// OwnerFromPath (l'id en fin d'URL doit être celui de l'appelant, sauf admin) ;
-// l'identifiant sert donc à cibler la file, l'autorisation étant déjà tranchée.
+// GetDemandesConteneurUser : file privée d'un utilisateur. IDENTITÉ DU JWT, JAMAIS
+// DE L'URL : un non-admin ne voit QUE sa propre file. On n'utilise pas le segment
+// d'URL pour cibler (OwnerFromPath valide le DERNIER segment, mais une URL du type
+// /api/conteneurs/user/{victime}/{moi} le contournerait — IDOR). Un admin peut
+// cibler un autre utilisateur via l'URL.
 func GetDemandesConteneurUser(w http.ResponseWriter, r *http.Request) {
-	idUtilisateur, err := idDepuisChemin(r.URL.Path, "/api/conteneurs/user/")
-	if err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
-		return
+	idUtilisateur := middleware.GetUserID(r)
+	if middleware.GetRole(r) == "admin" {
+		if pid, err := idDepuisChemin(r.URL.Path, "/api/conteneurs/user/"); err == nil {
+			idUtilisateur = pid
+		}
 	}
 	liste, err := conteneurSvc.DemandesDeLUtilisateur(idUtilisateur)
 	if err != nil {

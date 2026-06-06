@@ -110,6 +110,17 @@
         .dark .text-gray-600, .dark .text-slate-600 { color: #cbd5e1 !important; }
         .dark .text-gray-500, .dark .text-slate-500 { color: #94a3b8 !important; }
         .dark .border-gray-200, .dark .border-slate-200 { border-color: #1e293b !important; }
+
+        .dark .bg-green-50,.dark .bg-emerald-50,.dark .bg-teal-50,.dark .bg-lime-50,.dark .bg-green-100,.dark .bg-emerald-100,.dark .bg-teal-100 { background-color: rgba(16,185,129,.14) !important; }
+        .dark .bg-blue-50,.dark .bg-sky-50,.dark .bg-cyan-50,.dark .bg-indigo-50,.dark .bg-blue-100,.dark .bg-sky-100,.dark .bg-indigo-100 { background-color: rgba(59,130,246,.14) !important; }
+        .dark .bg-purple-50,.dark .bg-violet-50,.dark .bg-fuchsia-50,.dark .bg-purple-100,.dark .bg-violet-100 { background-color: rgba(168,85,247,.14) !important; }
+        .dark .bg-amber-50,.dark .bg-yellow-50,.dark .bg-orange-50,.dark .bg-amber-100,.dark .bg-yellow-100,.dark .bg-orange-100 { background-color: rgba(245,158,11,.14) !important; }
+        .dark .bg-red-50,.dark .bg-rose-50,.dark .bg-pink-50,.dark .bg-red-100,.dark .bg-rose-100,.dark .bg-pink-100 { background-color: rgba(244,63,94,.14) !important; }
+        .dark .text-green-600,.dark .text-emerald-600,.dark .text-teal-600,.dark .text-green-700,.dark .text-emerald-700,.dark .text-teal-700,.dark .text-green-800,.dark .text-emerald-800 { color:#6ee7b7 !important; }
+        .dark .text-blue-600,.dark .text-sky-600,.dark .text-indigo-600,.dark .text-blue-700,.dark .text-sky-700,.dark .text-indigo-700,.dark .text-blue-800,.dark .text-indigo-800 { color:#93c5fd !important; }
+        .dark .text-purple-600,.dark .text-violet-600,.dark .text-purple-700,.dark .text-violet-700,.dark .text-purple-800 { color:#d8b4fe !important; }
+        .dark .text-amber-600,.dark .text-yellow-600,.dark .text-orange-600,.dark .text-amber-700,.dark .text-yellow-700,.dark .text-orange-700,.dark .text-amber-800,.dark .text-orange-800 { color:#fcd34d !important; }
+        .dark .text-red-600,.dark .text-rose-600,.dark .text-pink-600,.dark .text-red-700,.dark .text-rose-700,.dark .text-pink-700,.dark .text-red-800,.dark .text-rose-800 { color:#fca5a5 !important; }
         .dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,.4) !important; }
         .dark input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([class*="bg-"]),
         .dark select:not([class*="bg-"]),

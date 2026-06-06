@@ -20,13 +20,13 @@ function navActive(string $path, string $current): string {
         <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
 
             <a href="/" class="transition <?= navActive('/', $currentPath) ?>">
-                Accueil
+                <?= t('nav_home', 'Accueil') ?>
             </a>
 
             <div class="dropdown dropdown-hover" data-tuto="prestations">
                 <div tabindex="0" role="button"
                      class="cursor-pointer transition flex items-center gap-2 <?= str_starts_with($currentPath, '/catalogue') ? 'text-primary font-semibold' : 'hover:text-primary' ?>">
-                    Catalogue
+                    <?= t('nav_catalogue', 'Catalogue') ?>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
                     </svg>
@@ -65,7 +65,7 @@ function navActive(string $path, string $current): string {
             <div class="dropdown dropdown-hover">
                 <div tabindex="0" role="button"
                      class="cursor-pointer transition flex items-center gap-2 <?= str_starts_with($currentPath, '/annonces') ? 'text-primary font-semibold' : 'hover:text-primary' ?>">
-                    Objets
+                    <?= t('nav_objets', 'Objets') ?>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
                     </svg>
@@ -86,7 +86,7 @@ function navActive(string $path, string $current): string {
             <div class="dropdown dropdown-hover" data-tuto="deposer">
                 <div tabindex="0" role="button"
                      class="cursor-pointer transition flex items-center gap-2 <?= str_starts_with($currentPath, '/conteneurs') || str_starts_with($currentPath, '/annonces/create') ? 'text-primary font-semibold' : 'hover:text-primary' ?>">
-                    Déposer
+                    <?= t('nav_deposer', 'Déposer') ?>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
                     </svg>
@@ -114,11 +114,11 @@ function navActive(string $path, string $current): string {
             </div>
 
             <a href="/conseils" class="transition <?= navActive('/conseils', $currentPath) ?>" data-tuto="conseils">
-                Conseils
+                <?= t('nav_conseils', 'Conseils') ?>
             </a>
 
             <a href="/a-propos" class="transition <?= navActive('/a-propos', $currentPath) ?>">
-                À propos
+                <?= t('nav_apropos', 'À propos') ?>
             </a>
 
         </nav>
@@ -126,6 +126,18 @@ function navActive(string $path, string $current): string {
         <div class="flex items-center gap-4">
 
             <?php include __DIR__ . '/darkmode.php'; ?>
+
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="cursor-pointer text-sm font-medium flex items-center gap-1 hover:text-primary">
+                    <i class="fas fa-globe"></i><span class="uppercase"><?= htmlspecialchars(currentLang()) ?></span>
+                </div>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[60] w-28 p-2 shadow border border-base-300 mt-2">
+                    <li><a href="/lang/fr">FR</a></li>
+                    <li><a href="/lang/en">EN</a></li>
+                    <li><a href="/lang/es">ES</a></li>
+                    <li><a href="/lang/de">DE</a></li>
+                </ul>
+            </div>
 
             <?php if (isset($_SESSION['user'])): ?>
                 <div class="relative">
@@ -182,18 +194,18 @@ function navActive(string $path, string $current): string {
             <?php else: ?>
                 <a href="/login"
                    class="bg-black text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">
-                    Connexion
+                    <?= t('nav_login', 'Connexion') ?>
                 </a>
                 <a href="/register"
                    class="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition hidden sm:inline-block">
-                    S'inscrire
+                    <?= t('nav_register', "S'inscrire") ?>
                 </a>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin'): ?>
                 <a href="/admin/dashboard"
                    class="flex items-center gap-2 text-sm font-medium bg-orange-50 text-orange-600 px-4 py-2 rounded-xl hover:bg-orange-100 transition">
-                    <i class="fas fa-cog"></i> Administration
+                    <i class="fas fa-cog"></i> <?= t('nav_admin', 'Administration') ?>
                 </a>
             <?php endif; ?>
 
@@ -205,22 +217,22 @@ function navActive(string $path, string $current): string {
     </div>
 
     <div id="mobile-menu" class="hidden md:hidden border-t border-base-200 bg-base-100 px-6 py-4 space-y-3 text-sm font-medium">
-        <a href="/" class="block py-2 <?= navActive('/', $currentPath) ?>">Accueil</a>
-        <a href="/catalogue/services" class="block py-2 <?= navActive('/catalogue/services', $currentPath) ?>">Services</a>
-        <a href="/catalogue/formations" class="block py-2 <?= navActive('/catalogue/formations', $currentPath) ?>">Formations</a>
-        <a href="/catalogue/evenements" class="block py-2 <?= navActive('/catalogue/evenements', $currentPath) ?>">Événements</a>
-        <a href="/annonces" class="block py-2 <?= navActive('/annonces', $currentPath) ?>">Annonces</a>
-        <a href="/annonces/create" class="block py-2 <?= navActive('/annonces/create', $currentPath) ?>">Déposer une annonce</a>
-        <a href="/conteneurs/create" class="block py-2 <?= navActive('/conteneurs/create', $currentPath) ?>">Déposer dans un conteneur</a>
-        <a href="/conseils" class="block py-2 <?= navActive('/conseils', $currentPath) ?>">Conseils</a>
-        <a href="/a-propos" class="block py-2 <?= navActive('/a-propos', $currentPath) ?>">À propos</a>
+        <a href="/" class="block py-2 <?= navActive('/', $currentPath) ?>"><?= t('nav_home', 'Accueil') ?></a>
+        <a href="/catalogue/services" class="block py-2 <?= navActive('/catalogue/services', $currentPath) ?>"><?= t('nav_services', 'Services') ?></a>
+        <a href="/catalogue/formations" class="block py-2 <?= navActive('/catalogue/formations', $currentPath) ?>"><?= t('nav_formations', 'Formations') ?></a>
+        <a href="/catalogue/evenements" class="block py-2 <?= navActive('/catalogue/evenements', $currentPath) ?>"><?= t('nav_evenements', 'Événements') ?></a>
+        <a href="/annonces" class="block py-2 <?= navActive('/annonces', $currentPath) ?>"><?= t('nav_annonces', 'Annonces') ?></a>
+        <a href="/annonces/create" class="block py-2 <?= navActive('/annonces/create', $currentPath) ?>"><?= t('nav_deposer', 'Déposer') ?></a>
+        <a href="/conteneurs/create" class="block py-2 <?= navActive('/conteneurs/create', $currentPath) ?>"><?= t('nav_deposer', 'Déposer') ?></a>
+        <a href="/conseils" class="block py-2 <?= navActive('/conseils', $currentPath) ?>"><?= t('nav_conseils', 'Conseils') ?></a>
+        <a href="/a-propos" class="block py-2 <?= navActive('/a-propos', $currentPath) ?>"><?= t('nav_apropos', 'À propos') ?></a>
         <?php if (!isset($_SESSION['user'])): ?>
             <div class="pt-2 border-t border-base-200 flex gap-3">
-                <a href="/login" class="btn btn-sm btn-ghost flex-1">Connexion</a>
-                <a href="/register" class="btn btn-sm btn-neutral flex-1">S'inscrire</a>
+                <a href="/login" class="btn btn-sm btn-ghost flex-1"><?= t('nav_login', 'Connexion') ?></a>
+                <a href="/register" class="btn btn-sm btn-neutral flex-1"><?= t('nav_register', "S'inscrire") ?></a>
             </div>
         <?php else: ?>
-            <a href="/logout" class="block py-2 text-red-500">Déconnexion</a>
+            <a href="/logout" class="block py-2 text-red-500"><?= t('nav_logout', 'Déconnexion') ?></a>
         <?php endif; ?>
     </div>
 

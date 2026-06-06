@@ -19,6 +19,8 @@ spl_autoload_register(function ($class) {
     }
 });
 
+require_once __DIR__ . '/../app/helpers/lang.php';
+
 $config = require_once __DIR__ . '/../config/app.php';
 
 function view($view, $data = [])

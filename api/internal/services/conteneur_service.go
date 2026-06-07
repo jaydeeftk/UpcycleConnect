@@ -239,6 +239,7 @@ type DemandeAdminDTO struct {
 	Nom               string   `json:"nom"`
 	Prenom            string   `json:"prenom"`
 	Email             string   `json:"email"`
+	IdConteneur       int      `json:"id_conteneur"`
 	ActionsAutorisees []string `json:"allowed_actions"`
 }
 
@@ -253,6 +254,7 @@ func (s *ConteneurService) AdminListerDemandes() ([]DemandeAdminDTO, error) {
 			ID: d.ID, TypeObjet: d.TypeObjet, Description: d.Description, EtatUsure: d.EtatUsure,
 			Statut: d.Statut, Date: d.Date, PrixVente: d.PrixVente, Localisation: d.Localisation,
 			CodeAcces: d.CodeAcces, Nom: d.Nom, Prenom: d.Prenom, Email: d.Email,
+			IdConteneur:       d.IdConteneur,
 			ActionsAutorisees: domain.ActionsDemandeAdmin(d.Statut),
 		})
 	}

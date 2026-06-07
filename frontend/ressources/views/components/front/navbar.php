@@ -204,6 +204,9 @@ function navActive(string $path, string $current): string {
                             <a href="/messages" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/messages') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-envelope text-blue-500 w-4 text-center"></i> Mes messages
                             </a>
+                            <a href="/notifications" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/notifications') ? 'text-primary' : '' ?>">
+                                <i class="fas fa-bell text-amber-500 w-4 text-center"></i> Notifications
+                            </a>
                             <a href="/paiements" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
                                 <i class="fas fa-credit-card w-4 text-center"></i> Paiements
                             </a>

@@ -124,4 +124,34 @@ class UserController
         header('Location: /contact');
         exit;
     }
+
+    public function notifications()
+    {
+        $notifications = [];
+        $nonLues = 0;
+        if (isset($_SESSION['user'])) {
+            try {
+                $r = $this->api->get('/notifications');
+                $bloc = $r['data'] ?? $r;
+                $notifications = $bloc['notifications'] ?? [];
+                $nonLues = (int)($bloc['non_lues'] ?? 0);
+            } catch (\Exception $e) {
+                $notifications = [];
+            }
+        }
+        return view('front.notifications.index', [
+            'title'         => 'Notifications - UpcycleConnect',
+            'notifications' => $notifications,
+            'nonLues'       => $nonLues,
+        ]);
+    }
+
+    public function notificationLue($id)
+    {
+        if (isset($_SESSION['user'])) {
+            try { $this->api->post('/notifications/' . $id . '/lu', []); } catch (\Exception $e) {}
+        }
+        header('Location: /notifications');
+        exit;
+    }
 }

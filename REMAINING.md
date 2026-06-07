@@ -66,3 +66,34 @@ par mot de passe — l'afficher en QR ouvert le divulguerait.
   bloc dupliqué (la page « Site en maintenance » publique). À supprimer si confirmé inutile.
 - « Mot de passe oublié » : fonctionnalité absente (lien retiré). À implémenter si souhaité.
 - i18n : navigation traduite (fr/en/es/de), corps des pages en FR (cf. note i18n existante).
+
+---
+
+# V2 — Logique métier + routing + UI (juin 2026)
+
+## Fait + vérifié au navigateur (admin / public)
+- **Helper `format.php`** (formatStatut/formatDate/formatPrix/statutCouleur) inclus globalement.
+  Dates `JJ/MM/AAAA`, statuts lisibles, prix `30,00 €`/Gratuit — appliqués sur **tout l'admin**
+  (factures, conteneurs, demandes, événements, contrats, utilisateurs + détail, formations,
+  conseils, forum, notifications) et les **pages publiques** (événements, formations, conseils, annonces).
+- **window.confirm → modale inline** `confirmer()`/`ucConfirm()` (**0 window.confirm**), et
+  **window.alert → toast** non bloquant (**0 window.alert**).
+- **Conteneurs — CRUD complet** : liste (taux réel Box), **page détail `/admin/conteneurs/{id}`**
+  (infos box, capacité, taux, dépôts + valider/rejeter), modale **Modifier**, suppression confirmée.
+  Côté API : `id_conteneur` exposé sur les demandes admin (filtrage par box) ; gofmt/vet/build OK.
+
+## Décisions actées
+- **Modèle conteneur Box conservé** (taux = occupation Objets / capacité Box). Pas de réécriture
+  en modèle poids (aurait régressé un système fonctionnel et plus complet).
+
+## Fait au code, à confirmer sous session connectée
+- **Formatage dates/statuts particulier / pro / salarié** appliqué via le helper (déjà prouvé en
+  admin). Vérification visuelle au navigateur en attente des connexions de ces rôles.
+
+## Nécessite l'utilisateur (l'agent ne peut pas, par sécurité, saisir de mot de passe)
+- **Flux conteneur complet à 4 rôles** (particulier dépose → admin valide + QR → particulier voit
+  le QR → pro récupère → taux box) : test d'acceptation central de la V2.
+- **Pass visuel pro / salarié / particulier** en clair + sombre (1 connexion par espace suffit).
+- **Responsive 375px** : viewport figé à 1536px dans cet environnement (à valider sur vrai mobile / DevTools).
+- **Isolation rôles** : middlewares admin/pro/salarié + redirections post-login déjà corrects au
+  code ; à confirmer en fenêtre privée rôle par rôle.

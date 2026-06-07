@@ -175,6 +175,10 @@ $router->group(['prefix' => 'salaries'], function($router) {
     $router->get('/dashboard', 'salaries\DashboardController@index');
 
     
+    $router->get('/forum', 'salaries\ForumController@index');
+    $router->post('/forum/sujets/{id}/supprimer', 'salaries\ForumController@deleteSujet');
+    $router->post('/forum/reponses/{id}/supprimer', 'salaries\ForumController@deleteReponse');
+
     $router->get('/conseils', 'salaries\ConseilController@index');
     $router->post('/conseils/store', 'salaries\ConseilController@store');
     $router->get('/conseils/{id}/edit', 'salaries\ConseilController@edit');

@@ -199,6 +199,9 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/salaries/formations/", middleware.SalarieOnly(handlers.SalarieFormationAction))
 	mux.HandleFunc("/api/salaries/conseils", middleware.SalarieOnly(handlers.SalarieConseils))
 	mux.HandleFunc("/api/salaries/conseils/", middleware.SalarieOnly(handlers.SalarieConseilAction))
+	mux.HandleFunc("/api/salaries/forum", middleware.SalarieOnly(handlers.SalarieGetForumSujets))
+	mux.HandleFunc("/api/salaries/forum/sujets/", middleware.SalarieOnly(handlers.SalarieForumSujetAction))
+	mux.HandleFunc("/api/salaries/forum/reponses/", middleware.SalarieOnly(handlers.SalarieForumReponseAction))
 
 	mux.HandleFunc("/api/professionnels/profil", middleware.ProfessionnelOnly(handlers.ProfessionnelGetProfile))
 	mux.HandleFunc("/api/professionnels/projets", middleware.ProfessionnelOnly(handlers.ProfessionnelProjetsHandler))

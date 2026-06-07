@@ -120,6 +120,13 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/salaries/forum"
+                       class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'forum') ? 'active' : '' ?>">
+                        <i class="fas fa-comments text-lg w-5 text-center"></i>
+                        <span class="sb-text font-semibold text-sm">Forum</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/salaries/formations"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'formations') ? 'active' : '' ?>">
                         <i class="fas fa-graduation-cap text-lg w-5 text-center"></i>

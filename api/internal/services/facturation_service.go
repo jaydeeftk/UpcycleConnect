@@ -180,6 +180,36 @@ func (s *FacturationService) TransitionContrat(idContrat int, action string) err
 	})
 }
 
+// ResilierContratPro permet à un professionnel de résilier l'un de SES contrats.
+// L'appartenance est vérifiée avant toute modification : un professionnel ne peut
+// pas agir sur le contrat d'un autre.
+func (s *FacturationService) ResilierContratPro(idUtilisateur, idContrat int) error {
+	idPro, err := s.repo.IdProfessionnel(database.DB, idUtilisateur)
+	if errors.Is(err, sql.ErrNoRows) {
+		return domain.Forbidden("Action réservée aux professionnels")
+	}
+	if err != nil {
+		return err
+	}
+	return withTx(func(tx *sql.Tx) error {
+		owner, statut, err := s.repo.ContratOwnerEtStatut(tx, idContrat)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Contrat introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if owner != idPro {
+			return domain.Forbidden("Ce contrat ne vous appartient pas")
+		}
+		nouveau, err := domain.TransitionContrat(statut, "resilier")
+		if err != nil {
+			return err
+		}
+		return s.repo.MajStatutContrat(tx, idContrat, nouveau)
+	})
+}
+
 func (s *FacturationService) SupprimerContrat(idContrat int) error {
 	n, err := s.repo.SupprimerContrat(database.DB, idContrat)
 	if err != nil {

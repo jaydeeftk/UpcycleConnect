@@ -208,17 +208,28 @@
                                     <th class="pb-3">Statut</th>
                                     <th class="pb-3">Début</th>
                                     <th class="pb-3">Fin</th>
-                                    <th class="pb-3">Montant</th>
+                                    <th class="pb-3 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($contrats as $contrat): ?>
+                                    <?php $cStatut = strtolower($contrat['statut'] ?? ''); $cCol = statutCouleur($cStatut); ?>
                                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                                         <td class="py-3"><?= htmlspecialchars($contrat['type'] ?? '') ?></td>
-                                        <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700"><?= formatStatut($contrat['statut'] ?? '') ?></span></td>
+                                        <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold" style="background:<?= $cCol ?>1a;color:<?= $cCol ?>"><?= formatStatut($contrat['statut'] ?? '') ?></span></td>
                                         <td class="py-3"><?= formatDate($contrat['date_debut'] ?? '') ?></td>
                                         <td class="py-3"><?= formatDate($contrat['date_fin'] ?? '') ?></td>
-                                        <td class="py-3 font-medium"><?= number_format($contrat['montant'] ?? 0, 2) ?> €</td>
+                                        <td class="py-3 text-right">
+                                            <?php if (in_array($cStatut, ['actif', 'suspendu'])): ?>
+                                                <form method="POST" action="/professionnel/contrats/<?= $contrat['id'] ?? '' ?>/resilier" class="inline" onsubmit="return ucConfirm(this, 'Résilier ce contrat ? Cette action est définitive.');">
+                                                    <button type="submit" class="text-xs font-semibold text-red-600 hover:text-white hover:bg-red-600 border border-red-200 rounded-lg px-3 py-1.5 transition-colors">
+                                                        <i class="fas fa-ban mr-1"></i>Résilier
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <span class="text-xs text-gray-400">—</span>
+                                            <?php endif; ?>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

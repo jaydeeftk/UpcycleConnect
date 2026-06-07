@@ -79,6 +79,7 @@ $router->post('/professionnel/objets/scanner', 'Front\ProfessionnelController@sc
 $router->post('/professionnel/objets/{id}/reserver', 'Front\ProfessionnelController@reserverObjet');
 $router->post('/professionnel/objets/{id}/recuperer', 'Front\ProfessionnelController@recupererObjet');
 $router->post('/professionnel/objets/{id}/annuler', 'Front\ProfessionnelController@annulerObjet');
+$router->post('/professionnel/contrats/{id}/resilier', 'Front\ProfessionnelController@resilierContrat');
 
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
 $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');

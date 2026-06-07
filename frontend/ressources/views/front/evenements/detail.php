@@ -35,7 +35,7 @@ $imgUrl = $evenement['image_url'] ?? ($imagesByType[$type] ?? $imagesByType['def
             <?php endif; ?>
 
             <div class="text-sm text-base-content/60 mb-2">
-                <?= htmlspecialchars($evenement['date'] ?? '') ?> • <?= htmlspecialchars($evenement['lieu'] ?? '') ?>
+                <?= formatDate($evenement['date'] ?? '') ?> • <?= htmlspecialchars($evenement['lieu'] ?? '') ?>
             </div>
 
             <h1 class="text-4xl md:text-5xl font-bold mb-6">
@@ -51,7 +51,7 @@ $imgUrl = $evenement['image_url'] ?? ($imagesByType[$type] ?? $imagesByType['def
                     <span class="font-medium flex items-center gap-2">
                         <i class="fas fa-calendar-alt text-blue-500 w-4"></i> Date
                     </span>
-                    <span class="text-base-content/70"><?= htmlspecialchars($evenement['date'] ?? '') ?></span>
+                    <span class="text-base-content/70"><?= formatDate($evenement['date'] ?? '') ?></span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-base-200">
                     <span class="font-medium flex items-center gap-2">

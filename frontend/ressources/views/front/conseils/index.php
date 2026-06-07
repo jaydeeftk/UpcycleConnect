@@ -119,7 +119,7 @@
                                                 <i class="fas fa-user-circle text-lg"></i>
                                                 <span class="font-medium text-base-content/70"><?= htmlspecialchars($conseil['auteur'] ?? '') ?></span>
                                                 <span class="badge badge-sm badge-ghost"><?= htmlspecialchars($conseil['role'] ?? '') ?></span>
-                                                <span>· <?= htmlspecialchars($conseil['date'] ?? '') ?></span>
+                                                <span>· <?= formatDate($conseil['date'] ?? '') ?></span>
                                             </div>
                                             <a href="/conseils/<?= $conseil['id'] ?>" class="btn btn-ghost btn-sm">
                                                 Lire la suite <i class="fas fa-arrow-right ml-1"></i>
@@ -177,7 +177,7 @@
 
                                         <div class="flex items-center gap-3 mt-2 text-xs text-base-content/50">
                                             <span><i class="fas fa-user mr-1"></i><?= htmlspecialchars($sujet['auteur'] ?? '') ?></span>
-                                            <span><i class="fas fa-clock mr-1"></i><?= htmlspecialchars($sujet['date'] ?? '') ?></span>
+                                            <span><i class="fas fa-clock mr-1"></i><?= formatDate($sujet['date'] ?? '') ?></span>
                                         </div>
                                     </div>
 

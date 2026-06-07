@@ -31,7 +31,7 @@
             <div>
                 <div class="font-medium"><?= htmlspecialchars($conseil['auteur'] ?? '') ?></div>
                 <div class="text-sm text-base-content/50">
-                    <?= htmlspecialchars($conseil['role'] ?? '') ?> · <?= htmlspecialchars($conseil['date'] ?? '') ?>
+                    <?= htmlspecialchars($conseil['role'] ?? '') ?> · <?= formatDate($conseil['date'] ?? '') ?>
                 </div>
             </div>
         </div>

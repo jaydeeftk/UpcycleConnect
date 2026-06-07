@@ -1,3 +1,11 @@
+upcycleconnect.tech {
+    reverse_proxy frontend:80
+}
+
+www.upcycleconnect.tech {
+    redir https://upcycleconnect.tech{uri} permanent
+}
+
 95.216.77.54.nip.io {
     reverse_proxy frontend:80
 }

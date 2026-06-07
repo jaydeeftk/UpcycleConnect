@@ -11,7 +11,7 @@ import (
 func corsMiddleware(next http.Handler) http.Handler {
 	allowedOrigin := os.Getenv("APP_URL")
 	if allowedOrigin == "" {
-		allowedOrigin = "https://95.216.77.54.nip.io"
+		allowedOrigin = "https://upcycleconnect.tech"
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)

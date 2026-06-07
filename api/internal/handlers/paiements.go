@@ -48,7 +48,7 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 
 	appURL := os.Getenv("APP_URL")
 	if appURL == "" {
-		appURL = "https://95.216.77.54.nip.io"
+		appURL = "https://upcycleconnect.tech"
 	}
 	userStr := strconv.Itoa(userID)
 	itemStr := strconv.Itoa(body.IdItem)

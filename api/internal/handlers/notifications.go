@@ -8,6 +8,7 @@ import (
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/notifier"
 )
 
 // MesNotifications retourne les notifications de l'utilisateur connecté
@@ -148,6 +149,7 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 					body.Contenu, body.IdAdministrateurs, uid,
 				)
 			}
+			go notifier.SendPush(ids, body.Contenu)
 			httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Notification envoyée à tous", "count": len(ids)})
 			return
 		}
@@ -160,6 +162,7 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		newID, _ := result.LastInsertId()
+		go notifier.SendPush([]int{body.IdUtilisateurs}, body.Contenu)
 		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": newID})
 
 	case http.MethodDelete:

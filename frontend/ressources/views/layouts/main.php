@@ -8,7 +8,20 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
+    <?php $osAppId = getenv('ONESIGNAL_APP_ID'); if (!empty($osAppId)): ?>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({ appId: "<?= htmlspecialchars($osAppId, ENT_QUOTES) ?>", allowLocalhostAsSecureOrigin: true });
+            <?php if (isset($_SESSION['user']['id'])): ?>
+            try { await OneSignal.login("<?= (int)$_SESSION['user']['id'] ?>"); } catch (e) {}
+            <?php endif; ?>
+        });
+    </script>
+    <?php endif; ?>
+
     <script>
         (function() {
             var t = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');

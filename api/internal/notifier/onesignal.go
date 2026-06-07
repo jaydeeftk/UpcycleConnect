@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -50,7 +51,12 @@ func SendPush(userIDs []int, contenu string) {
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Basic "+apiKey)
+	// Clé nouveau format (os_v2_...) -> "Key" ; clé legacy -> "Basic".
+	if strings.HasPrefix(apiKey, "os_v2_") {
+		req.Header.Set("Authorization", "Key "+apiKey)
+	} else {
+		req.Header.Set("Authorization", "Basic "+apiKey)
+	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)

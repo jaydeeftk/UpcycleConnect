@@ -6,7 +6,7 @@ page `/notifications` particulier). Pour activer le push temps réel :
 
 ## 1. Finir la configuration OneSignal (tableau de bord)
 1. OneSignal > l'app « Upcycleconnect App » > **Continue Setup** > plateforme **Web**.
-2. **Site URL** : `https://95.216.77.54.nip.io` (l'origine de production exacte, en HTTPS).
+2. **Site URL** : `https://upcycleconnect.tech` (l'origine de production exacte, en HTTPS).
 3. Laisser le **Default Notification Icon** / les réglages par défaut.
 4. OneSignal sert son propre service worker, mais ce dépôt fournit déjà
    `frontend/public/OneSignalSDKWorker.js` à la racine du site

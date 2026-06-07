@@ -191,6 +191,39 @@
                 <?php endif; ?>
             </div>
 
+            <!-- Notifications -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-bell text-emerald-600"></i> Notifications</h3>
+                    <?php if (($notifsNonLues ?? 0) > 0): ?>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><?= (int)$notifsNonLues ?> non lue<?= $notifsNonLues > 1 ? 's' : '' ?></span>
+                    <?php endif; ?>
+                </div>
+                <?php if (empty($notifications)): ?>
+                    <div class="text-center py-6 text-gray-400">
+                        <i class="fas fa-bell-slash text-3xl mb-2 block"></i>
+                        <p class="text-sm">Aucune notification pour l'instant.</p>
+                    </div>
+                <?php else: ?>
+                    <ul class="divide-y divide-gray-100">
+                        <?php foreach ($notifications as $notif): ?>
+                            <li class="py-3 flex items-start gap-3 <?= empty($notif['lu']) ? '' : 'opacity-60' ?>">
+                                <span class="mt-1.5 w-2 h-2 rounded-full flex-shrink-0 <?= empty($notif['lu']) ? 'bg-emerald-500' : 'bg-gray-300' ?>"></span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm text-gray-800 <?= empty($notif['lu']) ? 'font-medium' : '' ?>"><?= htmlspecialchars($notif['contenu'] ?? '') ?></p>
+                                    <p class="text-xs text-gray-400 mt-0.5"><?= formatDate($notif['date_envoi'] ?? '') ?></p>
+                                </div>
+                                <?php if (empty($notif['lu'])): ?>
+                                    <form method="POST" action="/professionnel/notifications/<?= $notif['id'] ?? '' ?>/lu" class="inline">
+                                        <button type="submit" class="text-xs text-emerald-600 hover:text-emerald-700 whitespace-nowrap" title="Marquer comme lue"><i class="fas fa-check"></i></button>
+                                    </form>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+
             <!-- Contrats -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-bold mb-4">Mes contrats</h3>

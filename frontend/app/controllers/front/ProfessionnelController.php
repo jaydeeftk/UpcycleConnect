@@ -20,10 +20,19 @@ class ProfessionnelController
         $projets  = [];
         $favoris  = [];
         $contrats = [];
+        $notifications = [];
+        $notifsNonLues = 0;
 
         try {
             $r = $this->api->get('/professionnels/profil');
             $profil = isset($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        try {
+            $r = $this->api->get('/notifications');
+            $bloc = $r['data'] ?? $r;
+            $notifications = $bloc['notifications'] ?? [];
+            $notifsNonLues = (int)($bloc['non_lues'] ?? 0);
         } catch (\Exception $e) {}
 
         try {
@@ -46,6 +55,8 @@ class ProfessionnelController
             'projets'  => $projets,
             'favoris'  => $favoris,
             'contrats' => $contrats,
+            'notifications' => $notifications,
+            'notifsNonLues' => $notifsNonLues,
             'page_title' => 'Espace Professionnel',
             'layout' => 'raw',
         ]);
@@ -95,6 +106,13 @@ class ProfessionnelController
     public function resilierContrat($id)
     {
         try { $this->api->post('/professionnels/contrats/' . $id . '/resilier', []); } catch (\Exception $e) {}
+        header('Location: /professionnel');
+        exit;
+    }
+
+    public function notificationLue($id)
+    {
+        try { $this->api->post('/notifications/' . $id . '/lu', []); } catch (\Exception $e) {}
         header('Location: /professionnel');
         exit;
     }

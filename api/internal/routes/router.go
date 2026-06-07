@@ -135,6 +135,9 @@ func NewRouter() http.Handler {
 	}))
 	mux.HandleFunc("/api/admin/notifications/", middleware.AdminOnly(handlers.AdminNotificationAction))
 
+	mux.HandleFunc("/api/notifications", middleware.JWTAuth(handlers.MesNotifications))
+	mux.HandleFunc("/api/notifications/", middleware.JWTAuth(handlers.MarquerNotificationLue))
+
 	mux.HandleFunc("/api/admin/contrats", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			handlers.AdminCreateContrat(w, r)

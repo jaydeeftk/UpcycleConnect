@@ -58,11 +58,11 @@
                     </td>
                     <td class="p-4">
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border <?= $statutBadge ?> uppercase">
-                            <?= htmlspecialchars(ucfirst($statut)) ?>
+                            <?= formatStatut($statut) ?>
                         </span>
                     </td>
                     <td class="p-4 text-sm text-slate-500">
-                        <?= htmlspecialchars(substr($sujet['date'] ?? '', 0, 10)) ?>
+                        <?= formatDate($sujet['date'] ?? '') ?>
                     </td>
                     <td class="p-4 text-right space-x-2">
                         <a href="/conseils/forum/<?= $idSujet ?>" target="_blank"

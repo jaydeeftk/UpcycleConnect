@@ -39,7 +39,7 @@
                     <div>
                         <p class="text-sm font-medium"><?= htmlspecialchars($n['titre'] ?? 'Notification') ?></p>
                         <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($n['message'] ?? $n['contenu'] ?? '') ?></p>
-                        <p class="text-xs text-gray-400 mt-1"><?= $n['date'] ?? $n['date_envoi'] ?? '' ?></p>
+                        <p class="text-xs text-gray-400 mt-1"><?= formatDate($n['date'] ?? $n['date_envoi'] ?? '', true) ?></p>
                     </div>
                     <a href="/admin/notifications/<?= $n['id'] ?>/delete"
                        onclick="return confirm('Supprimer ?')"

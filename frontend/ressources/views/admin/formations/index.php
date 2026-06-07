@@ -42,13 +42,13 @@
                     </td>
                     <td class="p-4 text-sm text-slate-600">
                         <div class="flex flex-col gap-1">
-                            <span><i class="fas fa-calendar-alt mr-2 text-slate-400"></i><?= $f['date_formation'] ?? 'Non planifiée' ?></span>
+                            <span><i class="fas fa-calendar-alt mr-2 text-slate-400"></i><?= !empty($f['date_formation']) ? formatDate($f['date_formation']) : 'Non planifiée' ?></span>
                             <span><i class="fas fa-users mr-2 text-slate-400"></i><?= $f['places_dispo'] ?? 0 ?> / <?= $f['places_total'] ?? 0 ?> places</span>
                         </div>
                     </td>
                     <td class="p-4">
                         <span class="px-2 py-1 bg-<?= $color ?>-50 text-<?= $color ?>-600 border border-<?= $color ?>-200 rounded text-[10px] font-bold uppercase">
-                            <?= str_replace('_', ' ', $st) ?>
+                            <?= formatStatut($st) ?>
                         </span>
                     </td>
                     <td class="p-4 text-right space-x-1">

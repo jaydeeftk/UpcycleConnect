@@ -45,7 +45,7 @@
                     <td class="p-4">
                         <p class="font-bold text-slate-800"><?= htmlspecialchars($conseil['titre'] ?? 'Sans titre') ?></p>
                         <p class="text-sm text-slate-500 truncate max-w-md"><?= htmlspecialchars(substr($conseil['contenu'] ?? '', 0, 100)) ?></p>
-                        <p class="text-xs text-slate-400 mt-1"><i class="far fa-clock mr-1"></i><?= htmlspecialchars(substr($conseil['date'] ?? '', 0, 10)) ?></p>
+                        <p class="text-xs text-slate-400 mt-1"><i class="far fa-clock mr-1"></i><?= formatDate($conseil['date'] ?? '') ?></p>
                     </td>
                     <td class="p-4">
                         <div class="flex items-center">

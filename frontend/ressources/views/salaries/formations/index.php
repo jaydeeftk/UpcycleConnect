@@ -114,7 +114,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         $color = $colors[$statut] ?? 'bg-gray-100 text-gray-800';
         ?>
         <span class="px-2 py-1 rounded-full text-xs font-medium <?= $color ?>">
-            <?= ucfirst(str_replace('_', ' ', $statut)) ?>
+            <?= formatStatut($statut) ?>
         </span>
     </td>
     <td class="px-6 py-4 text-sm text-gray-600">
@@ -123,18 +123,18 @@ unset($_SESSION['success'], $_SESSION['error']);
     <td class="px-6 py-4">
         <div class="flex gap-2">
             <button onclick="openEditModal(
-                    <?= $formation['id_formations'] ?>,
-                    `<?= addslashes($formation['titre']) ?>`,
-                    `<?= addslashes($formation['description']) ?>`,
-                    <?= $formation['prix'] ?>,
-                    <?= $formation['duree'] ?>,
-                    `<?= addslashes($formation['date'] ?? '') ?>`,
-                    `<?= addslashes($formation['lieu'] ?? '') ?>`
+                    <?= $formation['id'] ?? 0 ?>,
+                    `<?= htmlspecialchars($formation['titre'] ?? '', ENT_QUOTES) ?>`,
+                    `<?= htmlspecialchars($formation['description'] ?? '', ENT_QUOTES) ?>`,
+                    <?= $formation['prix'] ?? 0 ?>,
+                    <?= $formation['duree'] ?? 0 ?>,
+                    `<?= htmlspecialchars($formation['date'] ?? '', ENT_QUOTES) ?>`,
+                    `<?= htmlspecialchars($formation['localisation'] ?? '', ENT_QUOTES) ?>`
                 )"
                 class="text-blue-600 hover:text-blue-800" title="Modifier">
                 <i class="fas fa-edit"></i>
             </button>
-            <a href=" /salaries/formations/<?= $formation['id_formations'] ?>/delete"
+            <a href="/salaries/formations/<?= $formation['id'] ?? 0 ?>/delete"
                onclick="return ucConfirm(this, 'Supprimer cette formation ?')"
                class="text-red-600 hover:text-red-800" title="Supprimer">
                 <i class="fas fa-trash"></i>
@@ -145,7 +145,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         <?= $formation['date'] ? date('d/m/Y H:i', strtotime($formation['date'])) : '—' ?>
     </td>
     <td class="px-6 py-4 text-sm text-gray-600">
-        <?= htmlspecialchars($formation['lieu'] ?? '—') ?>
+        <?= !empty($formation['localisation']) ? htmlspecialchars($formation['localisation']) : '—' ?>
     </td>
 </tr>
 <?php endforeach; ?>

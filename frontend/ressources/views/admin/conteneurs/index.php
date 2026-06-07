@@ -44,11 +44,16 @@
                 <a href="/admin/conteneurs/<?= $box['id'] ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
                     <i class="fas fa-eye mr-1"></i>Voir les dépôts
                 </a>
-                <a href="/admin/conteneurs/<?= $box['id'] ?>/delete"
-                   onclick="return ucConfirm(this, 'Supprimer définitivement ce conteneur ?')"
-                   class="text-rose-500 hover:text-rose-700 text-sm font-medium transition-colors">
-                    <i class="fas fa-trash mr-1"></i>Retirer
-                </a>
+                <div class="flex items-center gap-4">
+                    <button type="button" onclick='openEditBox(<?= htmlspecialchars(json_encode($box), ENT_QUOTES) ?>)' class="text-slate-500 hover:text-emerald-600 text-sm font-medium transition-colors">
+                        <i class="fas fa-pen mr-1"></i>Modifier
+                    </button>
+                    <a href="/admin/conteneurs/<?= $box['id'] ?>/delete"
+                       onclick="return ucConfirm(this, 'Supprimer définitivement ce conteneur ?')"
+                       class="text-rose-500 hover:text-rose-700 text-sm font-medium transition-colors">
+                        <i class="fas fa-trash mr-1"></i>Retirer
+                    </a>
+                </div>
             </div>
         </div>
         <?php } ?>
@@ -87,3 +92,46 @@
         </form>
     </div>
 </div>
+
+<div id="editModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <h3 class="text-lg font-bold text-slate-800">Modifier le conteneur</h3>
+            <button onclick="document.getElementById('editModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <form id="editForm" method="POST" class="p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1">Localisation (Adresse ou Ville)</label>
+                    <input type="text" name="localisation" id="edit-localisation" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1">Capacité maximale (kg)</label>
+                    <input type="number" name="capacite" id="edit-capacite" min="1" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1">Statut</label>
+                    <select name="statut" id="edit-statut" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                        <option value="disponible">Disponible</option>
+                        <option value="maintenance">En maintenance</option>
+                        <option value="plein">Plein</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg">Annuler</button>
+                <button type="submit" class="bg-emerald-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-emerald-600 shadow-sm">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditBox(box) {
+    document.getElementById('editForm').action = '/admin/conteneurs/' + box.id + '/update';
+    document.getElementById('edit-localisation').value = box.localisation || '';
+    document.getElementById('edit-capacite').value = box.capacite || '';
+    document.getElementById('edit-statut').value = box.statut || 'disponible';
+    document.getElementById('editModal').classList.remove('hidden');
+}
+</script>

@@ -88,7 +88,7 @@ async function handlePaiement() {
         if (json.success && json.data && json.data.checkout_url) {
             window.location.href = json.data.checkout_url;
         } else {
-            alert('Erreur lors de la création de la session de paiement');
+            toast('Erreur lors de la création de la session de paiement');
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-lock mr-2"></i> Payer <?= htmlspecialchars($_GET['montant'] ?? '0') ?>€';
         }

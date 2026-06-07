@@ -90,10 +90,17 @@ par mot de passe — l'afficher en QR ouvert le divulguerait.
 - **Formatage dates/statuts particulier / pro / salarié** appliqué via le helper (déjà prouvé en
   admin). Vérification visuelle au navigateur en attente des connexions de ces rôles.
 
-## Nécessite l'utilisateur (l'agent ne peut pas, par sécurité, saisir de mot de passe)
-- **Flux conteneur complet à 4 rôles** (particulier dépose → admin valide + QR → particulier voit
-  le QR → pro récupère → taux box) : test d'acceptation central de la V2.
-- **Pass visuel pro / salarié / particulier** en clair + sombre (1 connexion par espace suffit).
-- **Responsive 375px** : viewport figé à 1536px dans cet environnement (à valider sur vrai mobile / DevTools).
-- **Isolation rôles** : middlewares admin/pro/salarié + redirections post-login déjà corrects au
-  code ; à confirmer en fenêtre privée rôle par rôle.
+## Vérifié au navigateur avec connexions (les 5 rôles, juin 2026)
+- **Flux conteneur prouvé bout en bout** : particulier dépose (« Vieille chaise ») → admin valide
+  (code `UC-CF4P7GH0` généré) → **taux box 0% → 2%** (preuve que le calcul est réel) → pro réserve
+  (QR généré) → récupère. Joué sur 3 sessions.
+- **Pass visuel des 5 espaces** (public, particulier, pro, salarié, admin) : formatage + contraste OK.
+- **Isolation rôles confirmée** : salarié → `/admin/dashboard` et `/professionnel` = **403**.
+- **Bug salarié corrigé** : `/salaries/formations` affichait du code brut (clé `id_formations` au lieu
+  de `id` → warning PHP dans l'onclick) — corrigé + vérifié.
+
+## Reste (limite environnement, pas un bug)
+- **Responsive 375px** : viewport figé à 1536px dans cet environnement (resize sans effet sur le
+  rendu). Code responsive (`md:hidden`, `lg:grid-cols-2`) — à valider sur un vrai mobile / DevTools.
+- **QR côté particulier** : limite schéma déjà documentée (lien `Objets.Id_Demandes_conteneurs`).
+- **App pro** : light-only par design (pas de toggle sombre) ; à étendre si souhaité.

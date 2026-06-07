@@ -1,7 +1,7 @@
 <div class="maintenance-container">
     <i class="fas fa-cog fa-spin" style="font-size: 100px; color: #2ecc71;"></i>
-    <h1>Site en cours de maintenance</h1>
-    <p>Nous revenons très vite !</p>
+    <h1><?= t('maint_title', 'Site en cours de maintenance') ?></h1>
+    <p><?= t('maint_text', 'Nous revenons très vite !') ?></p>
 </div>
 
 <style>

@@ -102,5 +102,12 @@ par mot de passe — l'afficher en QR ouvert le divulguerait.
 ## Reste (limite environnement, pas un bug)
 - **Responsive 375px** : viewport figé à 1536px dans cet environnement (resize sans effet sur le
   rendu). Code responsive (`md:hidden`, `lg:grid-cols-2`) — à valider sur un vrai mobile / DevTools.
-- **QR côté particulier** : limite schéma déjà documentée (lien `Objets.Id_Demandes_conteneurs`).
-- **App pro** : light-only par design (pas de toggle sombre) ; à étendre si souhaité.
+- **i18n autres pages** : l'accueil est traduit (hero/étapes/CTA) en fr/en/es/de ; le pattern
+  `t('clé','fallback FR')` est établi. Étendre aux autres pages publiques est incrémental.
+- **Mot de passe oublié** : nécessite une infra email (SMTP) non configurée — non implémenté.
+
+## Résolu (juin 2026)
+- **QR côté particulier** : FAIT — `Objets.Id_Demandes_conteneurs` (migration 010) renseigné à la
+  validation, code-barres exposé sur « mes demandes », QR rendu sur la demande validée.
+- **Dark mode app pro** : FAIT — partial `components/pro/dark.php` inclus dans les 3 vues pro.
+- **i18n accueil** : FAIT (4 langues). **Code mort** `admin/maintenance/index.php` : supprimé.

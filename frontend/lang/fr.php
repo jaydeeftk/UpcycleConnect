@@ -646,4 +646,8 @@ return [
     'nav_dd_post_conteneur_desc' => 'Demande de dépôt d\'objet',
     'nav_logged_as' => 'Connecté en tant que',
     'home_team_alt' => 'Équipe',
+    'auth_label_siret' => 'SIRET de l\'entreprise',
+    'auth_siret_ph' => '14 chiffres',
+    'auth_siret_verify' => 'Vérifier',
+    'auth_company_autofill' => 'Rempli après vérification du SIRET',
 ];

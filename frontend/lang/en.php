@@ -646,4 +646,8 @@ return [
     'nav_dd_post_conteneur_desc' => 'Item drop-off request',
     'nav_logged_as' => 'Logged in as',
     'home_team_alt' => 'Team',
+    'auth_label_siret' => 'Company SIRET',
+    'auth_siret_ph' => '14 digits',
+    'auth_siret_verify' => 'Verify',
+    'auth_company_autofill' => 'Filled after SIRET verification',
 ];

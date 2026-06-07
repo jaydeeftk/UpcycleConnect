@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,6 +16,40 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+
+// motDePasseRobuste : 8 caractères minimum, au moins une lettre et un chiffre.
+func motDePasseRobuste(p string) bool {
+	if len(p) < 8 {
+		return false
+	}
+	hasLetter, hasDigit := false, false
+	for _, c := range p {
+		switch {
+		case (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'):
+			hasLetter = true
+		case c >= '0' && c <= '9':
+			hasDigit = true
+		}
+	}
+	return hasLetter && hasDigit
+}
+
+// domaineEmailAccepteCourrier vérifie que le domaine de l'email existe et peut
+// recevoir du courrier (enregistrements MX, ou à défaut A/AAAA).
+func domaineEmailAccepteCourrier(email string) bool {
+	at := strings.LastIndex(email, "@")
+	if at < 0 {
+		return false
+	}
+	domaine := email[at+1:]
+	if mx, err := net.LookupMX(domaine); err == nil && len(mx) > 0 {
+		return true
+	}
+	ips, err := net.LookupHost(domaine)
+	return err == nil && len(ips) > 0
+}
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	var body struct {
@@ -91,10 +127,55 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		Role          string `json:"role"`
 		NomEntreprise string `json:"nom_entreprise"`
 		Type          string `json:"type"`
+		Siret         string `json:"siret"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 		return
+	}
+
+	// --- Validation stricte côté serveur (le formulaire est contournable) ---
+	body.Nom = strings.TrimSpace(body.Nom)
+	body.Prenom = strings.TrimSpace(body.Prenom)
+	body.Email = strings.ToLower(strings.TrimSpace(body.Email))
+	body.NomEntreprise = strings.TrimSpace(body.NomEntreprise)
+
+	if len([]rune(body.Prenom)) < 2 || len([]rune(body.Nom)) < 2 {
+		httpx.JSONError(w, http.StatusBadRequest, "Indiquez un prénom et un nom valides (2 caractères minimum chacun).")
+		return
+	}
+	if !emailRegex.MatchString(body.Email) {
+		httpx.JSONError(w, http.StatusBadRequest, "Adresse email invalide.")
+		return
+	}
+	if !domaineEmailAccepteCourrier(body.Email) {
+		httpx.JSONError(w, http.StatusBadRequest, "Le domaine de cette adresse email n'existe pas ou ne reçoit pas de courrier.")
+		return
+	}
+	if !motDePasseRobuste(body.Password) {
+		httpx.JSONError(w, http.StatusBadRequest, "Mot de passe trop faible : 8 caractères minimum, avec au moins une lettre et un chiffre.")
+		return
+	}
+	if body.Role != "particulier" && body.Role != "professionnel" {
+		httpx.JSONError(w, http.StatusBadRequest, "Type de compte invalide.")
+		return
+	}
+
+	var siret string
+	if body.Role == "professionnel" {
+		nomVerifie, e := ValiderSiret(body.Siret)
+		if e != nil {
+			httpx.JSONError(w, http.StatusBadRequest, e.Error())
+			return
+		}
+		siret = chiffresSeulement(body.Siret)
+		if nomVerifie != "" {
+			body.NomEntreprise = nomVerifie // nom officiel issu du registre SIRENE
+		}
+		if body.NomEntreprise == "" {
+			httpx.JSONError(w, http.StatusBadRequest, "Le nom de l'entreprise est requis.")
+			return
+		}
 	}
 
 	var exists int
@@ -119,8 +200,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	if body.Role == "professionnel" {
 		database.DB.Exec(
-			"INSERT INTO Professionnels_artisans (Nom_Entreprise, Type, Id_Utilisateurs) VALUES (?, ?, ?)",
-			body.NomEntreprise, body.Type, id,
+			"INSERT INTO Professionnels_artisans (Nom_Entreprise, Type, Siret, Id_Utilisateurs) VALUES (?, ?, ?, ?)",
+			body.NomEntreprise, body.Type, siret, id,
 		)
 	} else {
 		database.DB.Exec(

@@ -84,18 +84,18 @@
                         <form class="space-y-5" method="POST" action="/register">
                             <div>
                                 <label class="block text-sm font-medium mb-2"><?= t('auth_label_fullname', 'Nom complet') ?></label>
-                                <input type="text" name="nom" placeholder="<?= t('auth_placeholder_fullname', 'Votre nom complet') ?>"
+                                <input type="text" name="nom" required minlength="2" placeholder="<?= t('auth_placeholder_fullname', 'Votre nom complet') ?>"
                                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-2"><?= t('auth_label_email', 'Adresse email') ?></label>
                                 <input type="email" name="email" placeholder="<?= t('auth_placeholder_email', 'votre@email.com') ?>"
-                                    value="<?= htmlspecialchars($email ?? '') ?>"
+                                    value="<?= htmlspecialchars($email ?? '') ?>" required
                                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-2"><?= t('auth_label_password', 'Mot de passe') ?></label>
-                                <input type="password" name="password" placeholder="••••••••"
+                                <input type="password" name="password" required minlength="8" title="8 caractères minimum, avec au moins une lettre et un chiffre" placeholder="••••••••"
                                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
 
@@ -123,9 +123,19 @@
 
                             <div id="champs-professionnel" class="hidden space-y-5">
                                 <div>
+                                    <label class="block text-sm font-medium mb-2"><?= t('auth_label_siret', "SIRET de l'entreprise") ?></label>
+                                    <div class="flex gap-2">
+                                        <input type="text" name="siret" id="siret-input" inputmode="numeric" maxlength="17" placeholder="<?= t('auth_siret_ph', '14 chiffres') ?>"
+                                            class="flex-1 px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
+                                        <button type="button" id="siret-verify-btn"
+                                            class="px-4 py-3 rounded-xl bg-black text-white font-medium hover:bg-neutral-800 transition whitespace-nowrap"><?= t('auth_siret_verify', 'Vérifier') ?></button>
+                                    </div>
+                                    <p id="siret-result" class="text-sm mt-2"></p>
+                                </div>
+                                <div>
                                     <label class="block text-sm font-medium mb-2"><?= t('auth_label_company', "Nom de l'entreprise") ?></label>
-                                    <input type="text" name="nom_entreprise" placeholder="<?= t('auth_placeholder_company', 'Votre entreprise') ?>"
-                                        class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
+                                    <input type="text" name="nom_entreprise" id="nom-entreprise-input" readonly placeholder="<?= t('auth_company_autofill', 'Rempli après vérification du SIRET') ?>"
+                                        class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-200 focus:outline-none focus:ring-2 focus:ring-black" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium mb-2"><?= t('auth_label_type', 'Type') ?></label>
@@ -179,11 +189,55 @@
         loginForm.classList.add('hidden');
     });
 
+    const champsPro = document.getElementById('champs-professionnel');
+    const siretInput = document.getElementById('siret-input');
+    const nomEntrepriseInput = document.getElementById('nom-entreprise-input');
+
+    function setProRequired(on) {
+        if (siretInput) siretInput.required = on;
+        if (nomEntrepriseInput) nomEntrepriseInput.required = on;
+    }
+
     document.getElementById('role-particulier').addEventListener('change', function() {
-        document.getElementById('champs-professionnel').classList.add('hidden');
+        champsPro.classList.add('hidden');
+        setProRequired(false);
     });
 
     document.getElementById('role-professionnel').addEventListener('change', function() {
-        document.getElementById('champs-professionnel').classList.remove('hidden');
+        champsPro.classList.remove('hidden');
+        setProRequired(true);
     });
+
+    // Vérification du SIRET via l'API publique (proxy frontend -> API Go)
+    const siretBtn = document.getElementById('siret-verify-btn');
+    const siretResult = document.getElementById('siret-result');
+    if (siretBtn) {
+        siretBtn.addEventListener('click', function() {
+            const raw = (siretInput.value || '').replace(/\D/g, '');
+            if (raw.length !== 14) {
+                siretResult.textContent = 'Le SIRET doit comporter 14 chiffres.';
+                siretResult.className = 'text-sm mt-2 text-red-600';
+                return;
+            }
+            siretResult.textContent = 'Vérification…';
+            siretResult.className = 'text-sm mt-2 text-base-content/60';
+            fetch('/siret/verify/' + raw)
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    if (d.valid) {
+                        nomEntrepriseInput.value = d.nom_entreprise || '';
+                        siretResult.textContent = '✓ ' + (d.nom_entreprise || 'Entreprise vérifiée');
+                        siretResult.className = 'text-sm mt-2 text-emerald-600 font-medium';
+                    } else {
+                        nomEntrepriseInput.value = '';
+                        siretResult.textContent = '✗ ' + (d.message || 'SIRET invalide');
+                        siretResult.className = 'text-sm mt-2 text-red-600';
+                    }
+                })
+                .catch(function() {
+                    siretResult.textContent = 'Erreur de vérification, réessayez.';
+                    siretResult.className = 'text-sm mt-2 text-red-600';
+                });
+        });
+    }
 </script>

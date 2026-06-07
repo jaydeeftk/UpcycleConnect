@@ -646,4 +646,8 @@ return [
     'nav_dd_post_conteneur_desc' => 'Anfrage zur Gegenstandsabgabe',
     'nav_logged_as' => 'Angemeldet als',
     'home_team_alt' => 'Team',
+    'auth_label_siret' => 'SIRET des Unternehmens',
+    'auth_siret_ph' => '14 Ziffern',
+    'auth_siret_verify' => 'Prüfen',
+    'auth_company_autofill' => 'Wird nach SIRET-Prüfung ausgefüllt',
 ];

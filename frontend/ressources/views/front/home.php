@@ -20,24 +20,23 @@
     <div class="relative max-w-7xl mx-auto px-6 lg:px-10 py-24 lg:py-36">
         <div class="max-w-3xl text-white">
             <span class="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 border border-white/30">
-                🌱 Plateforme d'économie circulaire
+                🌱 <?= t('home_badge', "Plateforme d'économie circulaire") ?>
             </span>
             <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
-                Donnez une seconde vie à vos objets
+                <?= t('home_hero_title', 'Donnez une seconde vie à vos objets') ?>
             </h1>
             <p class="mt-6 text-lg md:text-xl text-white/80 leading-relaxed max-w-2xl">
-                UpCycleConnect met en relation particuliers et prestataires pour réparer,
-                transformer ou recycler les objets du quotidien de façon simple, utile et responsable.
+                <?= t('home_hero_sub', "UpcycleConnect met en relation particuliers et prestataires pour réparer, transformer ou recycler les objets du quotidien de façon simple, utile et responsable.") ?>
             </p>
             <div class="mt-8 flex flex-col sm:flex-row gap-4">
                 <a href="/catalogue/services"
                    class="bg-white text-black dark:text-white px-7 py-4 rounded-xl font-semibold hover:bg-gray-100 transition text-center">
-                    Découvrir les services
+                    <?= t('home_cta_services', 'Découvrir les services') ?>
                 </a>
                 <a href="/catalogue/evenements"
                    style="background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);color:white;border:1.5px solid rgba(255,255,255,0.4);"
                    class="px-7 py-4 rounded-xl font-semibold hover:bg-white/25 transition text-center inline-block">
-                    Voir les événements
+                    <?= t('home_cta_events', 'Voir les événements') ?>
                 </a>
             </div>
         </div>
@@ -46,7 +45,7 @@
 
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-20">
     <h2 class="text-3xl md:text-4xl font-bold mb-10 fade-up">
-        Comment fonctionne UpCycleConnect ?
+        <?= t('home_how_title', 'Comment fonctionne UpcycleConnect ?') ?>
     </h2>
     <div class="grid md:grid-cols-3 gap-8">
         <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group fade-up" style="transition-delay:0.05s">
@@ -56,9 +55,9 @@
                      alt="Réparer">
             </div>
             <div class="p-6">
-                <h3 class="text-2xl font-semibold mb-3">Réparer</h3>
+                <h3 class="text-2xl font-semibold mb-3"><?= t('home_step1_title', 'Réparer') ?></h3>
                 <p class="text-base-content/70">
-                    Trouvez un professionnel qualifié pour remettre en état vos objets cassés au lieu de les jeter.
+                    <?= t('home_step1_desc', 'Trouvez un professionnel qualifié pour remettre en état vos objets cassés au lieu de les jeter.') ?>
                 </p>
             </div>
         </div>
@@ -69,9 +68,9 @@
                      alt="Transformer">
             </div>
             <div class="p-6">
-                <h3 class="text-2xl font-semibold mb-3">Transformer</h3>
+                <h3 class="text-2xl font-semibold mb-3"><?= t('home_step2_title', 'Transformer') ?></h3>
                 <p class="text-base-content/70">
-                    Donnez un nouveau style ou une nouvelle utilité à vos objets grâce à des prestations sur mesure.
+                    <?= t('home_step2_desc', 'Donnez un nouveau style ou une nouvelle utilité à vos objets grâce à des prestations sur mesure.') ?>
                 </p>
             </div>
         </div>
@@ -82,9 +81,9 @@
                      alt="Recycler">
             </div>
             <div class="p-6">
-                <h3 class="text-2xl font-semibold mb-3">Recycler</h3>
+                <h3 class="text-2xl font-semibold mb-3"><?= t('home_step3_title', 'Recycler') ?></h3>
                 <p class="text-base-content/70">
-                    Orientez vos objets vers les bonnes solutions de réemploi et de recyclage pour limiter les déchets.
+                    <?= t('home_step3_desc', 'Orientez vos objets vers les bonnes solutions de réemploi et de recyclage pour limiter les déchets.') ?>
                 </p>
             </div>
         </div>
@@ -170,17 +169,16 @@
 
 <section class="bg-green-50 dark:bg-emerald-900 border-t border-green-100 dark:border-emerald-800">
     <div class="max-w-7xl mx-auto px-6 lg:px-10 py-16 text-center fade-up">
-        <h2 class="text-3xl font-bold mb-4">Rejoignez la communauté UpcycleConnect</h2>
+        <h2 class="text-3xl font-bold mb-4"><?= t('home_join_title', 'Rejoignez la communauté UpcycleConnect') ?></h2>
         <p class="text-base-content/70 max-w-2xl mx-auto mb-8">
-            Participez à des événements près de chez vous, apprenez de nouvelles techniques et
-            donnez une seconde vie à vos objets avec l'aide de notre communauté.
+            <?= t('home_join_sub', "Participez à des événements près de chez vous, apprenez de nouvelles techniques et donnez une seconde vie à vos objets avec l'aide de notre communauté.") ?>
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="/register" class="inline-block bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
-                Créer un compte gratuit
+                <?= t('home_join_create', 'Créer un compte gratuit') ?>
             </a>
             <a href="/catalogue/evenements" class="inline-block bg-white border border-gray-200 px-8 py-3 rounded-xl font-medium hover:bg-gray-50 transition">
-                Voir les événements
+                <?= t('home_cta_events', 'Voir les événements') ?>
             </a>
         </div>
     </div>

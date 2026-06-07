@@ -28,9 +28,11 @@
   PDF servi en `200 application/pdf`.
 
 ## Reste (hors périmètre réalisable ici, documenté)
-- **PR9/A5 — Alerte push temps réel (OneSignal)** : nécessite un compte + clés API
-  OneSignal (externe). La notification in-app (DB + lecture, pro + particulier) est en
-  place ; il reste à brancher l'envoi push avec les clés.
+- **PR9/A5 — Alerte push temps réel (OneSignal)** : **branché côté code** (SDK Web v16
+  dans `main.php`, sender Go `internal/notifier`, service worker, env-driven, fail-safe
+  sans clés). Activation = finir le setup OneSignal + renseigner `ONESIGNAL_APP_ID` /
+  `ONESIGNAL_API_KEY` → voir `docs/ONESIGNAL.md`. Vérifié : injection conditionnelle
+  (off sans clé / SDK + init avec clé), service worker servi, envoi admin → push.
 - **Données démo** : contrats + notifications semés dans la base du *preview* pour
   la démonstration (init.sql est schéma-only, sans seed — les comptes démo eux-mêmes
   sont créés au runtime).

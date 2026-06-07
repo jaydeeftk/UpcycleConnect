@@ -40,7 +40,7 @@
             },
             events: eventsData,
             eventClick: function(info) {
-                alert(info.event.title + '\nStatut: ' + info.event.extendedProps.statut + '\n\n' + info.event.extendedProps.description);
+                toast(info.event.title + '\nStatut: ' + info.event.extendedProps.statut + '\n\n' + info.event.extendedProps.description);
             }
         });
         calendar.render();

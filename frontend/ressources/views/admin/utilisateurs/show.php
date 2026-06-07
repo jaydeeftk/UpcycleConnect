@@ -203,9 +203,9 @@ function removePlanning(userId, type, itemId) {
         if (data.data || data.success) {
             window.location.reload();
         } else {
-            alert('Erreur : ' + (data.error || 'Impossible de désinscrire'));
+            toast('Erreur : ' + (data.error || 'Impossible de désinscrire'));
         }
-    }).catch(() => alert('Erreur réseau'));
+    }).catch(() => toast('Erreur réseau'));
     });
 }
 </script>

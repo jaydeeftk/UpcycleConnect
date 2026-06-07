@@ -119,6 +119,7 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/formations/{id}/delete', 'Admin\FormationController@delete');
 
     $router->get('/conteneurs', 'Admin\ConteneurController@index');
+    $router->get('/conteneurs/{id}', 'Admin\ConteneurController@show');
     $router->post('/conteneurs/store', 'Admin\ConteneurController@store');
     $router->post('/conteneurs/{id}/update', 'Admin\ConteneurController@update');
     $router->get('/conteneurs/{id}/accept', 'Admin\ConteneurController@accept');

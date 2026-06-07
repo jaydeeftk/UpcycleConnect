@@ -40,9 +40,12 @@
                 <p class="text-xs text-slate-400 mt-1 text-right">Capacité max : <?= htmlspecialchars($box['capacite']) ?> kg</p>
             </div>
 
-            <div class="mt-4 pt-4 border-t border-slate-100 flex justify-end">
-                <a href="/admin/conteneurs/<?= $box['id'] ?>/delete" 
-                   onclick="return ucConfirm(this, 'Supprimer définitivement ce conteneur ?')" 
+            <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                <a href="/admin/conteneurs/<?= $box['id'] ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
+                    <i class="fas fa-eye mr-1"></i>Voir les dépôts
+                </a>
+                <a href="/admin/conteneurs/<?= $box['id'] ?>/delete"
+                   onclick="return ucConfirm(this, 'Supprimer définitivement ce conteneur ?')"
                    class="text-rose-500 hover:text-rose-700 text-sm font-medium transition-colors">
                     <i class="fas fa-trash mr-1"></i>Retirer
                 </a>

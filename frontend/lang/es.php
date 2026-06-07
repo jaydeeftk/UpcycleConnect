@@ -553,4 +553,18 @@ return [
     'footer_legal' => 'Aviso legal',
     'footer_privacy' => 'Privacidad',
     'footer_contact' => 'Contacto',
+    // === home: sections impact + plateforme ===
+    'home_impact_title' => 'Nuestro impacto',
+    'home_impact_objets' => 'Objetos salvados',
+    'home_impact_users' => 'Usuarios',
+    'home_impact_projets' => 'Proyectos realizados',
+    'home_impact_co2' => 'CO₂ ahorrado',
+    'home_platform_title' => 'Una plataforma sencilla para prolongar la vida de tus objetos',
+    'home_feat1_title' => 'Encuentra un profesional cerca de ti',
+    'home_feat1_desc' => 'Explora los servicios ofrecidos por profesionales para reparar, transformar o revalorizar tus objetos fácilmente.',
+    'home_feat2_title' => 'Publica una solicitud rápidamente',
+    'home_feat2_desc' => 'Describe tu necesidad, tu objeto y tu objetivo. Los profesionales pueden responderte directamente.',
+    'home_feat3_title' => 'Participa en eventos responsables',
+    'home_feat3_desc' => 'Descubre talleres, encuentros e iniciativas locales en torno a la reparación y el reciclaje.',
+    'home_platform_cta_services' => 'Ver servicios',
 ];

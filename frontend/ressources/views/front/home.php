@@ -92,23 +92,23 @@
 
 <section class="bg-base-100 py-16 lg:py-20">
     <div class="max-w-7xl mx-auto px-6 lg:px-10">
-        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 fade-up">Notre impact</h2>
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 fade-up"><?= t('home_impact_title', 'Notre impact') ?></h2>
         <div class="grid md:grid-cols-4 gap-8 text-center">
             <div class="fade-up" style="transition-delay:0.05s">
                 <div class="text-5xl font-bold text-primary counter-val" data-target="<?= $stats['objets_sauves'] ?? 0 ?>">0</div>
-                <div class="text-base-content/70 mt-2">Objets sauvés</div>
+                <div class="text-base-content/70 mt-2"><?= t('home_impact_objets', 'Objets sauvés') ?></div>
             </div>
             <div class="fade-up" style="transition-delay:0.1s">
                 <div class="text-5xl font-bold text-primary counter-val" data-target="<?= $stats['utilisateurs'] ?? 0 ?>">0</div>
-                <div class="text-base-content/70 mt-2">Utilisateurs</div>
+                <div class="text-base-content/70 mt-2"><?= t('home_impact_users', 'Utilisateurs') ?></div>
             </div>
             <div class="fade-up" style="transition-delay:0.15s">
                 <div class="text-5xl font-bold text-primary counter-val" data-target="<?= $stats['projets_realises'] ?? 0 ?>">0</div>
-                <div class="text-base-content/70 mt-2">Projets réalisés</div>
+                <div class="text-base-content/70 mt-2"><?= t('home_impact_projets', 'Projets réalisés') ?></div>
             </div>
             <div class="fade-up" style="transition-delay:0.2s">
                 <div class="text-5xl font-bold text-primary"><?= $stats['co2_economise'] ?? 0 ?> t</div>
-                <div class="text-base-content/70 mt-2">CO₂ économisées</div>
+                <div class="text-base-content/70 mt-2"><?= t('home_impact_co2', 'CO₂ économisées') ?></div>
             </div>
         </div>
     </div>
@@ -119,7 +119,7 @@
         <div class="grid lg:grid-cols-2 gap-10 items-center">
             <div class="fade-up">
                 <h2 class="text-3xl md:text-4xl font-bold leading-tight mb-6">
-                    Une plateforme simple pour prolonger la vie de vos objets
+                    <?= t('home_platform_title', 'Une plateforme simple pour prolonger la vie de vos objets') ?>
                 </h2>
                 <div class="space-y-6 text-base-content/80">
                     <div class="flex gap-4">
@@ -127,8 +127,8 @@
                             <i class="fas fa-search-location text-green-600 text-xs"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg">Trouvez un prestataire près de chez vous</h3>
-                            <p class="mt-1 text-base-content/70">Parcourez les prestations proposées par des professionnels pour réparer, transformer ou valoriser vos objets facilement.</p>
+                            <h3 class="font-semibold text-lg"><?= t('home_feat1_title', 'Trouvez un prestataire près de chez vous') ?></h3>
+                            <p class="mt-1 text-base-content/70"><?= t('home_feat1_desc', 'Parcourez les prestations proposées par des professionnels pour réparer, transformer ou valoriser vos objets facilement.') ?></p>
                         </div>
                     </div>
                     <div class="flex gap-4">
@@ -136,8 +136,8 @@
                             <i class="fas fa-paper-plane text-blue-600 text-xs"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg">Déposez une demande rapidement</h3>
-                            <p class="mt-1 text-base-content/70">Décrivez votre besoin, votre objet et votre objectif. Les prestataires peuvent ensuite vous répondre directement.</p>
+                            <h3 class="font-semibold text-lg"><?= t('home_feat2_title', 'Déposez une demande rapidement') ?></h3>
+                            <p class="mt-1 text-base-content/70"><?= t('home_feat2_desc', 'Décrivez votre besoin, votre objet et votre objectif. Les prestataires peuvent ensuite vous répondre directement.') ?></p>
                         </div>
                     </div>
                     <div class="flex gap-4">
@@ -145,17 +145,17 @@
                             <i class="fas fa-calendar-check text-purple-600 text-xs"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg">Participez à des événements responsables</h3>
-                            <p class="mt-1 text-base-content/70">Découvrez des ateliers, des rencontres et des initiatives locales autour de la réparation et du recyclage.</p>
+                            <h3 class="font-semibold text-lg"><?= t('home_feat3_title', 'Participez à des événements responsables') ?></h3>
+                            <p class="mt-1 text-base-content/70"><?= t('home_feat3_desc', 'Découvrez des ateliers, des rencontres et des initiatives locales autour de la réparation et du recyclage.') ?></p>
                         </div>
                     </div>
                 </div>
                 <div class="mt-8 flex flex-wrap gap-4">
                     <a href="/catalogue/services" class="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
-                        Voir les services
+                        <?= t('home_platform_cta_services', 'Voir les services') ?>
                     </a>
                     <a href="/catalogue/evenements" class="bg-base-200 border border-base-300 px-6 py-3 rounded-xl font-medium hover:bg-base-300 transition">
-                        Voir les événements
+                        <?= t('home_cta_events', 'Voir les événements') ?>
                     </a>
                 </div>
             </div>

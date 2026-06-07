@@ -6,15 +6,15 @@
                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                     <i class="fas fa-calendar-alt text-blue-600"></i>
                 </div>
-                <span class="text-sm font-medium text-blue-600 uppercase tracking-wide">Mon espace</span>
+                <span class="text-sm font-medium text-blue-600 uppercase tracking-wide"><?= t('planning_my_space', 'Mon espace') ?></span>
             </div>
-            <h1 class="text-3xl font-bold">Mon Planning</h1>
-            <p class="text-base-content/60 mt-2">Retrouvez tous vos cours, événements et activités en cours et à venir.</p>
+            <h1 class="text-3xl font-bold"><?= t('planning_title', 'Mon Planning') ?></h1>
+            <p class="text-base-content/60 mt-2"><?= t('planning_subtitle', 'Retrouvez tous vos cours, événements et activités en cours et à venir.') ?></p>
         </div>
         <div class="tabs tabs-boxed bg-base-100 p-1 rounded-2xl shadow-sm">
-            <button onclick="setVue('jour')" id="tab-jour" class="tab">Jour</button>
-            <button onclick="setVue('semaine')" id="tab-semaine" class="tab tab-active">Semaine</button>
-            <button onclick="setVue('mois')" id="tab-mois" class="tab">Mois</button>
+            <button onclick="setVue('jour')" id="tab-jour" class="tab"><?= t('planning_tab_day', 'Jour') ?></button>
+            <button onclick="setVue('semaine')" id="tab-semaine" class="tab tab-active"><?= t('planning_tab_week', 'Semaine') ?></button>
+            <button onclick="setVue('mois')" id="tab-mois" class="tab"><?= t('planning_tab_month', 'Mois') ?></button>
         </div>
     </div>
 
@@ -22,25 +22,25 @@
 
         <aside class="lg:col-span-1 space-y-6">
             <div class="bg-base-100 rounded-2xl shadow-sm p-5">
-                <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-4">Résumé</h2>
+                <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-4"><?= t('planning_summary', 'Résumé') ?></h2>
                 <div class="space-y-3">
                     <div class="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
                         <i class="fas fa-graduation-cap text-purple-500"></i>
-                        <div class="flex-1 text-sm">Formations</div>
+                        <div class="flex-1 text-sm"><?= t('planning_formations', 'Formations') ?></div>
                         <span class="font-bold text-purple-500"><?= count($formations ?? []) ?></span>
                     </div>
                     <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
                         <i class="fas fa-calendar-check text-blue-500"></i>
-                        <div class="flex-1 text-sm">Événements</div>
+                        <div class="flex-1 text-sm"><?= t('planning_evenements', 'Événements') ?></div>
                         <span class="font-bold text-blue-500"><?= count($evenements ?? []) ?></span>
                     </div>
                 </div>
             </div>
 
             <div class="bg-base-100 rounded-2xl shadow-sm p-5">
-                <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-4">Prochain rendez-vous</h2>
+                <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-4"><?= t('planning_next_appointment', 'Prochain rendez-vous') ?></h2>
                 <div id="prochain-rdv" class="bg-blue-50 rounded-xl p-4">
-                    <div class="text-sm text-base-content/50">Chargement...</div>
+                    <div class="text-sm text-base-content/50"><?= t('planning_loading', 'Chargement...') ?></div>
                 </div>
             </div>
         </aside>
@@ -60,8 +60,8 @@
             <div id="vue-container"></div>
 
             <div class="flex gap-4 mt-4 text-xs text-base-content/50">
-                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-purple-200 inline-block"></span> Formation</span>
-                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-200 inline-block"></span> Événement</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-purple-200 inline-block"></span> <?= t('planning_type_formation', 'Formation') ?></span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-200 inline-block"></span> <?= t('planning_type_evenement', 'Événement') ?></span>
             </div>
         </div>
     </div>
@@ -166,7 +166,7 @@ function renderJour() {
 
     if (sansHeure.length > 0) {
         html += `<div class="flex gap-4 items-start">
-            <span class="text-xs text-base-content/40 w-12 pt-1 flex-shrink-0">Journée</span>
+            <span class="text-xs text-base-content/40 w-12 pt-1 flex-shrink-0"><?= t('planning_all_day', 'Journée') ?></span>
             <div class="flex-1 border-t border-base-200 pt-1 min-h-8">
                 ${sansHeure.map(cardHtml).join('')}
             </div>
@@ -201,7 +201,7 @@ function renderSemaine() {
 
     const dimanche = jours[6];
     document.getElementById('periode-label').textContent =
-        'Semaine du ' + lundi.getDate() + ' au ' + dimanche.getDate() + ' ' + MOIS_FR[dimanche.getMonth()] + ' ' + dimanche.getFullYear();
+        '<?= t('planning_week_of', 'Semaine du') ?> ' + lundi.getDate() + ' <?= t('planning_week_to', 'au') ?> ' + dimanche.getDate() + ' ' + MOIS_FR[dimanche.getMonth()] + ' ' + dimanche.getFullYear();
 
     const today = new Date(); today.setHours(0,0,0,0);
 
@@ -264,12 +264,12 @@ function renderProchain() {
 
     const el = document.getElementById('prochain-rdv');
     if (!futurs.length) {
-        el.innerHTML = '<div class="text-sm text-base-content/50">Aucun rendez-vous à venir.</div>';
+        el.innerHTML = '<div class="text-sm text-base-content/50"><?= t('planning_no_upcoming', 'Aucun rendez-vous à venir.') ?></div>';
         return;
     }
     const p = futurs[0];
     el.innerHTML = `
-        <div class="badge badge-sm ${p.type === 'formation' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} border-0 mb-2">${p.type === 'formation' ? 'Formation' : 'Événement'}</div>
+        <div class="badge badge-sm ${p.type === 'formation' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} border-0 mb-2">${p.type === 'formation' ? '<?= t('planning_type_formation', 'Formation') ?>' : '<?= t('planning_type_evenement', 'Événement') ?>'}</div>
         <a href="${p.url}" class="font-semibold text-sm hover:underline block mb-1">${p.titre}</a>
         <div class="text-xs text-base-content/60 space-y-1">
             <div><i class="fas fa-calendar mr-1"></i>${formatDate(p._d)}</div>

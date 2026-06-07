@@ -3,10 +3,10 @@
         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <i class="fas fa-check text-4xl text-green-500"></i>
         </div>
-        <h1 class="text-2xl font-bold mb-3">Paiement confirmé !</h1>
-        <p class="text-base-content/60 mb-8">Votre paiement a bien été effectué. Vous êtes maintenant inscrit.</p>
+        <h1 class="text-2xl font-bold mb-3"><?= t('paysucc_title', 'Paiement confirmé !') ?></h1>
+        <p class="text-base-content/60 mb-8"><?= t('paysucc_message', 'Votre paiement a bien été effectué. Vous êtes maintenant inscrit.') ?></p>
         <a href="/planning" class="btn btn-neutral">
-            <i class="fas fa-calendar-alt mr-2"></i> Voir mon planning
+            <i class="fas fa-calendar-alt mr-2"></i> <?= t('paysucc_view_planning', 'Voir mon planning') ?>
         </a>
     </div>
 </section>

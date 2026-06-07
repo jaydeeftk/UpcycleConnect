@@ -9,16 +9,16 @@
         </div>
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold">Toutes les annonces</h1>
-                <p class="text-base-content/60 mt-2">Trouvez des objets à récupérer ou à acheter près de chez vous.</p>
+                <h1 class="text-3xl font-bold"><?= t('annidx_title', 'Toutes les annonces') ?></h1>
+                <p class="text-base-content/60 mt-2"><?= t('annidx_subtitle', 'Trouvez des objets à récupérer ou à acheter près de chez vous.') ?></p>
             </div>
             <?php if (isset($_SESSION['user'])): ?>
                 <div class="flex items-center gap-2">
                     <a href="/mes-annonces" class="btn btn-ghost">
-                        <i class="fas fa-list mr-2"></i> Mes annonces
+                        <i class="fas fa-list mr-2"></i> <?= t('annidx_my_ads', 'Mes annonces') ?>
                     </a>
                     <a href="/annonces/create" class="btn btn-neutral">
-                        <i class="fas fa-plus mr-2"></i> Déposer une annonce
+                        <i class="fas fa-plus mr-2"></i> <?= t('annidx_post_ad', 'Déposer une annonce') ?>
                     </a>
                 </div>
             <?php endif; ?>
@@ -27,13 +27,13 @@
 
     <div class="flex flex-wrap gap-3 mb-8">
         <a href="?type=tous" class="btn btn-sm <?= ($_GET['type'] ?? 'tous') === 'tous' ? 'btn-neutral' : 'btn-ghost' ?>">
-            Tout voir
+            <?= t('annidx_filter_all', 'Tout voir') ?>
         </a>
         <a href="?type=don" class="btn btn-sm <?= ($_GET['type'] ?? '') === 'don' ? 'btn-neutral' : 'btn-ghost' ?>">
-            <i class="fas fa-heart mr-2 text-green-500"></i> Dons
+            <i class="fas fa-heart mr-2 text-green-500"></i> <?= t('annidx_filter_don', 'Dons') ?>
         </a>
         <a href="?type=vente" class="btn btn-sm <?= ($_GET['type'] ?? '') === 'vente' ? 'btn-neutral' : 'btn-ghost' ?>">
-            <i class="fas fa-tag mr-2 text-blue-500"></i> Ventes
+            <i class="fas fa-tag mr-2 text-blue-500"></i> <?= t('annidx_filter_vente', 'Ventes') ?>
         </a>
     </div>
 
@@ -51,7 +51,7 @@
     <?php if (empty($annoncesFiltered)): ?>
         <div class="text-center py-20 text-base-content/40">
             <i class="fas fa-box-open text-5xl mb-4 block"></i>
-            <p class="text-lg">Aucune annonce disponible pour le moment.</p>
+            <p class="text-lg"><?= t('annidx_empty', 'Aucune annonce disponible pour le moment.') ?></p>
         </div>
     <?php else: ?>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -60,12 +60,12 @@
                     <div class="flex items-center gap-2">
                         <?php if (($annonce['type_annonce'] ?? '') === 'vente'): ?>
                             <span class="badge badge-ghost badge-sm gap-1">
-                                <i class="fas fa-tag text-blue-500"></i> Vente
+                                <i class="fas fa-tag text-blue-500"></i> <?= t('annidx_badge_vente', 'Vente') ?>
                             </span>
                             <span class="font-semibold text-blue-500"><?= $annonce['prix'] ?? 0 ?>€</span>
                         <?php else: ?>
                             <span class="badge badge-ghost badge-sm gap-1">
-                                <i class="fas fa-heart text-green-500"></i> Don gratuit
+                                <i class="fas fa-heart text-green-500"></i> <?= t('annidx_badge_don', 'Don gratuit') ?>
                             </span>
                         <?php endif; ?>
                         <span class="badge badge-ghost badge-sm"><?= htmlspecialchars($annonce['categorie'] ?? '') ?></span>
@@ -76,7 +76,7 @@
                     </div>
                     <div class="flex items-center justify-between text-xs text-base-content/50 mt-auto pt-3 border-t border-base-300">
                         <span><i class="fas fa-map-marker-alt mr-1"></i><?= htmlspecialchars($annonce['ville'] ?? '') ?></span>
-                        <span><i class="fas fa-box mr-1"></i>État : <?= htmlspecialchars($annonce['etat'] ?? '') ?></span>
+                        <span><i class="fas fa-box mr-1"></i><?= t('annidx_state_label', 'État :') ?> <?= htmlspecialchars($annonce['etat'] ?? '') ?></span>
                     </div>
                     <div class="text-xs text-base-content/50">
                         <i class="fas fa-user mr-1"></i><?= htmlspecialchars($annonce['auteur'] ?? '') ?>

@@ -18,7 +18,7 @@ $imagesByCategorie = [
     <?php if (isset($_GET['success'])): ?>
         <div class="alert alert-success mb-6">
             <i class="fas fa-check-circle"></i>
-            <span>Vous êtes bien inscrit à cette formation !</span>
+            <span><?= t('catfor_inscription_success', 'Vous êtes bien inscrit à cette formation !') ?></span>
         </div>
     <?php endif; ?>
 
@@ -34,18 +34,18 @@ $imagesByCategorie = [
             <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
                 <i class="fas fa-graduation-cap text-purple-600"></i>
             </div>
-            <span class="text-sm font-medium text-purple-600 uppercase tracking-wide">Catalogue</span>
+            <span class="text-sm font-medium text-purple-600 uppercase tracking-wide"><?= t('catfor_breadcrumb', 'Catalogue') ?></span>
         </div>
-        <h1 class="text-3xl font-bold">Formations</h1>
-        <p class="text-base-content/60 mt-2">Apprenez les techniques d'upcycling et de développement durable avec nos formateurs experts.</p>
+        <h1 class="text-3xl font-bold"><?= t('catfor_title', 'Formations') ?></h1>
+        <p class="text-base-content/60 mt-2"><?= t('catfor_subtitle', 'Apprenez les techniques d\'upcycling et de développement durable avec nos formateurs experts.') ?></p>
     </div>
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-6 mb-8">
         <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Catégorie</label>
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catfor_filter_category', 'Catégorie') ?></label>
                 <select name="categorie" class="select select-bordered w-full select-sm">
-                    <option value="">Toutes</option>
+                    <option value=""><?= t('catfor_filter_category_all', 'Toutes') ?></option>
                     <?php foreach ($categories ?? [] as $cat): ?>
                         <option value="<?= htmlspecialchars($cat) ?>" <?= ($_GET['categorie'] ?? '') === $cat ? 'selected' : '' ?>>
                             <?= htmlspecialchars($cat) ?>
@@ -54,35 +54,35 @@ $imagesByCategorie = [
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Prix max (€)</label>
-                <input type="number" name="prix_max" min="0" placeholder="Ex : 50" value="<?= htmlspecialchars($_GET['prix_max'] ?? '') ?>" class="input input-bordered w-full input-sm">
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catfor_filter_price_max', 'Prix max (€)') ?></label>
+                <input type="number" name="prix_max" min="0" placeholder="<?= t('catfor_filter_price_placeholder', 'Ex : 50') ?>" value="<?= htmlspecialchars($_GET['prix_max'] ?? '') ?>" class="input input-bordered w-full input-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Date</label>
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catfor_filter_date', 'Date') ?></label>
                 <input type="date" name="date" value="<?= htmlspecialchars($_GET['date'] ?? '') ?>" class="input input-bordered w-full input-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Places dispo</label>
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catfor_filter_places', 'Places dispo') ?></label>
                 <select name="places" class="select select-bordered w-full select-sm">
-                    <option value="">Peu importe</option>
-                    <option value="1" <?= ($_GET['places'] ?? '') === '1' ? 'selected' : '' ?>>Au moins 1 place</option>
-                    <option value="5" <?= ($_GET['places'] ?? '') === '5' ? 'selected' : '' ?>>Au moins 5 places</option>
-                    <option value="10" <?= ($_GET['places'] ?? '') === '10' ? 'selected' : '' ?>>Au moins 10 places</option>
+                    <option value=""><?= t('catfor_filter_places_any', 'Peu importe') ?></option>
+                    <option value="1" <?= ($_GET['places'] ?? '') === '1' ? 'selected' : '' ?>><?= t('catfor_filter_places_1', 'Au moins 1 place') ?></option>
+                    <option value="5" <?= ($_GET['places'] ?? '') === '5' ? 'selected' : '' ?>><?= t('catfor_filter_places_5', 'Au moins 5 places') ?></option>
+                    <option value="10" <?= ($_GET['places'] ?? '') === '10' ? 'selected' : '' ?>><?= t('catfor_filter_places_10', 'Au moins 10 places') ?></option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Trier par</label>
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catfor_filter_sort', 'Trier par') ?></label>
                 <select name="tri" class="select select-bordered w-full select-sm">
-                    <option value="date" <?= ($_GET['tri'] ?? 'date') === 'date' ? 'selected' : '' ?>>Date</option>
-                    <option value="prix_asc" <?= ($_GET['tri'] ?? '') === 'prix_asc' ? 'selected' : '' ?>>Prix croissant</option>
-                    <option value="prix_desc" <?= ($_GET['tri'] ?? '') === 'prix_desc' ? 'selected' : '' ?>>Prix décroissant</option>
-                    <option value="places" <?= ($_GET['tri'] ?? '') === 'places' ? 'selected' : '' ?>>Places restantes</option>
+                    <option value="date" <?= ($_GET['tri'] ?? 'date') === 'date' ? 'selected' : '' ?>><?= t('catfor_filter_date', 'Date') ?></option>
+                    <option value="prix_asc" <?= ($_GET['tri'] ?? '') === 'prix_asc' ? 'selected' : '' ?>><?= t('catfor_sort_price_asc', 'Prix croissant') ?></option>
+                    <option value="prix_desc" <?= ($_GET['tri'] ?? '') === 'prix_desc' ? 'selected' : '' ?>><?= t('catfor_sort_price_desc', 'Prix décroissant') ?></option>
+                    <option value="places" <?= ($_GET['tri'] ?? '') === 'places' ? 'selected' : '' ?>><?= t('catfor_sort_places', 'Places restantes') ?></option>
                 </select>
             </div>
             <div class="md:col-span-5 flex justify-end gap-3">
-                <a href="/catalogue/formations" class="btn btn-ghost btn-sm">Réinitialiser</a>
+                <a href="/catalogue/formations" class="btn btn-ghost btn-sm"><?= t('catfor_reset', 'Réinitialiser') ?></a>
                 <button type="submit" class="btn btn-neutral btn-sm">
-                    <i class="fas fa-filter mr-2"></i>Filtrer
+                    <i class="fas fa-filter mr-2"></i><?= t('catfor_filter_btn', 'Filtrer') ?>
                 </button>
             </div>
         </form>
@@ -91,7 +91,7 @@ $imagesByCategorie = [
     <?php $formations = $formations ?? []; ?>
 
     <div class="flex items-center justify-between mb-6">
-        <p class="text-sm text-base-content/50"><?= count($formations) ?> formation(s) trouvée(s)</p>
+        <p class="text-sm text-base-content/50"><?= count($formations) ?> <?= t('catfor_results_count', 'formation(s) trouvée(s)') ?></p>
     </div>
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -108,11 +108,11 @@ $imagesByCategorie = [
                          class="w-full h-full object-cover <?= $complet ? 'grayscale' : '' ?> transition-transform duration-500 hover:scale-105">
                     <?php if ($complet): ?>
                         <div class="absolute inset-0 bg-base-300/70 flex items-center justify-center">
-                            <span class="badge badge-error badge-lg">Complet</span>
+                            <span class="badge badge-error badge-lg"><?= t('catfor_full', 'Complet') ?></span>
                         </div>
                     <?php elseif ($presque): ?>
                         <div class="absolute top-3 right-3">
-                            <span class="badge badge-warning badge-sm">Plus que <?= $formation['places_dispo'] ?> place(s) !</span>
+                            <span class="badge badge-warning badge-sm"><?= t('catfor_almost_full_before', 'Plus que') ?> <?= $formation['places_dispo'] ?> <?= t('catfor_almost_full_after', 'place(s) !') ?></span>
                         </div>
                     <?php endif; ?>
                     <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -130,9 +130,9 @@ $imagesByCategorie = [
                         <div>
                             <i class="fas fa-users mr-2"></i>
                             <?php if ($complet): ?>
-                                <span class="text-red-500 font-medium">Complet</span>
+                                <span class="text-red-500 font-medium"><?= t('catfor_full', 'Complet') ?></span>
                             <?php else: ?>
-                                <span class="<?= $presque ? 'text-orange-500 font-medium' : '' ?>"><?= $formation['places_dispo'] ?? 0 ?> / <?= $formation['places_total'] ?? 0 ?> places restantes</span>
+                                <span class="<?= $presque ? 'text-orange-500 font-medium' : '' ?>"><?= $formation['places_dispo'] ?? 0 ?> / <?= $formation['places_total'] ?? 0 ?> <?= t('catfor_places_remaining', 'places restantes') ?></span>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -147,9 +147,9 @@ $imagesByCategorie = [
                     <div class="flex items-center justify-between">
                         <span class="text-xl font-bold"><?= $formation['prix'] ?? 0 ?>€</span>
                         <?php if ($complet): ?>
-                            <button class="btn btn-disabled btn-sm" disabled>Complet</button>
+                            <button class="btn btn-disabled btn-sm" disabled><?= t('catfor_full', 'Complet') ?></button>
                         <?php else: ?>
-                            <a href="/formations/<?= $formation['id'] ?>" class="btn btn-neutral btn-sm">Voir la formation</a>
+                            <a href="/formations/<?= $formation['id'] ?>" class="btn btn-neutral btn-sm"><?= t('catfor_view_btn', 'Voir la formation') ?></a>
                         <?php endif; ?>
                     </div>
                 </div>

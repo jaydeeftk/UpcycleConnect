@@ -4,17 +4,17 @@
             <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                 <i class="fas fa-clipboard-list text-blue-600"></i>
             </div>
-            <span class="text-sm font-medium text-blue-600 uppercase tracking-wide">Mon espace</span>
+            <span class="text-sm font-medium text-blue-600 uppercase tracking-wide"><?= t('demidx_eyebrow', 'Mon espace') ?></span>
         </div>
-        <h1 class="text-3xl font-bold">Mes demandes</h1>
-        <p class="text-base-content/60 mt-2">Retrouvez toutes vos annonces et demandes de dépôt en conteneur.</p>
+        <h1 class="text-3xl font-bold"><?= t('demidx_title', 'Mes demandes') ?></h1>
+        <p class="text-base-content/60 mt-2"><?= t('demidx_subtitle', 'Retrouvez toutes vos annonces et demandes de dépôt en conteneur.') ?></p>
     </div>
     <?php if (!isset($_SESSION['user'])): ?>
         <div class="bg-base-100 rounded-2xl border border-base-300 p-8 text-center">
-            <p class="text-base-content/70 mb-4">Vous devez être connecté pour voir vos demandes.</p>
+            <p class="text-base-content/70 mb-4"><?= t('demidx_login_required', 'Vous devez être connecté pour voir vos demandes.') ?></p>
             <a href="/login"
                 class="inline-block bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
-                Se connecter
+                <?= t('demidx_login_btn', 'Se connecter') ?>
             </a>
         </div>
     <?php else: ?>
@@ -45,34 +45,34 @@
 
         <div class="flex flex-wrap gap-3 mb-8">
             <a href="?type=tous" class="btn btn-sm <?= $type === 'tous' && !isset($_GET['don']) && !isset($_GET['vente']) ? 'btn-neutral' : 'btn-ghost' ?>">
-                Tout voir
+                <?= t('demidx_filter_all', 'Tout voir') ?>
             </a>
             <a href="?type=annonces<?= isset($_GET['don']) ? '&don=1' : '' ?><?= isset($_GET['vente']) ? '&vente=1' : '' ?>" class="btn btn-sm <?= $type === 'annonces' ? 'btn-neutral' : 'btn-ghost' ?>">
-                <i class="fas fa-bullhorn mr-2"></i> Annonces
+                <i class="fas fa-bullhorn mr-2"></i> <?= t('demidx_filter_ads', 'Annonces') ?>
             </a>
             <a href="?type=conteneurs<?= isset($_GET['don']) ? '&don=1' : '' ?><?= isset($_GET['vente']) ? '&vente=1' : '' ?>" class="btn btn-sm <?= $type === 'conteneurs' ? 'btn-neutral' : 'btn-ghost' ?>">
-                <i class="fas fa-box-open mr-2"></i> Dépôts conteneurs
+                <i class="fas fa-box-open mr-2"></i> <?= t('demidx_filter_containers', 'Dépôts conteneurs') ?>
             </a>
             <div class="divider divider-horizontal"></div>
             <a href="?type=<?= $type ?>&don=1" class="btn btn-sm <?= isset($_GET['don']) ? 'btn-neutral' : 'btn-ghost' ?>">
-                <i class="fas fa-heart mr-2 text-green-500"></i> Dons
+                <i class="fas fa-heart mr-2 text-green-500"></i> <?= t('demidx_filter_donations', 'Dons') ?>
             </a>
             <a href="?type=<?= $type ?>&vente=1" class="btn btn-sm <?= isset($_GET['vente']) ? 'btn-neutral' : 'btn-ghost' ?>">
-                <i class="fas fa-tag mr-2 text-blue-500"></i> Ventes
+                <i class="fas fa-tag mr-2 text-blue-500"></i> <?= t('demidx_filter_sales', 'Ventes') ?>
             </a>
         </div>
 
         <?php if ($showAnnonces): ?>
             <div class="mb-8">
                 <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <i class="fas fa-bullhorn text-green-500"></i> Mes annonces
+                    <i class="fas fa-bullhorn text-green-500"></i> <?= t('demidx_my_ads', 'Mes annonces') ?>
                     <span class="badge badge-ghost badge-sm"><?= count($annoncesFiltered) ?></span>
                 </h2>
                 <?php if (empty($annoncesFiltered)): ?>
                     <div class="bg-base-100 rounded-2xl border border-base-300 p-6 text-center">
-                        <p class="text-base-content/60 mb-3">Vous n'avez pas encore d'annonces.</p>
+                        <p class="text-base-content/60 mb-3"><?= t('demidx_ads_empty', 'Vous n\'avez pas encore d\'annonces.') ?></p>
                         <a href="/annonces/create" class="btn btn-neutral btn-sm">
-                            Déposer une annonce
+                            <?= t('demidx_ads_create', 'Déposer une annonce') ?>
                         </a>
                     </div>
                 <?php else: ?>
@@ -85,9 +85,9 @@
                                 default   => 'badge-warning',
                             };
                             $statutLabel = match($annonce['statut'] ?? 'en_attente') {
-                                'validee' => 'Validée',
-                                'rejetee' => 'Rejetée',
-                                default   => 'En attente',
+                                'validee' => t('demidx_status_validated_f', 'Validée'),
+                                'rejetee' => t('demidx_status_rejected_f', 'Rejetée'),
+                                default   => t('demidx_status_pending', 'En attente'),
                             };
                             ?>
                             <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6">
@@ -96,12 +96,12 @@
                                         <div class="flex items-center gap-2 mb-2">
                                             <?php if (($annonce['type_annonce'] ?? '') === 'vente'): ?>
                                                 <span class="badge badge-ghost badge-sm gap-1">
-                                                    <i class="fas fa-tag text-blue-500"></i> Vente
+                                                    <i class="fas fa-tag text-blue-500"></i> <?= t('demidx_badge_sale', 'Vente') ?>
                                                 </span>
                                                 <span class="font-semibold text-blue-500"><?= $annonce['prix'] ?? 0 ?>€</span>
                                             <?php else: ?>
                                                 <span class="badge badge-ghost badge-sm gap-1">
-                                                    <i class="fas fa-heart text-green-500"></i> Don
+                                                    <i class="fas fa-heart text-green-500"></i> <?= t('demidx_badge_donation', 'Don') ?>
                                                 </span>
                                             <?php endif; ?>
                                             <span class="badge badge-ghost badge-sm"><?= htmlspecialchars($annonce['categorie'] ?? '') ?></span>
@@ -111,7 +111,7 @@
                                         <div class="flex gap-4 text-xs text-base-content/50">
                                             <span><i class="fas fa-map-marker-alt mr-1"></i><?= htmlspecialchars($annonce['ville'] ?? '') ?></span>
                                             <span><i class="fas fa-clock mr-1"></i><?= formatDate($annonce['date'] ?? '') ?></span>
-                                            <span><i class="fas fa-box mr-1"></i>État : <?= htmlspecialchars($annonce['etat'] ?? '') ?></span>
+                                            <span><i class="fas fa-box mr-1"></i><?= t('demidx_condition_label', 'État :') ?> <?= htmlspecialchars($annonce['etat'] ?? '') ?></span>
                                         </div>
                                     </div>
                                     <div class="flex flex-col items-end gap-2">
@@ -119,7 +119,7 @@
                                         <?php if (($annonce['statut'] ?? '') === 'en_attente'): ?>
                                             <form method="POST" action="/annonces/<?= $annonce['id'] ?>/annuler">
                                                 <button type="submit" class="btn btn-ghost btn-xs text-red-500 hover:bg-red-50">
-                                                    <i class="fas fa-times mr-1"></i> Annuler
+                                                    <i class="fas fa-times mr-1"></i> <?= t('demidx_cancel_ad', 'Annuler') ?>
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -135,14 +135,14 @@
         <?php if ($showConteneurs): ?>
             <div>
                 <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <i class="fas fa-box-open text-blue-500"></i> Mes dépôts en conteneur
+                    <i class="fas fa-box-open text-blue-500"></i> <?= t('demidx_my_containers', 'Mes dépôts en conteneur') ?>
                     <span class="badge badge-ghost badge-sm"><?= count($conteneursFiltred) ?></span>
                 </h2>
                 <?php if (empty($conteneursFiltred)): ?>
                     <div class="bg-base-100 rounded-2xl border border-base-300 p-6 text-center">
-                        <p class="text-base-content/60 mb-3">Vous n'avez pas encore de dépôts en conteneur.</p>
+                        <p class="text-base-content/60 mb-3"><?= t('demidx_containers_empty', 'Vous n\'avez pas encore de dépôts en conteneur.') ?></p>
                         <a href="/conteneurs/create" class="btn btn-neutral btn-sm">
-                            Déposer un objet
+                            <?= t('demidx_containers_create', 'Déposer un objet') ?>
                         </a>
                     </div>
                 <?php else: ?>
@@ -155,9 +155,9 @@
                                 default      => 'badge-warning',
                             };
                             $statutLabel = match($conteneur['statut'] ?? 'en_attente') {
-                                'validee'    => 'Validé',
-                                'refusee'    => 'Refusé',
-                                default      => 'En attente',
+                                'validee'    => t('demidx_status_validated_m', 'Validé'),
+                                'refusee'    => t('demidx_status_refused_m', 'Refusé'),
+                                default      => t('demidx_status_pending', 'En attente'),
                             };
                             ?>
                             <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6">
@@ -167,11 +167,11 @@
                                             <span class="badge badge-ghost badge-sm"><?= htmlspecialchars($conteneur['type_objet'] ?? '') ?></span>
                                             <?php if (($conteneur['destination'] ?? '') === 'vente'): ?>
                                                 <span class="badge badge-ghost badge-sm gap-1">
-                                                    <i class="fas fa-tag text-blue-500"></i> Vente
+                                                    <i class="fas fa-tag text-blue-500"></i> <?= t('demidx_badge_sale', 'Vente') ?>
                                                 </span>
                                             <?php else: ?>
                                                 <span class="badge badge-ghost badge-sm gap-1">
-                                                    <i class="fas fa-heart text-green-500"></i> Don
+                                                    <i class="fas fa-heart text-green-500"></i> <?= t('demidx_badge_donation', 'Don') ?>
                                                 </span>
                                             <?php endif; ?>
                                         </div>
@@ -181,19 +181,19 @@
                                         </div>
                                         <?php if (($conteneur['statut'] ?? '') === 'validee' && !empty($conteneur['code_acces'])): ?>
                                             <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                                <p class="text-xs font-semibold text-green-700 mb-1"><i class="fas fa-key mr-1"></i> Votre code d'accès au conteneur :</p>
+                                                <p class="text-xs font-semibold text-green-700 mb-1"><i class="fas fa-key mr-1"></i> <?= t('demidx_access_code_label', 'Votre code d\'accès au conteneur :') ?></p>
                                                 <div class="flex items-center gap-3 mt-1">
                                                     <span id="code-front-<?= $conteneur['id'] ?>" class="text-2xl font-bold text-green-600 tracking-widest blur-sm select-none"><?= htmlspecialchars($conteneur['code_acces']) ?></span>
                                                     <button onclick="revealFrontCode(<?= $conteneur['id'] ?>)" class="text-xs bg-white border border-green-300 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-100 transition font-medium">
-                                                        <i class="fas fa-eye mr-1"></i>Révéler
+                                                        <i class="fas fa-eye mr-1"></i><?= t('demidx_reveal', 'Révéler') ?>
                                                     </button>
                                                 </div>
-                                                <p class="text-xs text-green-600 mt-1">Entrez votre mot de passe pour afficher le code de dépôt.</p>
+                                                <p class="text-xs text-green-600 mt-1"><?= t('demidx_reveal_hint', 'Entrez votre mot de passe pour afficher le code de dépôt.') ?></p>
                                             </div>
                                         <?php endif; ?>
                                         <?php if (!empty($conteneur['code_barre'])): ?>
                                             <div class="mt-4 p-4 bg-base-200 rounded-xl text-center inline-block">
-                                                <p class="text-xs font-semibold text-base-content/70 mb-2"><i class="fas fa-qrcode mr-1"></i> Code-barres objet (à présenter au professionnel) :</p>
+                                                <p class="text-xs font-semibold text-base-content/70 mb-2"><i class="fas fa-qrcode mr-1"></i> <?= t('demidx_barcode_label', 'Code-barres objet (à présenter au professionnel) :') ?></p>
                                                 <div id="qr-front-<?= $conteneur['id'] ?>" data-code="<?= htmlspecialchars($conteneur['code_barre'], ENT_QUOTES) ?>" class="flex justify-center mb-2 bg-white p-2 rounded-lg"></div>
                                                 <p class="font-mono text-sm font-bold"><?= htmlspecialchars($conteneur['code_barre']) ?></p>
                                             </div>
@@ -213,16 +213,16 @@
 <!-- Modal révélation code dépôt -->
 <div id="modal-reveal-front" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div class="bg-base-100 rounded-2xl shadow-xl w-full max-w-sm p-6 border border-base-300">
-        <h3 class="text-lg font-bold mb-2"><i class="fas fa-lock mr-2 text-amber-500"></i>Confirmer votre identité</h3>
-        <p class="text-sm text-base-content/60 mb-4">Entrez votre mot de passe pour afficher le code de dépôt.</p>
-        <input type="password" id="reveal-front-pwd" placeholder="Mot de passe"
+        <h3 class="text-lg font-bold mb-2"><i class="fas fa-lock mr-2 text-amber-500"></i><?= t('demidx_modal_title', 'Confirmer votre identité') ?></h3>
+        <p class="text-sm text-base-content/60 mb-4"><?= t('demidx_reveal_hint', 'Entrez votre mot de passe pour afficher le code de dépôt.') ?></p>
+        <input type="password" id="reveal-front-pwd" placeholder="<?= t('demidx_password_placeholder', 'Mot de passe') ?>"
             class="input input-bordered w-full mb-3">
-        <p id="reveal-front-error" class="text-xs text-error mb-3 hidden">Mot de passe incorrect.</p>
+        <p id="reveal-front-error" class="text-xs text-error mb-3 hidden"><?= t('demidx_password_error', 'Mot de passe incorrect.') ?></p>
         <div class="flex gap-3 justify-end">
             <button onclick="document.getElementById('modal-reveal-front').classList.add('hidden')"
-                class="btn btn-ghost btn-sm">Annuler</button>
+                class="btn btn-ghost btn-sm"><?= t('demidx_modal_cancel', 'Annuler') ?></button>
             <button onclick="confirmFrontReveal()"
-                class="btn btn-neutral btn-sm">Révéler</button>
+                class="btn btn-neutral btn-sm"><?= t('demidx_reveal', 'Révéler') ?></button>
         </div>
     </div>
 </div>

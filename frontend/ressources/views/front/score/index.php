@@ -5,11 +5,11 @@
             <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
                 <i class="fas fa-leaf text-emerald-600"></i>
             </div>
-            <span class="text-sm font-medium text-emerald-600 uppercase tracking-wide">Mon impact</span>
+            <span class="text-sm font-medium text-emerald-600 uppercase tracking-wide"><?= t('score_eyebrow', 'Mon impact') ?></span>
         </div>
-        <h1 class="text-3xl font-bold">Mon Upcycling Score</h1>
+        <h1 class="text-3xl font-bold"><?= t('score_title', 'Mon Upcycling Score') ?></h1>
         <p class="text-base-content/60 mt-2">
-            Suivez votre impact environnemental et progressez dans la communauté UpcycleConnect.
+            <?= t('score_subtitle', 'Suivez votre impact environnemental et progressez dans la communauté UpcycleConnect.') ?>
         </p>
     </div>
 
@@ -17,8 +17,8 @@
 
         <div class="lg:col-span-2 bg-base-100 rounded-2xl shadow-sm p-8">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-semibold">Votre score actuel</h2>
-                <span class="text-xs text-base-content/40">Mis à jour en temps réel</span>
+                <h2 class="text-lg font-semibold"><?= t('score_current_title', 'Votre score actuel') ?></h2>
+                <span class="text-xs text-base-content/40"><?= t('score_realtime', 'Mis à jour en temps réel') ?></span>
             </div>
 
             <?php
@@ -38,17 +38,17 @@
             </div>
             <div class="flex justify-between text-xs text-base-content/40 mb-6">
                 <span>0</span>
-                <span><?= $pct ?>% vers le prochain niveau</span>
+                <span><?= $pct ?>% <?= t('score_to_next_level', 'vers le prochain niveau') ?></span>
                 <span><?= $scoreMax ?></span>
             </div>
 
             <div class="border-t border-base-300 pt-6">
-                <h3 class="font-semibold mb-4">Comment améliorer votre score ?</h3>
+                <h3 class="font-semibold mb-4"><?= t('score_how_to_improve', 'Comment améliorer votre score ?') ?></h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <?php foreach ([
-                        ['icon' => 'fa-box-open',    'color' => 'text-blue-500',    'bg' => 'bg-blue-50',    'label' => 'Donner ou vendre',  'desc' => '+30 pts par objet déposé'],
-                        ['icon' => 'fa-calendar-alt','color' => 'text-purple-500',  'bg' => 'bg-purple-50',  'label' => 'Participer',        'desc' => '+20 pts par événement'],
-                        ['icon' => 'fa-comments',    'color' => 'text-orange-500',  'bg' => 'bg-orange-50',  'label' => 'Partager un conseil','desc' => '+10 pts par conseil'],
+                        ['icon' => 'fa-box-open',    'color' => 'text-blue-500',    'bg' => 'bg-blue-50',    'label' => t('score_action_give_label', 'Donner ou vendre'),  'desc' => t('score_action_give_desc', '+30 pts par objet déposé')],
+                        ['icon' => 'fa-calendar-alt','color' => 'text-purple-500',  'bg' => 'bg-purple-50',  'label' => t('score_action_participate_label', 'Participer'),        'desc' => t('score_action_participate_desc', '+20 pts par événement')],
+                        ['icon' => 'fa-comments',    'color' => 'text-orange-500',  'bg' => 'bg-orange-50',  'label' => t('score_action_tip_label', 'Partager un conseil'),'desc' => t('score_action_tip_desc', '+10 pts par conseil')],
                     ] as $action): ?>
                         <div class="<?= $action['bg'] ?> rounded-xl p-4 text-center">
                             <i class="fas <?= $action['icon'] ?> <?= $action['color'] ?> text-2xl mb-2 block"></i>
@@ -61,10 +61,10 @@
         </div>
 
         <div class="bg-base-100 rounded-2xl shadow-sm p-8 flex flex-col items-center justify-center text-center">
-            <h2 class="text-lg font-semibold mb-6">Votre badge</h2>
+            <h2 class="text-lg font-semibold mb-6"><?= t('score_badge_title', 'Votre badge') ?></h2>
 
             <?php
-            $badgeActuel  = $badge_actuel  ?? ['icon' => '🌱', 'label' => 'Éco-Débutant', 'color' => 'text-green-500', 'bg' => 'bg-green-50'];
+            $badgeActuel  = $badge_actuel  ?? ['icon' => '🌱', 'label' => t('score_badge_default_label', 'Éco-Débutant'), 'color' => 'text-green-500', 'bg' => 'bg-green-50'];
             $badgeSuivant = $badge_suivant ?? null;
             ?>
 
@@ -75,27 +75,27 @@
 
             <?php if ($badgeSuivant): ?>
                 <div class="mt-4 text-xs text-base-content/50">
-                    Prochain badge : <span class="font-medium"><?= $badgeSuivant['label'] ?></span>
-                    <br>dans <?= (int) ($points_vers_suivant ?? max(0, ($badgeSuivant['min'] ?? 0) - $score)) ?> points
+                    <?= t('score_next_badge', 'Prochain badge :') ?> <span class="font-medium"><?= $badgeSuivant['label'] ?></span>
+                    <br><?= t('score_next_badge_in', 'dans') ?> <?= (int) ($points_vers_suivant ?? max(0, ($badgeSuivant['min'] ?? 0) - $score)) ?> <?= t('score_next_badge_points', 'points') ?>
                 </div>
             <?php else: ?>
-                <div class="mt-4 text-xs text-emerald-600 font-medium">🎉 Niveau maximum atteint !</div>
+                <div class="mt-4 text-xs text-emerald-600 font-medium">🎉 <?= t('score_max_level', 'Niveau maximum atteint !') ?></div>
             <?php endif; ?>
 
             <div class="mt-6 w-full border-t border-base-300 pt-4 text-left">
-                <p class="text-xs font-semibold text-base-content/50 mb-2">Vos avantages :</p>
+                <p class="text-xs font-semibold text-base-content/50 mb-2"><?= t('score_advantages_title', 'Vos avantages :') ?></p>
                 <ul class="text-xs text-base-content/60 space-y-1">
-                    <li><i class="fas fa-check text-emerald-500 mr-1"></i> Accès aux événements de base</li>
-                    <li><i class="fas fa-check text-emerald-500 mr-1"></i> Publication d'annonces</li>
+                    <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_events', 'Accès aux événements de base') ?></li>
+                    <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_publish', 'Publication d\'annonces') ?></li>
                     <?php if ($score >= 100): ?>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> Réduction 5% sur les formations</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_discount', 'Réduction 5% sur les formations') ?></li>
                     <?php endif; ?>
                     <?php if ($score >= 300): ?>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> Accès prioritaire aux annonces</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_priority', 'Accès prioritaire aux annonces') ?></li>
                     <?php endif; ?>
                     <?php if ($score >= 600): ?>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> Profil mis en avant</li>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> Offres partenaires exclusives</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_featured', 'Profil mis en avant') ?></li>
+                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_partners', 'Offres partenaires exclusives') ?></li>
                     <?php endif; ?>
                 </ul>
             </div>
@@ -103,7 +103,7 @@
     </div>
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8 mb-8">
-        <h2 class="text-lg font-semibold mb-6">Tous les badges</h2>
+        <h2 class="text-lg font-semibold mb-6"><?= t('score_all_badges', 'Tous les badges') ?></h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <?php foreach (($badges ?? []) as $badge): ?>
                 <?php $debloque = $badge['debloque'] ?? ($score >= ($badge['min'] ?? 0)); ?>
@@ -112,9 +112,9 @@
                     <div class="font-semibold text-sm <?= $debloque ? $badge['color'] : '' ?>"><?= $badge['label'] ?></div>
                     <div class="text-xs text-base-content/50 mt-1"><?= $badge['min'] ?> pts</div>
                     <?php if ($debloque): ?>
-                        <span class="badge badge-success badge-xs mt-2">Débloqué</span>
+                        <span class="badge badge-success badge-xs mt-2"><?= t('score_badge_unlocked', 'Débloqué') ?></span>
                     <?php else: ?>
-                        <span class="badge badge-ghost badge-xs mt-2">Verrouillé</span>
+                        <span class="badge badge-ghost badge-xs mt-2"><?= t('score_badge_locked', 'Verrouillé') ?></span>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -122,11 +122,11 @@
     </div>
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8">
-        <h2 class="text-lg font-semibold mb-6">Historique des points</h2>
+        <h2 class="text-lg font-semibold mb-6"><?= t('score_history_title', 'Historique des points') ?></h2>
         <?php if (empty($historique)): ?>
             <div class="text-center py-10 text-base-content/40">
                 <i class="fas fa-history text-4xl mb-3 block"></i>
-                <p>Aucune activité pour le moment. Commencez à upcycler !</p>
+                <p><?= t('score_history_empty', 'Aucune activité pour le moment. Commencez à upcycler !') ?></p>
             </div>
         <?php else: ?>
             <div class="space-y-3">

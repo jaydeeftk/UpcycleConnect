@@ -4,17 +4,17 @@
             <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
                 <i class="fas fa-history text-teal-600"></i>
             </div>
-            <span class="text-sm font-medium text-teal-600 uppercase tracking-wide">Mes dépôts</span>
+            <span class="text-sm font-medium text-teal-600 uppercase tracking-wide"><?= t('histo_eyebrow', 'Mes dépôts') ?></span>
         </div>
-        <h1 class="text-3xl font-bold">Historique des dépôts</h1>
-        <p class="text-base-content/60 mt-2">Retrouvez tous vos dépôts d'objets en conteneur.</p>
+        <h1 class="text-3xl font-bold"><?= t('histo_title', 'Historique des dépôts') ?></h1>
+        <p class="text-base-content/60 mt-2"><?= t('histo_subtitle', 'Retrouvez tous vos dépôts d\'objets en conteneur.') ?></p>
     </div>
 
     <?php if (empty($historique)): ?>
         <div class="bg-base-100 rounded-2xl border border-base-300 p-12 text-center">
             <i class="fas fa-box-open text-5xl text-base-content/20 mb-4 block"></i>
-            <p class="text-base-content/60 mb-4">Aucun dépôt enregistré pour le moment.</p>
-            <a href="/conteneurs/create" class="btn btn-neutral btn-sm">Déposer un objet</a>
+            <p class="text-base-content/60 mb-4"><?= t('histo_empty', 'Aucun dépôt enregistré pour le moment.') ?></p>
+            <a href="/conteneurs/create" class="btn btn-neutral btn-sm"><?= t('histo_deposit_btn', 'Déposer un objet') ?></a>
         </div>
     <?php else: ?>
         <div class="space-y-4">
@@ -32,7 +32,7 @@
                             <i class="fas fa-recycle text-teal-500 text-lg"></i>
                         </div>
                         <div>
-                            <div class="font-semibold">Dépôt du <?= formatDate($item['date'] ?? '') ?></div>
+                            <div class="font-semibold"><?= t('histo_deposit_of', 'Dépôt du') ?> <?= formatDate($item['date'] ?? '') ?></div>
                             <?php if (!empty($item['observations'])): ?>
                                 <p class="text-sm text-base-content/60 mt-0.5"><?= htmlspecialchars($item['observations']) ?></p>
                             <?php endif; ?>

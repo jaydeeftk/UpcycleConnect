@@ -17,23 +17,23 @@
 
             <div class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-3 mb-8">
                 <div class="flex justify-between">
-                    <span class="font-medium">Date</span>
+                    <span class="font-medium"><?= t('fordet_date', 'Date') ?></span>
                     <span class="text-base-content/70"><?= formatDate($formation['date'] ?? '') ?></span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="font-medium">Lieu</span>
+                    <span class="font-medium"><?= t('fordet_lieu', 'Lieu') ?></span>
                     <span class="text-base-content/70"><?= htmlspecialchars($formation['localisation'] ?? '') ?></span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="font-medium">Durée</span>
+                    <span class="font-medium"><?= t('fordet_duree', 'Durée') ?></span>
                     <span class="text-base-content/70"><?= htmlspecialchars((string)($formation['duree'] ?? '')) ?>h</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="font-medium">Places disponibles</span>
+                    <span class="font-medium"><?= t('fordet_places_dispo', 'Places disponibles') ?></span>
                     <span class="text-base-content/70"><?= $formation['places_dispo'] ?? 0 ?> / <?= $formation['places_total'] ?? 0 ?></span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="font-medium">Prix</span>
+                    <span class="font-medium"><?= t('fordet_prix', 'Prix') ?></span>
                     <span class="text-2xl font-bold text-purple-500"><?= $formation['prix'] ?? 0 ?>€</span>
                 </div>
             </div>
@@ -41,7 +41,7 @@
             <?php if (isset($_GET['success'])): ?>
                 <div class="alert alert-success mb-6">
                     <i class="fas fa-check-circle"></i>
-                    <span>Vous êtes bien inscrit à cette formation !</span>
+                    <span><?= t('fordet_success', 'Vous êtes bien inscrit à cette formation !') ?></span>
                 </div>
             <?php endif; ?>
 
@@ -57,34 +57,34 @@
                     <?php if ($formation['est_inscrit'] ?? false): ?>
                         <form method="POST" action="/formations/<?= $formation['id'] ?>/desinscrire">
                             <button type="submit" class="bg-red-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-red-700 transition">
-                                <i class="fas fa-times mr-2"></i>Se désinscrire
+                                <i class="fas fa-times mr-2"></i><?= t('fordet_unsubscribe', 'Se désinscrire') ?>
                             </button>
                         </form>
                     <?php elseif (($formation['places_dispo'] ?? 0) > 0): ?>
                         <?php if (($formation['prix'] ?? 0) > 0): ?>
                             <a href="/payer?type=formation&id_item=<?= $formation['id'] ?>&montant=<?= $formation['prix'] ?>&titre=<?= urlencode($formation['titre'] ?? '') ?>"
                                class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition text-center">
-                                <i class="fas fa-credit-card mr-2"></i> Payer et s'inscrire (<?= $formation['prix'] ?>€)
+                                <i class="fas fa-credit-card mr-2"></i> <?= t('fordet_pay_subscribe', 'Payer et s\'inscrire') ?> (<?= $formation['prix'] ?>€)
                             </a>
                         <?php else: ?>
                             <form method="POST" action="/formations/<?= $formation['id'] ?>/inscrire">
                                 <button type="submit" class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
-                                    S'inscrire gratuitement
+                                    <?= t('fordet_subscribe_free', 'S\'inscrire gratuitement') ?>
                                 </button>
                             </form>
                         <?php endif; ?>
                     <?php else: ?>
                         <button disabled class="bg-base-300 text-base-content/50 px-8 py-3 rounded-xl font-medium cursor-not-allowed">
-                            Formation complète
+                            <?= t('fordet_full', 'Formation complète') ?>
                         </button>
                     <?php endif; ?>
                 <?php else: ?>
                     <a href="/login" class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition text-center">
-                        Connectez-vous pour s'inscrire
+                        <?= t('fordet_login_to_subscribe', 'Connectez-vous pour s\'inscrire') ?>
                     </a>
                 <?php endif; ?>
                 <a href="/catalogue/formations" class="bg-base-200 border border-base-300 px-8 py-3 rounded-xl font-medium hover:bg-base-300 transition text-center">
-                    Retour aux formations
+                    <?= t('fordet_back', 'Retour aux formations') ?>
                 </a>
             </div>
         </div>

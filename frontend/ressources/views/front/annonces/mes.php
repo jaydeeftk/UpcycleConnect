@@ -2,17 +2,17 @@
 
     <div class="flex items-center justify-between mb-8 gap-4">
         <div>
-            <h1 class="text-3xl font-bold">Mes annonces</h1>
-            <p class="text-base-content/60 mt-2">Gérez vos dépôts : retirez une annonce ou marquez-la vendue.</p>
+            <h1 class="text-3xl font-bold"><?= t('annmes_title', 'Mes annonces') ?></h1>
+            <p class="text-base-content/60 mt-2"><?= t('annmes_subtitle', 'Gérez vos dépôts : retirez une annonce ou marquez-la vendue.') ?></p>
         </div>
-        <a href="/annonces/create" class="btn btn-neutral"><i class="fas fa-plus mr-2"></i>Déposer</a>
+        <a href="/annonces/create" class="btn btn-neutral"><i class="fas fa-plus mr-2"></i><?= t('annmes_deposit', 'Déposer') ?></a>
     </div>
 
     <?php if (empty($annonces)): ?>
         <div class="text-center py-16 text-base-content/40">
             <i class="fas fa-bullhorn text-4xl mb-3 block"></i>
-            <p>Vous n'avez pas encore déposé d'annonce.</p>
-            <a href="/annonces/create" class="text-emerald-600 hover:underline text-sm mt-2 inline-block">Déposer votre première annonce</a>
+            <p><?= t('annmes_empty', "Vous n'avez pas encore déposé d'annonce.") ?></p>
+            <a href="/annonces/create" class="text-emerald-600 hover:underline text-sm mt-2 inline-block"><?= t('annmes_empty_cta', 'Déposer votre première annonce') ?></a>
         </div>
     <?php else: ?>
         <div class="space-y-3">
@@ -37,15 +37,15 @@
                         </p>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <a href="/annonces/<?= $id ?>" class="btn btn-ghost btn-sm">Voir</a>
+                        <a href="/annonces/<?= $id ?>" class="btn btn-ghost btn-sm"><?= t('annmes_view', 'Voir') ?></a>
                         <?php if (in_array('vendre', $aa, true)): ?>
                             <form method="POST" action="/annonces/<?= $id ?>/vendre">
-                                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check mr-1"></i>Vendue</button>
+                                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check mr-1"></i><?= t('annmes_sold', 'Vendue') ?></button>
                             </form>
                         <?php endif; ?>
                         <?php if (in_array('retirer', $aa, true)): ?>
-                            <form method="POST" action="/annonces/<?= $id ?>/annuler" onsubmit="return ucConfirm(this, 'Retirer cette annonce ?')">
-                                <button type="submit" class="btn btn-outline btn-error btn-sm"><i class="fas fa-times mr-1"></i>Retirer</button>
+                            <form method="POST" action="/annonces/<?= $id ?>/annuler" onsubmit="return ucConfirm(this, '<?= t('annmes_remove_confirm', 'Retirer cette annonce ?') ?>')">
+                                <button type="submit" class="btn btn-outline btn-error btn-sm"><i class="fas fa-times mr-1"></i><?= t('annmes_remove', 'Retirer') ?></button>
                             </form>
                         <?php endif; ?>
                     </div>

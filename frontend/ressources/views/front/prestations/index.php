@@ -1,9 +1,8 @@
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
     <div class="mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Prestations disponibles</h1>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4"><?= t('prestidx_title', 'Prestations disponibles') ?></h1>
         <p class="text-lg text-base-content/70 max-w-2xl">
-            Découvrez les prestations proposées par les professionnels pour réparer,
-            transformer ou recycler vos objets du quotidien.
+            <?= t('prestidx_intro', 'Découvrez les prestations proposées par les professionnels pour réparer, transformer ou recycler vos objets du quotidien.') ?>
         </p>
     </div>
 
@@ -27,16 +26,16 @@
                         <div class="text-sm text-base-content/60 mb-2"><?= htmlspecialchars($prestation['categorie'] ?? '') ?></div>
                         <h3 class="text-xl font-semibold mb-3"><?= htmlspecialchars($prestation['titre'] ?? '') ?></h3>
                         <p class="text-base-content/70 mb-2"><?= htmlspecialchars($prestation['description'] ?? '') ?></p>
-                        <p class="font-semibold mb-4">À partir de <?= htmlspecialchars($prestation['prix'] ?? '') ?>€</p>
+                        <p class="font-semibold mb-4"><?= t('prestidx_from_price', 'À partir de') ?> <?= htmlspecialchars($prestation['prix'] ?? '') ?>€</p>
                         <a href="/prestations/<?= $prestation['id'] ?>" class="text-sm font-medium hover:underline">
-                            Voir la prestation →
+                            <?= t('prestidx_view_link', 'Voir la prestation') ?> →
                         </a>
                     </div>
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
             <div class="col-span-3 text-center text-base-content/60 py-12">
-                Aucune prestation disponible pour le moment.
+                <?= t('prestidx_empty', 'Aucune prestation disponible pour le moment.') ?>
             </div>
         <?php endif; ?>
 
@@ -45,14 +44,13 @@
 
 <section class="bg-base-100 border-t border-base-300">
     <div class="max-w-7xl mx-auto px-6 lg:px-10 py-16 text-center">
-        <h2 class="text-3xl font-bold mb-4">Vous êtes un professionnel ?</h2>
+        <h2 class="text-3xl font-bold mb-4"><?= t('prestidx_cta_title', 'Vous êtes un professionnel ?') ?></h2>
         <p class="text-base-content/70 max-w-xl mx-auto mb-6">
-            Rejoignez la plateforme UpcycleConnect et proposez vos prestations pour aider
-            les particuliers à donner une seconde vie à leurs objets.
+            <?= t('prestidx_cta_text', 'Rejoignez la plateforme UpcycleConnect et proposez vos prestations pour aider les particuliers à donner une seconde vie à leurs objets.') ?>
         </p>
         <a href="/devenir-prestataire"
             class="inline-block bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
-            Devenir prestataire
+            <?= t('prestidx_cta_btn', 'Devenir prestataire') ?>
         </a>
     </div>
 </section>

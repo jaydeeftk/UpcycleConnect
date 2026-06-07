@@ -25,8 +25,8 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
         <div class="flex items-center gap-3 px-4 py-3 bg-emerald-600 dark:bg-emerald-800">
             <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-sm">UC</div>
             <div class="flex-1">
-                <p class="font-semibold text-white text-sm">Support UpcycleConnect</p>
-                <p class="text-xs text-emerald-100">En ligne</p>
+                <p class="font-semibold text-white text-sm"><?= t('msgidx_header_title', 'Support UpcycleConnect') ?></p>
+                <p class="text-xs text-emerald-100"><?= t('msgidx_online', 'En ligne') ?></p>
             </div>
         </div>
 
@@ -34,7 +34,7 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
         <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-2 chat-bg">
             <div class="flex items-center justify-center">
                 <span class="bg-white/70 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 text-xs px-3 py-1 rounded-full backdrop-blur-sm" id="loading-label">
-                    <i class="fas fa-spinner fa-spin mr-1"></i>Chargement...
+                    <i class="fas fa-spinner fa-spin mr-1"></i><?= t('msgidx_loading', 'Chargement...') ?>
                 </span>
             </div>
         </div>
@@ -46,14 +46,14 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
                     oninput="autoResize(this)"
                     onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
                     class="w-full bg-transparent border-none focus:ring-0 text-sm resize-none leading-5 max-h-24 outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400"
-                    placeholder="Votre message..."></textarea>
+                    placeholder="<?= t('msgidx_input_placeholder', 'Votre message...') ?>"></textarea>
             </div>
             <button onclick="sendMessage()" id="send-btn"
                 class="w-10 h-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 flex-shrink-0">
                 <i class="fas fa-paper-plane text-sm"></i>
             </button>
         </div>
-        <div id="msg-error" class="hidden px-4 py-1 text-xs text-red-500 bg-slate-100 dark:bg-slate-800">Erreur lors de l'envoi</div>
+        <div id="msg-error" class="hidden px-4 py-1 text-xs text-red-500 bg-slate-100 dark:bg-slate-800"><?= t('msgidx_send_error', 'Erreur lors de l\'envoi') ?></div>
     </div>
 </div>
 
@@ -72,7 +72,7 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
     function renderMessages(msgs){
         var box = document.getElementById('chat-box');
         if(!msgs||!msgs.length){
-            box.innerHTML='<div class="flex justify-center"><span class="bg-white/70 dark:bg-slate-800/70 text-slate-500 text-xs px-3 py-1 rounded-full">Aucun message — envoyez le premier !</span></div>';
+            box.innerHTML='<div class="flex justify-center"><span class="bg-white/70 dark:bg-slate-800/70 text-slate-500 text-xs px-3 py-1 rounded-full"><?= t('msgidx_empty', 'Aucun message — envoyez le premier !') ?></span></div>';
             return;
         }
         box.innerHTML = msgs.map(function(m){
@@ -82,7 +82,7 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
                 return '<div class="flex justify-start msg-in">'
                     +'<div class="max-w-xs lg:max-w-sm relative">'
                     +'<div class="bubble-support tail-support relative px-3 py-2 shadow-sm">'
-                    +'<p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-0.5">Support</p>'
+                    +'<p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-0.5"><?= t('msgidx_support_label', 'Support') ?></p>'
                     +'<p class="text-sm leading-relaxed">'+esc(m.contenu||'')+'</p>'
                     +'<p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1 text-right">'+time+'</p>'
                     +'</div></div></div>';
@@ -101,11 +101,11 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
     }
 
     function loadMessages(){
-        if(!TOKEN||!USER_ID){ document.getElementById('loading-label').textContent='Connectez-vous pour voir vos messages.'; return; }
+        if(!TOKEN||!USER_ID){ document.getElementById('loading-label').textContent='<?= t('msgidx_login_required', 'Connectez-vous pour voir vos messages.') ?>'; return; }
         fetch('/api/messages/user/'+USER_ID,{headers:{'Authorization':'Bearer '+TOKEN}})
             .then(function(r){return r.json();})
             .then(function(d){ renderMessages(d.data||d||[]); })
-            .catch(function(){ document.getElementById('loading-label').textContent='Impossible de charger.'; });
+            .catch(function(){ document.getElementById('loading-label').textContent='<?= t('msgidx_load_failed', 'Impossible de charger.') ?>'; });
     }
 
     window.sendMessage = function(){
@@ -126,7 +126,7 @@ $token  = $token ?? $_SESSION['token'] ?? $_SESSION['user']['token'] ?? '';
             input.value=''; input.style.height='';
             loadMessages();
         })
-        .catch(function(err){ errEl.textContent='Erreur: '+err.message; errEl.classList.remove('hidden'); })
+        .catch(function(err){ errEl.textContent='<?= t('msgidx_error_prefix', 'Erreur') ?>: '+err.message; errEl.classList.remove('hidden'); })
         .finally(function(){ btn.disabled=false; });
     };
 

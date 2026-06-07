@@ -5,11 +5,11 @@
             <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                 <i class="fas fa-bullhorn text-green-600"></i>
             </div>
-            <span class="text-sm font-medium text-green-600 uppercase tracking-wide">Nouvelle annonce</span>
+            <span class="text-sm font-medium text-green-600 uppercase tracking-wide"><?= t('anncre_eyebrow', 'Nouvelle annonce') ?></span>
         </div>
-        <h1 class="text-3xl font-bold">Déposer une annonce</h1>
+        <h1 class="text-3xl font-bold"><?= t('anncre_title', 'Déposer une annonce') ?></h1>
         <p class="text-base-content/60 mt-2">
-            Décrivez l'objet que vous souhaitez donner ou vendre. Votre annonce sera vérifiée par notre équipe avant d'être publiée.
+            <?= t('anncre_subtitle', 'Décrivez l\'objet que vous souhaitez donner ou vendre. Votre annonce sera vérifiée par notre équipe avant d\'être publiée.') ?>
         </p>
     </div>
 
@@ -33,17 +33,17 @@
 
             <div>
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
-                    Informations sur l'objet
+                    <?= t('anncre_section_item', 'Informations sur l\'objet') ?>
                 </h2>
 
                 <div class="space-y-5">
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Titre de l'annonce <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_title', 'Titre de l\'annonce') ?> <span class="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="titre"
-                            placeholder="Ex : Chaise en bois vintage, Lampe de bureau..."
+                            placeholder="<?= t('anncre_ph_title', 'Ex : Chaise en bois vintage, Lampe de bureau...') ?>"
                             class="input input-bordered w-full"
                             required
                             value="<?= htmlspecialchars($_POST['titre'] ?? '') ?>"
@@ -51,39 +51,39 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Catégorie <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_category', 'Catégorie') ?> <span class="text-red-500">*</span></label>
                         <select name="categorie" class="select select-bordered w-full" required>
-                            <option value="" disabled selected>Sélectionnez une catégorie</option>
-                            <option value="mobilier">Mobilier</option>
-                            <option value="electromenager">Électroménager</option>
-                            <option value="vetements">Vêtements & Textiles</option>
-                            <option value="electronique">Électronique</option>
-                            <option value="livres">Livres & Médias</option>
-                            <option value="jouets">Jouets</option>
-                            <option value="materiaux">Matériaux de construction</option>
-                            <option value="autre">Autre</option>
+                            <option value="" disabled selected><?= t('anncre_cat_placeholder', 'Sélectionnez une catégorie') ?></option>
+                            <option value="mobilier"><?= t('anncre_cat_furniture', 'Mobilier') ?></option>
+                            <option value="electromenager"><?= t('anncre_cat_appliances', 'Électroménager') ?></option>
+                            <option value="vetements"><?= t('anncre_cat_clothing', 'Vêtements & Textiles') ?></option>
+                            <option value="electronique"><?= t('anncre_cat_electronics', 'Électronique') ?></option>
+                            <option value="livres"><?= t('anncre_cat_books', 'Livres & Médias') ?></option>
+                            <option value="jouets"><?= t('anncre_cat_toys', 'Jouets') ?></option>
+                            <option value="materiaux"><?= t('anncre_cat_materials', 'Matériaux de construction') ?></option>
+                            <option value="autre"><?= t('anncre_cat_other', 'Autre') ?></option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Description <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_description', 'Description') ?> <span class="text-red-500">*</span></label>
                         <textarea
                             name="description"
                             rows="4"
-                            placeholder="Décrivez l'objet : matière, dimensions, historique, défauts éventuels..."
+                            placeholder="<?= t('anncre_ph_description', 'Décrivez l\'objet : matière, dimensions, historique, défauts éventuels...') ?>"
                             class="textarea textarea-bordered w-full resize-none"
                             required
                         ><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">État de l'objet <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_condition', 'État de l\'objet') ?> <span class="text-red-500">*</span></label>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <?php foreach ([
-                                ['neuf', 'Neuf', 'fa-star', 'text-green-500'],
-                                ['bon', 'Bon état', 'fa-thumbs-up', 'text-blue-500'],
-                                ['usage', 'Usagé', 'fa-minus-circle', 'text-yellow-500'],
-                                ['abime', 'Abîmé', 'fa-exclamation-circle', 'text-red-500'],
+                                ['neuf', t('anncre_cond_new', 'Neuf'), 'fa-star', 'text-green-500'],
+                                ['bon', t('anncre_cond_good', 'Bon état'), 'fa-thumbs-up', 'text-blue-500'],
+                                ['usage', t('anncre_cond_used', 'Usagé'), 'fa-minus-circle', 'text-yellow-500'],
+                                ['abime', t('anncre_cond_damaged', 'Abîmé'), 'fa-exclamation-circle', 'text-red-500'],
                             ] as [$val, $label, $icon, $color]): ?>
                                 <label class="cursor-pointer">
                                     <input type="radio" name="etat" value="<?= $val ?>" class="hidden peer" required>
@@ -97,11 +97,11 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Photos de l'objet</label>
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_photos', 'Photos de l\'objet') ?></label>
                         <div class="border-2 border-dashed border-base-300 rounded-xl p-6 text-center hover:border-primary/50 transition cursor-pointer" onclick="document.getElementById('photos').click()">
                             <i class="fas fa-cloud-upload-alt text-3xl text-base-content/30 mb-3 block"></i>
-                            <p class="text-sm text-base-content/60">Cliquez pour ajouter des photos</p>
-                            <p class="text-xs text-base-content/40 mt-1">PNG, JPG jusqu'à 5 Mo chacune (max 5 photos)</p>
+                            <p class="text-sm text-base-content/60"><?= t('anncre_upload_cta', 'Cliquez pour ajouter des photos') ?></p>
+                            <p class="text-xs text-base-content/40 mt-1"><?= t('anncre_upload_hint', 'PNG, JPG jusqu\'à 5 Mo chacune (max 5 photos)') ?></p>
                         </div>
                         <input type="file" id="photos" name="photos[]" multiple accept="image/*" class="hidden">
                     </div>
@@ -111,7 +111,7 @@
 
             <div>
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
-                    Type de mise à disposition
+                    <?= t('anncre_section_type', 'Type de mise à disposition') ?>
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -120,9 +120,9 @@
                         <div class="peer-checked:border-primary peer-checked:bg-primary/5 border-2 border-base-300 rounded-xl p-5 transition hover:border-primary/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <i class="fas fa-heart text-green-500 text-xl"></i>
-                                <span class="font-semibold">Don gratuit</span>
+                                <span class="font-semibold"><?= t('anncre_type_gift', 'Don gratuit') ?></span>
                             </div>
-                            <p class="text-sm text-base-content/60">Vous offrez cet objet gratuitement à quelqu'un qui en a besoin.</p>
+                            <p class="text-sm text-base-content/60"><?= t('anncre_type_gift_desc', 'Vous offrez cet objet gratuitement à quelqu\'un qui en a besoin.') ?></p>
                         </div>
                     </label>
 
@@ -131,35 +131,35 @@
                         <div class="peer-checked:border-primary peer-checked:bg-primary/5 border-2 border-base-300 rounded-xl p-5 transition hover:border-primary/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <i class="fas fa-tag text-blue-500 text-xl"></i>
-                                <span class="font-semibold">Vente</span>
+                                <span class="font-semibold"><?= t('anncre_type_sale', 'Vente') ?></span>
                             </div>
-                            <p class="text-sm text-base-content/60">Vous souhaitez vendre cet objet. Indiquez votre prix ci-dessous.</p>
+                            <p class="text-sm text-base-content/60"><?= t('anncre_type_sale_desc', 'Vous souhaitez vendre cet objet. Indiquez votre prix ci-dessous.') ?></p>
                         </div>
                     </label>
                 </div>
 
                 <div id="prix-container" class="mt-4 hidden">
-                    <label class="block text-sm font-medium mb-2">Prix de vente (€) <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium mb-2"><?= t('anncre_label_price', 'Prix de vente') ?> (€) <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50">€</span>
                         <input type="number" name="prix" min="0" step="0.01" placeholder="0.00" class="input input-bordered w-full pl-8">
                     </div>
-                    <p class="text-xs text-base-content/50 mt-1">Une commission de 5 à 10% sera prélevée par UpcycleConnect sur la vente.</p>
+                    <p class="text-xs text-base-content/50 mt-1"><?= t('anncre_commission_note', 'Une commission de 5 à 10% sera prélevée par UpcycleConnect sur la vente.') ?></p>
                 </div>
             </div>
 
             <div>
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
-                    Localisation
+                    <?= t('anncre_section_location', 'Localisation') ?>
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Ville <span class="text-red-500">*</span></label>
-                        <input type="text" name="ville" placeholder="Ex : Paris" class="input input-bordered w-full" required value="<?= htmlspecialchars($_POST['ville'] ?? '') ?>">
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_city', 'Ville') ?> <span class="text-red-500">*</span></label>
+                        <input type="text" name="ville" placeholder="<?= t('anncre_ph_city', 'Ex : Paris') ?>" class="input input-bordered w-full" required value="<?= htmlspecialchars($_POST['ville'] ?? '') ?>">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Code postal <span class="text-red-500">*</span></label>
-                        <input type="text" name="code_postal" placeholder="Ex : 75010" class="input input-bordered w-full" required maxlength="5" value="<?= htmlspecialchars($_POST['code_postal'] ?? '') ?>">
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_zip', 'Code postal') ?> <span class="text-red-500">*</span></label>
+                        <input type="text" name="code_postal" placeholder="<?= t('anncre_ph_zip', 'Ex : 75010') ?>" class="input input-bordered w-full" required maxlength="5" value="<?= htmlspecialchars($_POST['code_postal'] ?? '') ?>">
                     </div>
                 </div>
             </div>
@@ -167,16 +167,16 @@
             <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-base-300">
                 <button type="submit" class="btn btn-neutral flex-1">
                     <i class="fas fa-paper-plane mr-2"></i>
-                    Soumettre l'annonce
+                    <?= t('anncre_submit', 'Soumettre l\'annonce') ?>
                 </button>
                 <a href="/" class="btn btn-ghost flex-1">
-                    Annuler
+                    <?= t('anncre_cancel', 'Annuler') ?>
                 </a>
             </div>
 
             <p class="text-xs text-base-content/40 text-center">
                 <i class="fas fa-info-circle mr-1"></i>
-                Votre annonce sera examinée par notre équipe avant d'être publiée sur la plateforme.
+                <?= t('anncre_review_note', 'Votre annonce sera examinée par notre équipe avant d\'être publiée sur la plateforme.') ?>
             </p>
 
         </form>
@@ -202,7 +202,7 @@
         const label = this.previousElementSibling;
         const count = this.files.length;
         if (count > 0) {
-            label.querySelector('p').textContent = count + ' photo(s) sélectionnée(s)';
+            label.querySelector('p').textContent = count + ' <?= t('anncre_js_photos_selected', 'photo(s) sélectionnée(s)') ?>';
         }
     });
 </script>

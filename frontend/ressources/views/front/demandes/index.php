@@ -191,6 +191,13 @@
                                                 <p class="text-xs text-green-600 mt-1">Entrez votre mot de passe pour afficher le code de dépôt.</p>
                                             </div>
                                         <?php endif; ?>
+                                        <?php if (!empty($conteneur['code_barre'])): ?>
+                                            <div class="mt-4 p-4 bg-base-200 rounded-xl text-center inline-block">
+                                                <p class="text-xs font-semibold text-base-content/70 mb-2"><i class="fas fa-qrcode mr-1"></i> Code-barres objet (à présenter au professionnel) :</p>
+                                                <div id="qr-front-<?= $conteneur['id'] ?>" data-code="<?= htmlspecialchars($conteneur['code_barre'], ENT_QUOTES) ?>" class="flex justify-center mb-2 bg-white p-2 rounded-lg"></div>
+                                                <p class="font-mono text-sm font-bold"><?= htmlspecialchars($conteneur['code_barre']) ?></p>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                     <span class="badge <?= $statutColor ?> flex-shrink-0"><?= $statutLabel ?></span>
                                 </div>
@@ -250,4 +257,13 @@ function confirmFrontReveal() {
     });
 }
 document.getElementById('reveal-front-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') confirmFrontReveal(); });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+document.querySelectorAll('[id^="qr-front-"]').forEach(function(el){
+    if (el.dataset.code && window.QRCode) {
+        new QRCode(el, { text: el.dataset.code, width: 120, height: 120, correctLevel: QRCode.CorrectLevel.M });
+    }
+});
 </script>

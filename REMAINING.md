@@ -18,7 +18,8 @@
   badge + bouton mis à jour).
 - **PR9 — Centre de notifications utilisateur** : `GET /api/notifications` (mes notifs
   + compteur non lues) et `POST /api/notifications/{id}/lu` (propriétaire uniquement).
-  Carte Notifications au dashboard pro (badge non-lues + marquer comme lu). Vérifié.
+  Carte au dashboard **pro** + page `/notifications` côté **particulier** (lien dans le
+  menu compte), badge non-lues + marquer comme lu. Vérifié sur les deux rôles.
   L'envoi par l'admin (A5) existait déjà.
 - **PR7/PR8 — Bilan d'impact + stats matériaux (pro)** : indicateurs réels (objets
   valorisés, poids détourné, projets réalisés), répartition par matériau (barres),
@@ -28,11 +29,9 @@
 
 ## Reste (hors périmètre réalisable ici, documenté)
 - **PR9/A5 — Alerte push temps réel (OneSignal)** : nécessite un compte + clés API
-  OneSignal (externe). La notification in-app (DB + lecture) est en place ; il reste
-  à brancher l'envoi push avec les clés.
-- **Notifications côté particulier** : l'API est générique (tout rôle authentifié) ;
-  reste à ajouter un lien + une page dans l'espace particulier (extension ~30 min).
-- **Données démo** : 2 contrats + 2 notifications semés dans la base du *preview* pour
+  OneSignal (externe). La notification in-app (DB + lecture, pro + particulier) est en
+  place ; il reste à brancher l'envoi push avec les clés.
+- **Données démo** : contrats + notifications semés dans la base du *preview* pour
   la démonstration (init.sql est schéma-only, sans seed — les comptes démo eux-mêmes
   sont créés au runtime).
 

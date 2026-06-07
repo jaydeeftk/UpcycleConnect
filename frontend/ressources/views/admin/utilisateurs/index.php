@@ -45,7 +45,7 @@
                     </td>
                     <td class="px-6 py-4">
                         <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                            <?= ucfirst($user['statut'] ?? 'actif') ?>
+                            <?= formatStatut($user['statut'] ?? 'actif') ?>
                         </span>
                     </td>
                     <td class="px-6 py-4 text-gray-600 text-sm">

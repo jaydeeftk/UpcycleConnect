@@ -74,8 +74,8 @@
                     <td class="px-6 py-4">
                         <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"><?= htmlspecialchars($c['type'] ?? '') ?></span>
                     </td>
-                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($c['date_debut'] ?? '') ?></td>
-                    <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($c['date_fin'] ?? '') ?></td>
+                    <td class="px-6 py-4 text-gray-600"><?= formatDate($c['date_debut'] ?? '') ?></td>
+                    <td class="px-6 py-4 text-gray-600"><?= formatDate($c['date_fin'] ?? '') ?></td>
                     <td class="px-6 py-4">
                         <a href="/admin/contrats/<?= $c['id'] ?>/delete"
                             onclick="return confirm('Supprimer ce contrat ?')"

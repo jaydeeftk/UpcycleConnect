@@ -104,10 +104,10 @@
                         <li class="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center group">
                             <div>
                                 <p class="font-semibold text-slate-800 group-hover:text-emerald-600 transition-colors"><?= htmlspecialchars($annonce['titre']) ?></p>
-                                <p class="text-xs text-slate-400 mt-1"><i class="far fa-clock mr-1"></i><?= htmlspecialchars($annonce['date'] ?? 'Date inconnue') ?></p>
+                                <p class="text-xs text-slate-400 mt-1"><i class="far fa-clock mr-1"></i><?= formatDate($annonce['date'] ?? '') ?></p>
                             </div>
                             <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium border border-slate-200">
-                                <?= ucfirst(htmlspecialchars($annonce['statut'])) ?>
+                                <?= formatStatut($annonce['statut'] ?? '') ?>
                             </span>
                         </li>
                         <?php } ?>
@@ -132,10 +132,10 @@
                         <li class="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center group">
                             <div>
                                 <p class="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors"><?= htmlspecialchars($demande['type_objet']) ?></p>
-                                <p class="text-xs text-slate-400 mt-1"><i class="far fa-clock mr-1"></i><?= htmlspecialchars($demande['date'] ?? 'Date inconnue') ?></p>
+                                <p class="text-xs text-slate-400 mt-1"><i class="far fa-clock mr-1"></i><?= formatDate($demande['date'] ?? '') ?></p>
                             </div>
                             <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium border border-slate-200">
-                                <?= ucfirst(htmlspecialchars($demande['statut'])) ?>
+                                <?= formatStatut($demande['statut'] ?? '') ?>
                             </span>
                         </li>
                         <?php } ?>
@@ -168,7 +168,7 @@
                                 <div class="min-w-0">
                                     <p class="font-semibold text-slate-800 truncate"><?= htmlspecialchars($item['titre'] ?? '') ?></p>
                                     <p class="text-xs text-slate-400 mt-0.5">
-                                        <i class="fas fa-calendar-alt mr-1"></i><?= htmlspecialchars(substr($item['date'] ?? '', 0, 10)) ?>
+                                        <i class="fas fa-calendar-alt mr-1"></i><?= formatDate($item['date'] ?? '') ?>
                                         <?php if (!empty($item['lieu'])): ?>
                                         &nbsp;·&nbsp;<i class="fas fa-map-marker-alt mr-1"></i><?= htmlspecialchars($item['lieu']) ?>
                                         <?php endif; ?>
@@ -177,7 +177,7 @@
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
                                 <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-medium border border-slate-200">
-                                    <?= ucfirst(htmlspecialchars($item['statut'] ?? '—')) ?>
+                                    <?= formatStatut($item['statut'] ?? '') ?>
                                 </span>
                                 <button onclick="removePlanning(<?= $utilisateur['id'] ?>, '<?= $item['type'] ?? 'evenement' ?>', <?= $item['id'] ?>)"
                                     class="w-7 h-7 flex items-center justify-center bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-500 hover:text-white transition-colors" title="Désinscrire">

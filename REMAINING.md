@@ -1,3 +1,43 @@
+# Complétion fonctionnelle par rôle vs Cahier des Charges (juin 2026)
+
+## Bug déclencheur corrigé + vérifié
+- **Contexte de rôle perdu sur les pages publiques** : le menu « compte » du header
+  était codé en dur « particulier » → un pro/salarié/admin sur une page publique
+  voyait le mauvais menu et perdait l'accès à son espace. Menu désormais conditionnel
+  au rôle (desktop + mobile), lien « Mon espace » vers le bon dashboard. Vérifié en
+  session pro (accueil + catalogue → menu pro avec « Mon espace pro »).
+
+## Manques CDC construits
+- **S4 — Modération du forum (salarié)** : onglet « Forum » dans l'espace salarié,
+  liste des sujets + suppression sujet/réponse. 3 routes API SalarieOnly réutilisant
+  le service forum existant. Routes vérifiées (401 sans token, pas 404) ;
+  **confirmation visuelle en attente d'une connexion salarié**.
+- **PR1 — Résiliation de contrat (pro)** : colonne Actions au tableau de bord, bouton
+  Résilier sur les contrats actifs/suspendus. API ProfessionnelOnly avec vérification
+  d'appartenance + machine à états. Vérifié bout en bout (Premium actif → résilié,
+  badge + bouton mis à jour).
+- **PR9 — Centre de notifications utilisateur** : `GET /api/notifications` (mes notifs
+  + compteur non lues) et `POST /api/notifications/{id}/lu` (propriétaire uniquement).
+  Carte Notifications au dashboard pro (badge non-lues + marquer comme lu). Vérifié.
+  L'envoi par l'admin (A5) existait déjà.
+- **PR7/PR8 — Bilan d'impact + stats matériaux (pro)** : indicateurs réels (objets
+  valorisés, poids détourné, projets réalisés), répartition par matériau (barres),
+  export PDF (gofpdf). Le CO₂ évité est une **estimation transparente** (facteur
+  affiché), jamais une mesure. Vérifié : 2 objets / 20 kg / ~36 kg / 1-3 projets ;
+  PDF servi en `200 application/pdf`.
+
+## Reste (hors périmètre réalisable ici, documenté)
+- **PR9/A5 — Alerte push temps réel (OneSignal)** : nécessite un compte + clés API
+  OneSignal (externe). La notification in-app (DB + lecture) est en place ; il reste
+  à brancher l'envoi push avec les clés.
+- **Notifications côté particulier** : l'API est générique (tout rôle authentifié) ;
+  reste à ajouter un lien + une page dans l'espace particulier (extension ~30 min).
+- **Données démo** : 2 contrats + 2 notifications semés dans la base du *preview* pour
+  la démonstration (init.sql est schéma-only, sans seed — les comptes démo eux-mêmes
+  sont créés au runtime).
+
+---
+
 # Points restants (action équipe requise)
 
 ## QR de dépôt côté particulier (sur « Mes demandes »)

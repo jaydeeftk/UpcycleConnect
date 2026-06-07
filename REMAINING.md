@@ -1,3 +1,20 @@
+# Mise en production — https://upcycleconnect.tech (juin 2026)
+
+Déploiement propre du projet `upcycleconnect` (Caddy/api/frontend/mysql/adminer) :
+- **Domaine `upcycleconnect.tech`** (OVH) → A record vers `95.216.77.54` ; `www` redirigé
+  vers l'apex ; `95.216.77.54.nip.io` conservé en secours.
+- **Certificat Let's Encrypt** émis automatiquement par Caddy (signé, auto-renouvelé) —
+  fini l'auto-signé (qui venait des rate-limits `nip.io`, pas de Caddy). `APP_URL` +
+  fallbacks CORS/Stripe alignés sur le nouveau domaine.
+- **Base réinitialisée proprement** : `init.sql` rejoué → schéma à jour + **4 comptes
+  démo** (admin/salarié/pro/particulier) + **jeu métier** (annonces, objets/impact, QR,
+  projets, contrats, notifications). Backups dans `/home/ubuntu/uc_prod_backups/`.
+- **i18n public 4 langues** (514 clés fr/en/es/de) live sur tout le site visiteur.
+- **OneSignal push ACTIF** (App ID + REST API Key `os_v2_` en prod, auth validée HTTP 200).
+  🔐 Régénérer la REST key après la soutenance (elle a transité par un chat).
+
+---
+
 # Complétion fonctionnelle par rôle vs Cahier des Charges (juin 2026)
 
 ## Bug déclencheur corrigé + vérifié
@@ -27,15 +44,14 @@
   affiché), jamais une mesure. Vérifié : 2 objets / 20 kg / ~36 kg / 1-3 projets ;
   PDF servi en `200 application/pdf`.
 
-## Reste (hors périmètre réalisable ici, documenté)
-- **PR9/A5 — Alerte push temps réel (OneSignal)** : **branché côté code** (SDK Web v16
-  dans `main.php`, sender Go `internal/notifier`, service worker, env-driven, fail-safe
-  sans clés). Activation = finir le setup OneSignal + renseigner `ONESIGNAL_APP_ID` /
-  `ONESIGNAL_API_KEY` → voir `docs/ONESIGNAL.md`. Vérifié : injection conditionnelle
-  (off sans clé / SDK + init avec clé), service worker servi, envoi admin → push.
-- **Données démo** : contrats + notifications semés dans la base du *preview* pour
-  la démonstration (init.sql est schéma-only, sans seed — les comptes démo eux-mêmes
-  sont créés au runtime).
+## Désormais résolu
+- **PR9/A5 — Alerte push temps réel (OneSignal)** : ✅ **ACTIF en prod**. SDK Web v16
+  (`main.php`) + sender Go (`internal/notifier`, détecte le format de clé `os_v2_` →
+  `Authorization: Key`) + service worker `/OneSignalSDKWorker.js`. App ID + REST API Key
+  dans `.env` prod ; auth validée contre l'API OneSignal (HTTP 200). Procédure :
+  `docs/ONESIGNAL.md`. Pour voir un push : s'abonner sur le site → envoi admin.
+- **Données démo** : ✅ désormais **dans `init.sql`** (4 comptes + jeu métier), testé sur
+  base vierge. Plus de dépendance au runtime / `docker exec`.
 
 ---
 

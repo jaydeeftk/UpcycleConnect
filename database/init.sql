@@ -821,6 +821,8 @@ CREATE TABLE IF NOT EXISTS Box(
 );
 ALTER TABLE Objets ADD COLUMN Id_Box INT NULL;
 ALTER TABLE Objets ADD CONSTRAINT fk_objets_box FOREIGN KEY (Id_Box) REFERENCES Box(Id_Box);
+ALTER TABLE Objets ADD COLUMN Id_Demandes_conteneurs INT NULL;
+ALTER TABLE Objets ADD CONSTRAINT fk_objets_demande FOREIGN KEY (Id_Demandes_conteneurs) REFERENCES Demandes_conteneurs(Id_Demandes_conteneurs);
 
 -- 005 — une Box par conteneur (occupation dérivée = COUNT Objets 'en_stock' / Box.Capacite)
 INSERT INTO Box (Reference, Capacite, Statut, Id_Conteneurs)

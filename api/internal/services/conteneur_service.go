@@ -123,7 +123,7 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 		}
 		idObjet, err := s.repo.CreerObjetEnStock(tx, repository.ObjetCreation{
 			Type: snap.Type, IdConteneur: snap.IdConteneur,
-			IdParticulier: snap.Proprietaire, IdBox: idBox,
+			IdParticulier: snap.Proprietaire, IdBox: idBox, IdDemande: idDemande,
 		})
 		if err != nil {
 			return err
@@ -202,6 +202,7 @@ type DemandeDTO struct {
 	Statut      string `json:"statut"`
 	CodeAcces   string `json:"code_acces"`
 	Date        string `json:"date"`
+	CodeBarre   string `json:"code_barre"`
 }
 
 func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeDTO, error) {
@@ -221,6 +222,7 @@ func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeD
 		out = append(out, DemandeDTO{
 			ID: d.ID, TypeObjet: d.TypeObjet, Description: d.Description,
 			EtatUsure: d.EtatUsure, Statut: d.Statut, CodeAcces: d.CodeAcces, Date: d.Date,
+			CodeBarre: d.CodeBarre,
 		})
 	}
 	return out, nil

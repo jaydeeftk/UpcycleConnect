@@ -137,13 +137,14 @@ type ObjetCreation struct {
 	IdConteneur   int
 	IdParticulier int
 	IdBox         int
+	IdDemande     int
 }
 
 func (ConteneurRepo) CreerObjetEnStock(q Querier, o ObjetCreation) (int, error) {
 	res, err := q.Exec(
-		`INSERT INTO Objets (Type, Statut, Id_Conteneurs, Id_Particuliers, Id_Box)
-		 VALUES (?, 'en_stock', ?, ?, ?)`,
-		o.Type, o.IdConteneur, o.IdParticulier, o.IdBox,
+		`INSERT INTO Objets (Type, Statut, Id_Conteneurs, Id_Particuliers, Id_Box, Id_Demandes_conteneurs)
+		 VALUES (?, 'en_stock', ?, ?, ?, ?)`,
+		o.Type, o.IdConteneur, o.IdParticulier, o.IdBox, o.IdDemande,
 	)
 	if err != nil {
 		return 0, err
@@ -163,14 +164,18 @@ type DemandeLigne struct {
 	Statut      string
 	CodeAcces   string
 	Date        string
+	CodeBarre   string
 }
 
 func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, error) {
 	rows, err := q.Query(
-		`SELECT Id_Demandes_conteneurs, COALESCE(Type_objet,''), COALESCE(Description,''),
-		        COALESCE(Etat_usure,''), COALESCE(Statut,'en_attente'), COALESCE(Code_acces,''),
-		        COALESCE(Date_demande,'')
-		 FROM Demandes_conteneurs WHERE Id_Particuliers = ? ORDER BY Date_demande DESC`,
+		`SELECT d.Id_Demandes_conteneurs, COALESCE(d.Type_objet,''), COALESCE(d.Description,''),
+		        COALESCE(d.Etat_usure,''), COALESCE(d.Statut,'en_attente'), COALESCE(d.Code_acces,''),
+		        COALESCE(d.Date_demande,''), COALESCE(cb.Code,'')
+		 FROM Demandes_conteneurs d
+		 LEFT JOIN Objets o ON o.Id_Demandes_conteneurs = d.Id_Demandes_conteneurs
+		 LEFT JOIN Codes_Barres cb ON cb.Id_Objets = o.Id_Objets
+		 WHERE d.Id_Particuliers = ? ORDER BY d.Date_demande DESC`,
 		idParticulier,
 	)
 	if err != nil {
@@ -181,7 +186,7 @@ func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, 
 	liste := []DemandeLigne{}
 	for rows.Next() {
 		var d DemandeLigne
-		if err := rows.Scan(&d.ID, &d.TypeObjet, &d.Description, &d.EtatUsure, &d.Statut, &d.CodeAcces, &d.Date); err != nil {
+		if err := rows.Scan(&d.ID, &d.TypeObjet, &d.Description, &d.EtatUsure, &d.Statut, &d.CodeAcces, &d.Date, &d.CodeBarre); err != nil {
 			return nil, err
 		}
 		liste = append(liste, d)

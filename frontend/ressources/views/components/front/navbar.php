@@ -36,8 +36,8 @@ function navActive(string $path, string $current): string {
                         <a href="/catalogue/services" class="flex items-center gap-3 <?= $currentPath === '/catalogue/services' ? 'bg-base-200' : '' ?>">
                             <i class="fas fa-tools text-orange-500"></i>
                             <div>
-                                <div class="font-medium">Services</div>
-                                <div class="text-xs text-base-content/60">Réparation, transformation...</div>
+                                <div class="font-medium"><?= t('nav_dd_services','Services') ?></div>
+                                <div class="text-xs text-base-content/60"><?= t('nav_dd_services_desc','Réparation, transformation...') ?></div>
                             </div>
                         </a>
                     </li>
@@ -45,8 +45,8 @@ function navActive(string $path, string $current): string {
                         <a href="/catalogue/formations" class="flex items-center gap-3 <?= $currentPath === '/catalogue/formations' ? 'bg-base-200' : '' ?>">
                             <i class="fas fa-graduation-cap text-purple-500"></i>
                             <div>
-                                <div class="font-medium">Formations</div>
-                                <div class="text-xs text-base-content/60">Ateliers, cours, workshops...</div>
+                                <div class="font-medium"><?= t('nav_dd_formations','Formations') ?></div>
+                                <div class="text-xs text-base-content/60"><?= t('nav_dd_formations_desc','Ateliers, cours, workshops...') ?></div>
                             </div>
                         </a>
                     </li>
@@ -54,8 +54,8 @@ function navActive(string $path, string $current): string {
                         <a href="/catalogue/evenements" class="flex items-center gap-3 <?= $currentPath === '/catalogue/evenements' ? 'bg-base-200' : '' ?>">
                             <i class="fas fa-calendar-alt text-blue-500"></i>
                             <div>
-                                <div class="font-medium">Événements</div>
-                                <div class="text-xs text-base-content/60">Rencontres, expos, marchés...</div>
+                                <div class="font-medium"><?= t('nav_dd_events','Événements') ?></div>
+                                <div class="text-xs text-base-content/60"><?= t('nav_dd_events_desc','Rencontres, expos, marchés...') ?></div>
                             </div>
                         </a>
                     </li>
@@ -75,8 +75,8 @@ function navActive(string $path, string $current): string {
                         <a href="/annonces" class="flex items-center gap-3 <?= $currentPath === '/annonces' ? 'bg-base-200' : '' ?>">
                             <i class="fas fa-bullhorn text-green-500"></i>
                             <div>
-                                <div class="font-medium">Toutes les annonces</div>
-                                <div class="text-xs text-base-content/60">Dons et ventes disponibles</div>
+                                <div class="font-medium"><?= t('nav_dd_annonces','Toutes les annonces') ?></div>
+                                <div class="text-xs text-base-content/60"><?= t('nav_dd_annonces_desc','Dons et ventes disponibles') ?></div>
                             </div>
                         </a>
                     </li>
@@ -96,8 +96,8 @@ function navActive(string $path, string $current): string {
                         <a href="/annonces/create" class="flex items-center gap-3 <?= $currentPath === '/annonces/create' ? 'bg-base-200' : '' ?>">
                             <i class="fas fa-bullhorn text-green-500"></i>
                             <div>
-                                <div class="font-medium">Déposer une annonce</div>
-                                <div class="text-xs text-base-content/60">Don ou vente d'un objet</div>
+                                <div class="font-medium"><?= t('nav_dd_post_annonce','Déposer une annonce') ?></div>
+                                <div class="text-xs text-base-content/60"><?= t('nav_dd_post_annonce_desc','Don ou vente d\'un objet') ?></div>
                             </div>
                         </a>
                     </li>
@@ -105,8 +105,8 @@ function navActive(string $path, string $current): string {
                         <a href="/conteneurs/create" class="flex items-center gap-3 <?= $currentPath === '/conteneurs/create' ? 'bg-base-200' : '' ?>">
                             <i class="fas fa-box-open text-blue-500"></i>
                             <div>
-                                <div class="font-medium">Déposer dans un conteneur</div>
-                                <div class="text-xs text-base-content/60">Demande de dépôt d'objet</div>
+                                <div class="font-medium"><?= t('nav_dd_post_conteneur','Déposer dans un conteneur') ?></div>
+                                <div class="text-xs text-base-content/60"><?= t('nav_dd_post_conteneur_desc','Demande de dépôt d\'objet') ?></div>
                             </div>
                         </a>
                     </li>
@@ -151,7 +151,7 @@ function navActive(string $path, string $current): string {
                     <div id="user-menu-dropdown"
                          class="absolute right-0 mt-2 w-52 bg-base-100 rounded-xl shadow-lg border border-base-300 py-2 hidden z-50 animate-in">
                         <div class="px-4 py-2 border-b border-base-200 mb-1">
-                            <p class="text-xs text-base-content/50">Connecté en tant que</p>
+                            <p class="text-xs text-base-content/50"><?= t('nav_logged_as','Connecté en tant que') ?></p>
                             <p class="text-sm font-semibold truncate"><?= htmlspecialchars(($_SESSION['user']['prenom'] ?? '') . ' ' . ($_SESSION['user']['nom'] ?? '')) ?></p>
                         </div>
                         <?php $r = $_SESSION['user']['role'] ?? 'particulier'; ?>

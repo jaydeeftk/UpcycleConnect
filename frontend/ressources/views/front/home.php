@@ -52,7 +52,7 @@
             <div class="overflow-hidden h-64">
                 <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                     alt="Réparer">
+                     alt="<?= t('home_step1_title','Réparer') ?>">
             </div>
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-3"><?= t('home_step1_title', 'Réparer') ?></h3>
@@ -65,7 +65,7 @@
             <div class="overflow-hidden h-64">
                 <img src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                     alt="Transformer">
+                     alt="<?= t('home_step2_title','Transformer') ?>">
             </div>
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-3"><?= t('home_step2_title', 'Transformer') ?></h3>
@@ -78,7 +78,7 @@
             <div class="overflow-hidden h-64">
                 <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                     alt="Recycler">
+                     alt="<?= t('home_step3_title','Recycler') ?>">
             </div>
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-3"><?= t('home_step3_title', 'Recycler') ?></h3>
@@ -161,7 +161,7 @@
             </div>
             <div class="bg-base-100 rounded-3xl shadow-sm overflow-hidden fade-up" style="transition-delay:0.1s">
                 <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80"
-                     class="w-full h-full object-cover min-h-[420px]" alt="Équipe">
+                     class="w-full h-full object-cover min-h-[420px]" alt="<?= t('home_team_alt','Équipe') ?>">
             </div>
         </div>
     </div>

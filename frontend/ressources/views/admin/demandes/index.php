@@ -71,7 +71,7 @@
                 <td class="p-4">
                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border <?= $badgeStyle ?> uppercase"><?= $badgeLabel ?></span>
                 </td>
-                <td class="p-4 text-xs text-slate-400"><?= htmlspecialchars(substr($d['date'] ?? '', 0, 10)) ?></td>
+                <td class="p-4 text-xs text-slate-400"><?= formatDate($d['date'] ?? '') ?></td>
                 <td class="p-4 text-right">
                     <div class="flex justify-end gap-2">
                         <?php if ($statut === 'en_attente'): ?>

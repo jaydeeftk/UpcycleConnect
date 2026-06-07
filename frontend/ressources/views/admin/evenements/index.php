@@ -44,7 +44,7 @@
                     <?php endif; ?>
                 </td>
                 <td class="p-4 text-sm text-slate-600">
-                    <div><i class="fas fa-calendar-alt mr-1 text-slate-400"></i><?= htmlspecialchars(substr($e['date'] ?? '', 0, 10)) ?></div>
+                    <div><i class="fas fa-calendar-alt mr-1 text-slate-400"></i><?= formatDate($e['date'] ?? '') ?></div>
                     <div class="text-xs text-slate-400 mt-1"><i class="fas fa-map-marker-alt mr-1"></i><?= htmlspecialchars($e['lieu'] ?? '') ?></div>
                 </td>
                 <td class="p-4">
@@ -60,7 +60,7 @@
                 </td>
                 <td class="p-4">
                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border <?= $badgeStyle ?> uppercase">
-                        <?= htmlspecialchars($e['statut'] ?? 'À venir') ?>
+                        <?= formatStatut($e['statut'] ?? 'a_venir') ?>
                     </span>
                 </td>
                 <td class="p-4 text-right">
@@ -106,7 +106,7 @@
 <script>
 function openEvtDetail(e) {
     document.getElementById('evt-modal-titre').textContent = e.titre || 'Événement';
-    document.getElementById('evt-date').textContent = (e.date || '').substring(0,10);
+    document.getElementById('evt-date').textContent = (e.date || '').substring(0,10).split('-').reverse().join('/');
     document.getElementById('evt-lieu').textContent = e.lieu || '—';
     document.getElementById('evt-prix').textContent = e.prix > 0 ? e.prix.toFixed(2) + ' €' : 'Gratuit';
     document.getElementById('evt-capacite').textContent = e.capacite ? e.capacite + ' places' : '—';

@@ -553,4 +553,18 @@ return [
     'footer_legal' => 'Legal notice',
     'footer_privacy' => 'Privacy',
     'footer_contact' => 'Contact',
+    // === home: sections impact + plateforme ===
+    'home_impact_title' => 'Our impact',
+    'home_impact_objets' => 'Items saved',
+    'home_impact_users' => 'Users',
+    'home_impact_projets' => 'Completed projects',
+    'home_impact_co2' => 'CO₂ saved',
+    'home_platform_title' => 'A simple platform to extend the life of your items',
+    'home_feat1_title' => 'Find a provider near you',
+    'home_feat1_desc' => 'Browse services offered by professionals to easily repair, transform or upcycle your items.',
+    'home_feat2_title' => 'Post a request quickly',
+    'home_feat2_desc' => 'Describe your need, your item and your goal. Providers can then respond to you directly.',
+    'home_feat3_title' => 'Join responsible events',
+    'home_feat3_desc' => 'Discover workshops, meetups and local initiatives around repair and recycling.',
+    'home_platform_cta_services' => 'View services',
 ];

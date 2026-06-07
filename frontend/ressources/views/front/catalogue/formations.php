@@ -125,7 +125,7 @@ $imagesByCategorie = [
                     <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($formation['titre'] ?? '') ?></h3>
                     <p class="text-sm text-base-content/60 mb-4 line-clamp-2"><?= htmlspecialchars($formation['description'] ?? '') ?></p>
                     <div class="space-y-2 mb-4 text-xs text-base-content/50">
-                        <div><i class="fas fa-calendar-alt mr-2"></i><?= $formation['date'] ?? '' ?></div>
+                        <div><i class="fas fa-calendar-alt mr-2"></i><?= formatDate($formation['date'] ?? '') ?></div>
                         <div><i class="fas fa-map-marker-alt mr-2"></i><?= $formation['localisation'] ?? '' ?></div>
                         <div>
                             <i class="fas fa-users mr-2"></i>

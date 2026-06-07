@@ -17,7 +17,7 @@
                     </div>
                     <div class="p-6">
                         <div class="text-sm text-base-content/60 mb-2">
-                            <?= htmlspecialchars($evenement['date'] ?? '') ?> • <?= htmlspecialchars($evenement['lieu'] ?? '') ?>
+                            <?= formatDate($evenement['date'] ?? '') ?> • <?= htmlspecialchars($evenement['lieu'] ?? '') ?>
                         </div>
                         <h3 class="text-xl font-semibold mb-3"><?= htmlspecialchars($evenement['titre'] ?? '') ?></h3>
                         <p class="text-base-content/70 mb-4"><?= htmlspecialchars($evenement['description'] ?? '') ?></p>

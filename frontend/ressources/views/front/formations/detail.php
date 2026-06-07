@@ -18,7 +18,7 @@
             <div class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-3 mb-8">
                 <div class="flex justify-between">
                     <span class="font-medium">Date</span>
-                    <span class="text-base-content/70"><?= htmlspecialchars($formation['date'] ?? '') ?></span>
+                    <span class="text-base-content/70"><?= formatDate($formation['date'] ?? '') ?></span>
                 </div>
                 <div class="flex justify-between">
                     <span class="font-medium">Lieu</span>

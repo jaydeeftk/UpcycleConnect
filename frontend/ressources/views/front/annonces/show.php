@@ -35,7 +35,7 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="font-medium">Publié le</span>
-                    <span class="text-base-content/70"><?= htmlspecialchars($annonce['date'] ?? '') ?></span>
+                    <span class="text-base-content/70"><?= formatDate($annonce['date'] ?? '') ?></span>
                 </div>
                 <div class="flex justify-between">
                     <span class="font-medium">Déposé par</span>

@@ -24,7 +24,7 @@
                     <i class="fas fa-user-circle text-lg"></i>
                     <span class="font-medium text-base-content/70"><?= htmlspecialchars($sujet['auteur'] ?? '') ?></span>
                     <span>·</span>
-                    <span><?= htmlspecialchars($sujet['date'] ?? '') ?></span>
+                    <span><?= formatDate($sujet['date'] ?? '') ?></span>
                 </div>
                 <div class="flex items-center gap-4 text-sm text-base-content/50">
                     <span><i class="fas fa-eye mr-1"></i><?= $sujet['vues'] ?? 0 ?> vues</span>
@@ -53,7 +53,7 @@
                             <i class="fas fa-user-circle text-lg"></i>
                             <span class="font-medium text-base-content/70"><?= htmlspecialchars($reponse['auteur'] ?? '') ?></span>
                             <span class="badge badge-ghost badge-sm"><?= htmlspecialchars($reponse['auteur_statut'] ?? '') ?></span>
-                            <span>· <?= htmlspecialchars($reponse['date'] ?? '') ?></span>
+                            <span>· <?= formatDate($reponse['date'] ?? '') ?></span>
                         </div>
 
                         <?php if (isset($_SESSION['user']) && ($_SESSION['user']['id'] ?? 0) == ($sujet['auteur_id'] ?? -1) && !($sujet['resolu'] ?? false)): ?>

@@ -30,6 +30,35 @@ class ConteneurController
         ]);
     }
 
+    public function show($id)
+    {
+        $conteneur = null;
+        $demandes = [];
+        try {
+            $result = $this->api->get('/admin/conteneurs');
+            $list = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+            foreach ($list as $c) {
+                if ((int)($c['id'] ?? 0) === (int)$id) { $conteneur = $c; break; }
+            }
+            $dres = $this->api->get('/admin/demandes');
+            $all = isset($dres['data']) && is_array($dres['data']) ? $dres['data'] : (is_array($dres) && !isset($dres['success']) ? $dres : []);
+            foreach ($all as $d) {
+                if ((int)($d['id_conteneur'] ?? 0) === (int)$id) { $demandes[] = $d; }
+            }
+        } catch (\Exception $e) {}
+
+        if (!$conteneur) {
+            http_response_code(404);
+            return view('errors.404');
+        }
+
+        return view('admin.conteneurs.show', [
+            'conteneur'  => $conteneur,
+            'demandes'   => $demandes,
+            'page_title' => 'Détail conteneur',
+        ]);
+    }
+
     public function store()
     {
         try {

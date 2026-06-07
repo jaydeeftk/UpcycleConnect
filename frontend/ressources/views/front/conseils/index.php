@@ -5,11 +5,11 @@
             <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                 <i class="fas fa-lightbulb text-green-600"></i>
             </div>
-            <span class="text-sm font-medium text-green-600 uppercase tracking-wide">Espace Conseils</span>
+            <span class="text-sm font-medium text-green-600 uppercase tracking-wide"><?= t('considx_eyebrow', 'Espace Conseils') ?></span>
         </div>
-        <h1 class="text-3xl font-bold">Conseils & Forum communautaire</h1>
+        <h1 class="text-3xl font-bold"><?= t('considx_title', 'Conseils & Forum communautaire') ?></h1>
         <p class="text-base-content/60 mt-2">
-            Retrouvez les conseils de nos experts et échangez avec la communauté UpcycleConnect.
+            <?= t('considx_subtitle', 'Retrouvez les conseils de nos experts et échangez avec la communauté UpcycleConnect.') ?>
         </p>
     </div>
 
@@ -17,7 +17,7 @@
 
         <aside class="lg:col-span-1">
             <div class="bg-base-100 rounded-2xl shadow-sm p-5 sticky top-24">
-                <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-4">Catégories</h2>
+                <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-4"><?= t('considx_categories', 'Catégories') ?></h2>
                 <ul class="space-y-1">
                     <?php
                     $categories = [
@@ -47,7 +47,7 @@
                         <a href="/conseils/forum/create"
                            class="btn btn-neutral btn-sm w-full">
                             <i class="fas fa-plus mr-2"></i>
-                            Nouveau sujet
+                            <?= t('considx_new_topic', 'Nouveau sujet') ?>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -59,11 +59,11 @@
             <div class="tabs tabs-boxed bg-base-100 p-1 rounded-2xl shadow-sm w-fit">
                 <a href="?onglet=conseils&categorie=<?= $categorieActive ?>"
                    class="tab <?= $onglet === 'conseils' ? 'tab-active' : '' ?>">
-                    <i class="fas fa-lightbulb mr-2"></i> Conseils
+                    <i class="fas fa-lightbulb mr-2"></i> <?= t('considx_tab_advice', 'Conseils') ?>
                 </a>
                 <a href="?onglet=forum&categorie=<?= $categorieActive ?>"
                    class="tab <?= $onglet === 'forum' ? 'tab-active' : '' ?>">
-                    <i class="fas fa-comments mr-2"></i> Forum
+                    <i class="fas fa-comments mr-2"></i> <?= t('considx_tab_forum', 'Forum') ?>
                 </a>
             </div>
 
@@ -72,14 +72,14 @@
                 <div class="bg-base-100 rounded-2xl shadow-sm p-4">
                     <div class="relative">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40"></i>
-                        <input type="text" placeholder="Rechercher un conseil..." class="input input-bordered w-full pl-10">
+                        <input type="text" placeholder="<?= t('considx_search_placeholder', 'Rechercher un conseil...') ?>" class="input input-bordered w-full pl-10">
                     </div>
                 </div>
 
                 <?php if (empty($conseils)): ?>
                     <div class="text-center py-16 text-base-content/40">
                         <i class="fas fa-lightbulb text-4xl mb-3 block"></i>
-                        <p>Aucun conseil disponible pour le moment.</p>
+                        <p><?= t('considx_empty_advice', 'Aucun conseil disponible pour le moment.') ?></p>
                     </div>
                 <?php else: ?>
                     <div class="space-y-4">
@@ -122,7 +122,7 @@
                                                 <span>· <?= formatDate($conseil['date'] ?? '') ?></span>
                                             </div>
                                             <a href="/conseils/<?= $conseil['id'] ?>" class="btn btn-ghost btn-sm">
-                                                Lire la suite <i class="fas fa-arrow-right ml-1"></i>
+                                                <?= t('considx_read_more', 'Lire la suite') ?> <i class="fas fa-arrow-right ml-1"></i>
                                             </a>
                                         </div>
                                     </div>
@@ -135,12 +135,12 @@
             <?php else: ?>
 
                 <div class="flex items-center justify-between">
-                    <p class="text-base-content/60 text-sm">Échangez avec la communauté UpcycleConnect</p>
+                    <p class="text-base-content/60 text-sm"><?= t('considx_forum_intro', 'Échangez avec la communauté UpcycleConnect') ?></p>
                     <?php if (isset($_SESSION['user'])): ?>
                         <a href="/conseils/forum/create"
                            class="btn btn-neutral btn-sm">
                             <i class="fas fa-plus mr-2"></i>
-                            Nouveau sujet
+                            <?= t('considx_new_topic', 'Nouveau sujet') ?>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -148,7 +148,7 @@
                 <?php if (empty($sujets)): ?>
                     <div class="text-center py-16 text-base-content/40">
                         <i class="fas fa-comments text-4xl mb-3 block"></i>
-                        <p>Aucun sujet pour le moment. Soyez le premier à poster !</p>
+                        <p><?= t('considx_empty_forum', 'Aucun sujet pour le moment. Soyez le premier à poster !') ?></p>
                     </div>
                 <?php else: ?>
                     <div class="space-y-3">
@@ -162,7 +162,7 @@
                                         <div class="flex items-center gap-2 mb-2">
                                             <?php if ($sujet['resolu'] ?? false): ?>
                                                 <span class="badge badge-success badge-sm gap-1">
-                                                    <i class="fas fa-check"></i> Résolu
+                                                    <i class="fas fa-check"></i> <?= t('considx_resolved', 'Résolu') ?>
                                                 </span>
                                             <?php endif; ?>
                                             <span class="badge badge-ghost badge-sm gap-1">
@@ -184,11 +184,11 @@
                                     <div class="flex gap-6 text-center text-sm text-base-content/50 flex-shrink-0">
                                         <div>
                                             <div class="font-semibold text-base-content text-lg"><?= $sujet['nb_reponses'] ?? 0 ?></div>
-                                            <div class="text-xs">réponses</div>
+                                            <div class="text-xs"><?= t('considx_replies', 'réponses') ?></div>
                                         </div>
                                         <div>
                                             <div class="font-semibold text-base-content text-lg"><?= $sujet['vues'] ?? 0 ?></div>
-                                            <div class="text-xs">vues</div>
+                                            <div class="text-xs"><?= t('considx_views', 'vues') ?></div>
                                         </div>
                                     </div>
                                 </div>

@@ -16,46 +16,46 @@ $imagesByCategorie = [
             <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
                 <i class="fas fa-tools text-orange-600"></i>
             </div>
-            <span class="text-sm font-medium text-orange-600 uppercase tracking-wide">Catalogue</span>
+            <span class="text-sm font-medium text-orange-600 uppercase tracking-wide"><?= t('catsvc_breadcrumb', 'Catalogue') ?></span>
         </div>
-        <h1 class="text-3xl font-bold">Services</h1>
-        <p class="text-base-content/60 mt-2">Trouvez un professionnel pour réparer, transformer ou recycler vos objets.</p>
+        <h1 class="text-3xl font-bold"><?= t('catsvc_title', 'Services') ?></h1>
+        <p class="text-base-content/60 mt-2"><?= t('catsvc_subtitle', 'Trouvez un professionnel pour réparer, transformer ou recycler vos objets.') ?></p>
     </div>
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-6 mb-8">
         <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Catégorie</label>
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catsvc_filter_category', 'Catégorie') ?></label>
                 <select name="categorie" class="select select-bordered w-full select-sm">
-                    <option value="">Toutes</option>
-                    <option value="reparation" <?= ($_GET['categorie'] ?? '') === 'reparation' ? 'selected' : '' ?>>Réparation</option>
-                    <option value="transformation" <?= ($_GET['categorie'] ?? '') === 'transformation' ? 'selected' : '' ?>>Transformation</option>
-                    <option value="recyclage" <?= ($_GET['categorie'] ?? '') === 'recyclage' ? 'selected' : '' ?>>Recyclage</option>
-                    <option value="upcycling" <?= ($_GET['categorie'] ?? '') === 'upcycling' ? 'selected' : '' ?>>Upcycling créatif</option>
-                    <option value="nettoyage" <?= ($_GET['categorie'] ?? '') === 'nettoyage' ? 'selected' : '' ?>>Nettoyage</option>
+                    <option value=""><?= t('catsvc_filter_all', 'Toutes') ?></option>
+                    <option value="reparation" <?= ($_GET['categorie'] ?? '') === 'reparation' ? 'selected' : '' ?>><?= t('catsvc_cat_reparation', 'Réparation') ?></option>
+                    <option value="transformation" <?= ($_GET['categorie'] ?? '') === 'transformation' ? 'selected' : '' ?>><?= t('catsvc_cat_transformation', 'Transformation') ?></option>
+                    <option value="recyclage" <?= ($_GET['categorie'] ?? '') === 'recyclage' ? 'selected' : '' ?>><?= t('catsvc_cat_recyclage', 'Recyclage') ?></option>
+                    <option value="upcycling" <?= ($_GET['categorie'] ?? '') === 'upcycling' ? 'selected' : '' ?>><?= t('catsvc_cat_upcycling', 'Upcycling créatif') ?></option>
+                    <option value="nettoyage" <?= ($_GET['categorie'] ?? '') === 'nettoyage' ? 'selected' : '' ?>><?= t('catsvc_cat_nettoyage', 'Nettoyage') ?></option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Prix max (€)</label>
-                <input type="number" name="prix_max" min="0" placeholder="Ex : 100" value="<?= htmlspecialchars($_GET['prix_max'] ?? '') ?>" class="input input-bordered w-full input-sm">
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catsvc_filter_price_max', 'Prix max (€)') ?></label>
+                <input type="number" name="prix_max" min="0" placeholder="<?= t('catsvc_filter_price_ph', 'Ex : 100') ?>" value="<?= htmlspecialchars($_GET['prix_max'] ?? '') ?>" class="input input-bordered w-full input-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Localisation</label>
-                <input type="text" name="localisation" placeholder="Ville ou code postal" value="<?= htmlspecialchars($_GET['localisation'] ?? '') ?>" class="input input-bordered w-full input-sm">
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catsvc_filter_location', 'Localisation') ?></label>
+                <input type="text" name="localisation" placeholder="<?= t('catsvc_filter_location_ph', 'Ville ou code postal') ?>" value="<?= htmlspecialchars($_GET['localisation'] ?? '') ?>" class="input input-bordered w-full input-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase">Trier par</label>
+                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catsvc_filter_sort', 'Trier par') ?></label>
                 <select name="tri" class="select select-bordered w-full select-sm">
-                    <option value="pertinence">Pertinence</option>
-                    <option value="prix_asc" <?= ($_GET['tri'] ?? '') === 'prix_asc' ? 'selected' : '' ?>>Prix croissant</option>
-                    <option value="prix_desc" <?= ($_GET['tri'] ?? '') === 'prix_desc' ? 'selected' : '' ?>>Prix décroissant</option>
-                    <option value="note" <?= ($_GET['tri'] ?? '') === 'note' ? 'selected' : '' ?>>Mieux notés</option>
+                    <option value="pertinence"><?= t('catsvc_sort_relevance', 'Pertinence') ?></option>
+                    <option value="prix_asc" <?= ($_GET['tri'] ?? '') === 'prix_asc' ? 'selected' : '' ?>><?= t('catsvc_sort_price_asc', 'Prix croissant') ?></option>
+                    <option value="prix_desc" <?= ($_GET['tri'] ?? '') === 'prix_desc' ? 'selected' : '' ?>><?= t('catsvc_sort_price_desc', 'Prix décroissant') ?></option>
+                    <option value="note" <?= ($_GET['tri'] ?? '') === 'note' ? 'selected' : '' ?>><?= t('catsvc_sort_rating', 'Mieux notés') ?></option>
                 </select>
             </div>
             <div class="md:col-span-4 flex justify-end gap-3">
-                <a href="/catalogue/services" class="btn btn-ghost btn-sm">Réinitialiser</a>
+                <a href="/catalogue/services" class="btn btn-ghost btn-sm"><?= t('catsvc_reset_btn', 'Réinitialiser') ?></a>
                 <button type="submit" class="btn btn-neutral btn-sm">
-                    <i class="fas fa-filter mr-2"></i>Filtrer
+                    <i class="fas fa-filter mr-2"></i><?= t('catsvc_filter_btn', 'Filtrer') ?>
                 </button>
             </div>
         </form>
@@ -64,13 +64,13 @@ $imagesByCategorie = [
     <?php $services = $services ?? []; ?>
 
     <div class="flex items-center justify-between mb-6">
-        <p class="text-sm text-base-content/50"><?= count($services) ?> service(s) trouvé(s)</p>
+        <p class="text-sm text-base-content/50"><?= count($services) ?> <?= t('catsvc_results_count', 'service(s) trouvé(s)') ?></p>
     </div>
 
     <?php if (empty($services)): ?>
         <div class="text-center py-20 text-base-content/40">
             <i class="fas fa-tools text-5xl mb-4 block"></i>
-            <p class="text-lg">Aucun service disponible pour le moment.</p>
+            <p class="text-lg"><?= t('catsvc_empty', 'Aucun service disponible pour le moment.') ?></p>
         </div>
     <?php else: ?>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -93,10 +93,10 @@ $imagesByCategorie = [
                     <p class="text-sm text-base-content/60 mb-4 line-clamp-2"><?= htmlspecialchars($service['description']) ?></p>
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="text-xl font-bold">À partir de <?= $service['prix'] ?? 0 ?>€</span>
+                            <span class="text-xl font-bold"><?= t('catsvc_price_from', 'À partir de') ?> <?= $service['prix'] ?? 0 ?>€</span>
                             <div class="text-xs text-base-content/40 mt-0.5"><i class="fas fa-clock mr-1"></i><?= $service['duree'] ?? '' ?>h</div>
                         </div>
-                        <a href="/services/<?= $service['id'] ?>" class="btn btn-neutral btn-sm">Voir</a>
+                        <a href="/services/<?= $service['id'] ?>" class="btn btn-neutral btn-sm"><?= t('catsvc_view_btn', 'Voir') ?></a>
                     </div>
                 </div>
             </div>

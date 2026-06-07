@@ -1,7 +1,7 @@
 <section class="max-w-3xl mx-auto px-6 lg:px-10 py-16">
 
     <a href="/conseils" class="flex items-center gap-2 text-sm text-base-content/50 hover:text-base-content transition mb-8">
-        <i class="fas fa-arrow-left"></i> Retour aux conseils
+        <i class="fas fa-arrow-left"></i> <?= t('consdet_back', 'Retour aux conseils') ?>
     </a>
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8">

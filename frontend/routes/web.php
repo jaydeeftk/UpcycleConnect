@@ -59,6 +59,8 @@ $router->get('/logout', 'Front\AuthController@logout');
 $router->get('/tutoriel/done', 'Front\UserController@tutorielDone');
 
 $router->get('/messages', 'Front\MessageController@index');
+$router->get('/notifications', 'Front\UserController@notifications');
+$router->post('/notifications/{id}/lu', 'Front\UserController@notificationLue');
 $router->get('/mes-demandes', 'Front\UserController@mesDemandes');
 $router->get('/mes-prestations', 'Front\UserController@mesPrestations');
 $router->get('/paiements', 'Front\UserController@paiements');

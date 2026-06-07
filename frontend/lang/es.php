@@ -646,4 +646,8 @@ return [
     'nav_dd_post_conteneur_desc' => 'Solicitud de depósito de objeto',
     'nav_logged_as' => 'Conectado como',
     'home_team_alt' => 'Equipo',
+    'auth_label_siret' => 'SIRET de la empresa',
+    'auth_siret_ph' => '14 dígitos',
+    'auth_siret_verify' => 'Verificar',
+    'auth_company_autofill' => 'Se rellena tras verificar el SIRET',
 ];

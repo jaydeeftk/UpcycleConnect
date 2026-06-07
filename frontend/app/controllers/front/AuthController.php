@@ -78,23 +78,44 @@ class AuthController
         $prenom = $nomParts[0] ?? '';
         $nomFamille = $nomParts[1] ?? '';
 
-        try {
-            $this->api->post('/auth/register', [
-                'nom' => $nomFamille,
-                'prenom' => $prenom,
-                'email' => $email,
-                'mot_de_passe' => $password,
-                'role' => $role
-            ]);
+        $payload = [
+            'nom' => $nomFamille,
+            'prenom' => $prenom,
+            'email' => $email,
+            'mot_de_passe' => $password,
+            'role' => $role,
+        ];
+        if ($role === 'professionnel') {
+            $payload['nom_entreprise'] = $_POST['nom_entreprise'] ?? '';
+            $payload['type'] = $_POST['type'] ?? 'artisan';
+            $payload['siret'] = $_POST['siret'] ?? '';
+        }
 
+        try {
+            $this->api->post('/auth/register', $payload);
             redirect('/login');
 
         } catch (\Exception $e) {
             return view('front.auth.index', [
                 'title' => 'Inscription - UpcycleConnect',
-                'error' => 'Erreur lors de la création du compte : ' . $e->getMessage(),
-                'activeTab' => 'register'
+                'error' => $e->getMessage(),
+                'activeTab' => 'register',
+                'email' => $email,
             ]);
+        }
+    }
+
+    // Proxy public : le formulaire d'inscription vérifie le SIRET via l'API Go
+    // (qui interroge recherche-entreprises.api.gouv.fr).
+    public function verifySiret($siret)
+    {
+        header('Content-Type: application/json');
+        try {
+            $clean = preg_replace('/\D/', '', (string) $siret);
+            $r = $this->api->get('/siret/' . $clean);
+            echo json_encode($r['data'] ?? $r);
+        } catch (\Exception $e) {
+            echo json_encode(['valid' => false, 'message' => 'Erreur de vérification']);
         }
     }
 

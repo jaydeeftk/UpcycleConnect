@@ -3,6 +3,59 @@
 $role = $_SESSION['user']['role'] ?? '';
 if ($role !== 'particulier') return;
 if (!empty($_SESSION['user']['tutoriel_vu'])) return;
+
+$tuto = [
+    'step'   => t('tuto_step', 'Étape'),
+    'close'  => t('tuto_close', 'Fermer'),
+    'skip'   => t('tuto_skip', 'Passer le tutoriel'),
+    'prev'   => t('tuto_prev', '← Précédent'),
+    'next'   => t('tuto_next', 'Suivant →'),
+    'finish' => t('tuto_finish', 'Terminer 🎉'),
+    'steps'  => [
+        [
+            'titre'    => t('tuto_s1_title', '👋 Bienvenue sur UpcycleConnect !'),
+            'texte'    => t('tuto_s1_text', 'Nous allons vous faire découvrir les fonctionnalités principales de la plateforme en quelques étapes. Suivez le guide !'),
+            'cible'    => null,
+            'position' => 'center',
+        ],
+        [
+            'titre'    => t('tuto_s2_title', '♻️ Déposer un objet'),
+            'texte'    => t('tuto_s2_text', 'Depuis le menu "Déposer", vous pouvez publier une annonce ou demander à déposer un objet dans l\'un de nos conteneurs.'),
+            'cible'    => '[data-tuto="deposer"]',
+            'position' => 'bottom',
+        ],
+        [
+            'titre'    => t('tuto_s3_title', '🛠️ Les prestations'),
+            'texte'    => t('tuto_s3_text', 'Parcourez les prestations proposées par nos artisans et professionnels pour réparer, transformer ou recycler vos objets.'),
+            'cible'    => '[data-tuto="prestations"]',
+            'position' => 'bottom',
+        ],
+        [
+            'titre'    => t('tuto_s4_title', '💡 Espace Conseils'),
+            'texte'    => t('tuto_s4_text', 'Accédez à des conseils d\'experts et échangez avec la communauté dans notre forum dédié à l\'upcycling.'),
+            'cible'    => '[data-tuto="conseils"]',
+            'position' => 'bottom',
+        ],
+        [
+            'titre'    => t('tuto_s5_title', '🌱 Votre Upcycling Score'),
+            'texte'    => t('tuto_s5_text', 'Suivez votre impact environnemental grâce à votre score. Plus vous participez, plus vous montez en niveau et débloquez des avantages !'),
+            'cible'    => '[data-tuto="score"]',
+            'position' => 'bottom',
+        ],
+        [
+            'titre'    => t('tuto_s6_title', '📅 Votre Planning'),
+            'texte'    => t('tuto_s6_text', 'Retrouvez tous vos cours, événements et activités dans votre planning personnel.'),
+            'cible'    => '[data-tuto="planning"]',
+            'position' => 'bottom',
+        ],
+        [
+            'titre'    => t('tuto_s7_title', '🎉 Vous êtes prêt !'),
+            'texte'    => t('tuto_s7_text', 'Vous connaissez maintenant les fonctionnalités essentielles d\'UpcycleConnect. Bonne exploration et bonne upcycling !'),
+            'cible'    => null,
+            'position' => 'center',
+        ],
+    ],
+];
 ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -10,50 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const tutorielVu = localStorage.getItem('tutoriel_vu');
     if (tutorielVu) return;
 
-    const etapes = [
-        {
-            titre: '👋 Bienvenue sur UpcycleConnect !',
-            texte: 'Nous allons vous faire découvrir les fonctionnalités principales de la plateforme en quelques étapes. Suivez le guide !',
-            cible: null,
-            position: 'center',
-        },
-        {
-            titre: '♻️ Déposer un objet',
-            texte: 'Depuis le menu "Déposer", vous pouvez publier une annonce ou demander à déposer un objet dans l\'un de nos conteneurs.',
-            cible: '[data-tuto="deposer"]',
-            position: 'bottom',
-        },
-        {
-            titre: '🛠️ Les prestations',
-            texte: 'Parcourez les prestations proposées par nos artisans et professionnels pour réparer, transformer ou recycler vos objets.',
-            cible: '[data-tuto="prestations"]',
-            position: 'bottom',
-        },
-        {
-            titre: '💡 Espace Conseils',
-            texte: 'Accédez à des conseils d\'experts et échangez avec la communauté dans notre forum dédié à l\'upcycling.',
-            cible: '[data-tuto="conseils"]',
-            position: 'bottom',
-        },
-        {
-            titre: '🌱 Votre Upcycling Score',
-            texte: 'Suivez votre impact environnemental grâce à votre score. Plus vous participez, plus vous montez en niveau et débloquez des avantages !',
-            cible: '[data-tuto="score"]',
-            position: 'bottom',
-        },
-        {
-            titre: '📅 Votre Planning',
-            texte: 'Retrouvez tous vos cours, événements et activités dans votre planning personnel.',
-            cible: '[data-tuto="planning"]',
-            position: 'bottom',
-        },
-        {
-            titre: '🎉 Vous êtes prêt !',
-            texte: 'Vous connaissez maintenant les fonctionnalités essentielles d\'UpcycleConnect. Bonne exploration et bonne upcycling !',
-            cible: null,
-            position: 'center',
-        },
-    ];
+    const TUTO = <?= json_encode($tuto, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    const etapes = TUTO.steps;
 
     let etapeActuelle = 0;
 
@@ -104,9 +115,9 @@ document.addEventListener('DOMContentLoaded', function () {
         bulle.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <span style="font-size:12px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
-                    Étape ${index + 1} / ${total}
+                    ${TUTO.step} ${index + 1} / ${total}
                 </span>
-                <button id="tuto-fermer" style="background:none; border:none; cursor:pointer; color:#9ca3af; font-size:20px; line-height:1; padding:0 4px;" title="Fermer">×</button>
+                <button id="tuto-fermer" style="background:none; border:none; cursor:pointer; color:#9ca3af; font-size:20px; line-height:1; padding:0 4px;" title="${TUTO.close}">×</button>
             </div>
 
             <!-- Barre de progression -->
@@ -118,11 +129,11 @@ document.addEventListener('DOMContentLoaded', function () {
             <p style="font-size:14px; color:#6b7280; line-height:1.6; margin-bottom:24px;">${etape.texte}</p>
 
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <button id="tuto-passer" style="background:none; border:none; cursor:pointer; font-size:13px; color:#9ca3af; text-decoration:underline; padding:0;">Passer le tutoriel</button>
+                <button id="tuto-passer" style="background:none; border:none; cursor:pointer; font-size:13px; color:#9ca3af; text-decoration:underline; padding:0;">${TUTO.skip}</button>
                 <div style="display:flex; gap:8px;">
-                    ${index > 0 ? `<button id="tuto-precedent" style="background:#f3f4f6; border:none; cursor:pointer; padding:10px 18px; border-radius:10px; font-size:14px; font-weight:600; color:#374151;">← Précédent</button>` : ''}
+                    ${index > 0 ? `<button id="tuto-precedent" style="background:#f3f4f6; border:none; cursor:pointer; padding:10px 18px; border-radius:10px; font-size:14px; font-weight:600; color:#374151;">${TUTO.prev}</button>` : ''}
                     <button id="tuto-suivant" style="background:#111827; border:none; cursor:pointer; padding:10px 22px; border-radius:10px; font-size:14px; font-weight:600; color:white;">
-                        ${index === total - 1 ? 'Terminer 🎉' : 'Suivant →'}
+                        ${index === total - 1 ? TUTO.finish : TUTO.next}
                     </button>
                 </div>
             </div>

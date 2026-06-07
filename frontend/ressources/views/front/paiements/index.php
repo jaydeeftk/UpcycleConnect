@@ -26,7 +26,7 @@
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                         <div>
                             <h2 class="text-2xl font-semibold"><?= htmlspecialchars($paiement['montant'] ?? '') ?>€</h2>
-                            <div class="text-sm text-base-content/60"><?= htmlspecialchars($paiement['date'] ?? '') ?></div>
+                            <div class="text-sm text-base-content/60"><?= formatDate($paiement['date'] ?? '') ?></div>
                         </div>
                         <?php $statutPaye = in_array($paiement['statut'] ?? '', ['paye', 'payé', 'success', '1', 'completed']); ?>
                         <?php if ($statutPaye): ?>

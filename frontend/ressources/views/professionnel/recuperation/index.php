@@ -93,7 +93,7 @@
                                             <?= htmlspecialchars($objet['poids'] ?? '') ?> · <?= htmlspecialchars($objet['conteneur'] ?? '') ?>
                                         </p>
                                     </div>
-                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600"><?= htmlspecialchars($objet['statut'] ?? '') ?></span>
+                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600"><?= formatStatut($objet['statut'] ?? '') ?></span>
                                 </div>
                                 <?php if (!empty($objet['code_barre'])): ?>
                                     <p class="text-xs text-gray-400 mb-2"><i class="fas fa-barcode mr-1"></i><?= htmlspecialchars($objet['code_barre']) ?></p>

@@ -30,7 +30,7 @@
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
                             <h2 class="font-semibold truncate"><?= htmlspecialchars($a['titre'] ?? '(sans titre)') ?></h2>
-                            <span class="badge <?= $sb ?> badge-sm"><?= htmlspecialchars($a['statut'] ?? '') ?></span>
+                            <span class="badge <?= $sb ?> badge-sm"><?= formatStatut($a['statut'] ?? '') ?></span>
                         </div>
                         <p class="text-sm text-base-content/50 truncate">
                             <?= htmlspecialchars($a['categorie'] ?? '') ?> · <?= htmlspecialchars($a['ville'] ?? '') ?>

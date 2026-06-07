@@ -130,7 +130,7 @@
                                         $statutColors = ['en_cours' => 'bg-blue-100 text-blue-700', 'termine' => 'bg-green-100 text-green-700', 'pause' => 'bg-yellow-100 text-yellow-700'];
                                         $sc = $statutColors[$projet['statut'] ?? ''] ?? 'bg-gray-100 text-gray-600';
                                         ?>
-                                        <span class="text-xs px-2 py-1 rounded-full <?= $sc ?>"><?= htmlspecialchars($projet['statut'] ?? '') ?></span>
+                                        <span class="text-xs px-2 py-1 rounded-full <?= $sc ?>"><?= formatStatut($projet['statut'] ?? '') ?></span>
                                         <span class="text-xs text-gray-400"><?= $projet['nb_etapes'] ?? 0 ?> étape(s)</span>
                                     </div>
                                 </div>
@@ -177,7 +177,7 @@
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div>
                                     <a href="/annonces/<?= $favori['id'] ?>" class="font-medium text-gray-800 hover:text-blue-600"><?= htmlspecialchars($favori['titre'] ?? '') ?></a>
-                                    <p class="text-xs text-gray-400"><?= htmlspecialchars($favori['date'] ?? '') ?></p>
+                                    <p class="text-xs text-gray-400"><?= formatDate($favori['date'] ?? '') ?></p>
                                 </div>
                                 <form method="POST" action="/professionnel/favoris/<?= $favori['id'] ?>/remove">
                                     <button type="submit" class="text-pink-400 hover:text-pink-600">
@@ -214,9 +214,9 @@
                                 <?php foreach ($contrats as $contrat): ?>
                                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                                         <td class="py-3"><?= htmlspecialchars($contrat['type'] ?? '') ?></td>
-                                        <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700"><?= htmlspecialchars($contrat['statut'] ?? '') ?></span></td>
-                                        <td class="py-3"><?= htmlspecialchars($contrat['date_debut'] ?? '') ?></td>
-                                        <td class="py-3"><?= htmlspecialchars($contrat['date_fin'] ?? '') ?></td>
+                                        <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700"><?= formatStatut($contrat['statut'] ?? '') ?></span></td>
+                                        <td class="py-3"><?= formatDate($contrat['date_debut'] ?? '') ?></td>
+                                        <td class="py-3"><?= formatDate($contrat['date_fin'] ?? '') ?></td>
                                         <td class="py-3 font-medium"><?= number_format($contrat['montant'] ?? 0, 2) ?> €</td>
                                     </tr>
                                 <?php endforeach; ?>

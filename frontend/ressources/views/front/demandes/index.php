@@ -110,7 +110,7 @@
                                         <p class="text-sm text-base-content/60 mb-3"><?= htmlspecialchars($annonce['contenu'] ?? '') ?></p>
                                         <div class="flex gap-4 text-xs text-base-content/50">
                                             <span><i class="fas fa-map-marker-alt mr-1"></i><?= htmlspecialchars($annonce['ville'] ?? '') ?></span>
-                                            <span><i class="fas fa-clock mr-1"></i><?= htmlspecialchars($annonce['date'] ?? '') ?></span>
+                                            <span><i class="fas fa-clock mr-1"></i><?= formatDate($annonce['date'] ?? '') ?></span>
                                             <span><i class="fas fa-box mr-1"></i>État : <?= htmlspecialchars($annonce['etat'] ?? '') ?></span>
                                         </div>
                                     </div>
@@ -177,7 +177,7 @@
                                         </div>
                                         <p class="text-sm text-base-content/60 mb-3"><?= htmlspecialchars($conteneur['description'] ?? '') ?></p>
                                         <div class="flex gap-4 text-xs text-base-content/50">
-                                            <span><i class="fas fa-calendar mr-1"></i><?= htmlspecialchars($conteneur['date'] ?? '') ?></span>
+                                            <span><i class="fas fa-calendar mr-1"></i><?= formatDate($conteneur['date'] ?? '') ?></span>
                                         </div>
                                         <?php if (($conteneur['statut'] ?? '') === 'validee' && !empty($conteneur['code_acces'])): ?>
                                             <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">

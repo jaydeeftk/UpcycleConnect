@@ -76,7 +76,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             <?php foreach ($conseils as $conseil): ?>
             <tr>
                 <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                    <?= htmlspecialchars($conseil['date_d_ajout'] ?? '') ?>
+                    <?= formatDate($conseil['date_d_ajout'] ?? '') ?>
                 </td>
                 <td class="px-6 py-4">
                     <p class="text-sm text-gray-800 max-w-md truncate">

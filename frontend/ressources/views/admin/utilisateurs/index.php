@@ -59,7 +59,7 @@
                             </a>
                             <a href="/admin/utilisateurs/<?= $user['id'] ?>/delete"
                                class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
-                               onclick="return confirm('Supprimer ?')">
+                               onclick="return ucConfirm(this, 'Supprimer ?')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </div>

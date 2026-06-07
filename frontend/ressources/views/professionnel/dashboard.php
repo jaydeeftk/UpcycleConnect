@@ -148,7 +148,7 @@
                                     <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
                                         <?php foreach ($rendus as $a): ?>
                                             <?php [$suffix, $label, $icon, $cls, $confirm] = $actionsUI[$a]; ?>
-                                            <form method="POST" action="/professionnel/projets/<?= $projet['id'] ?>/<?= $suffix ?>"<?= $confirm ? ' onsubmit="return confirm(\'Supprimer ce projet ?\')"' : '' ?>>
+                                            <form method="POST" action="/professionnel/projets/<?= $projet['id'] ?>/<?= $suffix ?>"<?= $confirm ? ' onsubmit="return ucConfirm(this, \'Supprimer ce projet ?\')"' : '' ?>>
                                                 <button type="submit" class="text-xs px-2 py-1 rounded <?= $cls ?> transition">
                                                     <i class="fas <?= $icon ?> mr-1"></i><?= $label ?>
                                                 </button>
@@ -229,5 +229,9 @@
         </main>
     </div>
 </div>
+    <script>
+    function confirmer(m,c){var d=document.documentElement.classList.contains('dark');var s=d?'#1e293b':'#fff',t=d?'#f1f5f9':'#0f172a',b=d?'#334155':'#e2e8f0',u=d?'#94a3b8':'#64748b';var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center';o.innerHTML='<div style="background:'+s+';border:1px solid '+b+';border-radius:12px;padding:24px;max-width:360px;width:90%;text-align:center;font-family:inherit"><p style="color:'+t+';margin:0 0 20px;font-size:15px">'+m+'</p><button type="button" id="uc-c" style="margin-right:8px;padding:8px 20px;border:1px solid '+b+';border-radius:8px;background:transparent;color:'+u+';cursor:pointer">Annuler</button><button type="button" id="uc-o" style="padding:8px 20px;border:none;border-radius:8px;background:#ef4444;color:#fff;cursor:pointer">Confirmer</button></div>';document.body.appendChild(o);o.querySelector('#uc-c').onclick=function(){o.remove()};o.querySelector('#uc-o').onclick=function(){o.remove();c()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+    function ucConfirm(el,m){confirmer(m,function(){if(el.tagName==='A'){window.location.href=el.href}else{var f=el.closest?el.closest('form'):null;if(f)f.submit()}});return false}
+    </script>
 </body>
 </html>

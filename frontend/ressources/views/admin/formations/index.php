@@ -56,7 +56,7 @@
                             <a href="/admin/formations/<?= $f['id'] ?>/valider" class="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="Valider"><i class="fas fa-check"></i></a>
                             <a href="/admin/formations/<?= $f['id'] ?>/rejeter" class="inline-flex p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="Rejeter"><i class="fas fa-times"></i></a>
                         <?php endif; ?>
-                        <a href="/admin/formations/<?= $f['id'] ?>/delete" onclick="return confirm('Supprimer ?')" class="inline-flex p-2 bg-slate-100 text-slate-400 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"><i class="fas fa-trash"></i></a>
+                        <a href="/admin/formations/<?= $f['id'] ?>/delete" onclick="return ucConfirm(this, 'Supprimer ?')" class="inline-flex p-2 bg-slate-100 text-slate-400 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             <?php endforeach; endif; ?>

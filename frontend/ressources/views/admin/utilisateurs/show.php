@@ -80,7 +80,7 @@
 
             <a href="/admin/utilisateurs/<?= $utilisateur['id'] ?>/delete"
                 class="block text-center bg-rose-50 text-rose-600 border border-rose-200 px-4 py-2 rounded-lg hover:bg-rose-100 transition-colors text-sm font-medium"
-                onclick="return confirm('Attention, cette action est irréversible. Supprimer cet utilisateur ?')">
+                onclick="return ucConfirm(this, 'Attention, cette action est irréversible. Supprimer cet utilisateur ?')">
                 <i class="fas fa-trash mr-2"></i>Supprimer le compte
             </a>
         </div>
@@ -195,7 +195,7 @@
 </div>
 <script>
 function removePlanning(userId, type, itemId) {
-    if (!confirm('Désinscrire cet utilisateur de cet élément ?')) return;
+    confirmer('Désinscrire cet utilisateur de cet élément ?', function() {
     fetch('/api/admin/utilisateurs/' + userId + '/planning/' + type + '/' + itemId, {
         method: 'DELETE',
         headers: {'Authorization': 'Bearer <?= $_SESSION['user']['token'] ?? '' ?>'}
@@ -206,6 +206,7 @@ function removePlanning(userId, type, itemId) {
             alert('Erreur : ' + (data.error || 'Impossible de désinscrire'));
         }
     }).catch(() => alert('Erreur réseau'));
+    });
 }
 </script>
 <?php } ?>

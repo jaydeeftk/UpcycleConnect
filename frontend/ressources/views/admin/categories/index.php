@@ -39,7 +39,7 @@
                     <td class="px-6 py-4 text-gray-600 text-sm"><?= htmlspecialchars($c['description'] ?? '-') ?></td>
                     <td class="px-6 py-4">
                         <a href="/admin/categories/<?= $c['id'] ?>/delete"
-                            onclick="return confirm('Supprimer cette catégorie ?')"
+                            onclick="return ucConfirm(this, 'Supprimer cette catégorie ?')"
                             class="text-red-600 hover:text-red-800">
                             <i class="fas fa-trash"></i>
                         </a>

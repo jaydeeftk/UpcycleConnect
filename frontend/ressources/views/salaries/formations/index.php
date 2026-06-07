@@ -135,7 +135,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <i class="fas fa-edit"></i>
             </button>
             <a href=" /salaries/formations/<?= $formation['id_formations'] ?>/delete"
-               onclick="return confirm('Supprimer cette formation ?')"
+               onclick="return ucConfirm(this, 'Supprimer cette formation ?')"
                class="text-red-600 hover:text-red-800" title="Supprimer">
                 <i class="fas fa-trash"></i>
             </a>

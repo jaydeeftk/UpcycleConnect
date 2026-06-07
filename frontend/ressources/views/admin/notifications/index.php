@@ -42,7 +42,7 @@
                         <p class="text-xs text-gray-400 mt-1"><?= formatDate($n['date'] ?? $n['date_envoi'] ?? '', true) ?></p>
                     </div>
                     <a href="/admin/notifications/<?= $n['id'] ?>/delete"
-                       onclick="return confirm('Supprimer ?')"
+                       onclick="return ucConfirm(this, 'Supprimer ?')"
                        class="text-red-500 hover:text-red-700 ml-2">
                         <i class="fas fa-trash text-xs"></i>
                     </a>

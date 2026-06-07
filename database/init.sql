@@ -888,3 +888,48 @@ ALTER TABLE Codes_Barres ADD CONSTRAINT chk_codes_barres_statut CHECK (Statut IS
 -- 'pause' ou 'termine'. Avant ce vertical, Statut était un VARCHAR libre. Statut
 -- nullable -> NULL toléré (MySQL : CHECK passe sur UNKNOWN).
 ALTER TABLE Projets ADD CONSTRAINT chk_projets_statut CHECK (Statut IS NULL OR Statut IN ('en_cours','pause','termine'));
+
+-- ============================================================
+-- Jeu de demonstration metier (soutenance) - donnees coherentes
+-- Particulier = Id_Particuliers 1 (part@demo.test) ; Pro = Id_Professionnels 1 (pro@demo.test)
+-- Conteneurs + Box semes plus haut (Id 1..3).
+-- ============================================================
+
+-- Annonces du particulier (dont une 'en_attente' pour la demo de validation admin)
+INSERT INTO Annonces (Date_publication, Contenu, Statut, Id_Particuliers, Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal) VALUES
+(NOW(), 'Don',   'validee',    1, 'Vieille chaise en bois', 'Chaise a retaper, structure solide.',      'Mobilier', 'usage', 'don',   0.00,  'Paris', '75011'),
+(NOW(), 'Vente', 'validee',    1, 'Lampe vintage',          'Lampe des annees 70, fonctionnelle.',      'Deco',     'bon',   'vente', 15.00, 'Paris', '75010'),
+(NOW(), 'Don',   'en_attente', 1, 'Lot de bocaux en verre', 'Bocaux propres, ideals pour upcycling.',   'Divers',   'bon',   'don',   0.00,  'Paris', '75013');
+
+-- Objets recuperes par le pro (alimentent le bilan d'impact ecologique)
+INSERT INTO Objets (Type, Poids, Statut, Id_Conteneurs, Id_Professionnels, Id_Particuliers, Id_Box) VALUES
+('Velo',    '12 kg', 'recupere', 1, 1, 1, 1),
+('Etagere', '8 kg',  'recupere', 1, 1, 1, 1);
+
+-- Depot particulier valide -> objet en stock -> code-barres (demo du QR cote particulier)
+INSERT INTO Demandes_conteneurs (Type_objet, Description, Etat_usure, Id_Conteneurs, Destination, Prix_vente, Statut, Code_acces, Date_demande, Id_Particuliers)
+VALUES ('Petit meuble', 'Table de chevet en bois', 'bon', 1, 'reemploi', 0.00, 'validee', 'UC-DEMO0001', NOW(), 1);
+SET @dem := LAST_INSERT_ID();
+INSERT INTO Objets (Type, Poids, Statut, Id_Conteneurs, Id_Particuliers, Id_Box, Id_Demandes_conteneurs)
+VALUES ('Table de chevet', '6 kg', 'en_stock', 1, 1, 1, @dem);
+SET @obj := LAST_INSERT_ID();
+INSERT INTO Codes_Barres (Code, Date_generation, Statut, Id_Objets)
+VALUES ('UCB-DEMO0001', NOW(), 'active', @obj);
+
+-- Projets d'upcycling du pro (dashboard + impact)
+INSERT INTO Projets (Titre, Description, Date_Debut, Statut, Id_Professionnels) VALUES
+('Table basse',     'Table basse en bois de recuperation.',            NOW(), 'termine',  1),
+('Lampe bouteille', 'Lampe d ambiance a partir de bouteilles en verre.', NOW(), 'pause',   1),
+('Chaise palette',  'Upcycling d une palette en chaise de jardin.',     NOW(), 'en_cours', 1);
+
+-- Contrats du pro (demo de resiliation cote pro)
+INSERT INTO Contrats (Date_signature, Date_debut, Date_fin, Type, Id_Professionnels, Statut) VALUES
+(NOW(),                 '2026-01-05', '2026-12-31', 'Premium',  1, 'actif'),
+('2025-02-01 09:00:00', '2025-02-01', '2026-01-31', 'Standard', 1, 'expire');
+
+-- Notifications (pro = Utilisateur 3, particulier = Utilisateur 4)
+INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs) VALUES
+('Une nouvelle annonce correspond a votre activite : palette en bois a recuperer.',   NOW(), 0, 1, 3),
+('Votre contrat Premium a bien ete enregistre.',                                      NOW(), 1, 1, 3),
+('Votre demande de depot a ete validee : code d acces disponible dans Mes demandes.', NOW(), 0, 1, 4),
+('Bienvenue sur UpcycleConnect ! Completez votre profil pour gagner des points.',     NOW(), 1, 1, 4);

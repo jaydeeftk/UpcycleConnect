@@ -94,7 +94,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                             <i class="fas fa-edit"></i>
                         </button>
                         <a href=" /salaries/conseils/<?= $conseil['id_conseils'] ?>/delete"
-                           onclick="return confirm('Supprimer ce conseil ?')"
+                           onclick="return ucConfirm(this, 'Supprimer ce conseil ?')"
                            class="text-red-600 hover:text-red-800" title="Supprimer">
                             <i class="fas fa-trash"></i>
                         </a>

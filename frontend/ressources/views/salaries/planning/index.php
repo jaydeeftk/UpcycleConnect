@@ -152,7 +152,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 </td>
                 <td class="px-6 py-4">
                     <a href=" /salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)$item['id'] ?>"
-                       onclick="return confirm('Supprimer cet élément ?')"
+                       onclick="return ucConfirm(this, 'Supprimer cet élément ?')"
                        class="text-red-600 hover:text-red-800" title="Supprimer">
                         <i class="fas fa-trash"></i>
                     </a>

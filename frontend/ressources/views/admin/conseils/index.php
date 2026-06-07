@@ -78,7 +78,7 @@
                             <i class="fas fa-times"></i>
                         </a>
                         <a href="/admin/conseils/<?= $conseil['id'] ?>/delete"
-                           onclick="return confirm('Supprimer définitivement ce conseil ?')"
+                           onclick="return ucConfirm(this, 'Supprimer définitivement ce conseil ?')"
                            class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="Supprimer">
                             <i class="fas fa-trash"></i>
                         </a>

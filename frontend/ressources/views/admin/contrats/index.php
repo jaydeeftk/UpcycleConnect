@@ -78,7 +78,7 @@
                     <td class="px-6 py-4 text-gray-600"><?= formatDate($c['date_fin'] ?? '') ?></td>
                     <td class="px-6 py-4">
                         <a href="/admin/contrats/<?= $c['id'] ?>/delete"
-                            onclick="return confirm('Supprimer ce contrat ?')"
+                            onclick="return ucConfirm(this, 'Supprimer ce contrat ?')"
                             class="text-red-600 hover:text-red-800" title="Supprimer">
                             <i class="fas fa-trash"></i>
                         </a>

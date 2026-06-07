@@ -42,7 +42,7 @@
 
             <div class="mt-4 pt-4 border-t border-slate-100 flex justify-end">
                 <a href="/admin/conteneurs/<?= $box['id'] ?>/delete" 
-                   onclick="return confirm('Supprimer définitivement ce conteneur ?')" 
+                   onclick="return ucConfirm(this, 'Supprimer définitivement ce conteneur ?')" 
                    class="text-rose-500 hover:text-rose-700 text-sm font-medium transition-colors">
                     <i class="fas fa-trash mr-1"></i>Retirer
                 </a>

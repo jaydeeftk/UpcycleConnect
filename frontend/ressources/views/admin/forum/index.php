@@ -69,7 +69,7 @@
                            class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors" title="Voir le sujet">
                             <i class="fas fa-external-link-alt text-xs"></i>
                         </a>
-                        <form method="POST" action="/admin/forum/sujets/<?= $idSujet ?>/supprimer" class="inline" onsubmit="return confirm('Supprimer ce sujet et toutes ses réponses ?');">
+                        <form method="POST" action="/admin/forum/sujets/<?= $idSujet ?>/supprimer" class="inline" onsubmit="return ucConfirm(this, 'Supprimer ce sujet et toutes ses réponses ?');">
                             <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="Supprimer">
                                 <i class="fas fa-trash text-xs"></i>
                             </button>

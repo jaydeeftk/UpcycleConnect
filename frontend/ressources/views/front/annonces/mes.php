@@ -44,7 +44,7 @@
                             </form>
                         <?php endif; ?>
                         <?php if (in_array('retirer', $aa, true)): ?>
-                            <form method="POST" action="/annonces/<?= $id ?>/annuler" onsubmit="return confirm('Retirer cette annonce ?')">
+                            <form method="POST" action="/annonces/<?= $id ?>/annuler" onsubmit="return ucConfirm(this, 'Retirer cette annonce ?')">
                                 <button type="submit" class="btn btn-outline btn-error btn-sm"><i class="fas fa-times mr-1"></i>Retirer</button>
                             </form>
                         <?php endif; ?>

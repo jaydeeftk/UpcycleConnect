@@ -58,7 +58,7 @@
                                 </button>
                             </form>
                         <?php } ?>
-                        <form method="POST" action="/admin/annonces/<?= $annonce['id'] ?>/supprimer" class="inline" onsubmit="return confirm('Supprimer définitivement cette annonce ?');">
+                        <form method="POST" action="/admin/annonces/<?= $annonce['id'] ?>/supprimer" class="inline" onsubmit="return ucConfirm(this, 'Supprimer définitivement cette annonce ?');">
                             <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="Supprimer">
                                 <i class="fas fa-trash"></i>
                             </button>

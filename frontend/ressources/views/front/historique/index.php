@@ -32,13 +32,13 @@
                             <i class="fas fa-recycle text-teal-500 text-lg"></i>
                         </div>
                         <div>
-                            <div class="font-semibold">Dépôt du <?= htmlspecialchars(substr($item['date'] ?? '', 0, 10)) ?></div>
+                            <div class="font-semibold">Dépôt du <?= formatDate($item['date'] ?? '') ?></div>
                             <?php if (!empty($item['observations'])): ?>
                                 <p class="text-sm text-base-content/60 mt-0.5"><?= htmlspecialchars($item['observations']) ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
-                    <span class="badge <?= $statutColor ?> flex-shrink-0"><?= htmlspecialchars($item['statut'] ?? 'en attente') ?></span>
+                    <span class="badge <?= $statutColor ?> flex-shrink-0"><?= formatStatut($item['statut'] ?? 'en attente') ?></span>
                 </div>
             <?php endforeach; ?>
         </div>

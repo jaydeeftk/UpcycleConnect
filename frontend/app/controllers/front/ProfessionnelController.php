@@ -92,6 +92,13 @@ class ProfessionnelController
         exit;
     }
 
+    public function resilierContrat($id)
+    {
+        try { $this->api->post('/professionnels/contrats/' . $id . '/resilier', []); } catch (\Exception $e) {}
+        header('Location: /professionnel');
+        exit;
+    }
+
     public function removeFavori($id)
     {
         try { $this->api->delete('/professionnels/favoris/' . $id); } catch (\Exception $e) {}

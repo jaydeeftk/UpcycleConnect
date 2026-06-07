@@ -158,6 +158,19 @@ func (FacturationRepo) MajStatutContrat(q Querier, idContrat int, statut string)
 	return err
 }
 
+// ContratOwnerEtStatut retourne le professionnel propriétaire et le statut d'un
+// contrat (verrouillé pour mise à jour), afin de vérifier l'appartenance avant
+// une action initiée par le professionnel lui-même.
+func (FacturationRepo) ContratOwnerEtStatut(q Querier, idContrat int) (int, string, error) {
+	var idPro int
+	var statut string
+	err := q.QueryRow(
+		"SELECT COALESCE(Id_Professionnels,0), COALESCE(Statut,'') FROM Contrats WHERE Id_Contrats = ? FOR UPDATE",
+		idContrat,
+	).Scan(&idPro, &statut)
+	return idPro, statut, err
+}
+
 func (FacturationRepo) MajContrat(q Querier, idContrat int, dateFin, typ string) (int64, error) {
 	res, err := q.Exec(
 		"UPDATE Contrats SET Date_fin = NULLIF(?,''), Type = COALESCE(NULLIF(?,''), Type) WHERE Id_Contrats = ?",

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"upcycleconnect/internal/database"
@@ -116,4 +117,32 @@ func ProfessionnelGetContrats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSONOK(w, http.StatusOK, contrats)
+}
+
+// ProfessionnelContratAction traite les actions du professionnel sur SES contrats.
+// Route : /api/professionnels/contrats/{id}/{action}. Seule "resilier" est exposée.
+func ProfessionnelContratAction(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut && r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	segs := segmentsApres(r.URL.Path, "/api/professionnels/contrats/")
+	if len(segs) < 2 {
+		httpx.JSONError(w, http.StatusBadRequest, "Action manquante")
+		return
+	}
+	id, err := strconv.Atoi(segs[0])
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	if segs[1] != "resilier" {
+		httpx.JSONError(w, http.StatusBadRequest, "Action inconnue")
+		return
+	}
+	if err := facturationSvc.ResilierContratPro(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Contrat résilié"})
 }

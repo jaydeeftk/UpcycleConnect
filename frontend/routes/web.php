@@ -81,6 +81,7 @@ $router->post('/professionnel/objets/{id}/recuperer', 'Front\ProfessionnelContro
 $router->post('/professionnel/objets/{id}/annuler', 'Front\ProfessionnelController@annulerObjet');
 $router->post('/professionnel/contrats/{id}/resilier', 'Front\ProfessionnelController@resilierContrat');
 $router->post('/professionnel/notifications/{id}/lu', 'Front\ProfessionnelController@notificationLue');
+$router->get('/professionnel/impact/pdf', 'Front\ProfessionnelController@impactPdf');
 
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
 $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');

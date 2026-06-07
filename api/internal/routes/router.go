@@ -220,6 +220,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/professionnels/favoris/", middleware.ProfessionnelOnly(handlers.ProfessionnelFavoriAction))
 	mux.HandleFunc("/api/professionnels/contrats", middleware.ProfessionnelOnly(handlers.ProfessionnelGetContrats))
 	mux.HandleFunc("/api/professionnels/contrats/", middleware.ProfessionnelOnly(handlers.ProfessionnelContratAction))
+	mux.HandleFunc("/api/professionnels/impact", middleware.ProfessionnelOnly(handlers.ProfessionnelImpact))
+	mux.HandleFunc("/api/professionnels/impact/pdf", middleware.ProfessionnelOnly(handlers.ProfessionnelImpactPDF))
 
 	mux.HandleFunc("/api/professionnels/objets", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetsHandler))
 

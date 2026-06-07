@@ -35,6 +35,12 @@ class ProfessionnelController
             $notifsNonLues = (int)($bloc['non_lues'] ?? 0);
         } catch (\Exception $e) {}
 
+        $impact = [];
+        try {
+            $r = $this->api->get('/professionnels/impact');
+            $impact = $r['data'] ?? (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
         try {
             $r = $this->api->get('/professionnels/projets');
             $projets = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
@@ -57,9 +63,23 @@ class ProfessionnelController
             'contrats' => $contrats,
             'notifications' => $notifications,
             'notifsNonLues' => $notifsNonLues,
+            'impact'   => $impact,
             'page_title' => 'Espace Professionnel',
             'layout' => 'raw',
         ]);
+    }
+
+    public function impactPdf()
+    {
+        $res = $this->api->getRaw('/professionnels/impact/pdf');
+        if (($res['code'] ?? 0) >= 400 || empty($res['body'])) {
+            http_response_code($res['code'] ?: 502);
+            echo 'Impossible de générer le bilan PDF';
+            return;
+        }
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="bilan-impact.pdf"');
+        echo $res['body'];
     }
 
     public function createProjet()

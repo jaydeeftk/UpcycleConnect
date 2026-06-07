@@ -202,6 +202,7 @@ type DemandeAdminLigne struct {
 	Nom          string
 	Prenom       string
 	Email        string
+	IdConteneur  int
 }
 
 func (ConteneurRepo) AdminListerDemandes(q Querier) ([]DemandeAdminLigne, error) {
@@ -209,7 +210,8 @@ func (ConteneurRepo) AdminListerDemandes(q Querier) ([]DemandeAdminLigne, error)
 		`SELECT d.Id_Demandes_conteneurs, COALESCE(d.Type_objet,''), COALESCE(d.Description,''),
 		        COALESCE(d.Etat_usure,''), COALESCE(d.Statut,'en_attente'), COALESCE(d.Date_demande,''),
 		        COALESCE(d.Prix_vente,0), COALESCE(c.Localisation,''), COALESCE(d.Code_acces,''),
-		        COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(u.Email,'')
+		        COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(u.Email,''),
+		        COALESCE(d.Id_Conteneurs,0)
 		 FROM Demandes_conteneurs d
 		 LEFT JOIN Conteneurs c ON c.Id_Conteneurs = d.Id_Conteneurs
 		 JOIN Particuliers p ON p.Id_Particuliers = d.Id_Particuliers
@@ -225,7 +227,7 @@ func (ConteneurRepo) AdminListerDemandes(q Querier) ([]DemandeAdminLigne, error)
 	for rows.Next() {
 		var d DemandeAdminLigne
 		if err := rows.Scan(&d.ID, &d.TypeObjet, &d.Description, &d.EtatUsure, &d.Statut, &d.Date,
-			&d.PrixVente, &d.Localisation, &d.CodeAcces, &d.Nom, &d.Prenom, &d.Email); err != nil {
+			&d.PrixVente, &d.Localisation, &d.CodeAcces, &d.Nom, &d.Prenom, &d.Email, &d.IdConteneur); err != nil {
 			return nil, err
 		}
 		liste = append(liste, d)

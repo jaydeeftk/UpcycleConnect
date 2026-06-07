@@ -80,6 +80,7 @@ $router->post('/professionnel/objets/{id}/reserver', 'Front\ProfessionnelControl
 $router->post('/professionnel/objets/{id}/recuperer', 'Front\ProfessionnelController@recupererObjet');
 $router->post('/professionnel/objets/{id}/annuler', 'Front\ProfessionnelController@annulerObjet');
 $router->post('/professionnel/contrats/{id}/resilier', 'Front\ProfessionnelController@resilierContrat');
+$router->post('/professionnel/notifications/{id}/lu', 'Front\ProfessionnelController@notificationLue');
 
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
 $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');

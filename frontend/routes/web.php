@@ -56,6 +56,7 @@ $router->post('/login', 'Front\AuthController@login');
 $router->get('/register', 'Front\AuthController@showRegister');
 $router->post('/register', 'Front\AuthController@register');
 $router->get('/siret/verify/{siret}', 'Front\AuthController@verifySiret');
+$router->get('/verify', 'Front\AuthController@verifyEmail');
 $router->get('/logout', 'Front\AuthController@logout');
 $router->get('/tutoriel/done', 'Front\UserController@tutorielDone');
 

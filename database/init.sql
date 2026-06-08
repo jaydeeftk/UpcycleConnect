@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS Utilisateurs(
    Adresse VARCHAR(50),
    Mot_de_passe VARCHAR(255),
    Email VARCHAR(100),
+   Token_confirmation VARCHAR(64),
    Date_Inscription DATETIME,
    Date_naissance DATETIME,
    Id_Langue INT NOT NULL DEFAULT 1,

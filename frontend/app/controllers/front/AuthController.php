@@ -92,7 +92,16 @@ class AuthController
         }
 
         try {
-            $this->api->post('/auth/register', $payload);
+            $resp = $this->api->post('/auth/register', $payload);
+            $confirm = $resp['data']['confirmation_required'] ?? $resp['confirmation_required'] ?? false;
+            if ($confirm) {
+                return view('front.auth.index', [
+                    'title' => 'Inscription - UpcycleConnect',
+                    'activeTab' => 'login',
+                    'error' => null,
+                    'success' => "Inscription réussie ! Un email d'activation vous a été envoyé. Cliquez sur le lien reçu pour activer votre compte.",
+                ]);
+            }
             redirect('/login');
 
         } catch (\Exception $e) {
@@ -101,6 +110,27 @@ class AuthController
                 'error' => $e->getMessage(),
                 'activeTab' => 'register',
                 'email' => $email,
+            ]);
+        }
+    }
+
+    // Lien reçu par email : active le compte puis renvoie vers la connexion.
+    public function verifyEmail()
+    {
+        $token = $_GET['token'] ?? '';
+        try {
+            $this->api->get('/auth/confirmer', ['token' => $token]);
+            return view('front.auth.index', [
+                'title' => 'Compte activé - UpcycleConnect',
+                'activeTab' => 'login',
+                'error' => null,
+                'success' => 'Votre compte est activé ! Vous pouvez maintenant vous connecter.',
+            ]);
+        } catch (\Exception $e) {
+            return view('front.auth.index', [
+                'title' => 'Activation - UpcycleConnect',
+                'activeTab' => 'login',
+                'error' => 'Lien de confirmation invalide ou compte déjà activé.',
             ]);
         }
     }

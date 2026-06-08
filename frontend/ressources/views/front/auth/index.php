@@ -36,6 +36,11 @@
                             <?= htmlspecialchars($error) ?>
                         </div>
                     <?php endif; ?>
+                    <?php if (!empty($success)): ?>
+                        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl mb-6 text-sm">
+                            <?= htmlspecialchars($success) ?>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="flex bg-base-200 rounded-xl p-1 mb-8 w-fit mx-auto">
                         <button id="tab-login"

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"net"
 	"net/http"
@@ -12,6 +14,7 @@ import (
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/services"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -89,6 +92,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(body.Password)); err != nil {
 		httpx.JSONError(w, http.StatusUnauthorized, "Email ou mot de passe incorrect")
+		return
+	}
+
+	if statut == "en_attente" {
+		httpx.JSONError(w, http.StatusForbidden, "Compte non confirmé : cliquez sur le lien reçu par email pour l'activer.")
 		return
 	}
 
@@ -187,9 +195,19 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 
+	// Confirmation par email : activée seulement si le SMTP est configuré. Sinon le
+	// compte est créé actif (secours qui n'empêche jamais l'inscription).
+	confirmationRequise := os.Getenv("SMTP_HOST") != ""
+	statutInitial := "actif"
+	tokenConfirmation := ""
+	if confirmationRequise {
+		statutInitial = "en_attente"
+		tokenConfirmation = genererTokenConfirmation()
+	}
+
 	result, err := database.DB.Exec(
-		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu) VALUES (?, ?, ?, ?, 'actif', NOW(), 1, 0)",
-		body.Nom, body.Prenom, body.Email, string(hashed),
+		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Token_confirmation, Date_Inscription, Id_Langue, Tutoriel_vu) VALUES (?, ?, ?, ?, ?, NULLIF(?,''), NOW(), 1, 0)",
+		body.Nom, body.Prenom, body.Email, string(hashed), statutInitial, tokenConfirmation,
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de la création du compte")
@@ -210,9 +228,46 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
+	if confirmationRequise && tokenConfirmation != "" {
+		go func(email, tok string) { _ = services.SendVerificationEmail(email, tok) }(body.Email, tokenConfirmation)
+	}
+
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
-		"id": id, "nom": body.Nom, "prenom": body.Prenom, "email": body.Email, "role": body.Role,
+		"id": id, "nom": body.Nom, "prenom": body.Prenom, "email": body.Email,
+		"role": body.Role, "confirmation_required": confirmationRequise,
 	})
+}
+
+// genererTokenConfirmation produit un jeton aléatoire (hex) pour l'activation du compte.
+func genererTokenConfirmation() string {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return ""
+	}
+	return hex.EncodeToString(b)
+}
+
+// ConfirmerCompte active un compte via son jeton (lien reçu par email).
+// GET /api/auth/confirmer?token=...
+func ConfirmerCompte(w http.ResponseWriter, r *http.Request) {
+	token := strings.TrimSpace(r.URL.Query().Get("token"))
+	if token == "" {
+		httpx.JSONError(w, http.StatusBadRequest, "Jeton manquant")
+		return
+	}
+	res, err := database.DB.Exec(
+		"UPDATE Utilisateurs SET Statut='actif', Token_confirmation=NULL WHERE Token_confirmation=? AND Statut='en_attente'",
+		token,
+	)
+	if err != nil {
+		httpx.JSONServerError(w, err)
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		httpx.JSONError(w, http.StatusBadRequest, "Lien invalide ou compte déjà activé")
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Compte activé"})
 }
 
 func UpdateTutoriel(w http.ResponseWriter, r *http.Request) {

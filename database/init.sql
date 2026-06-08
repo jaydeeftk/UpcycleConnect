@@ -196,7 +196,11 @@ CREATE TABLE IF NOT EXISTS Projets(
 CREATE TABLE IF NOT EXISTS Conseils(
    Id_Conseils INT AUTO_INCREMENT,
    Date_d_ajout DATETIME,
+   Titre VARCHAR(150),
    Contenu VARCHAR(255),
+   Categorie VARCHAR(50),
+   Tags VARCHAR(255),
+   Statut VARCHAR(50) DEFAULT 'valide',
    Id_Salaries INT NOT NULL,
    PRIMARY KEY(Id_Conseils),
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
@@ -933,3 +937,23 @@ INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_U
 ('Votre contrat Premium a bien ete enregistre.',                                      NOW(), 1, 1, 3),
 ('Votre demande de depot a ete validee : code d acces disponible dans Mes demandes.', NOW(), 0, 1, 4),
 ('Bienvenue sur UpcycleConnect ! Completez votre profil pour gagner des points.',     NOW(), 1, 1, 4);
+
+-- ============================================================
+-- Jeu de demonstration : conseils + forum (soutenance)
+-- Salarie = Id_Salaries 1 ; auteurs forum = Utilisateurs (pro=3, particulier=4)
+-- ============================================================
+INSERT INTO Conseils (Date_d_ajout, Titre, Contenu, Categorie, Tags, Statut, Id_Salaries) VALUES
+(NOW(), 'Bien trier ses dechets electroniques', 'Demontez les appareils, separez batteries et cartes, puis deposez-les en point de collecte agree.', 'recyclage', 'electronique,tri', 'valide', 1),
+(NOW(), 'Transformer une palette en table basse', 'Poncez, vissez deux palettes et ajoutez des roulettes pour une table basse robuste et deco.', 'upcycling', 'bois,palette,deco', 'valide', 1),
+(NOW(), 'Entretenir le cuir naturellement', 'Nettoyez avec un chiffon humide puis nourrissez le cuir avec un peu d''huile de lin.', 'entretien', 'cuir,entretien', 'valide', 1),
+(NOW(), 'Reparer plutot que jeter', 'Avant de remplacer un objet, verifiez s''il peut etre repare : c''est souvent simple et economique.', 'bricolage', 'reparation,economie', 'valide', 1);
+
+INSERT INTO Sujets (Titre, Date_Creation, Id_Forum, Contenu, Categorie, Statut, Vues, Id_Utilisateurs) VALUES
+('Quelle peinture pour repeindre un meuble en bois ?', NOW(), 1, 'Je veux relooker une vieille commode, quelle peinture tient le mieux ?', 'general', 'ouvert', 12, 4),
+('Astuce pour poncer sans poussiere', NOW(), 1, 'Des conseils pour limiter la poussiere quand on ponce a la maison ?', 'general', 'ouvert', 7, 3),
+('Ou trouver des palettes gratuites ?', NOW(), 1, 'Je cherche des palettes en bon etat pres de Paris, des bons plans ?', 'general', 'resolu', 23, 4);
+SET @sujet1 := LAST_INSERT_ID();
+
+INSERT INTO Reponses (Contenu, Date_, Id_Sujets, Id_Utilisateurs, Est_Solution) VALUES
+('Une peinture acrylique multi-supports avec sous-couche tient tres bien sur le bois.', NOW(), @sujet1, 3, 1),
+('Pense a depoussierer et degraisser avant, sinon ca n''accroche pas.', NOW(), @sujet1, 4, 0);

@@ -113,7 +113,7 @@
                     };
                     ?>
                     <span class="px-3 py-1 rounded-full text-xs font-semibold <?= $statutClass ?>">
-                        <?= ucfirst(str_replace('_', ' ', htmlspecialchars($statut))) ?>
+                        <?= htmlspecialchars(formatStatut($statut)) ?>
                     </span>
                 </td>
             </tr>

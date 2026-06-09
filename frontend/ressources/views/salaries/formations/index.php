@@ -144,7 +144,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
     </td>
     <td class="px-6 py-4 text-sm text-gray-600">
-        <?= $formation['date'] ? date('d/m/Y H:i', strtotime($formation['date'])) : '—' ?>
+        <?= formatDate($formation['date'] ?? '', true) ?>
     </td>
     <td class="px-6 py-4 text-sm text-gray-600">
         <?= !empty($formation['localisation']) ? htmlspecialchars($formation['localisation']) : '—' ?>

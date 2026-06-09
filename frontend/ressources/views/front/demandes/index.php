@@ -98,7 +98,7 @@
                                                 <span class="badge badge-ghost badge-sm gap-1">
                                                     <i class="fas fa-tag text-blue-500"></i> <?= t('demidx_badge_sale', 'Vente') ?>
                                                 </span>
-                                                <span class="font-semibold text-blue-500"><?= $annonce['prix'] ?? 0 ?>€</span>
+                                                <span class="font-semibold text-blue-500"><?= htmlspecialchars(formatPrix($annonce['prix'] ?? 0)) ?></span>
                                             <?php else: ?>
                                                 <span class="badge badge-ghost badge-sm gap-1">
                                                     <i class="fas fa-heart text-green-500"></i> <?= t('demidx_badge_donation', 'Don') ?>

@@ -27,7 +27,7 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('svcdet_price', 'Tarif') ?></span>
-                    <span class="text-2xl font-bold text-orange-500"><?= $service['prix'] ?? 0 ?>€</span>
+                    <span class="text-2xl font-bold text-orange-500"><?= htmlspecialchars(formatPrix($service['prix'] ?? 0)) ?></span>
                 </div>
             </div>
 

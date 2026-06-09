@@ -1,3 +1,9 @@
+<?php
+// La formation est-elle déjà passée ? (date dépassée)
+$dateFormation = $formation['date'] ?? '';
+$tsFormation   = $dateFormation !== '' ? strtotime($dateFormation) : false;
+$estPasse      = $tsFormation !== false && $tsFormation < time();
+?>
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
     <div class="grid lg:grid-cols-2 gap-12 items-start">
 
@@ -36,7 +42,7 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('fordet_prix', 'Prix') ?></span>
-                    <span class="text-2xl font-bold text-purple-500"><?= $formation['prix'] ?? 0 ?>€</span>
+                    <span class="text-2xl font-bold text-purple-500"><?= htmlspecialchars(formatPrix($formation['prix'] ?? 0)) ?></span>
                 </div>
             </div>
 
@@ -55,7 +61,11 @@
             <?php endif; ?>
 
             <div class="flex flex-col sm:flex-row gap-4">
-                <?php if (isset($_SESSION['user'])): ?>
+                <?php if ($estPasse): ?>
+                    <button disabled class="bg-base-300 text-base-content/50 px-8 py-3 rounded-xl font-medium cursor-not-allowed">
+                        <i class="fas fa-calendar-times mr-2"></i><?= t('fordet_past', 'Formation terminée') ?>
+                    </button>
+                <?php elseif (isset($_SESSION['user'])): ?>
                     <?php if ($formation['est_inscrit'] ?? false): ?>
                         <form method="POST" action="/formations/<?= $formation['id'] ?>/desinscrire">
                         <?= csrf_field() ?>
@@ -67,7 +77,7 @@
                         <?php if (($formation['prix'] ?? 0) > 0): ?>
                             <a href="/payer?type=formation&id_item=<?= $formation['id'] ?>&montant=<?= $formation['prix'] ?>&titre=<?= urlencode($formation['titre'] ?? '') ?>"
                                class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition text-center">
-                                <i class="fas fa-credit-card mr-2"></i> <?= t('fordet_pay_subscribe', 'Payer et s\'inscrire') ?> (<?= $formation['prix'] ?>€)
+                                <i class="fas fa-credit-card mr-2"></i> <?= t('fordet_pay_subscribe', 'Payer et s\'inscrire') ?> (<?= htmlspecialchars(formatPrix($formation['prix'] ?? 0)) ?>)
                             </a>
                         <?php else: ?>
                             <form method="POST" action="/formations/<?= $formation['id'] ?>/inscrire">

@@ -3,6 +3,8 @@ $type   = $evenement['type'] ?? $evenement['statut'] ?? '';
 $imgUrl = !empty($evenement['image_url'])
     ? $evenement['image_url']
     : uc_image('evenement', $evenement['id'] ?? ($evenement['titre'] ?? ''));
+$evtDate  = $evenement['date'] ?? '';
+$estPasse = $evtDate !== '' && ($tsEvt = strtotime($evtDate)) !== false && $tsEvt < time();
 ?>
 
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
@@ -24,7 +26,7 @@ $imgUrl = !empty($evenement['image_url'])
         <div>
             <?php if ($type): ?>
                 <span class="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-                    <?= htmlspecialchars($type) ?>
+                    <?= htmlspecialchars(formatStatut($type)) ?>
                 </span>
             <?php endif; ?>
 
@@ -66,7 +68,7 @@ $imgUrl = !empty($evenement['image_url'])
                         <i class="fas fa-tag text-green-500 w-4"></i> <?= t('evtdet_price', 'Prix') ?>
                     </span>
                     <span class="font-bold text-lg <?= ($evenement['prix'] ?? 0) > 0 ? 'text-green-600' : 'text-base-content/70' ?>">
-                        <?= ($evenement['prix'] ?? 0) > 0 ? number_format($evenement['prix'], 2) . ' €' : t('evtdet_free', 'Gratuit') ?>
+                        <?= htmlspecialchars(formatPrix($evenement['prix'] ?? 0)) ?>
                     </span>
                 </div>
             </div>
@@ -93,7 +95,11 @@ $imgUrl = !empty($evenement['image_url'])
             <?php endif; ?>
 
             <div class="flex flex-col sm:flex-row gap-4">
-                <?php if (isset($_SESSION['user'])): ?>
+                <?php if ($estPasse): ?>
+                    <span class="inline-flex items-center gap-2 bg-base-200 text-base-content/60 px-8 py-3 rounded-xl font-medium">
+                        <i class="fas fa-clock"></i><?= t('evtdet_passed', 'Événement terminé') ?>
+                    </span>
+                <?php elseif (isset($_SESSION['user'])): ?>
                     <?php if ($evenement['est_inscrit'] ?? false): ?>
                         <form method="POST" action="/evenements/<?= $evenement['id'] ?? '' ?>/desinscrire">
                         <?= csrf_field() ?>
@@ -104,7 +110,7 @@ $imgUrl = !empty($evenement['image_url'])
                     <?php elseif (($evenement['prix'] ?? 0) > 0): ?>
                         <a href="/payer?type=evenement&id_item=<?= $evenement['id'] ?? '' ?>&montant=<?= $evenement['prix'] ?? 0 ?>&titre=<?= urlencode($evenement['titre'] ?? '') ?>"
                            class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition text-center">
-                            <i class="fas fa-credit-card mr-2"></i><?= t('evtdet_btn_register_paid', "S'inscrire — ") ?><?= number_format($evenement['prix'], 2) ?>€
+                            <i class="fas fa-credit-card mr-2"></i><?= t('evtdet_btn_register_paid', "S'inscrire — ") ?><?= htmlspecialchars(formatPrix($evenement['prix'])) ?>
                         </a>
                     <?php else: ?>
                         <form method="POST" action="/evenements/<?= $evenement['id'] ?? '' ?>/participer">

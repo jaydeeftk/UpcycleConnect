@@ -15,11 +15,14 @@
         var calendarEl = document.getElementById('calendar');
         var rawData = <?= json_encode($planning ?? []) ?>;
 
+        var TYPE_LBL = {evenement:'Événement', formation:'Formation', atelier:'Atelier'};
+        var STATUT_LBL = {a_venir:'À venir', en_attente:'En attente', validee:'Validée', refusee:'Refusée', en_cours:'En cours', termine:'Terminé', actif:'Actif'};
+
         var eventsData = rawData.map(function(item) {
             var color = item.type === 'formation' ? '#3b82f6' : '#10b981';
             return {
                 id: item.id,
-                title: '[' + item.type.toUpperCase() + '] ' + item.titre,
+                title: '[' + (TYPE_LBL[item.type] || item.type) + '] ' + item.titre,
                 start: item.date,
                 backgroundColor: color,
                 borderColor: color,
@@ -40,7 +43,7 @@
             },
             events: eventsData,
             eventClick: function(info) {
-                toast(info.event.title + '\n<?= t('adm_planning_js_status', 'Statut: ') ?>' + info.event.extendedProps.statut + '\n\n' + info.event.extendedProps.description);
+                toast(info.event.title + '\n<?= t('adm_planning_js_status', 'Statut: ') ?>' + (STATUT_LBL[info.event.extendedProps.statut] || info.event.extendedProps.statut) + '\n\n' + info.event.extendedProps.description);
             }
         });
         calendar.render();

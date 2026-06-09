@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -229,7 +230,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if confirmationRequise && tokenConfirmation != "" {
-		go func(email, tok string) { _ = services.SendVerificationEmail(email, tok) }(body.Email, tokenConfirmation)
+		go func(email, tok string) {
+			if err := services.SendVerificationEmail(email, tok); err != nil {
+				log.Printf("[mail] echec envoi email de verification a %s : %v", email, err)
+			} else {
+				log.Printf("[mail] email de verification envoye a %s", email)
+			}
+		}(body.Email, tokenConfirmation)
 	}
 
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{

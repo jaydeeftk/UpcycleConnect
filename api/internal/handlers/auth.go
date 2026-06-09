@@ -277,6 +277,74 @@ func ConfirmerCompte(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Compte activé"})
 }
 
+// DemanderReset envoie un email de reinitialisation. Anti-enumeration : repond
+// toujours 200 (ne revele jamais si l'email existe). POST /api/auth/mot-de-passe-oublie
+func DemanderReset(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Email string `json:"email"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	email := strings.ToLower(strings.TrimSpace(body.Email))
+	reponse := map[string]interface{}{"message": "Si un compte existe pour cette adresse, un email de réinitialisation vient d'être envoyé."}
+
+	if emailRegex.MatchString(email) && os.Getenv("SMTP_HOST") != "" {
+		var id int
+		var statut string
+		if err := database.DB.QueryRow("SELECT Id_Utilisateurs, Statut FROM Utilisateurs WHERE Email = ?", email).Scan(&id, &statut); err == nil && statut == "actif" {
+			token := genererTokenConfirmation()
+			if _, e := database.DB.Exec("UPDATE Utilisateurs SET Token_confirmation = ? WHERE Id_Utilisateurs = ?", token, id); e == nil {
+				go func(em, tok string) {
+					if err := services.SendPasswordResetEmail(em, tok); err != nil {
+						log.Printf("[mail] echec envoi reset a %s : %v", em, err)
+					} else {
+						log.Printf("[mail] email de reinitialisation envoye a %s", em)
+					}
+				}(email, token)
+			}
+		}
+	}
+	httpx.JSONOK(w, http.StatusOK, reponse)
+}
+
+// ReinitialiserMotDePasse consomme un jeton valide et fixe un nouveau mot de passe.
+// POST /api/auth/reinitialiser  {token, mot_de_passe}
+func ReinitialiserMotDePasse(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Token    string `json:"token"`
+		Password string `json:"mot_de_passe"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	body.Token = strings.TrimSpace(body.Token)
+	if body.Token == "" {
+		httpx.JSONError(w, http.StatusBadRequest, "Jeton manquant")
+		return
+	}
+	if !motDePasseRobuste(body.Password) {
+		httpx.JSONError(w, http.StatusBadRequest, "Mot de passe trop faible : 8 caractères minimum, avec au moins une lettre et un chiffre.")
+		return
+	}
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
+	res, err := database.DB.Exec(
+		"UPDATE Utilisateurs SET Mot_de_passe = ?, Token_confirmation = NULL WHERE Token_confirmation = ? AND Statut = 'actif'",
+		string(hashed), body.Token,
+	)
+	if err != nil {
+		httpx.JSONServerError(w, err)
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		httpx.JSONError(w, http.StatusBadRequest, "Lien invalide ou expiré")
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Mot de passe réinitialisé"})
+}
+
 func UpdateTutoriel(w http.ResponseWriter, r *http.Request) {
 	id := middleware.GetUserID(r)
 	database.DB.Exec("UPDATE Utilisateurs SET Tutoriel_vu = 1 WHERE Id_Utilisateurs = ?", id)

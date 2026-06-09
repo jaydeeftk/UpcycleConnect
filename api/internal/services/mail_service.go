@@ -36,34 +36,33 @@ func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 	return nil, nil
 }
 
-func SendVerificationEmail(targetEmail string, token string) error {
+// sendMail envoie un email HTML via le SMTP configure (OVH Zimbra : STARTTLS 587).
+// Fail-safe : si SMTP_HOST n'est pas defini, renvoie une erreur (l'appelant decide).
+// En-tetes RFC completes (From/To/Date/Message-ID) pour la delivrabilite.
+func sendMail(targetEmail, subject, htmlBody string) error {
 	from := os.Getenv("SMTP_USER")
 	password := os.Getenv("SMTP_PASS")
 	smtpHost := os.Getenv("SMTP_HOST")
 	smtpPort := os.Getenv("SMTP_PORT")
-	appURL := os.Getenv("APP_URL")
-
-	verifyLink := fmt.Sprintf("%s/verify?token=%s", appURL, token)
+	if smtpHost == "" {
+		return errors.New("SMTP non configure")
+	}
 
 	domain := "upcycleconnect.tech"
 	if at := strings.LastIndex(from, "@"); at >= 0 && at+1 < len(from) {
 		domain = from[at+1:]
 	}
 
-	body := fmt.Sprintf(`
-		<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd;">
-			<h2 style="color: #2d3748;">Bienvenue sur UpcycleConnect !</h2>
-			<p>Merci de nous rejoindre. Pour activer votre compte, cliquez sur le bouton ci-dessous :</p>
-			<div style="margin: 25px 0;">
-				<a href="%s" style="background-color: #48bb78; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Activer mon compte</a>
-			</div>
-			<p style="font-size: 0.8em; color: #718096;">Si le bouton ne s'affiche pas, utilisez ce lien : <br>%s</p>
-		</div>`, verifyLink, verifyLink)
+	headers := "From: UpcycleConnect <" + from + ">\r\n" +
+		"To: " + targetEmail + "\r\n" +
+		"Subject: " + subject + "\r\n" +
+		"Date: " + time.Now().Format(time.RFC1123Z) + "\r\n" +
+		fmt.Sprintf("Message-ID: <%d@%s>\r\n", time.Now().UnixNano(), domain) +
+		"MIME-Version: 1.0\r\n" +
+		"Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n"
+	msg := headers + htmlBody
 
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: false,
-		ServerName:         smtpHost,
-	}
+	tlsConfig := &tls.Config{InsecureSkipVerify: false, ServerName: smtpHost}
 
 	conn, err := smtp.Dial(smtpHost + ":" + smtpPort)
 	if err != nil {
@@ -74,35 +73,52 @@ func SendVerificationEmail(targetEmail string, token string) error {
 	if err = conn.StartTLS(tlsConfig); err != nil {
 		return err
 	}
-
-	auth := LoginAuth(from, password)
-	if err = conn.Auth(auth); err != nil {
+	if err = conn.Auth(LoginAuth(from, password)); err != nil {
 		return fmt.Errorf("Erreur Auth: %v", err)
 	}
-
 	if err = conn.Mail(from); err != nil {
 		return err
 	}
 	if err = conn.Rcpt(targetEmail); err != nil {
 		return err
 	}
-
-	headers := "From: UpcycleConnect <" + from + ">\r\n" +
-		"To: " + targetEmail + "\r\n" +
-		"Subject: Activez votre compte UpcycleConnect\r\n" +
-		"Date: " + time.Now().Format(time.RFC1123Z) + "\r\n" +
-		fmt.Sprintf("Message-ID: <%d@%s>\r\n", time.Now().UnixNano(), domain) +
-		"MIME-Version: 1.0\r\n" +
-		"Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n"
-
 	w, err := conn.Data()
 	if err != nil {
 		return err
 	}
-	_, err = w.Write([]byte(headers + body))
-	if err != nil {
+	if _, err = w.Write([]byte(msg)); err != nil {
 		return err
 	}
-
 	return w.Close()
+}
+
+// SendVerificationEmail envoie le lien d'activation a l'inscription.
+func SendVerificationEmail(targetEmail string, token string) error {
+	verifyLink := fmt.Sprintf("%s/verify?token=%s", os.Getenv("APP_URL"), token)
+	body := fmt.Sprintf(`
+		<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 520px;">
+			<h2 style="color: #2d3748;">Bienvenue sur UpcycleConnect !</h2>
+			<p>Merci de nous rejoindre. Pour activer votre compte, cliquez sur le bouton ci-dessous :</p>
+			<div style="margin: 25px 0;">
+				<a href="%s" style="background-color: #48bb78; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Activer mon compte</a>
+			</div>
+			<p style="font-size: 0.8em; color: #718096;">Si le bouton ne s'affiche pas, utilisez ce lien : <br>%s</p>
+		</div>`, verifyLink, verifyLink)
+	return sendMail(targetEmail, "Activez votre compte UpcycleConnect", body)
+}
+
+// SendPasswordResetEmail envoie le lien de reinitialisation du mot de passe.
+func SendPasswordResetEmail(targetEmail string, token string) error {
+	resetLink := fmt.Sprintf("%s/reset-password?token=%s", os.Getenv("APP_URL"), token)
+	body := fmt.Sprintf(`
+		<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 520px;">
+			<h2 style="color: #2d3748;">Reinitialisation de votre mot de passe</h2>
+			<p>Vous avez demande a reinitialiser votre mot de passe UpcycleConnect. Cliquez sur le bouton ci-dessous pour en choisir un nouveau :</p>
+			<div style="margin: 25px 0;">
+				<a href="%s" style="background-color: #3b82f6; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reinitialiser mon mot de passe</a>
+			</div>
+			<p style="font-size: 0.8em; color: #718096;">Si le bouton ne s'affiche pas, utilisez ce lien : <br>%s</p>
+			<p style="font-size: 0.8em; color: #718096;">Si vous n'etes pas a l'origine de cette demande, ignorez simplement cet email : votre mot de passe reste inchange.</p>
+		</div>`, resetLink, resetLink)
+	return sendMail(targetEmail, "Reinitialisation de votre mot de passe UpcycleConnect", body)
 }

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/smtp"
 	"os"
+	"strings"
+	"time"
 )
 
 type loginAuth struct {
@@ -43,8 +45,11 @@ func SendVerificationEmail(targetEmail string, token string) error {
 
 	verifyLink := fmt.Sprintf("%s/verify?token=%s", appURL, token)
 
-	subject := "Subject: Activez votre compte UpcycleConnect\n"
-	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+	domain := "upcycleconnect.tech"
+	if at := strings.LastIndex(from, "@"); at >= 0 && at+1 < len(from) {
+		domain = from[at+1:]
+	}
+
 	body := fmt.Sprintf(`
 		<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd;">
 			<h2 style="color: #2d3748;">Bienvenue sur UpcycleConnect !</h2>
@@ -82,11 +87,19 @@ func SendVerificationEmail(targetEmail string, token string) error {
 		return err
 	}
 
+	headers := "From: UpcycleConnect <" + from + ">\r\n" +
+		"To: " + targetEmail + "\r\n" +
+		"Subject: Activez votre compte UpcycleConnect\r\n" +
+		"Date: " + time.Now().Format(time.RFC1123Z) + "\r\n" +
+		fmt.Sprintf("Message-ID: <%d@%s>\r\n", time.Now().UnixNano(), domain) +
+		"MIME-Version: 1.0\r\n" +
+		"Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n"
+
 	w, err := conn.Data()
 	if err != nil {
 		return err
 	}
-	_, err = w.Write([]byte(subject + mime + body))
+	_, err = w.Write([]byte(headers + body))
 	if err != nil {
 		return err
 	}

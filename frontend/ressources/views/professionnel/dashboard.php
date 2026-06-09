@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace Professionnel - UpcycleConnect</title>
+    <title><?= t('pro_space', 'Espace Professionnel') ?> - UpcycleConnect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <?php include __DIR__ . '/../components/pro/dark.php'; ?>
@@ -14,40 +14,40 @@
     <aside class="w-64 bg-gray-800 text-white flex flex-col flex-shrink-0">
         <div class="p-6 border-b border-gray-700">
             <h1 class="text-xl font-bold text-green-400">UpcycleConnect</h1>
-            <p class="text-xs text-gray-400 mt-1">Espace Professionnel</p>
+            <p class="text-xs text-gray-400 mt-1"><?= t('pro_space', 'Espace Professionnel') ?></p>
         </div>
         <nav class="flex-1 p-4">
             <ul class="space-y-1">
                 <li>
                     <a href="/professionnel" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-gray-700 text-white">
-                        <i class="fas fa-tachometer-alt w-5"></i><span>Tableau de bord</span>
+                        <i class="fas fa-tachometer-alt w-5"></i><span><?= t('pro_nav_dashboard', 'Tableau de bord') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/professionnel/recuperation" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-recycle w-5"></i><span>Récupération</span>
+                        <i class="fas fa-recycle w-5"></i><span><?= t('pro_nav_recuperation', 'Récupération') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/professionnel/projets/create" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-project-diagram w-5"></i><span>Nouveau projet</span>
+                        <i class="fas fa-project-diagram w-5"></i><span><?= t('pro_nav_new_project', 'Nouveau projet') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/annonces" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-bullhorn w-5"></i><span>Annonces</span>
+                        <i class="fas fa-bullhorn w-5"></i><span><?= t('pro_nav_annonces', 'Annonces') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/catalogue/services" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-tools w-5"></i><span>Services</span>
+                        <i class="fas fa-tools w-5"></i><span><?= t('pro_nav_services', 'Services') ?></span>
                     </a>
                 </li>
             </ul>
         </nav>
         <div class="p-4 border-t border-gray-700">
             <a href="/logout" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition text-red-400 hover:text-white">
-                <i class="fas fa-sign-out-alt w-5"></i><span>Déconnexion</span>
+                <i class="fas fa-sign-out-alt w-5"></i><span><?= t('pro_nav_logout', 'Déconnexion') ?></span>
             </a>
         </div>
     </aside>
@@ -56,7 +56,7 @@
         <header class="bg-white border-b border-gray-200 px-6 py-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Tableau de bord</h2>
+                    <h2 class="text-2xl font-bold text-gray-800"><?= t('pro_nav_dashboard', 'Tableau de bord') ?></h2>
                     <p class="text-gray-600 text-sm"><?= htmlspecialchars($profil['nom_entreprise'] ?? ($_SESSION['user']['prenom'] ?? '')) ?></p>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -80,7 +80,7 @@
                         <i class="fas fa-project-diagram text-2xl text-blue-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">Projets</p>
+                        <p class="text-sm text-gray-500"><?= t('pro_stat_projects', 'Projets') ?></p>
                         <p class="text-lg font-bold"><?= count($projets ?? []) ?></p>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                         <i class="fas fa-heart text-2xl text-pink-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">Favoris</p>
+                        <p class="text-sm text-gray-500"><?= t('pro_stat_favorites', 'Favoris') ?></p>
                         <p class="text-lg font-bold"><?= count($favoris ?? []) ?></p>
                     </div>
                 </div>
@@ -98,7 +98,7 @@
                         <i class="fas fa-file-contract text-2xl text-green-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">Contrats</p>
+                        <p class="text-sm text-gray-500"><?= t('pro_stat_contracts', 'Contrats') ?></p>
                         <p class="text-lg font-bold"><?= count($contrats ?? []) ?></p>
                     </div>
                 </div>
@@ -117,33 +117,33 @@
             ?>
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                    <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-leaf text-emerald-600"></i> Impact écologique</h3>
+                    <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-leaf text-emerald-600"></i> <?= t('pro_impact_title', 'Impact écologique') ?></h3>
                     <a href="/professionnel/impact/pdf" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-emerald-700 transition">
-                        <i class="fas fa-file-pdf"></i> Télécharger le bilan PDF
+                        <i class="fas fa-file-pdf"></i> <?= t('pro_impact_download_pdf', 'Télécharger le bilan PDF') ?>
                     </a>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div class="rounded-lg border border-gray-100 p-4 text-center">
                         <p class="text-2xl font-extrabold text-emerald-600"><?= $imObjets ?></p>
-                        <p class="text-xs text-gray-500 mt-1">Objets valorisés</p>
+                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_objects', 'Objets valorisés') ?></p>
                     </div>
                     <div class="rounded-lg border border-gray-100 p-4 text-center">
                         <p class="text-2xl font-extrabold text-emerald-600"><?= number_format($imPoids, 1, ',', ' ') ?> kg</p>
-                        <p class="text-xs text-gray-500 mt-1">Poids détourné</p>
+                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_weight', 'Poids détourné') ?></p>
                     </div>
                     <div class="rounded-lg border border-gray-100 p-4 text-center">
                         <p class="text-2xl font-extrabold text-emerald-600">~<?= number_format($imCo2, 1, ',', ' ') ?> kg</p>
-                        <p class="text-xs text-gray-500 mt-1">CO₂ évité <span class="text-gray-300">(est.)</span></p>
+                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_co2', 'CO₂ évité') ?> <span class="text-gray-300"><?= t('pro_impact_co2_est', '(est.)') ?></span></p>
                     </div>
                     <div class="rounded-lg border border-gray-100 p-4 text-center">
                         <p class="text-2xl font-extrabold text-emerald-600"><?= $imProjT ?>/<?= $imProjN ?></p>
-                        <p class="text-xs text-gray-500 mt-1">Projets réalisés</p>
+                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_projects_done', 'Projets réalisés') ?></p>
                     </div>
                 </div>
 
-                <h4 class="text-sm font-bold text-gray-700 mb-3">Répartition par matériau</h4>
+                <h4 class="text-sm font-bold text-gray-700 mb-3"><?= t('pro_impact_by_material', 'Répartition par matériau') ?></h4>
                 <?php if (empty($imMat)): ?>
-                    <p class="text-sm text-gray-400 italic">Aucun objet récupéré pour le moment.</p>
+                    <p class="text-sm text-gray-400 italic"><?= t('pro_impact_no_objects', 'Aucun objet récupéré pour le moment.') ?></p>
                 <?php else: ?>
                     <div class="space-y-3">
                         <?php foreach ($imMat as $m):
@@ -161,23 +161,23 @@
                         </div>
                         <?php endforeach; ?>
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-4 italic">CO₂ évité : estimation indicative (<?= number_format($imCo2f, 1, ',', ' ') ?> kg CO₂ par kg valorisé), non une mesure certifiée.</p>
+                    <p class="text-[11px] text-gray-400 mt-4 italic"><?= t('pro_impact_co2_disclaimer_before', 'CO₂ évité : estimation indicative (') ?><?= number_format($imCo2f, 1, ',', ' ') ?><?= t('pro_impact_co2_disclaimer_after', ' kg CO₂ par kg valorisé), non une mesure certifiée.') ?></p>
                 <?php endif; ?>
             </div>
 
             <!-- Projets -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold">Mes projets upcycling</h3>
+                    <h3 class="text-lg font-bold"><?= t('pro_projects_title', 'Mes projets upcycling') ?></h3>
                     <a href="/professionnel/projets/create" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
-                        <i class="fas fa-plus mr-2"></i>Nouveau projet
+                        <i class="fas fa-plus mr-2"></i><?= t('pro_nav_new_project', 'Nouveau projet') ?>
                     </a>
                 </div>
                 <?php if (empty($projets)): ?>
                     <div class="text-center py-8 text-gray-400">
                         <i class="fas fa-project-diagram text-4xl mb-3 block"></i>
-                        <p>Aucun projet pour l'instant.</p>
-                        <a href="/professionnel/projets/create" class="text-blue-500 hover:underline text-sm mt-2 inline-block">Créer votre premier projet</a>
+                        <p><?= t('pro_projects_empty', 'Aucun projet pour l\'instant.') ?></p>
+                        <a href="/professionnel/projets/create" class="text-blue-500 hover:underline text-sm mt-2 inline-block"><?= t('pro_projects_empty_cta', 'Créer votre premier projet') ?></a>
                     </div>
                 <?php else: ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -193,16 +193,16 @@
                                         $sc = $statutColors[$projet['statut'] ?? ''] ?? 'bg-gray-100 text-gray-600';
                                         ?>
                                         <span class="text-xs px-2 py-1 rounded-full <?= $sc ?>"><?= formatStatut($projet['statut'] ?? '') ?></span>
-                                        <span class="text-xs text-gray-400"><?= $projet['nb_etapes'] ?? 0 ?> étape(s)</span>
+                                        <span class="text-xs text-gray-400"><?= $projet['nb_etapes'] ?? 0 ?> <?= t('pro_projects_steps', 'étape(s)') ?></span>
                                     </div>
                                 </div>
                                 <?php
                                 $actionsUI = [
-                                    'suspendre' => ['suspendre', 'Pause',     'fa-pause',       'text-amber-600 hover:bg-amber-50', false],
-                                    'reprendre' => ['reprendre', 'Reprendre', 'fa-play',        'text-blue-600 hover:bg-blue-50',  false],
-                                    'terminer'  => ['terminer',  'Terminer',  'fa-check',       'text-green-600 hover:bg-green-50', false],
-                                    'rouvrir'   => ['rouvrir',   'Rouvrir',   'fa-rotate-left', 'text-blue-600 hover:bg-blue-50',  false],
-                                    'supprimer' => ['delete',    'Supprimer', 'fa-trash',       'text-red-500 hover:bg-red-50',    true],
+                                    'suspendre' => ['suspendre', t('pro_action_pause', 'Pause'),     'fa-pause',       'text-amber-600 hover:bg-amber-50', false],
+                                    'reprendre' => ['reprendre', t('pro_action_resume', 'Reprendre'), 'fa-play',        'text-blue-600 hover:bg-blue-50',  false],
+                                    'terminer'  => ['terminer',  t('pro_action_finish', 'Terminer'),  'fa-check',       'text-green-600 hover:bg-green-50', false],
+                                    'rouvrir'   => ['rouvrir',   t('pro_action_reopen', 'Rouvrir'),   'fa-rotate-left', 'text-blue-600 hover:bg-blue-50',  false],
+                                    'supprimer' => ['delete',    t('pro_action_delete', 'Supprimer'), 'fa-trash',       'text-red-500 hover:bg-red-50',    true],
                                 ];
                                 $rendus = array_intersect(array_keys($actionsUI), $aa);
                                 ?>
@@ -210,7 +210,7 @@
                                     <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
                                         <?php foreach ($rendus as $a): ?>
                                             <?php [$suffix, $label, $icon, $cls, $confirm] = $actionsUI[$a]; ?>
-                                            <form method="POST" action="/professionnel/projets/<?= $projet['id'] ?>/<?= $suffix ?>"<?= $confirm ? ' onsubmit="return ucConfirm(this, \'Supprimer ce projet ?\')"' : '' ?>>
+                                            <form method="POST" action="/professionnel/projets/<?= $projet['id'] ?>/<?= $suffix ?>"<?= $confirm ? ' onsubmit="return ucConfirm(this, \'' . htmlspecialchars(t('pro_project_delete_confirm', 'Supprimer ce projet ?'), ENT_QUOTES) . '\')"' : '' ?>>
                                                 <button type="submit" class="text-xs px-2 py-1 rounded <?= $cls ?> transition">
                                                     <i class="fas <?= $icon ?> mr-1"></i><?= $label ?>
                                                 </button>
@@ -226,12 +226,12 @@
 
             <!-- Favoris -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h3 class="text-lg font-bold mb-4">Mes annonces favorites</h3>
+                <h3 class="text-lg font-bold mb-4"><?= t('pro_favorites_title', 'Mes annonces favorites') ?></h3>
                 <?php if (empty($favoris)): ?>
                     <div class="text-center py-6 text-gray-400">
                         <i class="fas fa-heart text-3xl mb-2 block"></i>
-                        <p class="text-sm">Aucune annonce en favoris.</p>
-                        <a href="/annonces" class="text-blue-500 hover:underline text-sm mt-1 inline-block">Parcourir les annonces</a>
+                        <p class="text-sm"><?= t('pro_favorites_empty', 'Aucune annonce en favoris.') ?></p>
+                        <a href="/annonces" class="text-blue-500 hover:underline text-sm mt-1 inline-block"><?= t('pro_favorites_browse', 'Parcourir les annonces') ?></a>
                     </div>
                 <?php else: ?>
                     <div class="space-y-3">
@@ -255,15 +255,15 @@
             <!-- Notifications -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-bell text-emerald-600"></i> Notifications</h3>
+                    <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-bell text-emerald-600"></i> <?= t('pro_notifs_title', 'Notifications') ?></h3>
                     <?php if (($notifsNonLues ?? 0) > 0): ?>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><?= (int)$notifsNonLues ?> non lue<?= $notifsNonLues > 1 ? 's' : '' ?></span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><?= (int)$notifsNonLues ?> <?= t('pro_notifs_unread', 'non lue') ?><?= $notifsNonLues > 1 ? t('pro_plural_s', 's') : '' ?></span>
                     <?php endif; ?>
                 </div>
                 <?php if (empty($notifications)): ?>
                     <div class="text-center py-6 text-gray-400">
                         <i class="fas fa-bell-slash text-3xl mb-2 block"></i>
-                        <p class="text-sm">Aucune notification pour l'instant.</p>
+                        <p class="text-sm"><?= t('pro_notifs_empty', 'Aucune notification pour l\'instant.') ?></p>
                     </div>
                 <?php else: ?>
                     <ul class="divide-y divide-gray-100">
@@ -276,7 +276,7 @@
                                 </div>
                                 <?php if (empty($notif['lu'])): ?>
                                     <form method="POST" action="/professionnel/notifications/<?= $notif['id'] ?? '' ?>/lu" class="inline">
-                                        <button type="submit" class="text-xs text-emerald-600 hover:text-emerald-700 whitespace-nowrap" title="Marquer comme lue"><i class="fas fa-check"></i></button>
+                                        <button type="submit" class="text-xs text-emerald-600 hover:text-emerald-700 whitespace-nowrap" title="<?= t('pro_notifs_mark_read', 'Marquer comme lue') ?>"><i class="fas fa-check"></i></button>
                                     </form>
                                 <?php endif; ?>
                             </li>
@@ -287,22 +287,22 @@
 
             <!-- Contrats -->
             <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-bold mb-4">Mes contrats</h3>
+                <h3 class="text-lg font-bold mb-4"><?= t('pro_contracts_title', 'Mes contrats') ?></h3>
                 <?php if (empty($contrats)): ?>
                     <div class="text-center py-6 text-gray-400">
                         <i class="fas fa-file-contract text-3xl mb-2 block"></i>
-                        <p class="text-sm">Aucun contrat pour l'instant.</p>
+                        <p class="text-sm"><?= t('pro_contracts_empty', 'Aucun contrat pour l\'instant.') ?></p>
                     </div>
                 <?php else: ?>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="text-left text-gray-500 border-b">
-                                    <th class="pb-3">Type</th>
-                                    <th class="pb-3">Statut</th>
-                                    <th class="pb-3">Début</th>
-                                    <th class="pb-3">Fin</th>
-                                    <th class="pb-3 text-right">Actions</th>
+                                    <th class="pb-3"><?= t('pro_contracts_col_type', 'Type') ?></th>
+                                    <th class="pb-3"><?= t('pro_contracts_col_status', 'Statut') ?></th>
+                                    <th class="pb-3"><?= t('pro_contracts_col_start', 'Début') ?></th>
+                                    <th class="pb-3"><?= t('pro_contracts_col_end', 'Fin') ?></th>
+                                    <th class="pb-3 text-right"><?= t('pro_contracts_col_actions', 'Actions') ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -315,9 +315,9 @@
                                         <td class="py-3"><?= formatDate($contrat['date_fin'] ?? '') ?></td>
                                         <td class="py-3 text-right">
                                             <?php if (in_array($cStatut, ['actif', 'suspendu'])): ?>
-                                                <form method="POST" action="/professionnel/contrats/<?= $contrat['id'] ?? '' ?>/resilier" class="inline" onsubmit="return ucConfirm(this, 'Résilier ce contrat ? Cette action est définitive.');">
+                                                <form method="POST" action="/professionnel/contrats/<?= $contrat['id'] ?? '' ?>/resilier" class="inline" onsubmit="return ucConfirm(this, '<?= htmlspecialchars(t('pro_contract_resilier_confirm', 'Résilier ce contrat ? Cette action est définitive.'), ENT_QUOTES) ?>');">
                                                     <button type="submit" class="text-xs font-semibold text-red-600 hover:text-white hover:bg-red-600 border border-red-200 rounded-lg px-3 py-1.5 transition-colors">
-                                                        <i class="fas fa-ban mr-1"></i>Résilier
+                                                        <i class="fas fa-ban mr-1"></i><?= t('pro_contract_resilier', 'Résilier') ?>
                                                     </button>
                                                 </form>
                                             <?php else: ?>
@@ -336,7 +336,7 @@
     </div>
 </div>
     <script>
-    function confirmer(m,c){var d=document.documentElement.classList.contains('dark');var s=d?'#1e293b':'#fff',t=d?'#f1f5f9':'#0f172a',b=d?'#334155':'#e2e8f0',u=d?'#94a3b8':'#64748b';var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center';o.innerHTML='<div style="background:'+s+';border:1px solid '+b+';border-radius:12px;padding:24px;max-width:360px;width:90%;text-align:center;font-family:inherit"><p style="color:'+t+';margin:0 0 20px;font-size:15px">'+m+'</p><button type="button" id="uc-c" style="margin-right:8px;padding:8px 20px;border:1px solid '+b+';border-radius:8px;background:transparent;color:'+u+';cursor:pointer">Annuler</button><button type="button" id="uc-o" style="padding:8px 20px;border:none;border-radius:8px;background:#ef4444;color:#fff;cursor:pointer">Confirmer</button></div>';document.body.appendChild(o);o.querySelector('#uc-c').onclick=function(){o.remove()};o.querySelector('#uc-o').onclick=function(){o.remove();c()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+    function confirmer(m,c){var d=document.documentElement.classList.contains('dark');var s=d?'#1e293b':'#fff',t=d?'#f1f5f9':'#0f172a',b=d?'#334155':'#e2e8f0',u=d?'#94a3b8':'#64748b';var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center';o.innerHTML='<div style="background:'+s+';border:1px solid '+b+';border-radius:12px;padding:24px;max-width:360px;width:90%;text-align:center;font-family:inherit"><p style="color:'+t+';margin:0 0 20px;font-size:15px">'+m+'</p><button type="button" id="uc-c" style="margin-right:8px;padding:8px 20px;border:1px solid '+b+';border-radius:8px;background:transparent;color:'+u+';cursor:pointer"><?= htmlspecialchars(t('pro_modal_cancel', 'Annuler'), ENT_QUOTES) ?></button><button type="button" id="uc-o" style="padding:8px 20px;border:none;border-radius:8px;background:#ef4444;color:#fff;cursor:pointer"><?= htmlspecialchars(t('pro_modal_confirm', 'Confirmer'), ENT_QUOTES) ?></button></div>';document.body.appendChild(o);o.querySelector('#uc-c').onclick=function(){o.remove()};o.querySelector('#uc-o').onclick=function(){o.remove();c()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
     function ucConfirm(el,m){confirmer(m,function(){if(el.tagName==='A'){window.location.href=el.href}else{var f=el.closest?el.closest('form'):null;if(f)f.submit()}});return false}
     </script>
 </body>

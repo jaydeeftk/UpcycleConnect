@@ -58,6 +58,7 @@
                 <?php if (isset($_SESSION['user'])): ?>
                     <?php if ($formation['est_inscrit'] ?? false): ?>
                         <form method="POST" action="/formations/<?= $formation['id'] ?>/desinscrire">
+                        <?= csrf_field() ?>
                             <button type="submit" class="bg-red-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-red-700 transition">
                                 <i class="fas fa-times mr-2"></i><?= t('fordet_unsubscribe', 'Se désinscrire') ?>
                             </button>
@@ -70,6 +71,7 @@
                             </a>
                         <?php else: ?>
                             <form method="POST" action="/formations/<?= $formation['id'] ?>/inscrire">
+                            <?= csrf_field() ?>
                                 <button type="submit" class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                                     <?= t('fordet_subscribe_free', 'S\'inscrire gratuitement') ?>
                                 </button>

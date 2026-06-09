@@ -12,6 +12,7 @@
             <a href="/mot-de-passe-oublie" class="btn btn-neutral btn-sm mt-4"><?= t('auth_forgot_title', 'Mot de passe oublié') ?></a>
         <?php else: ?>
         <form method="POST" action="/reset-password" class="space-y-4">
+        <?= csrf_field() ?>
             <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>" />
             <div>
                 <label class="block text-sm font-medium mb-2"><?= t('auth_reset_new_password', 'Nouveau mot de passe') ?></label>

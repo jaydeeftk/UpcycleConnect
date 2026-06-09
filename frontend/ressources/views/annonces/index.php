@@ -48,17 +48,20 @@
                     <td class="p-4 text-right space-x-2">
                         <?php if ($statut === 'en attente') { ?>
                             <form method="POST" action="/admin/annonces/<?= $annonce['id'] ?>/valider" class="inline">
+                            <?= csrf_field() ?>
                                 <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-colors" title="Valider">
                                     <i class="fas fa-check"></i>
                                 </button>
                             </form>
                             <form method="POST" action="/admin/annonces/<?= $annonce['id'] ?>/refuser" class="inline">
+                            <?= csrf_field() ?>
                                 <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-amber-50 text-amber-500 hover:bg-amber-500 hover:text-white transition-colors" title="Refuser">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </form>
                         <?php } ?>
                         <form method="POST" action="/admin/annonces/<?= $annonce['id'] ?>/supprimer" class="inline" onsubmit="return ucConfirm(this, 'Supprimer définitivement cette annonce ?');">
+                        <?= csrf_field() ?>
                             <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="Supprimer">
                                 <i class="fas fa-trash"></i>
                             </button>

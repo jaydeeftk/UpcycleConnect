@@ -71,6 +71,7 @@
                 <div id="reader" class="hidden mb-3 max-w-xs"></div>
                 <div class="text-xs text-gray-400 mb-2"><?= t('pro_recup_or_manual', '— ou saisie manuelle —') ?></div>
                 <form id="scan-form" method="POST" action="/professionnel/objets/scanner" class="flex gap-2">
+                <?= csrf_field() ?>
                     <input type="text" id="code-input" name="code" placeholder="UCB-XXXXXXXXXXXX" required
                         class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                     <button type="submit" class="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition font-medium">
@@ -110,6 +111,7 @@
                                     foreach ($ui as $a => $b):
                                         if (!in_array($a, $aa, true)) continue; ?>
                                         <form method="POST" action="/professionnel/objets/<?= htmlspecialchars($objet['id'] ?? '') ?>/<?= $b[0] ?>">
+                                        <?= csrf_field() ?>
                                             <button type="submit" class="text-white text-xs px-3 py-1.5 rounded <?= $b[3] ?> transition">
                                                 <i class="fas <?= $b[2] ?> mr-1"></i><?= $b[1] ?>
                                             </button>
@@ -139,6 +141,7 @@
                                     $aa = $objet['allowed_actions'] ?? [];
                                     if (in_array('reserver', $aa, true)): ?>
                                         <form method="POST" action="/professionnel/objets/<?= htmlspecialchars($objet['id'] ?? '') ?>/reserver">
+                                        <?= csrf_field() ?>
                                             <button type="submit" class="text-white text-xs px-3 py-1.5 rounded bg-blue-500 hover:bg-blue-600 transition">
                                                 <i class="fas fa-hand-holding mr-1"></i><?= t('pro_action_reserver', 'Réserver') ?>
                                             </button>

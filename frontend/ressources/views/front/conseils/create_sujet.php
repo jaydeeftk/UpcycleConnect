@@ -20,6 +20,7 @@
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-8">
         <form method="POST" action="/conseils/forum/store">
+        <?= csrf_field() ?>
 
             <div class="space-y-6">
 

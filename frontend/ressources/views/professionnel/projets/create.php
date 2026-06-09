@@ -16,6 +16,7 @@
     <div class="bg-white rounded-lg shadow p-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-6"><?= t('pro_new_project_heading', 'Nouveau projet upcycling') ?></h1>
         <form method="POST" action="/professionnel/projets/store" class="space-y-5">
+        <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_form_project_title', 'Titre du projet *') ?></label>
                 <input type="text" name="titre" required

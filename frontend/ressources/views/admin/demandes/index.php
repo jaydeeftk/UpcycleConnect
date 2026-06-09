@@ -76,11 +76,13 @@
                     <div class="flex justify-end gap-2">
                         <?php if ($statut === 'en_attente'): ?>
                         <form method="POST" action="/admin/demandes/valider/<?= $d['id'] ?>">
+                        <?= csrf_field() ?>
                             <button type="submit" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>">
                                 <i class="fas fa-check text-xs"></i>
                             </button>
                         </form>
                         <form method="POST" action="/admin/demandes/refuser/<?= $d['id'] ?>">
+                        <?= csrf_field() ?>
                             <button type="submit" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="<?= t('adm_btn_refuse', 'Refuser') ?>">
                                 <i class="fas fa-times text-xs"></i>
                             </button>

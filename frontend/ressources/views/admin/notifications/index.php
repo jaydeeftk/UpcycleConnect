@@ -9,6 +9,7 @@
     <div class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-bold mb-4"><?= t('adm_notifs_send_title', 'Envoyer une notification') ?></h3>
         <form method="POST" action="/admin/notifications/store" class="space-y-4">
+        <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_notifs_label_content', 'Contenu') ?></label>
                 <textarea name="contenu" rows="4" placeholder="<?= t('adm_notifs_content_ph', 'Votre message...') ?>"

@@ -64,6 +64,7 @@
                             </button>
                             <?php if ($status !== 'validee'): ?>
                                 <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/valider">
+                                <?= csrf_field() ?>
                                     <button type="submit" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>">
                                         <i class="fas fa-check text-xs"></i>
                                     </button>
@@ -71,12 +72,14 @@
                             <?php endif; ?>
                             <?php if ($status !== 'rejetee' && $status !== 'refusee'): ?>
                                 <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/refuser">
+                                <?= csrf_field() ?>
                                     <button type="submit" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="<?= t('adm_btn_refuse', 'Refuser') ?>">
                                         <i class="fas fa-times text-xs"></i>
                                     </button>
                                 </form>
                             <?php endif; ?>
                             <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/supprimer" onsubmit="return ucConfirm(this, '<?= t('adm_annonces_confirm_delete', 'Supprimer définitivement cette annonce ?') ?>')">
+                            <?= csrf_field() ?>
                                 <button type="submit" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
                                     <i class="fas fa-trash text-xs"></i>
                                 </button>

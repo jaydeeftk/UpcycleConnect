@@ -121,6 +121,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
         <form method="POST" action=" /salaries/conseils/store">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_conseil_contenu', 'Contenu du conseil') ?></label>
                 <textarea name="contenu" rows="5" required
@@ -153,6 +154,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
         <form method="POST" id="form-edit" action="">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_conseil_contenu', 'Contenu du conseil') ?></label>
                 <textarea name="contenu" id="edit-contenu" rows="5" required

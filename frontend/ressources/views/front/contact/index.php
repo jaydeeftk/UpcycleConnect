@@ -21,6 +21,7 @@
 
     <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-8">
         <form method="POST" action="/contact/send" class="space-y-5">
+        <?= csrf_field() ?>
             <div>
                 <label class="label"><span class="label-text font-medium"><?= t('contact_message_label', 'Votre message') ?></span></label>
                 <textarea name="contenu" rows="6" required placeholder="<?= t('contact_message_placeholder', 'Décrivez votre demande...') ?>"

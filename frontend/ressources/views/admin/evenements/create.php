@@ -7,6 +7,7 @@
 <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow p-6">
     <h3 class="text-lg font-bold mb-6"><?= t('adm_events_create_title', 'Créer un événement') ?></h3>
     <form method="POST" action="/admin/evenements/store" class="space-y-4">
+    <?= csrf_field() ?>
         <div>
             <label class="block text-sm font-medium mb-1"><?= t('adm_events_label_titre', 'Titre *') ?></label>
             <input type="text" name="titre" required class="w-full border rounded-lg px-3 py-2 text-sm">

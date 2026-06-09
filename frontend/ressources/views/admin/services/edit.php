@@ -10,6 +10,7 @@
 
 <div class="bg-white rounded-lg shadow p-6 max-w-lg">
     <form method="POST" action="/admin/services/<?= $service['id'] ?? '' ?>/update">
+    <?= csrf_field() ?>
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_formations_label_titre', 'Titre') ?></label>

@@ -160,6 +160,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
         <form method="POST" action=" /salaries/evenements/store">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_titre', 'Titre') ?> *</label>
                 <input type="text" name="titre" required
@@ -217,6 +218,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
         <form method="POST" id="form-edit" action="">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_titre', 'Titre') ?> *</label>
                 <input type="text" name="titre" id="edit-titre" required

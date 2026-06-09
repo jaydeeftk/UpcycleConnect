@@ -175,6 +175,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
             </button>
         </div>
         <form method="POST" action=" /salaries/planning/evenement/create">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_titre', 'Titre') ?> *</label>
                 <input type="text" name="titre" required placeholder="<?= t('sal_ph_evenement_titre', 'Titre de l\'événement') ?>"
@@ -226,6 +227,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
             </button>
         </div>
         <form method="POST" action=" /salaries/planning/formation/create">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_titre', 'Titre') ?> *</label>
                 <input type="text" name="titre" required placeholder="<?= t('sal_ph_formation_titre', 'Titre de la formation') ?>"
@@ -272,6 +274,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
             </button>
         </div>
         <form method="POST" action=" /salaries/planning/atelier/create">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_theme', 'Thème') ?> *</label>
                 <input type="text" name="theme" required placeholder="<?= t('sal_ph_atelier_theme', 'Thème de l\'atelier') ?>"

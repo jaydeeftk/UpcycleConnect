@@ -152,6 +152,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
         <form method="POST" action=" /salaries/ateliers/store">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_theme', 'Thème') ?> *</label>
                 <input type="text" name="theme" required
@@ -197,6 +198,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
         <form method="POST" id="form-edit" action="">
+        <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_theme', 'Thème') ?> *</label>
                 <input type="text" name="theme" id="edit-theme" required

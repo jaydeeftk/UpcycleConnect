@@ -19,6 +19,7 @@
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
         <h3 class="text-lg font-bold mb-4"><?= t('adm_contrats_new', 'Nouveau contrat') ?></h3>
         <form method="POST" action="/admin/contrats/store">
+        <?= csrf_field() ?>
             <input type="hidden" name="date_signature" value="<?= date('Y-m-d') ?>">
             <div class="grid grid-cols-2 gap-4">
                 <div>

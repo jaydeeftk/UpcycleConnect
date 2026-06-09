@@ -70,6 +70,7 @@
                             <i class="fas fa-eye text-xs"></i>
                         </button>
                         <form method="POST" action="/admin/evenements/<?= $e['id'] ?>/delete" onsubmit="return ucConfirm(this, '<?= t('adm_events_confirm_delete', 'Supprimer cet événement ?') ?>')">
+                        <?= csrf_field() ?>
                             <button type="submit" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
                                 <i class="fas fa-trash text-xs"></i>
                             </button>

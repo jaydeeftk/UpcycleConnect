@@ -118,6 +118,7 @@
                                         <span class="badge <?= $statutColor ?> flex-shrink-0"><?= $statutLabel ?></span>
                                         <?php if (($annonce['statut'] ?? '') === 'en_attente'): ?>
                                             <form method="POST" action="/annonces/<?= $annonce['id'] ?>/annuler">
+                                            <?= csrf_field() ?>
                                                 <button type="submit" class="btn btn-ghost btn-xs text-red-500 hover:bg-red-50">
                                                     <i class="fas fa-times mr-1"></i> <?= t('demidx_cancel_ad', 'Annuler') ?>
                                                 </button>

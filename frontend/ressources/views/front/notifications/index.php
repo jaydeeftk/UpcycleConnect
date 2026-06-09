@@ -31,6 +31,7 @@
                     </div>
                     <?php if (!$lu): ?>
                         <form method="POST" action="/notifications/<?= $notif['id'] ?? '' ?>/lu">
+                        <?= csrf_field() ?>
                             <button type="submit" class="btn btn-sm btn-ghost text-emerald-600 gap-2" title="<?= t('notifidx_mark_read', 'Marquer comme lue') ?>">
                                 <i class="fas fa-check"></i><span class="hidden sm:inline"><?= t('notifidx_mark_read', 'Marquer comme lue') ?></span>
                             </button>

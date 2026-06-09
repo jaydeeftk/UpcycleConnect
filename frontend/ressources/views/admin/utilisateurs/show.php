@@ -50,6 +50,7 @@
             <h4 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider"><?= t('adm_users_admin_actions', 'Actions Administratives') ?></h4>
 
             <form method="POST" action="/admin/utilisateurs/<?= $utilisateur['id'] ?>/role" class="mb-4">
+            <?= csrf_field() ?>
                 <label class="block text-xs text-slate-500 font-semibold uppercase mb-1"><?= t('adm_users_account_role', 'Rôle du compte') ?></label>
                 <div class="flex gap-2">
                     <select name="role" class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500 flex-1">
@@ -65,6 +66,7 @@
             </form>
 
             <form method="POST" action="/admin/utilisateurs/<?= $utilisateur['id'] ?>/statut" class="mb-6">
+            <?= csrf_field() ?>
                 <label class="block text-xs text-slate-500 font-semibold uppercase mb-1"><?= t('adm_users_field_access_status', 'Statut d\'accès') ?></label>
                 <div class="flex gap-2">
                     <select name="statut" class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500 flex-1">

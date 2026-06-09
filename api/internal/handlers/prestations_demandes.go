@@ -8,6 +8,7 @@ import (
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/services"
 )
 
 // PrestationsDemandes gere les demandes de prestation du particulier connecte.
@@ -61,6 +62,16 @@ func creerDemandePrestation(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 	id, _ := res.LastInsertId()
+
+	// Email de confirmation au demandeur (fail-safe : ignore si SMTP non configure).
+	go func(userID int, objet string) {
+		var email, prenom string
+		if e := database.DB.QueryRow("SELECT Email, COALESCE(Prenom,'') FROM Utilisateurs WHERE Id_Utilisateurs = ?", userID).Scan(&email, &prenom); e == nil && email != "" {
+			services.SendGenericEmail(email, "Votre demande de prestation est enregistree",
+				"Bonjour "+prenom+",\n\nVotre demande \""+objet+"\" a bien ete enregistree sur UpcycleConnect. Un prestataire pourra vous contacter prochainement.\n\nL'equipe UpcycleConnect")
+		}
+	}(uid, body.NomObjet)
+
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "statut": "ouverte"})
 }
 

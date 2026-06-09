@@ -109,6 +109,11 @@
                                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
                             </div>
                             <div>
+                                <label class="block text-sm font-medium mb-2"><?= t('auth_label_phone', 'Téléphone') ?> <span class="text-base-content/40 text-xs font-normal">(<?= t('auth_optional', 'optionnel') ?>)</span></label>
+                                <input type="tel" name="telephone" value="<?= htmlspecialchars($telephone ?? '') ?>" placeholder="<?= t('auth_placeholder_phone', '06 12 34 56 78') ?>"
+                                    class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium mb-2"><?= t('auth_label_password', 'Mot de passe') ?></label>
                                 <input type="password" name="password" required minlength="8" title="8 caractères minimum, avec au moins une lettre et un chiffre" placeholder="••••••••"
                                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />

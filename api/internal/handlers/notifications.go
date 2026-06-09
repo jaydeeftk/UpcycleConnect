@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
 	"upcycleconnect/internal/notifier"
+	"upcycleconnect/internal/services"
 )
 
 // MesNotifications retourne les notifications de l'utilisateur connecté
@@ -124,46 +126,67 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 			Contenu           string `json:"contenu"`
 			IdAdministrateurs int    `json:"id_administrateurs"`
 			IdUtilisateurs    int    `json:"id_utilisateurs"`
+			EnvoyerEmail      bool   `json:"envoyer_email"`
+			EnvoyerPush       bool   `json:"envoyer_push"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 			return
 		}
 
+		// Destinataires : tous (id 0) ou un seul. On recupere id + email.
+		type cible struct {
+			id    int
+			email string
+		}
+		var cibles []cible
 		if body.IdUtilisateurs == 0 {
-			rows, err := database.DB.Query("SELECT Id_Utilisateurs FROM Utilisateurs")
+			rows, err := database.DB.Query("SELECT Id_Utilisateurs, COALESCE(Email,'') FROM Utilisateurs")
 			if err != nil {
 				httpx.JSONServerError(w, err)
 				return
 			}
-			defer rows.Close()
-			var ids []int
 			for rows.Next() {
-				var uid int
-				rows.Scan(&uid)
-				ids = append(ids, uid)
+				var c cible
+				rows.Scan(&c.id, &c.email)
+				cibles = append(cibles, c)
 			}
-			for _, uid := range ids {
-				database.DB.Exec(
-					"INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs) VALUES (?, NOW(), 0, ?, ?)",
-					body.Contenu, body.IdAdministrateurs, uid,
-				)
+			rows.Close()
+		} else {
+			c := cible{id: body.IdUtilisateurs}
+			database.DB.QueryRow("SELECT COALESCE(Email,'') FROM Utilisateurs WHERE Id_Utilisateurs = ?", c.id).Scan(&c.email)
+			cibles = append(cibles, c)
+		}
+
+		// Notification interne (toujours envoyee) + collecte ids/emails.
+		ids := make([]int, 0, len(cibles))
+		emails := make([]string, 0, len(cibles))
+		for _, c := range cibles {
+			database.DB.Exec(
+				"INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs) VALUES (?, NOW(), 0, ?, ?)",
+				body.Contenu, body.IdAdministrateurs, c.id,
+			)
+			ids = append(ids, c.id)
+			if c.email != "" {
+				emails = append(emails, c.email)
 			}
+		}
+
+		// Canaux optionnels choisis par l'admin.
+		if body.EnvoyerPush {
 			go notifier.SendPush(ids, body.Contenu)
-			httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Notification envoyée à tous", "count": len(ids)})
-			return
 		}
-		result, err := database.DB.Exec(
-			"INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs) VALUES (?, NOW(), 0, ?, ?)",
-			body.Contenu, body.IdAdministrateurs, body.IdUtilisateurs,
-		)
-		if err != nil {
-			httpx.JSONServerError(w, err)
-			return
+		if body.EnvoyerEmail {
+			go func(dests []string, msg string) {
+				for _, em := range dests {
+					if err := services.SendGenericEmail(em, "UpcycleConnect — Notification", msg); err != nil {
+						log.Printf("[mail] echec notif email a %s : %v", em, err)
+					}
+				}
+			}(emails, body.Contenu)
 		}
-		newID, _ := result.LastInsertId()
-		go notifier.SendPush([]int{body.IdUtilisateurs}, body.Contenu)
-		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": newID})
+
+		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"message": "Notification envoyée", "count": len(ids), "emails": len(emails)})
 
 	case http.MethodDelete:
 		database.DB.Exec("DELETE FROM Notifications WHERE Id_Notifications=?", id)

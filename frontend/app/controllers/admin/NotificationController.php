@@ -29,6 +29,8 @@ class NotificationController
                 'contenu'            => $_POST['contenu'] ?? '',
                 'id_administrateurs' => (int)($_SESSION['user']['id'] ?? 1),
                 'id_utilisateurs'    => (int)($_POST['id_utilisateurs'] ?? 0),
+                'envoyer_email'      => isset($_POST['envoyer_email']),
+                'envoyer_push'       => isset($_POST['envoyer_push']),
             ]);
         } catch (\Exception $e) {}
         redirect('/admin/notifications');

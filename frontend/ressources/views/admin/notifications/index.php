@@ -20,6 +20,16 @@
                 <input type="number" name="id_utilisateurs" value="0"
                     class="w-full border rounded-lg px-4 py-2 text-sm">
             </div>
+            <div class="flex flex-col gap-2 pt-1">
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" name="envoyer_push" value="1" checked class="rounded">
+                    <span><?= t('adm_notifs_channel_push', 'Aussi en notification push (OneSignal)') ?></span>
+                </label>
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" name="envoyer_email" value="1" class="rounded">
+                    <span><?= t('adm_notifs_channel_email', 'Aussi par email') ?></span>
+                </label>
+            </div>
             <button type="submit" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 w-full">
                 <i class="fas fa-paper-plane mr-2"></i><?= t('adm_btn_send', 'Envoyer') ?>
             </button>

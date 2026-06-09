@@ -76,8 +76,8 @@
                             <i class="fas fa-tag text-amber-500 text-xs"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold">${annonces} annonce${annonces > 1 ? 's' : ''} en attente</p>
-                            <p class="text-xs text-slate-400">À valider ou refuser</p>
+                            <p class="text-sm font-semibold">${annonces} ${annonces > 1 ? '<?= t('adm_chrome_annonces_pending_many', 'annonces en attente') ?>' : '<?= t('adm_chrome_annonces_pending_one', 'annonce en attente') ?>'}</p>
+                            <p class="text-xs text-slate-400"><?= t('adm_chrome_annonces_pending_hint', 'À valider ou refuser') ?></p>
                         </div>
                     </a>`;
                 }
@@ -87,13 +87,13 @@
                             <i class="fas fa-box text-blue-500 text-xs"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold">${demandes} demande${demandes > 1 ? 's' : ''} conteneur</p>
-                            <p class="text-xs text-slate-400">À traiter</p>
+                            <p class="text-sm font-semibold">${demandes} ${demandes > 1 ? '<?= t('adm_chrome_demandes_pending_many', 'demandes conteneur') ?>' : '<?= t('adm_chrome_demandes_pending_one', 'demande conteneur') ?>'}</p>
+                            <p class="text-xs text-slate-400"><?= t('adm_chrome_demandes_pending_hint', 'À traiter') ?></p>
                         </div>
                     </a>`;
                 }
                 if (html === '') {
-                    html = '<div class="px-4 py-8 text-center text-slate-400 text-sm"><i class="fas fa-check-circle text-emerald-500 text-2xl mb-2 block"></i>Aucune action requise</div>';
+                    html = '<div class="px-4 py-8 text-center text-slate-400 text-sm"><i class="fas fa-check-circle text-emerald-500 text-2xl mb-2 block"></i><?= t('adm_chrome_no_action', 'Aucune action requise') ?></div>';
                 }
                 list.innerHTML = html;
             } catch(e) {}
@@ -176,7 +176,7 @@
         <div class="p-4 border-t border-slate-800/50">
             <a href="/logout" class="flex items-center gap-4 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
                 <i class="fas fa-sign-out-alt text-lg"></i>
-                <span class="sb-text font-bold text-xs uppercase tracking-wider">Déconnexion</span>
+                <span class="sb-text font-bold text-xs uppercase tracking-wider"><?= t('adm_chrome_logout', 'Déconnexion') ?></span>
             </a>
         </div>
     </aside>
@@ -187,7 +187,7 @@
                 <button onclick="toggleSidebar()" class="p-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 transition-all active:scale-95">
                     <i class="fas fa-bars-staggered text-xl"></i>
                 </button>
-                <h2 class="font-bold text-sm text-slate-400 uppercase tracking-widest sb-text">Administration</h2>
+                <h2 class="font-bold text-sm text-slate-400 uppercase tracking-widest sb-text"><?= t('adm_chrome_admin', 'Administration') ?></h2>
             </div>
 
             <div class="flex items-center gap-3">
@@ -203,11 +203,11 @@
                     </button>
                     <div id="notif-panel" class="hidden absolute right-0 top-12 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl shadow-black/20 border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
                         <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <p class="font-bold text-sm">Actions requises</p>
+                            <p class="font-bold text-sm"><?= t('adm_chrome_actions_required', 'Actions requises') ?></p>
                             <button onclick="loadPendingCounts()" class="text-slate-400 hover:text-emerald-500 transition-colors text-xs"><i class="fas fa-sync-alt"></i></button>
                         </div>
                         <div id="notif-list" class="py-2 max-h-72 overflow-y-auto">
-                            <div class="px-4 py-6 text-center text-slate-400 text-sm"><i class="fas fa-spinner fa-spin mr-2"></i>Chargement...</div>
+                            <div class="px-4 py-6 text-center text-slate-400 text-sm"><i class="fas fa-spinner fa-spin mr-2"></i><?= t('adm_chrome_loading', 'Chargement...') ?></div>
                         </div>
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                 <div class="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
                     <div class="text-right hidden sm:block">
                         <p class="text-xs font-bold"><?= $_SESSION['admin_user'] ?? 'Admin' ?></p>
-                        <p class="text-[9px] text-emerald-500 font-black uppercase">Administrateur</p>
+                        <p class="text-[9px] text-emerald-500 font-black uppercase"><?= t('adm_chrome_admin_role', 'Administrateur') ?></p>
                     </div>
                     <div class="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white font-black shadow-lg shadow-emerald-500/20">A</div>
                 </div>

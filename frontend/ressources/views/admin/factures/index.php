@@ -1,6 +1,6 @@
 <div class="mb-6">
-    <h2 class="text-2xl font-bold">Factures</h2>
-    <p class="text-gray-600">Suivi financier de la plateforme</p>
+    <h2 class="text-2xl font-bold"><?= t('adm_factures_title', 'Factures') ?></h2>
+    <p class="text-gray-600"><?= t('adm_factures_subtitle', 'Suivi financier de la plateforme') ?></p>
 </div>
 
 <?php if (!empty($error)): ?>
@@ -13,18 +13,18 @@
     <table class="min-w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Numéro</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant TTC</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_factures_col_number', 'Numéro') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_factures_col_client', 'Client') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_factures_col_amount_ttc', 'Montant TTC') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_col_type', 'Type') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_col_date', 'Date') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_col_status', 'Statut') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_factures_col_document', 'Document') ?></th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
             <?php if (empty($factures)): ?>
-                <tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Aucune facture enregistrée.</td></tr>
+                <tr><td colspan="7" class="px-6 py-12 text-center text-gray-500"><?= t('adm_factures_empty', 'Aucune facture enregistrée.') ?></td></tr>
             <?php else: ?>
                 <?php foreach ($factures as $f): ?>
                 <tr>

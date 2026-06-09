@@ -1,10 +1,10 @@
 <div class="mb-6 flex items-center justify-between">
     <div>
-        <h2 class="text-2xl font-bold">Modifier le service</h2>
-        <p class="text-gray-600">Mise à jour du service #<?= $service['id'] ?? '' ?></p>
+        <h2 class="text-2xl font-bold"><?= t('adm_services_edit_title', 'Modifier le service') ?></h2>
+        <p class="text-gray-600"><?= t('adm_services_edit_subtitle', 'Mise à jour du service') ?> #<?= $service['id'] ?? '' ?></p>
     </div>
     <a href="/admin/services" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
-        <i class="fas fa-arrow-left mr-2"></i>Retour
+        <i class="fas fa-arrow-left mr-2"></i><?= t('adm_btn_back', 'Retour') ?>
     </a>
 </div>
 
@@ -12,29 +12,29 @@
     <form method="POST" action="/admin/services/<?= $service['id'] ?? '' ?>/update">
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium mb-1">Titre</label>
+                <label class="block text-sm font-medium mb-1"><?= t('adm_formations_label_titre', 'Titre') ?></label>
                 <input type="text" name="titre" required value="<?= htmlspecialchars($service['titre'] ?? '') ?>"
                     class="w-full border rounded-lg px-4 py-2">
             </div>
             <div>
-                <label class="block text-sm font-medium mb-1">Description</label>
+                <label class="block text-sm font-medium mb-1"><?= t('adm_services_label_description', 'Description') ?></label>
                 <textarea name="description" rows="3" class="w-full border rounded-lg px-4 py-2"><?= htmlspecialchars($service['description'] ?? '') ?></textarea>
             </div>
             <div class="grid grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Prix (€)</label>
+                    <label class="block text-sm font-medium mb-1"><?= t('adm_services_label_price', 'Prix (€)') ?></label>
                     <input type="number" step="0.01" name="prix" required
                         value="<?= htmlspecialchars($service['prix'] ?? '') ?>"
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Durée (h)</label>
+                    <label class="block text-sm font-medium mb-1"><?= t('adm_services_label_duration_h', 'Durée (h)') ?></label>
                     <input type="number" name="duree" required
                         value="<?= htmlspecialchars($service['duree'] ?? '') ?>"
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Catégorie</label>
+                    <label class="block text-sm font-medium mb-1"><?= t('adm_services_label_categorie', 'Catégorie') ?></label>
                     <input type="text" name="categorie"
                         value="<?= htmlspecialchars($service['categorie'] ?? '') ?>"
                         class="w-full border rounded-lg px-4 py-2">
@@ -42,8 +42,8 @@
             </div>
         </div>
         <div class="flex gap-4 mt-6">
-            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">Enregistrer</button>
-            <a href="/admin/services" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Annuler</a>
+            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"><?= t('adm_btn_save', 'Enregistrer') ?></button>
+            <a href="/admin/services" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"><?= t('adm_btn_cancel', 'Annuler') ?></a>
         </div>
     </form>
 </div>

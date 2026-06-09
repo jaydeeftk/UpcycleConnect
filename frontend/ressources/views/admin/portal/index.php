@@ -9,30 +9,30 @@
     <div class="bg-white rounded-2xl shadow-xl p-10 w-full max-w-sm">
         <div class="text-center mb-8">
             <span class="text-4xl">🔒</span>
-            <h1 class="text-2xl font-bold mt-3">Portail Haute Sécurité</h1>
-            <p class="text-gray-500 text-sm mt-1">Accès réservé aux administrateurs UpcycleConnect</p>
+            <h1 class="text-2xl font-bold mt-3"><?= t('adm_portal_title', 'Portail Haute Sécurité') ?></h1>
+            <p class="text-gray-500 text-sm mt-1"><?= t('adm_portal_subtitle', 'Accès réservé aux administrateurs UpcycleConnect') ?></p>
         </div>
         <?php if (!empty($error)): ?>
             <div class="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3 mb-4"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
         <form method="POST" action="/maintenance-login" class="space-y-4">
             <div>
-                <label class="block text-sm font-medium mb-1">Identifiant Administrateur</label>
+                <label class="block text-sm font-medium mb-1"><?= t('adm_portal_label_id', 'Identifiant Administrateur') ?></label>
                 <input type="email" name="email" placeholder="admin@upcycleconnect.fr"
                     class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300">
             </div>
             <div>
-                <label class="block text-sm font-medium mb-1">Mot de passe</label>
+                <label class="block text-sm font-medium mb-1"><?= t('adm_portal_label_password', 'Mot de passe') ?></label>
                 <input type="password" name="password"
                     class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300">
             </div>
             <button type="submit"
                 class="w-full bg-gray-900 text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition">
-                Accéder au panneau
+                <?= t('adm_portal_submit', 'Accéder au panneau') ?>
             </button>
         </form>
         <div class="text-center mt-6">
-            <a href="/" class="text-xs text-gray-400 hover:text-gray-600">← Retour</a>
+            <a href="/" class="text-xs text-gray-400 hover:text-gray-600"><?= t('adm_portal_back', '← Retour') ?></a>
         </div>
     </div>
 </body>

@@ -51,7 +51,7 @@ class AtelierController
                 'id_salaries'  => $_SESSION['user']['id'] ?? 0
             ]);
 
-            $_SESSION['success'] = 'Atelier ajouté avec succès.';
+            $_SESSION['success'] = t('sal_flash_atelier_added', 'Atelier ajouté avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -89,7 +89,7 @@ class AtelierController
                 'lieu'         => $_POST['lieu'] ?? '',
             ]);
 
-            $_SESSION['success'] = 'Atelier modifié avec succès.';
+            $_SESSION['success'] = t('sal_flash_atelier_updated', 'Atelier modifié avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -101,7 +101,7 @@ class AtelierController
     {
         try {
             $this->api->delete('/salaries/ateliers/' . $id);
-            $_SESSION['success'] = 'Atelier supprimé avec succès.';
+            $_SESSION['success'] = t('sal_flash_atelier_deleted', 'Atelier supprimé avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }

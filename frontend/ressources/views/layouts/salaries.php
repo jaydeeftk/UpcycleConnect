@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salarié | UpcycleConnect</title>
+    <title><?= t('sal_page_title', 'Salarié') ?> | UpcycleConnect</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -109,49 +109,49 @@
                     <a href="/salaries/dashboard"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'dashboard') ? 'active' : '' ?>">
                         <i class="fas fa-tachometer-alt text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Tableau de bord</span>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_dashboard', 'Tableau de bord') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/salaries/conseils"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'conseils') ? 'active' : '' ?>">
                         <i class="fas fa-lightbulb text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Conseils</span>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_conseils', 'Conseils') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/salaries/forum"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'forum') ? 'active' : '' ?>">
                         <i class="fas fa-comments text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Forum</span>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_forum', 'Forum') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/salaries/formations"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'formations') ? 'active' : '' ?>">
                         <i class="fas fa-graduation-cap text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Formations</span>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_formations', 'Formations') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/salaries/evenements"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'evenements') ? 'active' : '' ?>">
                         <i class="fas fa-calendar-alt text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Événements</span>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_evenements', 'Événements') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/salaries/ateliers"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'ateliers') ? 'active' : '' ?>">
                         <i class="fas fa-tools text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Ateliers</span>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_ateliers', 'Ateliers') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/salaries/planning"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'planning') ? 'active' : '' ?>">
                         <i class="fas fa-calendar-week text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm">Planning</span>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_planning', 'Planning') ?></span>
                     </a>
                 </li>
             </ul>
@@ -162,7 +162,7 @@
                         <a href="/" target="_blank"
                            class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white">
                             <i class="fas fa-external-link-alt text-lg w-5 text-center"></i>
-                            <span class="sb-text font-semibold text-sm">Voir le site</span>
+                            <span class="sb-text font-semibold text-sm"><?= t('sal_nav_view_site', 'Voir le site') ?></span>
                         </a>
                     </li>
                 </ul>
@@ -172,7 +172,7 @@
         <div class="p-4 border-t border-slate-800/50">
             <a href="/logout" class="flex items-center gap-4 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
                 <i class="fas fa-sign-out-alt text-lg"></i>
-                <span class="sb-text font-bold text-xs uppercase tracking-wider">Déconnexion</span>
+                <span class="sb-text font-bold text-xs uppercase tracking-wider"><?= t('sal_logout', 'Déconnexion') ?></span>
             </a>
         </div>
     </aside>
@@ -183,7 +183,7 @@
                 <button onclick="toggleSidebar()" class="p-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 transition-all active:scale-95">
                     <i class="fas fa-bars-staggered text-xl"></i>
                 </button>
-                <h2 class="font-bold text-sm text-slate-400 uppercase tracking-widest sb-text">Espace Salarié</h2>
+                <h2 class="font-bold text-sm text-slate-400 uppercase tracking-widest sb-text"><?= t('sal_space', 'Espace Salarié') ?></h2>
             </div>
 
             <div class="flex items-center gap-3">
@@ -195,7 +195,7 @@
                 <div class="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
                     <div class="text-right hidden sm:block">
                         <p class="text-xs font-bold"><?= htmlspecialchars(($_SESSION['user']['prenom'] ?? '') . ' ' . ($_SESSION['user']['nom'] ?? '')) ?></p>
-                        <p class="text-[9px] text-emerald-500 font-black uppercase"><?= htmlspecialchars($_SESSION['user']['poste'] ?? 'Salarié') ?></p>
+                        <p class="text-[9px] text-emerald-500 font-black uppercase"><?= htmlspecialchars($_SESSION['user']['poste'] ?? t('sal_role', 'Salarié')) ?></p>
                     </div>
                     <div class="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white font-black shadow-lg shadow-emerald-500/20">
                         <?= strtoupper(substr($_SESSION['user']['prenom'] ?? 'S', 0, 1)) ?>
@@ -222,7 +222,7 @@
     </div>
 
     <script>
-    function confirmer(m,c){var d=document.documentElement.classList.contains('dark');var s=d?'#1e293b':'#fff',t=d?'#f1f5f9':'#0f172a',b=d?'#334155':'#e2e8f0',u=d?'#94a3b8':'#64748b';var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center';o.innerHTML='<div style="background:'+s+';border:1px solid '+b+';border-radius:12px;padding:24px;max-width:360px;width:90%;text-align:center;font-family:inherit"><p style="color:'+t+';margin:0 0 20px;font-size:15px">'+m+'</p><button type="button" id="uc-c" style="margin-right:8px;padding:8px 20px;border:1px solid '+b+';border-radius:8px;background:transparent;color:'+u+';cursor:pointer">Annuler</button><button type="button" id="uc-o" style="padding:8px 20px;border:none;border-radius:8px;background:#ef4444;color:#fff;cursor:pointer">Confirmer</button></div>';document.body.appendChild(o);o.querySelector('#uc-c').onclick=function(){o.remove()};o.querySelector('#uc-o').onclick=function(){o.remove();c()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+    function confirmer(m,c){var d=document.documentElement.classList.contains('dark');var s=d?'#1e293b':'#fff',t=d?'#f1f5f9':'#0f172a',b=d?'#334155':'#e2e8f0',u=d?'#94a3b8':'#64748b';var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center';o.innerHTML='<div style="background:'+s+';border:1px solid '+b+';border-radius:12px;padding:24px;max-width:360px;width:90%;text-align:center;font-family:inherit"><p style="color:'+t+';margin:0 0 20px;font-size:15px">'+m+'</p><button type="button" id="uc-c" style="margin-right:8px;padding:8px 20px;border:1px solid '+b+';border-radius:8px;background:transparent;color:'+u+';cursor:pointer"><?= t('sal_cancel', 'Annuler') ?></button><button type="button" id="uc-o" style="padding:8px 20px;border:none;border-radius:8px;background:#ef4444;color:#fff;cursor:pointer"><?= t('sal_confirm', 'Confirmer') ?></button></div>';document.body.appendChild(o);o.querySelector('#uc-c').onclick=function(){o.remove()};o.querySelector('#uc-o').onclick=function(){o.remove();c()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
     function ucConfirm(el,m){confirmer(m,function(){if(el.tagName==='A'){window.location.href=el.href}else{var f=el.closest?el.closest('form'):null;if(f)f.submit()}});return false}
     </script>
 </body>

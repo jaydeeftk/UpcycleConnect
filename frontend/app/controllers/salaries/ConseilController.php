@@ -51,7 +51,7 @@ class ConseilController
                 'id_salaries'  => $_SESSION['user']['id'] ?? 0
             ]);
 
-            $_SESSION['success'] = 'Conseil ajouté avec succès.';
+            $_SESSION['success'] = t('sal_flash_conseil_added', 'Conseil ajouté avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -87,7 +87,7 @@ class ConseilController
                 'contenu' => $_POST['contenu'] ?? ''
             ]);
 
-            $_SESSION['success'] = 'Conseil modifié avec succès.';
+            $_SESSION['success'] = t('sal_flash_conseil_updated', 'Conseil modifié avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -99,7 +99,7 @@ class ConseilController
     {
         try {
             $this->api->delete('/salaries/conseils/' . $id);
-            $_SESSION['success'] = 'Conseil supprimé avec succès.';
+            $_SESSION['success'] = t('sal_flash_conseil_deleted', 'Conseil supprimé avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }

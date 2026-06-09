@@ -46,7 +46,7 @@ class ForumController
     {
         try {
             $this->api->delete('/salaries/forum/sujets/' . $id);
-            $_SESSION['success'] = 'Sujet supprimé.';
+            $_SESSION['success'] = t('sal_flash_sujet_deleted', 'Sujet supprimé.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -57,7 +57,7 @@ class ForumController
     {
         try {
             $this->api->delete('/salaries/forum/reponses/' . $id);
-            $_SESSION['success'] = 'Réponse supprimée.';
+            $_SESSION['success'] = t('sal_flash_reponse_deleted', 'Réponse supprimée.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }

@@ -1,8 +1,8 @@
 
 
 <div class="mb-6">
-    <h2 class="text-2xl font-bold">Tableau de bord</h2>
-    <p class="text-gray-600">Bienvenue, <?= htmlspecialchars($_SESSION['user']['prenom'] ?? 'Salarié') ?> !</p>
+    <h2 class="text-2xl font-bold"><?= t('sal_dashboard_title', 'Tableau de bord') ?></h2>
+    <p class="text-gray-600"><?= t('sal_dashboard_welcome', 'Bienvenue') ?>, <?= htmlspecialchars($_SESSION['user']['prenom'] ?? t('sal_role', 'Salarié')) ?> !</p>
 </div>
 
 
@@ -10,64 +10,64 @@
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Conseils</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_nav_conseils', 'Conseils') ?></p>
                 <p class="text-3xl font-bold text-yellow-600"><?= $nb_conseils ?></p>
             </div>
             <i class="fas fa-lightbulb text-4xl text-yellow-400"></i>
         </div>
         <a href=" /salaries/conseils"
-           class="text-sm text-yellow-600 hover:underline mt-3 block">Gérer →</a>
+           class="text-sm text-yellow-600 hover:underline mt-3 block"><?= t('sal_manage', 'Gérer') ?> →</a>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Événements</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_nav_evenements', 'Événements') ?></p>
                 <p class="text-3xl font-bold text-blue-600"><?= $nb_evenements ?></p>
             </div>
             <i class="fas fa-calendar-alt text-4xl text-blue-400"></i>
         </div>
         <a href=" /salaries/evenements"
-   class="text-sm text-blue-600 hover:underline mt-3 block">Gérer →</a>
+   class="text-sm text-blue-600 hover:underline mt-3 block"><?= t('sal_manage', 'Gérer') ?> →</a>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Formations</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_nav_formations', 'Formations') ?></p>
                 <p class="text-3xl font-bold text-green-600"><?= $nb_formations ?></p>
             </div>
             <i class="fas fa-graduation-cap text-4xl text-green-400"></i>
         </div>
        <a href=" /salaries/formations"
-   class="text-sm text-green-600 hover:underline mt-3 block">Gérer →</a>
+   class="text-sm text-green-600 hover:underline mt-3 block"><?= t('sal_manage', 'Gérer') ?> →</a>
 
     </div>
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Ateliers</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_nav_ateliers', 'Ateliers') ?></p>
                 <p class="text-3xl font-bold text-purple-600"><?= $nb_ateliers ?></p>
             </div>
             <i class="fas fa-tools text-4xl text-purple-400"></i>
         </div>
         <a href=" /salaries/ateliers"
-   class="text-sm text-purple-600 hover:underline mt-3 block">Gérer →</a>
+   class="text-sm text-purple-600 hover:underline mt-3 block"><?= t('sal_manage', 'Gérer') ?> →</a>
     </div>
 </div>
 
 
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h3 class="text-lg font-bold">Prochaines activités</h3>
+        <h3 class="text-lg font-bold"><?= t('sal_dashboard_next_activities', 'Prochaines activités') ?></h3>
         <a href=" /salaries/planning"
-           class="text-sm text-green-600 hover:underline">Voir tout →</a>
+           class="text-sm text-green-600 hover:underline"><?= t('sal_see_all', 'Voir tout') ?> →</a>
     </div>
     <table class="min-w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Titre</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_type', 'Type') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_titre', 'Titre') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_date', 'Date') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_statut', 'Statut') ?></th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -75,7 +75,7 @@
             <tr>
                 <td colspan="4" class="px-6 py-8 text-center text-gray-500">
                     <i class="fas fa-calendar text-3xl mb-2 text-gray-300 block"></i>
-                    Aucune activité planifiée.
+                    <?= t('sal_dashboard_no_activity', 'Aucune activité planifiée.') ?>
                 </td>
             </tr>
             <?php else: ?>
@@ -84,15 +84,15 @@
                 <td class="px-6 py-4">
                     <?php if (($item['type'] ?? '') === 'evenement'): ?>
                         <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                            <i class="fas fa-calendar-alt mr-1"></i>Événement
+                            <i class="fas fa-calendar-alt mr-1"></i><?= t('sal_type_evenement', 'Événement') ?>
                         </span>
                     <?php elseif (($item['type'] ?? '') === 'formation'): ?>
                         <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                            <i class="fas fa-graduation-cap mr-1"></i>Formation
+                            <i class="fas fa-graduation-cap mr-1"></i><?= t('sal_type_formation', 'Formation') ?>
                         </span>
                     <?php else: ?>
                         <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
-                            <i class="fas fa-tools mr-1"></i>Atelier
+                            <i class="fas fa-tools mr-1"></i><?= t('sal_type_atelier', 'Atelier') ?>
                         </span>
                     <?php endif; ?>
                 </td>

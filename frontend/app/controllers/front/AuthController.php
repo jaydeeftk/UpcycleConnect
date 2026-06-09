@@ -69,14 +69,11 @@ class AuthController
 
     public function register()
     {
-        $nom = $_POST['nom'] ?? '';
+        $prenom = trim($_POST['prenom'] ?? '');
+        $nomFamille = trim($_POST['nom'] ?? '');
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
         $role = $_POST['role'] ?? 'particulier';
-
-        $nomParts = explode(' ', trim($nom), 2);
-        $prenom = $nomParts[0] ?? '';
-        $nomFamille = $nomParts[1] ?? '';
 
         $payload = [
             'nom' => $nomFamille,
@@ -110,6 +107,8 @@ class AuthController
                 'error' => $e->getMessage(),
                 'activeTab' => 'register',
                 'email' => $email,
+                'prenom' => $prenom,
+                'nom' => $nomFamille,
             ]);
         }
     }

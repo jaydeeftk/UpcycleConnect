@@ -1,28 +1,28 @@
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-        <h2 class="text-2xl font-bold text-slate-800">Gestion des Annonces</h2>
-        <p class="text-slate-500">Modérez les publications</p>
+        <h2 class="text-2xl font-bold text-slate-800"><?= t('adm_annonces_title', 'Gestion des Annonces') ?></h2>
+        <p class="text-slate-500"><?= t('adm_annonces_subtitle', 'Modérez les publications') ?></p>
     </div>
     <input type="text" id="filter-annonces" onkeyup="filterTable('filter-annonces','table-annonces')"
-        placeholder="Filtrer par titre, ville, statut..."
+        placeholder="<?= t('adm_annonces_filter', 'Filtrer par titre, ville, statut...') ?>"
         class="border border-slate-200 rounded-lg px-4 py-2 text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-emerald-300">
 </div>
 
 <?php if (empty($annonces)): ?>
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center text-slate-400 italic">
         <i class="fas fa-bullhorn text-5xl mb-4 text-slate-200"></i>
-        <p>Aucune annonce trouvée dans la base de données.</p>
+        <p><?= t('adm_annonces_empty', 'Aucune annonce trouvée dans la base de données.') ?></p>
     </div>
 <?php else: ?>
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <table id="table-annonces" class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-                    <th class="p-4 font-semibold">ID</th>
-                    <th class="p-4 font-semibold">Annonce</th>
-                    <th class="p-4 font-semibold">Prix / Ville</th>
-                    <th class="p-4 font-semibold">Statut</th>
-                    <th class="p-4 font-semibold text-right">Actions</th>
+                    <th class="p-4 font-semibold"><?= t('adm_col_id', 'ID') ?></th>
+                    <th class="p-4 font-semibold"><?= t('adm_annonces_col_annonce', 'Annonce') ?></th>
+                    <th class="p-4 font-semibold"><?= t('adm_annonces_col_price_city', 'Prix / Ville') ?></th>
+                    <th class="p-4 font-semibold"><?= t('adm_col_status', 'Statut') ?></th>
+                    <th class="p-4 font-semibold text-right"><?= t('adm_col_actions', 'Actions') ?></th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -59,25 +59,25 @@
                     <td class="p-4 text-right">
                         <div class="flex justify-end gap-2">
                             <button onclick='openAnnonceDetail(<?= htmlspecialchars(json_encode($a)) ?>)'
-                                class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors" title="Voir détail">
+                                class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors" title="<?= t('adm_btn_view_detail', 'Voir détail') ?>">
                                 <i class="fas fa-eye text-xs"></i>
                             </button>
                             <?php if ($status !== 'validee'): ?>
                                 <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/valider">
-                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="Valider">
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>">
                                         <i class="fas fa-check text-xs"></i>
                                     </button>
                                 </form>
                             <?php endif; ?>
                             <?php if ($status !== 'rejetee' && $status !== 'refusee'): ?>
                                 <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/refuser">
-                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="Refuser">
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="<?= t('adm_btn_refuse', 'Refuser') ?>">
                                         <i class="fas fa-times text-xs"></i>
                                     </button>
                                 </form>
                             <?php endif; ?>
-                            <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/supprimer" onsubmit="return ucConfirm(this, 'Supprimer définitivement cette annonce ?')">
-                                <button type="submit" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" title="Supprimer">
+                            <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/supprimer" onsubmit="return ucConfirm(this, '<?= t('adm_annonces_confirm_delete', 'Supprimer définitivement cette annonce ?') ?>')">
+                                <button type="submit" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
                                     <i class="fas fa-trash text-xs"></i>
                                 </button>
                             </form>
@@ -94,24 +94,24 @@
 <div id="modal-annonce" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <h3 class="text-lg font-bold text-slate-800" id="annonce-modal-titre">Détail annonce</h3>
+            <h3 class="text-lg font-bold text-slate-800" id="annonce-modal-titre"><?= t('adm_annonces_modal_title', 'Détail annonce') ?></h3>
             <button onclick="document.getElementById('modal-annonce').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
         </div>
         <div class="p-6 space-y-4 text-sm">
             <div class="grid grid-cols-2 gap-4">
-                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1">Prix</p><p id="annonce-prix" class="font-bold text-emerald-600"></p></div>
-                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1">Ville</p><p id="annonce-ville" class="font-medium text-slate-700"></p></div>
-                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1">Catégorie</p><p id="annonce-categorie" class="font-medium text-slate-700"></p></div>
-                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1">Statut</p><p id="annonce-statut" class="font-medium text-slate-700"></p></div>
+                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1"><?= t('adm_col_price', 'Prix') ?></p><p id="annonce-prix" class="font-bold text-emerald-600"></p></div>
+                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1"><?= t('adm_annonces_modal_city', 'Ville') ?></p><p id="annonce-ville" class="font-medium text-slate-700"></p></div>
+                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1"><?= t('adm_annonces_modal_categorie', 'Catégorie') ?></p><p id="annonce-categorie" class="font-medium text-slate-700"></p></div>
+                <div><p class="text-xs text-slate-400 uppercase font-bold mb-1"><?= t('adm_col_status', 'Statut') ?></p><p id="annonce-statut" class="font-medium text-slate-700"></p></div>
             </div>
-            <div><p class="text-xs text-slate-400 uppercase font-bold mb-1">Description complète</p><p id="annonce-desc" class="text-slate-600 leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto"></p></div>
+            <div><p class="text-xs text-slate-400 uppercase font-bold mb-1"><?= t('adm_annonces_modal_full_desc', 'Description complète') ?></p><p id="annonce-desc" class="text-slate-600 leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto"></p></div>
         </div>
     </div>
 </div>
 
 <script>
 function openAnnonceDetail(a) {
-    document.getElementById('annonce-modal-titre').textContent = a.titre || 'Annonce';
+    document.getElementById('annonce-modal-titre').textContent = a.titre || '<?= t('adm_annonces_js_default_title', 'Annonce') ?>';
     document.getElementById('annonce-prix').textContent = parseFloat(a.prix || 0).toFixed(2) + ' €';
     document.getElementById('annonce-ville').textContent = a.ville || '—';
     document.getElementById('annonce-categorie').textContent = a.categorie || '—';

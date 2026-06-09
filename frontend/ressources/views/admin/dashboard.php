@@ -1,15 +1,15 @@
 <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
     <div class="flex items-end justify-between">
         <div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Bienvenue, Admin</h1>
-            <p class="text-slate-500 dark:text-slate-400 font-medium">Voici l'état de votre plateforme aujourd'hui.</p>
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white"><?= t('adm_dash_welcome', 'Bienvenue, Admin') ?></h1>
+            <p class="text-slate-500 dark:text-slate-400 font-medium"><?= t('adm_dash_subtitle', 'Voici l\'état de votre plateforme aujourd\'hui.') ?></p>
         </div>
         <div class="flex gap-3">
             <button class="btn btn-ghost bg-white dark:bg-slate-800 shadow-sm border-slate-200 dark:border-slate-700 hover:scale-105 active:scale-95 transition-all">
-                <i class="fas fa-download mr-2"></i> Exporter
+                <i class="fas fa-download mr-2"></i> <?= t('adm_dash_export', 'Exporter') ?>
             </button>
             <button class="btn btn-primary shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all">
-                <i class="fas fa-plus mr-2"></i> Nouvelle action
+                <i class="fas fa-plus mr-2"></i> <?= t('adm_dash_new_action', 'Nouvelle action') ?>
             </button>
         </div>
     </div>
@@ -17,10 +17,10 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <?php 
         $stats = [
-            ['label' => 'Visites aujourd\'hui', 'val' => '222', 'color' => 'text-emerald-500', 'bg' => 'bg-emerald-500/10'],
-            ['label' => 'Visites 7 jours', 'val' => '1,554', 'color' => 'text-blue-500', 'bg' => 'bg-blue-500/10'],
-            ['label' => 'Utilisateurs', 'val' => '5', 'color' => 'text-purple-500', 'bg' => 'bg-purple-500/10'],
-            ['label' => 'Messages', 'val' => '19', 'color' => 'text-orange-500', 'bg' => 'bg-orange-500/10'],
+            ['label' => t('adm_dash_stat_visits_today', 'Visites aujourd\'hui'), 'val' => '222', 'color' => 'text-emerald-500', 'bg' => 'bg-emerald-500/10'],
+            ['label' => t('adm_dash_stat_visits_7d', 'Visites 7 jours'), 'val' => '1,554', 'color' => 'text-blue-500', 'bg' => 'bg-blue-500/10'],
+            ['label' => t('adm_dash_stat_users', 'Utilisateurs'), 'val' => '5', 'color' => 'text-purple-500', 'bg' => 'bg-purple-500/10'],
+            ['label' => t('adm_dash_stat_messages', 'Messages'), 'val' => '19', 'color' => 'text-orange-500', 'bg' => 'bg-orange-500/10'],
         ];
         foreach($stats as $s): ?>
         <div class="group bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/30 transition-all duration-300">
@@ -38,10 +38,10 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between mb-8">
-                <h3 class="font-bold text-lg">Activité Générale</h3>
+                <h3 class="font-bold text-lg"><?= t('adm_dash_general_activity', 'Activité Générale') ?></h3>
                 <select class="select select-sm select-bordered bg-slate-50 dark:bg-slate-800">
-                    <option>7 derniers jours</option>
-                    <option>30 derniers jours</option>
+                    <option><?= t('adm_dash_range_7d', '7 derniers jours') ?></option>
+                    <option><?= t('adm_dash_range_30d', '30 derniers jours') ?></option>
                 </select>
             </div>
             <div class="h-[300px]">
@@ -50,7 +50,7 @@
         </div>
 
         <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <h3 class="font-bold text-lg mb-6">Dernières Activités</h3>
+            <h3 class="font-bold text-lg mb-6"><?= t('adm_dash_recent_activity', 'Dernières Activités') ?></h3>
             <div class="space-y-6">
                 <?php for($i=0; $i<4; $i++): ?>
                 <div class="flex items-center gap-4">
@@ -67,10 +67,10 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
          <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <h3 class="font-bold text-lg mb-6">Prestations récentes</h3>
+            <h3 class="font-bold text-lg mb-6"><?= t('adm_dash_recent_prestations', 'Prestations récentes') ?></h3>
             <div class="overflow-x-auto">
                 <table class="table w-full">
-                    <thead><tr class="text-slate-400 border-slate-100 dark:border-slate-800"><th>Titre</th><th>Catégorie</th><th>Prix</th></tr></thead>
+                    <thead><tr class="text-slate-400 border-slate-100 dark:border-slate-800"><th><?= t('adm_dash_col_titre', 'Titre') ?></th><th><?= t('adm_dash_col_categorie', 'Catégorie') ?></th><th><?= t('adm_dash_col_prix', 'Prix') ?></th></tr></thead>
                     <tbody>
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer border-slate-100 dark:border-slate-800">
                             <td class="font-bold">Réparation vélo</td>
@@ -83,15 +83,15 @@
         </div>
 
         <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <h3 class="font-bold text-lg mb-6">Actions Rapides</h3>
+            <h3 class="font-bold text-lg mb-6"><?= t('adm_dash_quick_actions', 'Actions Rapides') ?></h3>
             <div class="grid grid-cols-2 gap-4">
                 <button class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group">
                     <i class="fas fa-user-plus mb-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
-                    <p class="font-bold text-sm">Ajouter Utilisateur</p>
+                    <p class="font-bold text-sm"><?= t('adm_dash_add_user', 'Ajouter Utilisateur') ?></p>
                 </button>
                 <button class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all text-left group">
                     <i class="fas fa-calendar-plus mb-3 text-blue-500 group-hover:scale-110 transition-transform"></i>
-                    <p class="font-bold text-sm">Créer Événement</p>
+                    <p class="font-bold text-sm"><?= t('adm_dash_create_event', 'Créer Événement') ?></p>
                 </button>
             </div>
         </div>

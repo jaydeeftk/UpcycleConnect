@@ -12,8 +12,8 @@
     <aside class="w-72 flex-shrink-0 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div>
-                <h2 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Messages internes</h2>
-                <p class="text-xs text-slate-400 mt-0.5" id="conv-count">Chargement...</p>
+                <h2 class="font-bold text-slate-800 dark:text-slate-100 text-sm"><?= t('adm_messages_internal', 'Messages internes') ?></h2>
+                <p class="text-xs text-slate-400 mt-0.5" id="conv-count"><?= t('adm_messages_loading', 'Chargement...') ?></p>
             </div>
             <button onclick="loadConvList()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-emerald-500 transition-colors">
                 <i class="fas fa-sync-alt text-xs"></i>
@@ -22,13 +22,13 @@
         <div class="p-3 border-b border-slate-100 dark:border-slate-800">
             <div class="relative">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="search-input" oninput="filterConvs(this.value)" placeholder="Rechercher..."
+                <input type="text" id="search-input" oninput="filterConvs(this.value)" placeholder="<?= t('adm_messages_search_ph', 'Rechercher...') ?>"
                     class="w-full pl-8 pr-3 py-2 text-xs bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-emerald-500 outline-none text-slate-700 dark:text-slate-300">
             </div>
         </div>
         <div id="conv-list" class="flex-1 overflow-y-auto no-scrollbar">
             <div class="flex items-center justify-center h-20 text-slate-400 text-xs gap-2">
-                <i class="fas fa-spinner fa-spin"></i> Chargement...
+                <i class="fas fa-spinner fa-spin"></i> <?= t('adm_messages_loading', 'Chargement...') ?>
             </div>
         </div>
     </aside>
@@ -53,8 +53,8 @@
                 <i class="fas fa-comments text-2xl opacity-30"></i>
             </div>
             <div class="text-center">
-                <p class="font-semibold text-sm text-slate-500 dark:text-slate-400">Selectionnez une conversation</p>
-                <p class="text-xs text-slate-400 mt-1">Choisissez un utilisateur dans la liste</p>
+                <p class="font-semibold text-sm text-slate-500 dark:text-slate-400"><?= t('adm_messages_select_conv', 'Selectionnez une conversation') ?></p>
+                <p class="text-xs text-slate-400 mt-1"><?= t('adm_messages_choose_user', 'Choisissez un utilisateur dans la liste') ?></p>
             </div>
         </div>
 
@@ -67,7 +67,7 @@
                         oninput="autoResize(this)"
                         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendReply();}"
                         class="w-full bg-transparent border-none focus:ring-0 text-sm resize-none leading-5 max-h-32 overflow-y-auto outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400"
-                        placeholder="Repondre a cet utilisateur..."></textarea>
+                        placeholder="<?= t('adm_messages_reply_ph', 'Repondre a cet utilisateur...') ?>"></textarea>
                 </div>
                 <button onclick="sendReply()" id="send-btn"
                     class="bg-emerald-500 text-white w-10 h-10 rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex-shrink-0 flex items-center justify-center">
@@ -95,21 +95,21 @@
     function initials(nom, prenom) { return (((prenom||'')[0]||'')+((nom||'')[0]||'')).toUpperCase()||'U'; }
 
     window.loadConvList = function() {
-        if (!TOKEN) { document.getElementById('conv-list').innerHTML='<div class="p-4 text-center text-red-400 text-xs">Session expiree</div>'; return; }
+        if (!TOKEN) { document.getElementById('conv-list').innerHTML='<div class="p-4 text-center text-red-400 text-xs"><?= t('adm_messages_js_session_expired', 'Session expiree') ?></div>'; return; }
         fetch('/api/admin/messages', {headers:{'Authorization':'Bearer '+TOKEN}})
             .then(function(r){return r.json();})
             .then(function(d){
                 allConvs = d.data||d||[];
-                document.getElementById('conv-count').textContent = allConvs.length+' conversation'+(allConvs.length>1?'s':'');
+                document.getElementById('conv-count').textContent = allConvs.length+' '+(allConvs.length>1?'<?= t('adm_messages_js_conv_many', 'conversations') ?>':'<?= t('adm_messages_js_conv_one', 'conversation') ?>');
                 renderConvList(allConvs);
                 restoreActiveConv();
             })
-            .catch(function(){ document.getElementById('conv-list').innerHTML='<div class="p-4 text-center text-red-400 text-xs">Erreur de chargement</div>'; });
+            .catch(function(){ document.getElementById('conv-list').innerHTML='<div class="p-4 text-center text-red-400 text-xs"><?= t('adm_messages_js_load_error', 'Erreur de chargement') ?></div>'; });
     };
 
     function renderConvList(convs) {
         var el = document.getElementById('conv-list');
-        if (!convs.length) { el.innerHTML='<div class="p-6 text-center text-slate-400 text-xs">Aucune conversation</div>'; return; }
+        if (!convs.length) { el.innerHTML='<div class="p-6 text-center text-slate-400 text-xs"><?= t('adm_messages_js_no_conv', 'Aucune conversation') ?></div>'; return; }
         el.innerHTML = convs.map(function(c) {
             var init = initials(c.nom, c.prenom);
             var isActive = c.id_utilisateur === selectedUID;
@@ -139,7 +139,7 @@
         document.getElementById('reply-box').style.display = 'block';
         document.getElementById('chat-header').style.display = 'block';
         document.getElementById('send-error').classList.add('hidden');
-        document.getElementById('chat-name').textContent = ((el.dataset.prenom||'')+' '+(el.dataset.nom||'')).trim()||'Utilisateur';
+        document.getElementById('chat-name').textContent = ((el.dataset.prenom||'')+' '+(el.dataset.nom||'')).trim()||'<?= t('adm_messages_js_default_user', 'Utilisateur') ?>';
         document.getElementById('chat-email').textContent = el.dataset.email||'';
         document.getElementById('chat-avatar').textContent = initials(el.dataset.nom, el.dataset.prenom);
         loadHistory(selectedUID);
@@ -153,7 +153,7 @@
         fetch('/api/messages/user/'+uid, {headers:{'Authorization':'Bearer '+TOKEN}})
             .then(function(r){return r.json();})
             .then(function(d){ renderMessages(d.data||d||[]); })
-            .catch(function(){ area.innerHTML='<div class="text-center text-red-400 text-sm py-8">Erreur de chargement</div>'; });
+            .catch(function(){ area.innerHTML='<div class="text-center text-red-400 text-sm py-8"><?= t('adm_messages_js_load_error', 'Erreur de chargement') ?></div>'; });
     };
 
     function silentRefresh() {
@@ -169,7 +169,7 @@
     function renderMessages(msgs) {
         var area = document.getElementById('messages-area');
         var atBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 60;
-        if (!msgs.length) { area.innerHTML='<div class="text-center text-slate-400 text-sm py-10 opacity-50">Aucun message</div>'; return; }
+        if (!msgs.length) { area.innerHTML='<div class="text-center text-slate-400 text-sm py-10 opacity-50"><?= t('adm_messages_js_no_message', 'Aucun message') ?></div>'; return; }
         area.innerHTML = msgs.map(function(m) {
             var isAdmin = m.is_admin === true;
             var time = fmt(m.date_envoi||m.date||'');
@@ -177,7 +177,7 @@
                 return '<div class="msg-bubble flex items-end gap-2 flex-row-reverse msg-in">'
                     +'<div class="w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0 mb-1"><i class="fas fa-headset"></i></div>'
                     +'<div class="max-w-xs lg:max-w-md">'
-                    +'<p class="text-[10px] text-slate-400 mb-1 text-right font-semibold uppercase tracking-wide">Support</p>'
+                    +'<p class="text-[10px] text-slate-400 mb-1 text-right font-semibold uppercase tracking-wide"><?= t('adm_messages_js_support', 'Support') ?></p>'
                     +'<div class="msg-bubble-support text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm shadow-md shadow-emerald-500/20">'+esc(m.contenu||'')+'</div>'
                     +'<p class="text-[10px] text-slate-400 mt-1 text-right">'+time+'</p>'
                     +'</div></div>';
@@ -185,7 +185,7 @@
                 return '<div class="msg-bubble flex items-end gap-2 msg-in">'
                     +'<div class="w-7 h-7 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs flex-shrink-0 mb-1 text-slate-600 dark:text-slate-300"><i class="fas fa-user"></i></div>'
                     +'<div class="max-w-xs lg:max-w-md">'
-                    +'<p class="text-[10px] text-slate-400 mb-1 font-semibold uppercase tracking-wide">Utilisateur</p>'
+                    +'<p class="text-[10px] text-slate-400 mb-1 font-semibold uppercase tracking-wide"><?= t('adm_messages_js_user', 'Utilisateur') ?></p>'
                     +'<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm shadow-sm text-slate-800 dark:text-slate-100">'+esc(m.contenu||'')+'</div>'
                     +'<p class="text-[10px] text-slate-400 mt-1">'+time+'</p>'
                     +'</div></div>';
@@ -200,7 +200,7 @@
         var val = input.value.trim();
         errEl.classList.add('hidden');
         if (!val || !selectedUID) return;
-        if (!TOKEN) { errEl.textContent='Session expiree.'; errEl.classList.remove('hidden'); return; }
+        if (!TOKEN) { errEl.textContent='<?= t('adm_messages_js_session_expired_dot', 'Session expiree.') ?>'; errEl.classList.remove('hidden'); return; }
         var btn = document.getElementById('send-btn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i>';
@@ -215,7 +215,7 @@
             loadHistory(selectedUID);
             loadConvList();
         })
-        .catch(function(err){ errEl.textContent='Erreur: '+err.message; errEl.classList.remove('hidden'); })
+        .catch(function(err){ errEl.textContent='<?= t('adm_messages_js_error', 'Erreur: ') ?>'+err.message; errEl.classList.remove('hidden'); })
         .finally(function(){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane text-sm"></i>'; });
     };
 

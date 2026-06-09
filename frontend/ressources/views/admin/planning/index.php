@@ -1,7 +1,7 @@
 <div class="mb-6 flex items-center justify-between">
     <div>
-        <h2 class="text-2xl font-bold">Planning Global</h2>
-        <p class="text-gray-600">Vue d'ensemble des événements et formations</p>
+        <h2 class="text-2xl font-bold"><?= t('adm_planning_title', 'Planning Global') ?></h2>
+        <p class="text-gray-600"><?= t('adm_planning_subtitle', 'Vue d\'ensemble des événements et formations') ?></p>
     </div>
 </div>
 
@@ -40,7 +40,7 @@
             },
             events: eventsData,
             eventClick: function(info) {
-                toast(info.event.title + '\nStatut: ' + info.event.extendedProps.statut + '\n\n' + info.event.extendedProps.description);
+                toast(info.event.title + '\n<?= t('adm_planning_js_status', 'Statut: ') ?>' + info.event.extendedProps.statut + '\n\n' + info.event.extendedProps.description);
             }
         });
         calendar.render();

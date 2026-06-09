@@ -1,35 +1,44 @@
 <?php
 $sections = [
     'PILOTAGE' => [
-        ['url' => '/admin/dashboard',  'icon' => 'fas fa-th-large',           'label' => 'Dashboard'],
-        ['url' => '/admin/finances',   'icon' => 'fas fa-chart-line',          'label' => 'Finances & Stats'],
-        ['url' => '/admin/planning',   'icon' => 'fas fa-calendar-check',      'label' => 'Planning Global'],
+        ['url' => '/admin/dashboard',  'icon' => 'fas fa-th-large',           'label' => t('adm_nav_dashboard', 'Dashboard')],
+        ['url' => '/admin/finances',   'icon' => 'fas fa-chart-line',          'label' => t('adm_nav_finances', 'Finances & Stats')],
+        ['url' => '/admin/planning',   'icon' => 'fas fa-calendar-check',      'label' => t('adm_nav_planning', 'Planning Global')],
     ],
     'VALIDATIONS' => [
-        ['url' => '/admin/demandes',   'icon' => 'fas fa-inbox',               'label' => 'Demandes Dépôt'],
-        ['url' => '/admin/annonces',   'icon' => 'fas fa-bullhorn',            'label' => 'Annonces'],
-        ['url' => '/admin/conteneurs', 'icon' => 'fas fa-box-open',            'label' => 'Conteneurs'],
-        ['url' => '/admin/formations', 'icon' => 'fas fa-graduation-cap',      'label' => 'Formations'],
-        ['url' => '/admin/conseils',   'icon' => 'fas fa-lightbulb',           'label' => 'Conseils'],
+        ['url' => '/admin/demandes',   'icon' => 'fas fa-inbox',               'label' => t('adm_nav_demandes', 'Demandes Dépôt')],
+        ['url' => '/admin/annonces',   'icon' => 'fas fa-bullhorn',            'label' => t('adm_nav_annonces', 'Annonces')],
+        ['url' => '/admin/conteneurs', 'icon' => 'fas fa-box-open',            'label' => t('adm_nav_conteneurs', 'Conteneurs')],
+        ['url' => '/admin/formations', 'icon' => 'fas fa-graduation-cap',      'label' => t('adm_nav_formations', 'Formations')],
+        ['url' => '/admin/conseils',   'icon' => 'fas fa-lightbulb',           'label' => t('adm_nav_conseils', 'Conseils')],
     ],
     'CATALOGUE' => [
-        ['url' => '/admin/services',   'icon' => 'fas fa-concierge-bell',      'label' => 'Prestations'],
-        ['url' => '/admin/categories', 'icon' => 'fas fa-tags',                'label' => 'Catégories'],
-        ['url' => '/admin/evenements', 'icon' => 'fas fa-calendar-alt',        'label' => 'Événements'],
+        ['url' => '/admin/services',   'icon' => 'fas fa-concierge-bell',      'label' => t('adm_nav_prestations', 'Prestations')],
+        ['url' => '/admin/categories', 'icon' => 'fas fa-tags',                'label' => t('adm_nav_categories', 'Catégories')],
+        ['url' => '/admin/evenements', 'icon' => 'fas fa-calendar-alt',        'label' => t('adm_nav_evenements', 'Événements')],
     ],
     'GESTION' => [
-        ['url' => '/admin/utilisateurs','icon' => 'fas fa-users',              'label' => 'Utilisateurs'],
-        ['url' => '/admin/contrats',   'icon' => 'fas fa-file-contract',       'label' => 'Contrats Pro'],
-        ['url' => '/admin/factures',   'icon' => 'fas fa-file-invoice-dollar', 'label' => 'Factures'],
+        ['url' => '/admin/utilisateurs','icon' => 'fas fa-users',              'label' => t('adm_nav_utilisateurs', 'Utilisateurs')],
+        ['url' => '/admin/contrats',   'icon' => 'fas fa-file-contract',       'label' => t('adm_nav_contrats', 'Contrats Pro')],
+        ['url' => '/admin/factures',   'icon' => 'fas fa-file-invoice-dollar', 'label' => t('adm_nav_factures', 'Factures')],
     ],
     'COMMUNICATION' => [
-        ['url' => '/admin/messages',      'icon' => 'fas fa-envelope-open-text', 'label' => 'Messages'],
-        ['url' => '/admin/notifications', 'icon' => 'fas fa-bell',               'label' => 'Notifications'],
-        ['url' => '/admin/forum',         'icon' => 'fas fa-comments',           'label' => 'Forum'],
+        ['url' => '/admin/messages',      'icon' => 'fas fa-envelope-open-text', 'label' => t('adm_nav_messages', 'Messages')],
+        ['url' => '/admin/notifications', 'icon' => 'fas fa-bell',               'label' => t('adm_nav_notifications', 'Notifications')],
+        ['url' => '/admin/forum',         'icon' => 'fas fa-comments',           'label' => t('adm_nav_forum', 'Forum')],
     ],
     'SYSTÈME' => [
-        ['url' => '/admin/parametres', 'icon' => 'fas fa-cog',                 'label' => 'Paramètres'],
+        ['url' => '/admin/parametres', 'icon' => 'fas fa-cog',                 'label' => t('adm_nav_parametres', 'Paramètres')],
     ],
+];
+
+$sectionLabels = [
+    'PILOTAGE'      => t('adm_sec_pilotage', 'PILOTAGE'),
+    'VALIDATIONS'   => t('adm_sec_validations', 'VALIDATIONS'),
+    'CATALOGUE'     => t('adm_sec_catalogue', 'CATALOGUE'),
+    'GESTION'       => t('adm_sec_gestion', 'GESTION'),
+    'COMMUNICATION' => t('adm_sec_communication', 'COMMUNICATION'),
+    'SYSTÈME'       => t('adm_sec_systeme', 'SYSTÈME'),
 ];
 
 $current = $_SERVER['REQUEST_URI'];
@@ -44,7 +53,7 @@ foreach ($sections as $title => $items):
     <button
         onclick="toggleSection('<?= $sectionKey ?>')"
         class="sb-section w-full flex items-center justify-between px-6 py-2 group <?= $hasActive ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300' ?> transition-colors duration-150">
-        <span class="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap"><?= $title ?></span>
+        <span class="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap"><?= $sectionLabels[$title] ?? $title ?></span>
         <i id="icon-<?= $sectionKey ?>" class="fas fa-chevron-down text-[8px] opacity-60 transition-transform duration-300 sb-text"></i>
     </button>
     <div id="<?= $sectionKey ?>" class="overflow-hidden transition-all duration-300 ease-out">

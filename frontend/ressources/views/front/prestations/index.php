@@ -11,16 +11,10 @@
         <?php if (!empty($prestations)): ?>
             <?php foreach ($prestations as $prestation): ?>
                 <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden">
-                    <div class="w-full h-64 bg-base-200 flex items-center justify-center">
-                        <span class="text-4xl">
-                            <?php
-    $cat = $prestation['categorie'] ?? '';
-    if ($cat === 'Réparation') echo '<i class="fas fa-wrench text-4xl text-base-content/40"></i>';
-    elseif ($cat === 'Transformation') echo '<i class="fas fa-hammer text-4xl text-base-content/40"></i>';
-    elseif ($cat === 'Recyclage') echo '<i class="fas fa-recycle text-4xl text-base-content/40"></i>';
-    else echo '<i class="fas fa-box text-4xl text-base-content/40"></i>';
-?>
-                        </span>
+                    <div class="w-full h-64 overflow-hidden">
+                        <img src="<?= uc_image('prestation', $prestation['id'] ?? ($prestation['titre'] ?? '')) ?>"
+                             alt="<?= htmlspecialchars($prestation['titre'] ?? '') ?>"
+                             class="w-full h-full object-cover">
                     </div>
                     <div class="p-6">
                         <div class="text-sm text-base-content/60 mb-2"><?= htmlspecialchars($prestation['categorie'] ?? '') ?></div>
@@ -48,7 +42,7 @@
         <p class="text-base-content/70 max-w-xl mx-auto mb-6">
             <?= t('prestidx_cta_text', 'Rejoignez la plateforme UpcycleConnect et proposez vos prestations pour aider les particuliers à donner une seconde vie à leurs objets.') ?>
         </p>
-        <a href="/devenir-prestataire"
+        <a href="/register"
             class="inline-block bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
             <?= t('prestidx_cta_btn', 'Devenir prestataire') ?>
         </a>

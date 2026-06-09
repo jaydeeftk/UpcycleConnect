@@ -17,4 +17,18 @@ class PageController
             'title' => 'Contact - UpcycleConnect'
         ]);
     }
+
+    public function mentionsLegales()
+    {
+        return view('front.legal.mentions', [
+            'title' => 'Mentions légales - UpcycleConnect'
+        ]);
+    }
+
+    public function confidentialite()
+    {
+        return view('front.legal.confidentialite', [
+            'title' => 'Politique de confidentialité - UpcycleConnect'
+        ]);
+    }
 }

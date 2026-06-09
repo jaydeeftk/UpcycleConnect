@@ -10,21 +10,21 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
 
 <div class="mb-6 flex items-center justify-between">
     <div>
-        <h2 class="text-2xl font-bold">Planning global</h2>
-        <p class="text-gray-600">Gérez les événements, formations et ateliers</p>
+        <h2 class="text-2xl font-bold"><?= t('sal_planning_title', 'Planning global') ?></h2>
+        <p class="text-gray-600"><?= t('sal_planning_subtitle', 'Gérez les événements, formations et ateliers') ?></p>
     </div>
     <div class="flex gap-2">
         <button onclick="document.getElementById('modal-evenement').classList.remove('hidden')"
                 class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm font-semibold">
-            <i class="fas fa-calendar-plus mr-2"></i>Événement
+            <i class="fas fa-calendar-plus mr-2"></i><?= t('sal_type_evenement', 'Événement') ?>
         </button>
         <button onclick="document.getElementById('modal-formation').classList.remove('hidden')"
                 class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-semibold">
-            <i class="fas fa-graduation-cap mr-2"></i>Formation
+            <i class="fas fa-graduation-cap mr-2"></i><?= t('sal_type_formation', 'Formation') ?>
         </button>
         <button onclick="document.getElementById('modal-atelier').classList.remove('hidden')"
                 class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 text-sm font-semibold">
-            <i class="fas fa-tools mr-2"></i>Atelier
+            <i class="fas fa-tools mr-2"></i><?= t('sal_type_atelier', 'Atelier') ?>
         </button>
     </div>
 </div>
@@ -46,7 +46,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Événements</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_nav_evenements', 'Événements') ?></p>
                 <p class="text-3xl font-bold text-blue-600"><?= count($evenements) ?></p>
             </div>
             <i class="fas fa-calendar-alt text-4xl text-blue-400"></i>
@@ -55,7 +55,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Formations</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_nav_formations', 'Formations') ?></p>
                 <p class="text-3xl font-bold text-green-600"><?= count($formations) ?></p>
             </div>
             <i class="fas fa-graduation-cap text-4xl text-green-400"></i>
@@ -64,7 +64,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Ateliers</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_nav_ateliers', 'Ateliers') ?></p>
                 <p class="text-3xl font-bold text-purple-600"><?= count($ateliers) ?></p>
             </div>
             <i class="fas fa-tools text-4xl text-purple-400"></i>
@@ -75,13 +75,13 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
 <!  Filtres  >
 <div class="flex gap-2 mb-4">
     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-green-500 text-white text-sm font-medium transition"
-            data-filter="all">Tout</button>
+            data-filter="all"><?= t('sal_filter_all', 'Tout') ?></button>
     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-600 text-sm font-medium transition hover:bg-green-500 hover:text-white hover:border-green-500"
-            data-filter="evenement">Événements</button>
+            data-filter="evenement"><?= t('sal_nav_evenements', 'Événements') ?></button>
     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-600 text-sm font-medium transition hover:bg-green-500 hover:text-white hover:border-green-500"
-            data-filter="formation">Formations</button>
+            data-filter="formation"><?= t('sal_nav_formations', 'Formations') ?></button>
     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-600 text-sm font-medium transition hover:bg-green-500 hover:text-white hover:border-green-500"
-            data-filter="atelier">Ateliers</button>
+            data-filter="atelier"><?= t('sal_nav_ateliers', 'Ateliers') ?></button>
 </div>
 
 <!  Tableau  >
@@ -89,13 +89,13 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     <table class="min-w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Titre</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lieu</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Animateur</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_type', 'Type') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_titre', 'Titre') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_date', 'Date') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_lieu', 'Lieu') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_animateur', 'Animateur') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_statut', 'Statut') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_actions', 'Actions') ?></th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -103,7 +103,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
             <tr>
                 <td colspan="7" class="px-6 py-10 text-center text-gray-500">
                     <i class="fas fa-calendar text-4xl mb-3 text-gray-300 block"></i>
-                    Aucun élément dans le planning pour le moment.
+                    <?= t('sal_planning_empty', 'Aucun élément dans le planning pour le moment.') ?>
                 </td>
             </tr>
             <?php else: ?>
@@ -112,15 +112,15 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 <td class="px-6 py-4">
                     <?php if ($item['type'] === 'evenement'): ?>
                         <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                            <i class="fas fa-calendar-alt mr-1"></i>Événement
+                            <i class="fas fa-calendar-alt mr-1"></i><?= t('sal_type_evenement', 'Événement') ?>
                         </span>
                     <?php elseif ($item['type'] === 'formation'): ?>
                         <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                            <i class="fas fa-graduation-cap mr-1"></i>Formation
+                            <i class="fas fa-graduation-cap mr-1"></i><?= t('sal_type_formation', 'Formation') ?>
                         </span>
                     <?php else: ?>
                         <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
-                            <i class="fas fa-tools mr-1"></i>Atelier
+                            <i class="fas fa-tools mr-1"></i><?= t('sal_type_atelier', 'Atelier') ?>
                         </span>
                     <?php endif; ?>
                 </td>
@@ -152,8 +152,8 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 </td>
                 <td class="px-6 py-4">
                     <a href=" /salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)$item['id'] ?>"
-                       onclick="return ucConfirm(this, 'Supprimer cet élément ?')"
-                       class="text-red-600 hover:text-red-800" title="Supprimer">
+                       onclick="return ucConfirm(this, '<?= t('sal_planning_delete_confirm', 'Supprimer cet élément ?') ?>')"
+                       class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
                         <i class="fas fa-trash"></i>
                     </a>
                 </td>
@@ -168,7 +168,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
 <div id="modal-evenement" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold">Nouvel événement</h3>
+            <h3 class="text-lg font-bold"><?= t('sal_planning_new_evenement', 'Nouvel événement') ?></h3>
             <button onclick="document.getElementById('modal-evenement').classList.add('hidden')"
                     class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times text-xl"></i>
@@ -176,39 +176,39 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
         </div>
         <form method="POST" action=" /salaries/planning/evenement/create">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
-                <input type="text" name="titre" required placeholder="Titre de l'événement"
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_titre', 'Titre') ?> *</label>
+                <input type="text" name="titre" required placeholder="<?= t('sal_ph_evenement_titre', 'Titre de l\'événement') ?>"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea name="description" rows="3" placeholder="Description..."
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_description', 'Description') ?></label>
+                <textarea name="description" rows="3" placeholder="<?= t('sal_ph_description', 'Description...') ?>"
                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_date', 'Date') ?> *</label>
                     <input type="datetime-local" name="date" required
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
-                    <input type="text" name="lieu" placeholder="Lieu de l'événement"
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_lieu', 'Lieu') ?></label>
+                    <input type="text" name="lieu" placeholder="<?= t('sal_ph_evenement_lieu', 'Lieu de l\'événement') ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Capacité</label>
-                <input type="number" name="capacite" min="1" placeholder="Nombre de places"
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_capacite', 'Capacité') ?></label>
+                <input type="number" name="capacite" min="1" placeholder="<?= t('sal_ph_capacite', 'Nombre de places') ?>"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="flex justify-end gap-3">
                 <button type="button"
                         onclick="document.getElementById('modal-evenement').classList.add('hidden')"
-                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Annuler</button>
+                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><?= t('sal_cancel', 'Annuler') ?></button>
                 <button type="submit"
                         class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                    <i class="fas fa-save mr-2"></i>Créer
+                    <i class="fas fa-save mr-2"></i><?= t('sal_create', 'Créer') ?>
                 </button>
             </div>
         </form>
@@ -219,7 +219,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
 <div id="modal-formation" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold">Nouvelle formation</h3>
+            <h3 class="text-lg font-bold"><?= t('sal_planning_new_formation', 'Nouvelle formation') ?></h3>
             <button onclick="document.getElementById('modal-formation').classList.add('hidden')"
                     class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times text-xl"></i>
@@ -227,34 +227,34 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
         </div>
         <form method="POST" action=" /salaries/planning/formation/create">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
-                <input type="text" name="titre" required placeholder="Titre de la formation"
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_titre', 'Titre') ?> *</label>
+                <input type="text" name="titre" required placeholder="<?= t('sal_ph_formation_titre', 'Titre de la formation') ?>"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea name="description" rows="3" placeholder="Description..."
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_description', 'Description') ?></label>
+                <textarea name="description" rows="3" placeholder="<?= t('sal_ph_description', 'Description...') ?>"
                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Prix (€)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_prix', 'Prix (€)') ?></label>
                     <input type="number" name="prix" min="0" step="0.01" placeholder="0.00"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Durée (min)</label>
-                    <input type="number" name="duree" min="1" placeholder="Ex: 60"
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_duree', 'Durée (min)') ?></label>
+                    <input type="number" name="duree" min="1" placeholder="<?= t('sal_ph_duree', 'Ex: 60') ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
             </div>
             <div class="flex justify-end gap-3">
                 <button type="button"
                         onclick="document.getElementById('modal-formation').classList.add('hidden')"
-                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Annuler</button>
+                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><?= t('sal_cancel', 'Annuler') ?></button>
                 <button type="submit"
                         class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                    <i class="fas fa-save mr-2"></i>Créer
+                    <i class="fas fa-save mr-2"></i><?= t('sal_create', 'Créer') ?>
                 </button>
             </div>
         </form>
@@ -265,7 +265,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
 <div id="modal-atelier" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold">Nouvel atelier</h3>
+            <h3 class="text-lg font-bold"><?= t('sal_planning_new_atelier', 'Nouvel atelier') ?></h3>
             <button onclick="document.getElementById('modal-atelier').classList.add('hidden')"
                     class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times text-xl"></i>
@@ -273,29 +273,29 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
         </div>
         <form method="POST" action=" /salaries/planning/atelier/create">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Thème *</label>
-                <input type="text" name="theme" required placeholder="Thème de l'atelier"
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_theme', 'Thème') ?> *</label>
+                <input type="text" name="theme" required placeholder="<?= t('sal_ph_atelier_theme', 'Thème de l\'atelier') ?>"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_date', 'Date') ?> *</label>
                     <input type="datetime-local" name="date" required
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
-                    <input type="text" name="lieu" placeholder="Lieu de l'atelier"
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_lieu', 'Lieu') ?></label>
+                    <input type="text" name="lieu" placeholder="<?= t('sal_ph_atelier_lieu', 'Lieu de l\'atelier') ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
             </div>
             <div class="flex justify-end gap-3">
                 <button type="button"
                         onclick="document.getElementById('modal-atelier').classList.add('hidden')"
-                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Annuler</button>
+                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><?= t('sal_cancel', 'Annuler') ?></button>
                 <button type="submit"
                         class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
-                    <i class="fas fa-save mr-2"></i>Créer
+                    <i class="fas fa-save mr-2"></i><?= t('sal_create', 'Créer') ?>
                 </button>
             </div>
         </form>

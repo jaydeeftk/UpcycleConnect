@@ -6,12 +6,12 @@ unset($_SESSION['success'], $_SESSION['error']);
 
 <div class="mb-6 flex items-center justify-between">
     <div>
-        <h2 class="text-2xl font-bold">Ateliers</h2>
-        <p class="text-gray-600">Gérez les ateliers publiés sur le site</p>
+        <h2 class="text-2xl font-bold"><?= t('sal_nav_ateliers', 'Ateliers') ?></h2>
+        <p class="text-gray-600"><?= t('sal_ateliers_subtitle', 'Gérez les ateliers publiés sur le site') ?></p>
     </div>
     <button onclick="document.getElementById('modal-add').classList.remove('hidden')"
             class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600">
-        <i class="fas fa-plus mr-2"></i>Ajouter un atelier
+        <i class="fas fa-plus mr-2"></i><?= t('sal_ateliers_add', 'Ajouter un atelier') ?>
     </button>
 </div>
 
@@ -32,7 +32,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Total ateliers</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_ateliers_total', 'Total ateliers') ?></p>
                 <p class="text-3xl font-bold"><?= count($ateliers) ?></p>
             </div>
             <i class="fas fa-tools text-4xl text-purple-500"></i>
@@ -41,7 +41,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">En attente</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_stat_pending', 'En attente') ?></p>
                 <p class="text-3xl font-bold text-yellow-600">
                     <?= count(array_filter($ateliers, fn($a) => $a['statut'] === 'en_attente')) ?>
                 </p>
@@ -52,7 +52,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Validés</p>
+                <p class="text-gray-500 text-sm"><?= t('sal_stat_validated_m', 'Validés') ?></p>
                 <p class="text-3xl font-bold text-green-600">
                     <?= count(array_filter($ateliers, fn($a) => $a['statut'] === 'valide')) ?>
                 </p>
@@ -67,13 +67,13 @@ unset($_SESSION['success'], $_SESSION['error']);
     <table class="min-w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thème</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date atelier</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lieu</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Créateur</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Auteur</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_theme', 'Thème') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_date_atelier', 'Date atelier') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_lieu', 'Lieu') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_createur', 'Créateur') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_statut', 'Statut') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_auteur', 'Auteur') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_actions', 'Actions') ?></th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -81,7 +81,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             <tr>
                 <td colspan="7" class="px-6 py-10 text-center text-gray-500">
                     <i class="fas fa-tools text-4xl mb-3 text-gray-300"></i>
-                    <p>Aucun atelier pour le moment.</p>
+                    <p><?= t('sal_ateliers_empty', 'Aucun atelier pour le moment.') ?></p>
                 </td>
             </tr>
             <?php else: ?>
@@ -124,12 +124,12 @@ unset($_SESSION['success'], $_SESSION['error']);
                                 `<?= addslashes($atelier['date_atelier'] ?? '') ?>`,
                                 `<?= addslashes($atelier['lieu'] ?? '') ?>`
                             )"
-                            class="text-blue-600 hover:text-blue-800" title="Modifier">
+                            class="text-blue-600 hover:text-blue-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                             <i class="fas fa-edit"></i>
                         </button>
                         <a href=" /salaries/ateliers/<?= $atelier['id_atelier'] ?>/delete"
-                           onclick="return ucConfirm(this, 'Supprimer cet atelier ?')"
-                           class="text-red-600 hover:text-red-800" title="Supprimer">
+                           onclick="return ucConfirm(this, '<?= t('sal_ateliers_delete_confirm', 'Supprimer cet atelier ?') ?>')"
+                           class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
                             <i class="fas fa-trash"></i>
                         </a>
                     </div>
@@ -145,7 +145,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 <div id="modal-add" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold">Ajouter un atelier</h3>
+            <h3 class="text-lg font-bold"><?= t('sal_ateliers_add', 'Ajouter un atelier') ?></h3>
             <button onclick="document.getElementById('modal-add').classList.add('hidden')"
                     class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times text-xl"></i>
@@ -153,33 +153,33 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
         <form method="POST" action=" /salaries/ateliers/store">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Thème *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_theme', 'Thème') ?> *</label>
                 <input type="text" name="theme" required
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                       placeholder="Thème de l'atelier">
+                       placeholder="<?= t('sal_ph_atelier_theme', 'Thème de l\'atelier') ?>">
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date', 'Date') ?></label>
                     <input type="datetime-local" name="date_atelier"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Lieu</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_lieu', 'Lieu') ?></label>
                     <input type="text" name="lieu"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                           placeholder="Lieu de l'atelier">
+                           placeholder="<?= t('sal_ph_atelier_lieu', 'Lieu de l\'atelier') ?>">
                 </div>
             </div>
             <div class="flex justify-end gap-3">
                 <button type="button"
                         onclick="document.getElementById('modal-add').classList.add('hidden')"
                         class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Annuler
+                    <?= t('sal_cancel', 'Annuler') ?>
                 </button>
                 <button type="submit"
                         class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                    <i class="fas fa-save mr-2"></i>Créer
+                    <i class="fas fa-save mr-2"></i><?= t('sal_create', 'Créer') ?>
                 </button>
             </div>
         </form>
@@ -190,7 +190,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 <div id="modal-edit" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold">Modifier l'atelier</h3>
+            <h3 class="text-lg font-bold"><?= t('sal_ateliers_edit', 'Modifier l\'atelier') ?></h3>
             <button onclick="document.getElementById('modal-edit').classList.add('hidden')"
                     class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times text-xl"></i>
@@ -198,32 +198,32 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
         <form method="POST" id="form-edit" action="">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Thème *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_theme', 'Thème') ?> *</label>
                 <input type="text" name="theme" id="edit-theme" required
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date', 'Date') ?></label>
                     <input type="datetime-local" name="date_atelier" id="edit-date"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Lieu</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_lieu', 'Lieu') ?></label>
                     <input type="text" name="lieu" id="edit-lieu"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                           placeholder="Lieu de l'atelier">
+                           placeholder="<?= t('sal_ph_atelier_lieu', 'Lieu de l\'atelier') ?>">
                 </div>
             </div>
             <div class="flex justify-end gap-3">
                 <button type="button"
                         onclick="document.getElementById('modal-edit').classList.add('hidden')"
                         class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Annuler
+                    <?= t('sal_cancel', 'Annuler') ?>
                 </button>
                 <button type="submit"
                         class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                    <i class="fas fa-save mr-2"></i>Enregistrer
+                    <i class="fas fa-save mr-2"></i><?= t('sal_save', 'Enregistrer') ?>
                 </button>
             </div>
         </form>

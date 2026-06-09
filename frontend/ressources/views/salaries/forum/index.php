@@ -1,10 +1,10 @@
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-        <h2 class="text-2xl font-bold text-slate-800">Modération du forum</h2>
-        <p class="text-slate-500">Surveillez et modérez les discussions de la communauté</p>
+        <h2 class="text-2xl font-bold text-slate-800"><?= t('sal_forum_title', 'Modération du forum') ?></h2>
+        <p class="text-slate-500"><?= t('sal_forum_subtitle', 'Surveillez et modérez les discussions de la communauté') ?></p>
     </div>
     <input type="text" id="filter-forum" onkeyup="filterTable('filter-forum','table-forum')"
-        placeholder="Filtrer par titre, auteur..."
+        placeholder="<?= t('sal_forum_filter_ph', 'Filtrer par titre, auteur...') ?>"
         class="border border-slate-200 rounded-lg px-4 py-2 text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-emerald-300">
 </div>
 
@@ -12,18 +12,18 @@
     <table id="table-forum" class="w-full text-left border-collapse">
         <thead>
             <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-                <th class="p-4 font-semibold">Sujet</th>
-                <th class="p-4 font-semibold">Auteur</th>
-                <th class="p-4 font-semibold">Réponses</th>
-                <th class="p-4 font-semibold">Statut</th>
-                <th class="p-4 font-semibold">Date</th>
-                <th class="p-4 font-semibold text-right">Actions</th>
+                <th class="p-4 font-semibold"><?= t('sal_col_sujet', 'Sujet') ?></th>
+                <th class="p-4 font-semibold"><?= t('sal_col_auteur', 'Auteur') ?></th>
+                <th class="p-4 font-semibold"><?= t('sal_col_reponses', 'Réponses') ?></th>
+                <th class="p-4 font-semibold"><?= t('sal_col_statut', 'Statut') ?></th>
+                <th class="p-4 font-semibold"><?= t('sal_col_date', 'Date') ?></th>
+                <th class="p-4 font-semibold text-right"><?= t('sal_col_actions', 'Actions') ?></th>
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
             <?php if (empty($sujets)) { ?>
                 <tr>
-                    <td colspan="6" class="p-8 text-center text-slate-400 italic">Le forum est vide pour le moment.</td>
+                    <td colspan="6" class="p-8 text-center text-slate-400 italic"><?= t('sal_forum_empty', 'Le forum est vide pour le moment.') ?></td>
                 </tr>
             <?php } else { ?>
                 <?php foreach ($sujets as $sujet) {
@@ -66,11 +66,11 @@
                     </td>
                     <td class="p-4 text-right space-x-2">
                         <a href="/conseils/forum/<?= $idSujet ?>" target="_blank"
-                           class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors" title="Voir le sujet">
+                           class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors" title="<?= t('sal_forum_view_topic', 'Voir le sujet') ?>">
                             <i class="fas fa-external-link-alt text-xs"></i>
                         </a>
-                        <form method="POST" action="/salaries/forum/sujets/<?= $idSujet ?>/supprimer" class="inline" onsubmit="return ucConfirm(this, 'Supprimer ce sujet et toutes ses réponses ?');">
-                            <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="Supprimer">
+                        <form method="POST" action="/salaries/forum/sujets/<?= $idSujet ?>/supprimer" class="inline" onsubmit="return ucConfirm(this, '<?= t('sal_forum_delete_confirm', 'Supprimer ce sujet et toutes ses réponses ?') ?>');">
+                            <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="<?= t('sal_action_delete', 'Supprimer') ?>">
                                 <i class="fas fa-trash text-xs"></i>
                             </button>
                         </form>

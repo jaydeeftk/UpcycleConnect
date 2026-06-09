@@ -53,7 +53,7 @@ class EvenementController
                 'id_salaries' => $_SESSION['user']['id'] ?? 0
             ]);
 
-            $_SESSION['success'] = 'Événement ajouté avec succès.';
+            $_SESSION['success'] = t('sal_flash_evenement_added', 'Événement ajouté avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -93,7 +93,7 @@ class EvenementController
                 'capacite'    => (int)($_POST['capacite'] ?? 0),
             ]);
 
-            $_SESSION['success'] = 'Événement modifié avec succès.';
+            $_SESSION['success'] = t('sal_flash_evenement_updated', 'Événement modifié avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -105,7 +105,7 @@ class EvenementController
     {
         try {
             $this->api->delete('/salaries/evenements/' . $id);
-            $_SESSION['success'] = 'Événement supprimé avec succès.';
+            $_SESSION['success'] = t('sal_flash_evenement_deleted', 'Événement supprimé avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }

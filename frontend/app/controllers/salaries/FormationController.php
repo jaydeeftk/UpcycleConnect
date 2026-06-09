@@ -54,7 +54,7 @@ class FormationController
     'id_salaries' => $_SESSION['user']['id'] ?? 0
 ]);
 
-            $_SESSION['success'] = 'Formation ajoutée avec succès.';
+            $_SESSION['success'] = t('sal_flash_formation_added', 'Formation ajoutée avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -93,7 +93,7 @@ class FormationController
                 'duree'       => (int)($_POST['duree'] ?? 0),
             ]);
 
-            $_SESSION['success'] = 'Formation modifiée avec succès.';
+            $_SESSION['success'] = t('sal_flash_formation_updated', 'Formation modifiée avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -105,7 +105,7 @@ class FormationController
     {
         try {
             $this->api->delete('/salaries/formations/' . $id);
-            $_SESSION['success'] = 'Formation supprimée avec succès.';
+            $_SESSION['success'] = t('sal_flash_formation_deleted', 'Formation supprimée avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }

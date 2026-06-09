@@ -53,7 +53,7 @@ class PlanningController
                 'id_salaries' => $_SESSION['user']['id'] ?? 0
             ]);
 
-            $_SESSION['success'] = 'Événement ajouté avec succès.';
+            $_SESSION['success'] = t('sal_flash_evenement_added', 'Événement ajouté avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -73,7 +73,7 @@ class PlanningController
                 'id_salaries' => $_SESSION['user']['id'] ?? 0
             ]);
 
-            $_SESSION['success'] = 'Formation ajoutée avec succès.';
+            $_SESSION['success'] = t('sal_flash_formation_added', 'Formation ajoutée avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -92,7 +92,7 @@ class PlanningController
                 'id_salaries' => $_SESSION['user']['id'] ?? 0
             ]);
 
-            $_SESSION['success'] = 'Atelier ajouté avec succès.';
+            $_SESSION['success'] = t('sal_flash_atelier_added', 'Atelier ajouté avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -105,7 +105,7 @@ class PlanningController
     {
         try {
             $this->api->delete('/salaries/planning/evenement/' . $id);
-            $_SESSION['success'] = 'Événement supprimé avec succès.';
+            $_SESSION['success'] = t('sal_flash_evenement_deleted', 'Événement supprimé avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -118,7 +118,7 @@ class PlanningController
     {
         try {
             $this->api->delete('/salaries/planning/formation/' . $id);
-            $_SESSION['success'] = 'Formation supprimée avec succès.';
+            $_SESSION['success'] = t('sal_flash_formation_deleted', 'Formation supprimée avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
@@ -131,7 +131,7 @@ class PlanningController
     {
         try {
             $this->api->delete('/salaries/planning/atelier/' . $id);
-            $_SESSION['success'] = 'Atelier supprimé avec succès.';
+            $_SESSION['success'] = t('sal_flash_atelier_deleted', 'Atelier supprimé avec succès.');
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }

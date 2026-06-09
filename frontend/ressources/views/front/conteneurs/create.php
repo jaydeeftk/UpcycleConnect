@@ -125,22 +125,22 @@
 
                     <div>
                         <label class="block text-sm font-medium mb-2"><?= t('contcre_label_localisation', 'Localisation souhaitée') ?> <span class="text-red-500">*</span></label>
-                        <select name="conteneur_id" class="select select-bordered w-full" required>
-                            <option value="" disabled selected><?= t('contcre_container_placeholder', 'Sélectionnez un conteneur') ?></option>
-                            <?php if (!empty($conteneurs) && is_array($conteneurs)): ?>
-                                <?php
-                                $list = $conteneurs['data'] ?? $conteneurs;
-                                foreach ($list as $conteneur):
+                        <?php
+                        $list = (!empty($conteneurs) && is_array($conteneurs)) ? ($conteneurs['data'] ?? $conteneurs) : [];
+                        $conteneursVides = empty($list);
+                        ?>
+                        <select name="conteneur_id" class="select select-bordered w-full" required <?= $conteneursVides ? 'disabled' : '' ?>>
+                            <?php if ($conteneursVides): ?>
+                                <option value="" disabled selected><?= t('cont_create_no_container', 'Aucun conteneur disponible pour le moment') ?></option>
+                            <?php else: ?>
+                                <option value="" disabled selected><?= t('contcre_container_placeholder', 'Sélectionnez un conteneur') ?></option>
+                                <?php foreach ($list as $conteneur):
                                     if (!is_array($conteneur)) continue;
                                 ?>
                                     <option value="<?= htmlspecialchars($conteneur['id'] ?? '') ?>">
                                         <?= htmlspecialchars($conteneur['localisation'] ?? '') ?> — <?= t('contcre_capacity', 'Capacité :') ?> <?= htmlspecialchars($conteneur['capacite'] ?? '?') ?>
                                     </option>
                                 <?php endforeach; ?>
-                            <?php else: ?>
-                                <option value="1">Paris 10ème - Rue La Fayette</option>
-                                <option value="2">Paris 11ème</option>
-                                <option value="3">Paris 13ème</option>
                             <?php endif; ?>
                         </select>
                     </div>
@@ -212,7 +212,7 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-base-300">
-                <button type="submit" class="btn btn-neutral flex-1">
+                <button type="submit" class="btn btn-neutral flex-1" <?= $conteneursVides ? 'disabled' : '' ?>>
                     <i class="fas fa-paper-plane mr-2"></i>
                     <?= t('contcre_submit', 'Soumettre la demande') ?>
                 </button>

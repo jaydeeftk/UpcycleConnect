@@ -78,7 +78,8 @@ $typeColors = [
     ?>
 
     <div class="flex items-center justify-between mb-6">
-        <p class="text-sm text-base-content/50"><?= count($evenements) ?> <?= t('catevt_results_found', 'événement(s) trouvé(s)') ?></p>
+        <?php $ne = count($evenements); ?>
+        <p class="text-sm text-base-content/50"><?= $ne ?> <?= t('catevt_results_count', 'événement') ?><?= $ne > 1 ? 's' : '' ?> <?= t('catevt_results_found', 'trouvé') ?></p>
     </div>
 
     <?php if (empty($evenements)): ?>
@@ -95,7 +96,7 @@ $typeColors = [
             $description  = $ev['description']  ?? '';
             $prix         = isset($ev['prix'])   ? $ev['prix'] : null;
             $lieu         = $ev['lieu']         ?? '';
-            $participants = $ev['participants'] ?? ($ev['capacite'] ?? '?');
+            $participants = $ev['participants'] ?? ($ev['capacite'] ?? 0);
             $colorClass   = $typeColors[$type]  ?? 'bg-blue-100 text-blue-700';
             $imgUrl       = uc_image('evenement', $ev['id'] ?? $titre);
         ?>
@@ -124,10 +125,9 @@ $typeColors = [
                     <div class="space-y-1.5 mb-4 text-xs text-base-content/50">
                         <div><i class="fas fa-calendar-alt mr-2 w-3"></i><?= htmlspecialchars(formatDate($date, true)) ?></div>
                         <div><i class="fas fa-map-marker-alt mr-2 w-3"></i><?= htmlspecialchars($lieu) ?></div>
-                        <div><i class="fas fa-users mr-2 w-3"></i><?= htmlspecialchars((string)$participants) ?> <?= t('catevt_participants', 'participant(s)') ?></div>
+                        <div><i class="fas fa-users mr-2 w-3"></i><?= htmlspecialchars((string)$participants) ?> <?= t('catevt_participants', 'participant') ?><?= ((int)$participants) > 1 ? 's' : '' ?></div>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-lg font-bold"><?= htmlspecialchars(formatPrix($prix)) ?></span>
+                    <div class="flex items-center justify-end">
                         <a href="/evenements/<?= $ev['id'] ?>" class="btn btn-neutral btn-sm"><?= t('catevt_participate', 'Participer') ?></a>
                     </div>
                 </div>

@@ -89,7 +89,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <td class="px-6 py-4">
                     <div class="flex gap-2">
                         <?php if (($conseil['id_salaries'] ?? 0) == ($_SESSION['user']['id'] ?? -1)): ?>
-                        <button onclick="openEditModal(<?= $conseil['id_conseils'] ?>, `<?= addslashes($conseil['contenu']) ?>`)"
+                        <button onclick="openEditModal(<?= (int)($conseil['id_conseils'] ?? 0) ?>, <?= json_encode((string)($conseil['contenu'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>)"
                                 class="text-green-600 hover:text-green-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                             <i class="fas fa-edit"></i>
                         </button>

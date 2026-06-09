@@ -157,63 +157,63 @@ function navActive(string $path, string $current): string {
                         <?php $r = $_SESSION['user']['role'] ?? 'particulier'; ?>
                         <?php if ($r === 'professionnel'): ?>
                             <a href="/professionnel" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= $currentPath === '/professionnel' ? 'text-primary' : '' ?>">
-                                <i class="fas fa-briefcase text-primary w-4 text-center"></i> Mon espace pro
+                                <i class="fas fa-briefcase text-primary w-4 text-center"></i> <?= t('navdd_pro_space', 'Mon espace pro') ?>
                             </a>
                             <a href="/professionnel/recuperation" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/professionnel/recuperation') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-recycle text-emerald-500 w-4 text-center"></i> Récupération
+                                <i class="fas fa-recycle text-emerald-500 w-4 text-center"></i> <?= t('navdd_recovery', 'Récupération') ?>
                             </a>
                             <a href="/professionnel/projets/create" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
-                                <i class="fas fa-project-diagram text-blue-500 w-4 text-center"></i> Nouveau projet
+                                <i class="fas fa-project-diagram text-blue-500 w-4 text-center"></i> <?= t('navdd_new_project', 'Nouveau projet') ?>
                             </a>
                             <a href="/annonces" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
-                                <i class="fas fa-bullhorn text-green-500 w-4 text-center"></i> Annonces
+                                <i class="fas fa-bullhorn text-green-500 w-4 text-center"></i> <?= t('navdd_annonces', 'Annonces') ?>
                             </a>
                         <?php elseif ($r === 'salarie'): ?>
                             <a href="/salaries/dashboard" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/salaries/dashboard') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-gauge-high text-primary w-4 text-center"></i> Mon espace
+                                <i class="fas fa-gauge-high text-primary w-4 text-center"></i> <?= t('navdd_my_space', 'Mon espace') ?>
                             </a>
                             <a href="/salaries/formations" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
-                                <i class="fas fa-graduation-cap text-purple-500 w-4 text-center"></i> Formations
+                                <i class="fas fa-graduation-cap text-purple-500 w-4 text-center"></i> <?= t('navdd_formations', 'Formations') ?>
                             </a>
                             <a href="/salaries/conseils" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
-                                <i class="fas fa-lightbulb text-amber-500 w-4 text-center"></i> Conseils
+                                <i class="fas fa-lightbulb text-amber-500 w-4 text-center"></i> <?= t('navdd_conseils', 'Conseils') ?>
                             </a>
                             <a href="/salaries/planning" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
-                                <i class="fas fa-calendar-alt text-blue-500 w-4 text-center"></i> Planning
+                                <i class="fas fa-calendar-alt text-blue-500 w-4 text-center"></i> <?= t('navdd_planning', 'Planning') ?>
                             </a>
                         <?php elseif ($r === 'admin'): ?>
                             <a href="/admin/dashboard" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
-                                <i class="fas fa-cog text-orange-500 w-4 text-center"></i> Administration
+                                <i class="fas fa-cog text-orange-500 w-4 text-center"></i> <?= t('navdd_admin', 'Administration') ?>
                             </a>
                         <?php else: ?>
                             <a href="/" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= $currentPath === '/' ? 'text-primary' : '' ?>">
-                                <i class="fas fa-house text-primary w-4 text-center"></i> Mon espace
+                                <i class="fas fa-house text-primary w-4 text-center"></i> <?= t('navdd_my_space', 'Mon espace') ?>
                             </a>
                             <a href="/score" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/score') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-leaf text-emerald-500 w-4 text-center"></i> Mon Score
+                                <i class="fas fa-leaf text-emerald-500 w-4 text-center"></i> <?= t('navdd_my_score', 'Mon Score') ?>
                             </a>
                             <a href="/mes-annonces" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/mes-annonces') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-bullhorn text-green-500 w-4 text-center"></i> Mes annonces
+                                <i class="fas fa-bullhorn text-green-500 w-4 text-center"></i> <?= t('navdd_my_annonces', 'Mes annonces') ?>
                             </a>
                             <a href="/mes-demandes" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/mes-demandes') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-clipboard-list w-4 text-center"></i> Mes demandes
+                                <i class="fas fa-clipboard-list w-4 text-center"></i> <?= t('navdd_my_requests', 'Mes demandes') ?>
                             </a>
                             <a href="/planning" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/planning') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-calendar-alt text-blue-500 w-4 text-center"></i> Mon Planning
+                                <i class="fas fa-calendar-alt text-blue-500 w-4 text-center"></i> <?= t('navdd_my_planning', 'Mon Planning') ?>
                             </a>
                             <a href="/messages" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/messages') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-envelope text-blue-500 w-4 text-center"></i> Mes messages
+                                <i class="fas fa-envelope text-blue-500 w-4 text-center"></i> <?= t('navdd_my_messages', 'Mes messages') ?>
                             </a>
                             <a href="/notifications" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/notifications') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-bell text-amber-500 w-4 text-center"></i> Notifications
+                                <i class="fas fa-bell text-amber-500 w-4 text-center"></i> <?= t('navdd_notifications', 'Notifications') ?>
                             </a>
                             <a href="/paiements" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200">
-                                <i class="fas fa-credit-card w-4 text-center"></i> Paiements
+                                <i class="fas fa-credit-card w-4 text-center"></i> <?= t('navdd_payments', 'Paiements') ?>
                             </a>
                         <?php endif; ?>
                         <div class="border-t border-base-300 my-1"></div>
                         <a href="/logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50">
-                            <i class="fas fa-sign-out-alt w-4 text-center"></i> Déconnexion
+                            <i class="fas fa-sign-out-alt w-4 text-center"></i> <?= t('navdd_logout', 'Déconnexion') ?>
                         </a>
                     </div>
                 </div>
@@ -273,7 +273,7 @@ function navActive(string $path, string $current): string {
         <?php else: ?>
             <?php $mr = $_SESSION['user']['role'] ?? 'particulier';
                   $esp = $mr === 'professionnel' ? '/professionnel' : ($mr === 'salarie' ? '/salaries/dashboard' : ($mr === 'admin' ? '/admin/dashboard' : '/')); ?>
-            <a href="<?= $esp ?>" class="block py-2 text-primary font-semibold"><i class="fas fa-user-circle mr-1"></i> Mon espace</a>
+            <a href="<?= $esp ?>" class="block py-2 text-primary font-semibold"><i class="fas fa-user-circle mr-1"></i> <?= t('navdd_my_space', 'Mon espace') ?></a>
             <a href="/logout" class="block py-2 text-red-500"><?= t('nav_logout', 'Déconnexion') ?></a>
         <?php endif; ?>
     </div>

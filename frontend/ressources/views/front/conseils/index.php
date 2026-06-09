@@ -69,13 +69,6 @@
 
             <?php if ($onglet === 'conseils'): ?>
 
-                <div class="bg-base-100 rounded-2xl shadow-sm p-4">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40"></i>
-                        <input type="text" placeholder="<?= t('considx_search_placeholder', 'Rechercher un conseil...') ?>" class="input input-bordered w-full pl-10">
-                    </div>
-                </div>
-
                 <?php if (empty($conseils)): ?>
                     <div class="text-center py-16 text-base-content/40">
                         <i class="fas fa-lightbulb text-4xl mb-3 block"></i>

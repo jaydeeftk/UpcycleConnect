@@ -55,7 +55,8 @@
     <?php $services = $services ?? []; ?>
 
     <div class="flex items-center justify-between mb-6">
-        <p class="text-sm text-base-content/50"><?= count($services) ?> <?= t('catsvc_results_count', 'service(s) trouvé(s)') ?></p>
+        <?php $n = count($services); ?>
+        <p class="text-sm text-base-content/50"><?= $n ?> <?= t('catsvc_results_count', 'service') ?><?= $n > 1 ? 's' : '' ?> <?= t('catsvc_results_found', 'trouvé') ?></p>
     </div>
 
     <?php if (empty($services)): ?>
@@ -85,7 +86,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <span class="text-xl font-bold"><?= t('catsvc_price_from', 'À partir de') ?> <?= htmlspecialchars(formatPrix($service['prix'] ?? 0)) ?></span>
-                            <div class="text-xs text-base-content/40 mt-0.5"><i class="fas fa-clock mr-1"></i><?= $service['duree'] ?? '' ?>h</div>
+                            <div class="text-xs text-base-content/40 mt-0.5"><i class="fas fa-clock mr-1"></i><?= (int)($service['duree'] ?? 0) ?> <?= t('unit_days','jour(s)') ?></div>
                         </div>
                         <a href="/services/<?= $service['id'] ?>" class="btn btn-neutral btn-sm"><?= t('catsvc_view_btn', 'Voir') ?></a>
                     </div>

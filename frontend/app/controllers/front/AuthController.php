@@ -79,6 +79,7 @@ class AuthController
             'nom' => $nomFamille,
             'prenom' => $prenom,
             'email' => $email,
+            'telephone' => trim($_POST['telephone'] ?? ''),
             'mot_de_passe' => $password,
             'role' => $role,
         ];
@@ -109,6 +110,7 @@ class AuthController
                 'email' => $email,
                 'prenom' => $prenom,
                 'nom' => $nomFamille,
+                'telephone' => trim($_POST['telephone'] ?? ''),
             ]);
         }
     }

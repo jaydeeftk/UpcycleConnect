@@ -137,6 +137,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		NomEntreprise string `json:"nom_entreprise"`
 		Type          string `json:"type"`
 		Siret         string `json:"siret"`
+		Telephone     string `json:"telephone"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -207,8 +208,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := database.DB.Exec(
-		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Token_confirmation, Date_Inscription, Id_Langue, Tutoriel_vu) VALUES (?, ?, ?, ?, ?, NULLIF(?,''), NOW(), 1, 0)",
-		body.Nom, body.Prenom, body.Email, string(hashed), statutInitial, tokenConfirmation,
+		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Telephone, Mot_de_passe, Statut, Token_confirmation, Date_Inscription, Id_Langue, Tutoriel_vu) VALUES (?, ?, ?, NULLIF(?,''), ?, ?, NULLIF(?,''), NOW(), 1, 0)",
+		body.Nom, body.Prenom, body.Email, strings.TrimSpace(body.Telephone), string(hashed), statutInitial, tokenConfirmation,
 	)
 	if err != nil {
 		httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de la création du compte")
@@ -262,18 +263,23 @@ func ConfirmerCompte(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusBadRequest, "Jeton manquant")
 		return
 	}
-	res, err := database.DB.Exec(
-		"UPDATE Utilisateurs SET Statut='actif', Token_confirmation=NULL WHERE Token_confirmation=? AND Statut='en_attente'",
-		token,
-	)
-	if err != nil {
-		httpx.JSONServerError(w, err)
-		return
-	}
-	if n, _ := res.RowsAffected(); n == 0 {
+	var email, prenom string
+	if e := database.DB.QueryRow("SELECT Email, COALESCE(Prenom,'') FROM Utilisateurs WHERE Token_confirmation=? AND Statut='en_attente'", token).Scan(&email, &prenom); e != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Lien invalide ou compte déjà activé")
 		return
 	}
+	if _, err := database.DB.Exec(
+		"UPDATE Utilisateurs SET Statut='actif', Token_confirmation=NULL WHERE Token_confirmation=? AND Statut='en_attente'",
+		token,
+	); err != nil {
+		httpx.JSONServerError(w, err)
+		return
+	}
+	go func(em, pr string) {
+		if e := services.SendWelcomeEmail(em, pr); e != nil {
+			log.Printf("[mail] echec email de bienvenue a %s : %v", em, e)
+		}
+	}(email, prenom)
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Compte activé"})
 }
 

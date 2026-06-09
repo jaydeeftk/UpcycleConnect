@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"html"
 	"net/smtp"
 	"os"
 	"strings"
@@ -47,6 +48,8 @@ func sendMail(targetEmail, subject, htmlBody string) error {
 	if smtpHost == "" {
 		return errors.New("SMTP non configure")
 	}
+	// Anti-injection d'en-tete : un sujet ne doit jamais contenir de saut de ligne.
+	subject = strings.ReplaceAll(strings.ReplaceAll(subject, "\r", " "), "\n", " ")
 
 	domain := "upcycleconnect.tech"
 	if at := strings.LastIndex(from, "@"); at >= 0 && at+1 < len(from) {
@@ -121,4 +124,31 @@ func SendPasswordResetEmail(targetEmail string, token string) error {
 			<p style="font-size: 0.8em; color: #718096;">Si vous n'etes pas a l'origine de cette demande, ignorez simplement cet email : votre mot de passe reste inchange.</p>
 		</div>`, resetLink, resetLink)
 	return sendMail(targetEmail, "Reinitialisation de votre mot de passe UpcycleConnect", body)
+}
+
+// SendGenericEmail envoie un message libre (titre + contenu) dans le gabarit UpcycleConnect.
+// Utilise pour les notifications envoyees depuis l'espace admin. Le contenu est echappe.
+func SendGenericEmail(targetEmail string, subject string, message string) error {
+	body := fmt.Sprintf(`
+		<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 520px;">
+			<h2 style="color: #2d3748;">%s</h2>
+			<p style="white-space: pre-line; color:#4a5568;">%s</p>
+			<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+			<p style="font-size: 0.8em; color: #718096;">UpcycleConnect — https://upcycleconnect.tech</p>
+		</div>`, html.EscapeString(subject), html.EscapeString(message))
+	return sendMail(targetEmail, subject, body)
+}
+
+// SendWelcomeEmail confirme l'activation du compte (envoye apres clic sur le lien).
+func SendWelcomeEmail(targetEmail string, prenom string) error {
+	appURL := os.Getenv("APP_URL")
+	body := fmt.Sprintf(`
+		<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 520px;">
+			<h2 style="color: #2d3748;">Bienvenue %s !</h2>
+			<p>Votre compte UpcycleConnect est desormais actif. Vous pouvez vous connecter, deposer vos objets, trouver des prestataires et participer a la communaute.</p>
+			<div style="margin: 25px 0;">
+				<a href="%s/login" style="background-color: #48bb78; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Me connecter</a>
+			</div>
+		</div>`, html.EscapeString(prenom), appURL)
+	return sendMail(targetEmail, "Bienvenue sur UpcycleConnect", body)
 }

@@ -2,7 +2,7 @@
     <div class="grid lg:grid-cols-2 gap-12 items-start">
 
         <div class="bg-base-100 rounded-3xl shadow-sm overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1581093458791-9d09c86d1f79?auto=format&fit=crop&w=1200&q=80"
+            <img src="<?= uc_image('prestation', $prestation['id'] ?? ($prestation['titre'] ?? '')) ?>"
                 alt="<?= t('prestdet_img_alt', 'Réparation d\'appareils') ?>" class="w-full h-full object-cover min-h-[420px]">
         </div>
 

@@ -1,17 +1,4 @@
-<?php
-$imagesByCategorie = [
-    'couture'        => 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80',
-    'menuiserie'     => 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=80',
-    'electronique'   => 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80',
-    'peinture'       => 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=80',
-    'jardinage'      => 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80',
-    'recyclage'      => 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80',
-    'upcycling'      => 'https://images.unsplash.com/photo-1595407753234-0882f1e77954?auto=format&fit=crop&w=900&q=80',
-    'reparation'     => 'https://images.unsplash.com/photo-1609205807107-2d29e8f53dd6?auto=format&fit=crop&w=900&q=80',
-    'transformation' => 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80',
-    'default'        => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=900&q=80',
-];
-?>
+<?php /* illustrations : helper uc_image() (pools varies, choix deterministe par id) */ ?>
 
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
 
@@ -99,7 +86,7 @@ $imagesByCategorie = [
             $complet  = ($formation['places_dispo'] ?? 0) === 0;
             $presque  = ($formation['places_dispo'] ?? 0) > 0 && ($formation['places_dispo'] ?? 0) <= 3;
             $cat      = strtolower($formation['categorie'] ?? '');
-            $imgUrl   = $imagesByCategorie[$cat] ?? $imagesByCategorie['default'];
+            $imgUrl   = uc_image('formation', $formation['id'] ?? ($formation['titre'] ?? $cat));
         ?>
             <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition <?= $complet ? 'opacity-70' : '' ?>">
                 <div class="w-full h-48 relative overflow-hidden">

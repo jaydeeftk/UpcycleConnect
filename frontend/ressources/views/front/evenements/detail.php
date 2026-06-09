@@ -1,14 +1,8 @@
 <?php
-$imagesByType = [
-    'Marché'        => 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1200&q=80',
-    'Atelier'       => 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=1200&q=80',
-    'Conférence'    => 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
-    'Exposition'    => 'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1200&q=80',
-    'Communautaire' => 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1200&q=80',
-    'default'       => 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80',
-];
 $type   = $evenement['type'] ?? $evenement['statut'] ?? '';
-$imgUrl = $evenement['image_url'] ?? ($imagesByType[$type] ?? $imagesByType['default']);
+$imgUrl = !empty($evenement['image_url'])
+    ? $evenement['image_url']
+    : uc_image('evenement', $evenement['id'] ?? ($evenement['titre'] ?? ''));
 ?>
 
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">

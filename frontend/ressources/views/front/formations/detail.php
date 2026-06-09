@@ -1,8 +1,10 @@
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
     <div class="grid lg:grid-cols-2 gap-12 items-start">
 
-        <div class="bg-base-100 rounded-3xl shadow-sm flex items-center justify-center min-h-[420px]">
-            <i class="fas fa-graduation-cap text-8xl text-base-content/20"></i>
+        <div class="bg-base-100 rounded-3xl shadow-sm overflow-hidden">
+            <img src="<?= uc_image('formation', $formation['id'] ?? ($formation['titre'] ?? '')) ?>"
+                 alt="<?= htmlspecialchars($formation['titre'] ?? '') ?>"
+                 class="w-full h-full object-cover min-h-[420px]">
         </div>
 
         <div>

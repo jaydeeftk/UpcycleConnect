@@ -1,13 +1,4 @@
-<?php
-$imagesByCategorie = [
-    'reparation'     => 'https://images.unsplash.com/photo-1609205807107-2d29e8f53dd6?auto=format&fit=crop&w=900&q=80',
-    'transformation' => 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80',
-    'recyclage'      => 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80',
-    'upcycling'      => 'https://images.unsplash.com/photo-1595407753234-0882f1e77954?auto=format&fit=crop&w=900&q=80',
-    'nettoyage'      => 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=900&q=80',
-    'default'        => 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80',
-];
-?>
+<?php /* illustrations : helper uc_image() (pools varies, choix deterministe par id) */ ?>
 
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
 
@@ -76,7 +67,7 @@ $imagesByCategorie = [
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($services as $service):
             $cat    = strtolower($service['categorie'] ?? '');
-            $imgUrl = $imagesByCategorie[$cat] ?? $imagesByCategorie['default'];
+            $imgUrl = uc_image('service', $service['id'] ?? ($service['titre'] ?? $cat));
         ?>
             <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition group">
                 <div class="w-full h-48 relative overflow-hidden">

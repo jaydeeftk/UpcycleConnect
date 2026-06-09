@@ -50,6 +50,8 @@ $router->post('/contact/send', 'Front\UserController@sendContact');
 $router->post('/professionnels/favoris/{id}/toggle', 'Front\AnnonceController@toggleFavori');
 
 $router->get('/a-propos', 'Front\PageController@apropos');
+$router->get('/mentions-legales', 'Front\PageController@mentionsLegales');
+$router->get('/confidentialite', 'Front\PageController@confidentialite');
 
 $router->get('/login', 'Front\AuthController@showLogin');
 $router->post('/login', 'Front\AuthController@login');

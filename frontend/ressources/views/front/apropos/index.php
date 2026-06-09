@@ -81,7 +81,7 @@
                 class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                 <?= t('apropos_cta_prestations', 'Voir les prestations') ?>
             </a>
-            <a href="/devenir-prestataire"
+            <a href="/register"
                 class="bg-base-200 border border-base-300 px-8 py-3 rounded-xl font-medium hover:bg-base-300 transition">
                 <?= t('apropos_cta_become', 'Devenir prestataire') ?>
             </a>

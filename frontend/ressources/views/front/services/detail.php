@@ -23,7 +23,7 @@
             <div class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-3 mb-8">
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('svcdet_duration', 'Durée estimée') ?></span>
-                    <span class="text-base-content/70"><?= $service['duree'] ?? '' ?>h</span>
+                    <span class="text-base-content/70"><?= (int)($service['duree'] ?? 0) ?> <?= t('unit_days','jour(s)') ?></span>
                 </div>
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('svcdet_price', 'Tarif') ?></span>

@@ -71,5 +71,5 @@
     </table>
 </div>
 <div class="mt-4 text-sm text-gray-500 text-right">
-    <?= count($utilisateurs) ?> <?= t('adm_users_total', 'utilisateur(s) au total') ?>
+    <?= count($utilisateurs) ?> <?= t('adm_users_total', 'utilisateur') ?><?= count($utilisateurs) > 1 ? 's' : '' ?> <?= t('adm_users_total_suffix', 'au total') ?>
 </div>

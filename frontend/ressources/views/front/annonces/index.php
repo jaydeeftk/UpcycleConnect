@@ -5,7 +5,7 @@
             <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                 <i class="fas fa-bullhorn text-green-600"></i>
             </div>
-            <span class="text-sm font-medium text-green-600 uppercase tracking-wide">Marketplace</span>
+            <span class="text-sm font-medium text-green-600 uppercase tracking-wide"><?= t('annidx_eyebrow', 'Marketplace') ?></span>
         </div>
         <div class="flex items-center justify-between">
             <div>

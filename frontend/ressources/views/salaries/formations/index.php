@@ -70,7 +70,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_titre', 'Titre') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_description', 'Description') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_prix', 'Prix') ?></th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_duree', 'Durée (min)') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_duree', 'Durée (h)') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_statut', 'Statut') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_auteur', 'Auteur') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_actions', 'Actions') ?></th>
@@ -101,7 +101,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         <?= number_format($formation['prix'] ?? 0, 2) ?> €
     </td>
     <td class="px-6 py-4 text-sm text-gray-600">
-        <?= htmlspecialchars($formation['duree'] ?? '') ?> min
+        <?= htmlspecialchars($formation['duree'] ?? '') ?> h
     </td>
     <td class="px-6 py-4">
         <?php
@@ -123,13 +123,13 @@ unset($_SESSION['success'], $_SESSION['error']);
     <td class="px-6 py-4">
         <div class="flex gap-2">
             <button onclick="openEditModal(
-                    <?= $formation['id'] ?? 0 ?>,
-                    `<?= htmlspecialchars($formation['titre'] ?? '', ENT_QUOTES) ?>`,
-                    `<?= htmlspecialchars($formation['description'] ?? '', ENT_QUOTES) ?>`,
-                    <?= $formation['prix'] ?? 0 ?>,
-                    <?= $formation['duree'] ?? 0 ?>,
-                    `<?= htmlspecialchars($formation['date'] ?? '', ENT_QUOTES) ?>`,
-                    `<?= htmlspecialchars($formation['localisation'] ?? '', ENT_QUOTES) ?>`
+                    <?= (int)($formation['id'] ?? 0) ?>,
+                    <?= json_encode((string)($formation['titre'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                    <?= json_encode((string)($formation['description'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                    <?= (float)($formation['prix'] ?? 0) ?>,
+                    <?= (int)($formation['duree'] ?? 0) ?>,
+                    <?= json_encode((string)($formation['date'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                    <?= json_encode((string)($formation['localisation'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>
                 )"
                 class="text-blue-600 hover:text-blue-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                 <i class="fas fa-edit"></i>
@@ -201,7 +201,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                            placeholder="0.00">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_duree', 'Durée (min)') ?></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_duree', 'Durée (h)') ?></label>
                     <input type="number" name="duree" min="1"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                            placeholder="<?= t('sal_ph_duree', 'Ex: 60') ?>">
@@ -264,7 +264,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_duree', 'Durée (min)') ?></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_duree', 'Durée (h)') ?></label>
                     <input type="number" name="duree" id="edit-duree" min="1"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>

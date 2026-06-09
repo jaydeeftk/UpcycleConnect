@@ -95,7 +95,7 @@ async function handlePaiement() {
     } catch(e) {
         console.error(e);
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-lock mr-2"></i> Payer <?= htmlspecialchars($_GET['montant'] ?? '0') ?>€';
+        btn.innerHTML = '<i class="fas fa-lock mr-2"></i> <?= t('pay_btn', 'Payer') ?> <?= htmlspecialchars($_GET['montant'] ?? '0') ?>€';
     }
 }
 </script>

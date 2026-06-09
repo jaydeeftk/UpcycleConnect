@@ -86,9 +86,16 @@
     ?>
 
     <div class="flex items-center justify-between mb-6">
-        <p class="text-sm text-base-content/50"><?= count($formations) ?> <?= t('catfor_results_count', 'formation(s) trouvée(s)') ?></p>
+        <?php $nf = count($formations); ?>
+        <p class="text-sm text-base-content/50"><?= $nf ?> <?= t('catfor_results_count', 'formation') ?><?= $nf > 1 ? 's' : '' ?> <?= t('catfor_results_found', 'trouvée') ?></p>
     </div>
 
+    <?php if (empty($formations)): ?>
+        <div class="text-center py-20 text-base-content/40">
+            <i class="fas fa-graduation-cap text-5xl mb-4 block"></i>
+            <p class="text-lg"><?= t('catfor_empty', 'Aucune formation à venir pour le moment.') ?></p>
+        </div>
+    <?php else: ?>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($formations as $formation):
             $complet  = ($formation['places_dispo'] ?? 0) === 0;
@@ -107,7 +114,7 @@
                         </div>
                     <?php elseif ($presque): ?>
                         <div class="absolute top-3 right-3">
-                            <span class="badge badge-warning badge-sm"><?= t('catfor_almost_full_before', 'Plus que') ?> <?= $formation['places_dispo'] ?> <?= t('catfor_almost_full_after', 'place(s) !') ?></span>
+                            <span class="badge badge-warning badge-sm"><?= t('catfor_almost_full_before', 'Plus que') ?> <?= $formation['places_dispo'] ?> <?= t('catfor_almost_full_after', 'place') ?><?= ($formation['places_dispo'] ?? 0) > 1 ? 's' : '' ?> !</span>
                         </div>
                     <?php endif; ?>
                     <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -151,5 +158,6 @@
             </div>
         <?php endforeach; ?>
     </div>
+    <?php endif; ?>
 
 </section>

@@ -119,10 +119,10 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <td class="px-6 py-4">
                     <div class="flex gap-2">
                         <button onclick="openEditModal(
-                                <?= $atelier['id_atelier'] ?>,
-                                `<?= addslashes($atelier['theme']) ?>`,
-                                `<?= addslashes($atelier['date_atelier'] ?? '') ?>`,
-                                `<?= addslashes($atelier['lieu'] ?? '') ?>`
+                                <?= (int)($atelier['id_atelier'] ?? 0) ?>,
+                                <?= json_encode((string)($atelier['theme'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                                <?= json_encode((string)($atelier['date_atelier'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                                <?= json_encode((string)($atelier['lieu'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>
                             )"
                             class="text-blue-600 hover:text-blue-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                             <i class="fas fa-edit"></i>

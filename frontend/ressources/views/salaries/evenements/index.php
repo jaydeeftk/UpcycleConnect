@@ -125,12 +125,12 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <td class="px-6 py-4">
                     <div class="flex gap-2">
                         <button onclick="openEditModal(
-                                <?= $evenement['id_evenements'] ?>,
-                                `<?= addslashes($evenement['titre']) ?>`,
-                                `<?= addslashes($evenement['description']) ?>`,
-                                `<?= addslashes($evenement['date'] ?? '') ?>`,
-                                `<?= addslashes($evenement['lieu'] ?? '') ?>`,
-                                <?= $evenement['capacite'] ?>
+                                <?= (int)($evenement['id_evenements'] ?? 0) ?>,
+                                <?= json_encode((string)($evenement['titre'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                                <?= json_encode((string)($evenement['description'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                                <?= json_encode((string)($evenement['date'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                                <?= json_encode((string)($evenement['lieu'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                                <?= (int)($evenement['capacite'] ?? 0) ?>
                             )"
                             class="text-blue-600 hover:text-blue-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                             <i class="fas fa-edit"></i>

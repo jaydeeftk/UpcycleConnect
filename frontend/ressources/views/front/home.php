@@ -13,7 +13,7 @@
 
 <section class="relative min-h-[600px] flex items-center">
     <div class="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1600&q=80"
+        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1600&q=80"
              class="w-full h-full object-cover" alt="Hero UpcycleConnect">
         <div class="absolute inset-0 bg-black/50"></div>
     </div>
@@ -63,7 +63,7 @@
         </div>
         <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group fade-up" style="transition-delay:0.12s">
             <div class="overflow-hidden h-64">
-                <img src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80"
+                <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=900&q=80"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                      alt="<?= t('home_step2_title','Transformer') ?>">
             </div>
@@ -76,7 +76,7 @@
         </div>
         <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group fade-up" style="transition-delay:0.19s">
             <div class="overflow-hidden h-64">
-                <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80"
+                <img src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=80"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                      alt="<?= t('home_step3_title','Recycler') ?>">
             </div>

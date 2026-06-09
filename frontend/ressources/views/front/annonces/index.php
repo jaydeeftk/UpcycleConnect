@@ -57,6 +57,11 @@
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($annoncesFiltered as $annonce): ?>
                 <a href="/annonces/<?= $annonce['id'] ?>" class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 hover:shadow-md transition flex flex-col gap-4 block">
+                    <div class="h-40 -mx-6 -mt-6 mb-0 overflow-hidden rounded-t-2xl">
+                        <img src="<?= uc_image('objet', $annonce['id'] ?? ($annonce['titre'] ?? '')) ?>"
+                             alt="<?= htmlspecialchars($annonce['titre'] ?? '') ?>"
+                             class="w-full h-full object-cover">
+                    </div>
                     <div class="flex items-center gap-2">
                         <?php if (($annonce['type_annonce'] ?? '') === 'vente'): ?>
                             <span class="badge badge-ghost badge-sm gap-1">

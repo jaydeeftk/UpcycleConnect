@@ -6,8 +6,10 @@
 
     <div class="grid lg:grid-cols-2 gap-12 items-start">
 
-        <div class="bg-base-100 rounded-3xl shadow-sm flex items-center justify-center min-h-[360px]">
-            <i class="fas fa-tools text-8xl text-base-content/20"></i>
+        <div class="bg-base-100 rounded-3xl shadow-sm overflow-hidden">
+            <img src="<?= uc_image('service', $service['id'] ?? ($service['titre'] ?? '')) ?>"
+                 alt="<?= htmlspecialchars($service['titre'] ?? '') ?>"
+                 class="w-full h-full object-cover min-h-[360px]">
         </div>
 
         <div>

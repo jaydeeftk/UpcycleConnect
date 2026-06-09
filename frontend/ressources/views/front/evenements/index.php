@@ -11,8 +11,10 @@
         <?php if (!empty($evenements)): ?>
             <?php foreach ($evenements as $evenement): ?>
                 <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden">
-                    <div class="w-full h-64 bg-base-200 flex items-center justify-center">
-                        <i class="fas fa-calendar-alt text-4xl text-base-content/40"></i>
+                    <div class="w-full h-64 overflow-hidden">
+                        <img src="<?= uc_image('evenement', $evenement['id'] ?? ($evenement['titre'] ?? '')) ?>"
+                             alt="<?= htmlspecialchars($evenement['titre'] ?? '') ?>"
+                             class="w-full h-full object-cover">
                     </div>
                     <div class="p-6">
                         <div class="text-sm text-base-content/60 mb-2">

@@ -134,6 +134,65 @@ class AuthController
         }
     }
 
+    // Étape 1 : formulaire « mot de passe oublié » (saisie de l'email).
+    public function showForgotPassword()
+    {
+        return view('front.auth.forgot', [
+            'title'   => 'Mot de passe oublié - UpcycleConnect',
+            'error'   => null,
+            'success' => null,
+        ]);
+    }
+
+    // Étape 1 (POST) : déclenche l'envoi de l'email. Réponse volontairement neutre
+    // (anti-énumération : on ne dit jamais si l'email existe).
+    public function forgotPassword()
+    {
+        $email = $_POST['email'] ?? '';
+        try {
+            $this->api->post('/auth/mot-de-passe-oublie', ['email' => $email]);
+        } catch (\Exception $e) {
+            // silencieux : on n'expose rien
+        }
+        return view('front.auth.forgot', [
+            'title'   => 'Mot de passe oublié - UpcycleConnect',
+            'error'   => null,
+            'success' => "Si un compte existe pour cette adresse, un email de réinitialisation vient d'être envoyé. Pensez à vérifier vos spams.",
+        ]);
+    }
+
+    // Étape 2 : page de saisie du nouveau mot de passe (lien reçu par email).
+    public function showResetPassword()
+    {
+        return view('front.auth.reset', [
+            'title' => 'Nouveau mot de passe - UpcycleConnect',
+            'token' => $_GET['token'] ?? '',
+            'error' => null,
+        ]);
+    }
+
+    // Étape 2 (POST) : consomme le jeton et fixe le nouveau mot de passe.
+    public function resetPassword()
+    {
+        $token    = $_POST['token'] ?? '';
+        $password = $_POST['password'] ?? '';
+        try {
+            $this->api->post('/auth/reinitialiser', ['token' => $token, 'mot_de_passe' => $password]);
+            return view('front.auth.index', [
+                'title'     => 'Mot de passe réinitialisé - UpcycleConnect',
+                'activeTab' => 'login',
+                'error'     => null,
+                'success'   => 'Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter.',
+            ]);
+        } catch (\Exception $e) {
+            return view('front.auth.reset', [
+                'title' => 'Nouveau mot de passe - UpcycleConnect',
+                'token' => $token,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     // Proxy public : le formulaire d'inscription vérifie le SIRET via l'API Go
     // (qui interroge recherche-entreprises.api.gouv.fr).
     public function verifySiret($siret)

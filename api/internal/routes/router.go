@@ -33,6 +33,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/auth/login", handlers.Login)
 	mux.HandleFunc("/api/auth/register", handlers.Register)
 	mux.HandleFunc("/api/auth/confirmer", handlers.ConfirmerCompte)
+	mux.HandleFunc("/api/auth/mot-de-passe-oublie", handlers.DemanderReset)
+	mux.HandleFunc("/api/auth/reinitialiser", handlers.ReinitialiserMotDePasse)
 	mux.HandleFunc("/api/auth/tutoriel", middleware.JWTAuth(handlers.UpdateTutoriel))
 	mux.HandleFunc("/api/auth/verify", handlers.VerifyPassword)
 	mux.HandleFunc("/api/ws", handlers.ServeWS)

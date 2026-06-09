@@ -767,16 +767,16 @@ VALUES ('Animateur', 'Direction', NOW(), LAST_INSERT_ID());
 
 INSERT INTO Evenements (Date_, Titre, Description, Lieu, Capacite, Statut, Prix, Id_Salaries)
 VALUES 
-(DATE_ADD(NOW(), INTERVAL 12 DAY), 'Atelier Upcycling Textile', 'Apprenez à transformer vos vieux vêtements en créations uniques.', 'Paris 10ème', 20, 'a_venir', 0.00, 1),
-(DATE_ADD(NOW(), INTERVAL 21 DAY), 'Workshop Mobilier Recyclé', 'Créez des meubles à partir de matériaux récupérés.', 'Paris 11ème', 15, 'a_venir', 25.00, 1),
-(DATE_ADD(NOW(), INTERVAL 33 DAY), 'Journée Zéro Déchet', 'Une journée pour découvrir les pratiques zéro déchet.', 'Paris 13ème', 50, 'a_venir', 0.00, 1);
+(DATE_ADD(CONCAT(CURDATE(), ' 14:00:00'), INTERVAL 12 DAY), 'Atelier Upcycling Textile', 'Apprenez à transformer vos vieux vêtements en créations uniques.', 'Paris 10ème', 20, 'a_venir', 0.00, 1),
+(DATE_ADD(CONCAT(CURDATE(), ' 10:00:00'), INTERVAL 21 DAY), 'Workshop Mobilier Recyclé', 'Créez des meubles à partir de matériaux récupérés.', 'Paris 11ème', 15, 'a_venir', 25.00, 1),
+(DATE_ADD(CONCAT(CURDATE(), ' 09:30:00'), INTERVAL 33 DAY), 'Journée Zéro Déchet', 'Une journée pour découvrir les pratiques zéro déchet.', 'Paris 13ème', 50, 'a_venir', 0.00, 1);
 
 
 INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Date_formation, Places_total, Places_dispo, Localisation, Categorie, Id_Salaries)
 VALUES
-('Formation Upcycling Débutant', 'Découvrez les bases de l upcycling et créez vos premières créations.', 49.00, 3, 'actif', DATE_ADD(NOW(), INTERVAL 15 DAY), 20, 20, 'Paris 10ème', 'Débutant', 1),
-('Formation Couture Créative', 'Apprenez à coudre et transformer vos tissus.', 79.00, 6, 'actif', DATE_ADD(NOW(), INTERVAL 27 DAY), 15, 15, 'Paris 11ème', 'Couture', 1),
-('Formation Menuiserie Recyclée', 'Travaillez le bois de récupération pour créer des meubles.', 99.00, 8, 'actif', DATE_ADD(NOW(), INTERVAL 40 DAY), 10, 10, 'Montreuil', 'Menuiserie', 1);
+('Formation Upcycling Débutant', 'Découvrez les bases de l upcycling et créez vos premières créations.', 49.00, 3, 'actif', DATE_ADD(CONCAT(CURDATE(), ' 09:00:00'), INTERVAL 15 DAY), 20, 20, 'Paris 10ème', 'Débutant', 1),
+('Formation Couture Créative', 'Apprenez à coudre et transformer vos tissus.', 79.00, 6, 'actif', DATE_ADD(CONCAT(CURDATE(), ' 09:00:00'), INTERVAL 27 DAY), 15, 15, 'Paris 11ème', 'Couture', 1),
+('Formation Menuiserie Recyclée', 'Travaillez le bois de récupération pour créer des meubles.', 99.00, 8, 'actif', DATE_ADD(CONCAT(CURDATE(), ' 14:00:00'), INTERVAL 40 DAY), 10, 10, 'Montreuil', 'Menuiserie', 1);
 
 
 INSERT INTO Services (Titre, Description, Prix, Duree, Categorie, Id_Salaries)

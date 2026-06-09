@@ -34,8 +34,18 @@ class UserController
     }
     public function mesPrestations()
     {
+        $prestations = [];
+        if (isset($_SESSION['user'])) {
+            try {
+                $r = $this->api->get('/prestations/demandes');
+                $prestations = $r['data'] ?? (is_array($r) && !isset($r['success']) ? $r : []);
+            } catch (\Exception $e) {
+                $prestations = [];
+            }
+        }
         return view('front.mes-prestations.index', [
-            'title' => 'Mes prestations - UpcycleConnect'
+            'title'       => 'Mes prestations - UpcycleConnect',
+            'prestations' => $prestations,
         ]);
     }
     public function paiements()

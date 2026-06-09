@@ -55,6 +55,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/messages", middleware.JWTAuth(handlers.CreateUserMessage))
 	mux.HandleFunc("/api/messages/upload", middleware.JWTAuth(handlers.UploadMessageAttachment))
 	mux.HandleFunc("/api/conteneurs/demandes", middleware.JWTAuth(handlers.CreateDemandeConteneur))
+	mux.HandleFunc("/api/prestations/demandes", middleware.JWTAuth(handlers.PrestationsDemandes))
 	mux.HandleFunc("/api/conteneurs/user/", middleware.OwnerFromPath(handlers.GetDemandesConteneurUser))
 
 	mux.HandleFunc("/api/conseils", handlers.GetConseils)

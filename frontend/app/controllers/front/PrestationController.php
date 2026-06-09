@@ -54,6 +54,24 @@ class PrestationController
 
     public function store()
     {
-        redirect('/mes-demandes');
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+            return;
+        }
+        $payload = [
+            'nom_objet'    => $_POST['nom_objet'] ?? '',
+            'categorie'    => $_POST['categorie'] ?? '',
+            'type_objet'   => $_POST['type_objet'] ?? '',
+            'etat'         => $_POST['etat'] ?? '',
+            'description'  => $_POST['description'] ?? '',
+            'localisation' => $_POST['localisation'] ?? '',
+            'budget'       => $_POST['budget'] ?? '',
+        ];
+        try {
+            $this->api->post('/prestations/demandes', $payload);
+            redirect('/mes-prestations?envoye=1');
+        } catch (\Exception $e) {
+            redirect('/mes-prestations?erreur=1');
+        }
     }
 }

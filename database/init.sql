@@ -958,3 +958,29 @@ SET @sujet1 := LAST_INSERT_ID();
 INSERT INTO Reponses (Contenu, Date_, Id_Sujets, Id_Utilisateurs, Est_Solution) VALUES
 ('Une peinture acrylique multi-supports avec sous-couche tient tres bien sur le bois.', NOW(), @sujet1, 3, 1),
 ('Pense a depoussierer et degraisser avant, sinon ca n''accroche pas.', NOW(), @sujet1, 4, 0);
+
+-- Demandes de prestation : mise en relation particulier <-> prestataire (mission 1)
+CREATE TABLE IF NOT EXISTS Demandes_prestations (
+  Id_Demandes_prestations INT AUTO_INCREMENT PRIMARY KEY,
+  Nom_objet VARCHAR(150) NOT NULL,
+  Categorie VARCHAR(50),
+  Type_objet VARCHAR(50),
+  Etat VARCHAR(50),
+  Description TEXT,
+  Localisation VARCHAR(150),
+  Budget VARCHAR(50),
+  Statut VARCHAR(30) NOT NULL DEFAULT 'ouverte',
+  Date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+  Id_Utilisateurs INT NOT NULL,
+  Id_Professionnels INT NULL,
+  CONSTRAINT chk_dempresta_statut CHECK (Statut IN ('ouverte','en_cours','traitee','annulee')),
+  FOREIGN KEY (Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs) ON DELETE CASCADE
+);
+
+INSERT INTO Demandes_prestations (Nom_objet, Categorie, Type_objet, Etat, Description, Localisation, Budget, Statut, Date_creation, Id_Utilisateurs)
+SELECT 'Velo de ville', 'Reparation', 'Velo', 'Endommage', 'Freins a regler et chambre a air a changer.', 'Paris 11e', '40 EUR', 'ouverte', NOW(), Id_Utilisateurs
+FROM Utilisateurs WHERE Email = 'part@demo.test' LIMIT 1;
+
+INSERT INTO Demandes_prestations (Nom_objet, Categorie, Type_objet, Etat, Description, Localisation, Budget, Statut, Date_creation, Id_Utilisateurs)
+SELECT 'Commode ancienne', 'Transformation', 'Mobilier', 'A transformer', 'Transformer en meuble TV, finition bois clair.', 'Lyon', 'a discuter', 'en_cours', NOW(), Id_Utilisateurs
+FROM Utilisateurs WHERE Email = 'part@demo.test' LIMIT 1;

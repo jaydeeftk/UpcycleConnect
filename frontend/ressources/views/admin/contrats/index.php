@@ -78,11 +78,13 @@
                     <td class="px-6 py-4 text-gray-600"><?= formatDate($c['date_debut'] ?? '') ?></td>
                     <td class="px-6 py-4 text-gray-600"><?= formatDate($c['date_fin'] ?? '') ?></td>
                     <td class="px-6 py-4">
-                        <a href="/admin/contrats/<?= $c['id'] ?>/delete"
-                            onclick="return ucConfirm(this, '<?= t('adm_contrats_confirm_delete', 'Supprimer ce contrat ?') ?>')"
-                            class="text-red-600 hover:text-red-800" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
-                            <i class="fas fa-trash"></i>
-                        </a>
+                        <form method="POST" action="/admin/contrats/<?= $c['id'] ?>/supprimer" class="inline"
+                            onsubmit="return ucConfirm(this, '<?= t('adm_contrats_confirm_delete', 'Supprimer ce contrat ?') ?>')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="text-red-600 hover:text-red-800" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>

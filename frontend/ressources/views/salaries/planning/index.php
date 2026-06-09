@@ -151,11 +151,13 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                     </span>
                 </td>
                 <td class="px-6 py-4">
-                    <a href=" /salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)$item['id'] ?>"
-                       onclick="return ucConfirm(this, '<?= t('sal_planning_delete_confirm', 'Supprimer cet élément ?') ?>')"
-                       class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
-                        <i class="fas fa-trash"></i>
-                    </a>
+                    <form method="POST" action="/salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)$item['id'] ?>" class="inline"
+                       onsubmit="return ucConfirm(this, '<?= t('sal_planning_delete_confirm', 'Supprimer cet élément ?') ?>')">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
             <?php endforeach; ?>

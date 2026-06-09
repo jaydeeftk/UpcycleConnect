@@ -48,11 +48,13 @@
                     <button type="button" onclick='openEditBox(<?= htmlspecialchars(json_encode($box), ENT_QUOTES) ?>)' class="text-slate-500 hover:text-emerald-600 text-sm font-medium transition-colors">
                         <i class="fas fa-pen mr-1"></i><?= t('adm_btn_edit', 'Modifier') ?>
                     </button>
-                    <a href="/admin/conteneurs/<?= $box['id'] ?>/delete"
-                       onclick="return ucConfirm(this, '<?= t('adm_conteneurs_confirm_delete', 'Supprimer définitivement ce conteneur ?') ?>')"
-                       class="text-rose-500 hover:text-rose-700 text-sm font-medium transition-colors">
-                        <i class="fas fa-trash mr-1"></i><?= t('adm_conteneurs_remove', 'Retirer') ?>
-                    </a>
+                    <form method="POST" action="/admin/conteneurs/<?= $box['id'] ?>/delete" class="inline"
+                       onsubmit="return ucConfirm(this, '<?= t('adm_conteneurs_confirm_delete', 'Supprimer définitivement ce conteneur ?') ?>')">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="text-rose-500 hover:text-rose-700 text-sm font-medium transition-colors">
+                            <i class="fas fa-trash mr-1"></i><?= t('adm_conteneurs_remove', 'Retirer') ?>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

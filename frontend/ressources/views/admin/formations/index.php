@@ -53,10 +53,19 @@
                     </td>
                     <td class="p-4 text-right space-x-1">
                         <?php if ($st === 'en_attente' || $st === 'en attente') : ?>
-                            <a href="/admin/formations/<?= $f['id'] ?>/valider" class="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>"><i class="fas fa-check"></i></a>
-                            <a href="/admin/formations/<?= $f['id'] ?>/rejeter" class="inline-flex p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="<?= t('adm_btn_reject', 'Rejeter') ?>"><i class="fas fa-times"></i></a>
+                            <form method="POST" action="/admin/formations/<?= $f['id'] ?>/valider" class="inline">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="inline-flex p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>"><i class="fas fa-check"></i></button>
+                            </form>
+                            <form method="POST" action="/admin/formations/<?= $f['id'] ?>/rejeter" class="inline">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="inline-flex p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="<?= t('adm_btn_reject', 'Rejeter') ?>"><i class="fas fa-times"></i></button>
+                            </form>
                         <?php endif; ?>
-                        <a href="/admin/formations/<?= $f['id'] ?>/delete" onclick="return ucConfirm(this, '<?= t('adm_formations_confirm_delete', 'Supprimer ?') ?>')" class="inline-flex p-2 bg-slate-100 text-slate-400 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"><i class="fas fa-trash"></i></a>
+                        <form method="POST" action="/admin/formations/<?= $f['id'] ?>/delete" class="inline" onsubmit="return ucConfirm(this, '<?= t('adm_formations_confirm_delete', 'Supprimer ?') ?>')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="inline-flex p-2 bg-slate-100 text-slate-400 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"><i class="fas fa-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; endif; ?>

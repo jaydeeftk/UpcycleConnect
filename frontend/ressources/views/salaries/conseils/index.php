@@ -93,11 +93,13 @@ unset($_SESSION['success'], $_SESSION['error']);
                                 class="text-green-600 hover:text-green-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <a href=" /salaries/conseils/<?= $conseil['id_conseils'] ?>/delete"
-                           onclick="return ucConfirm(this, '<?= t('sal_conseils_delete_confirm', 'Supprimer ce conseil ?') ?>')"
-                           class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
-                            <i class="fas fa-trash"></i>
-                        </a>
+                        <form method="POST" action="/salaries/conseils/<?= $conseil['id_conseils'] ?>/delete" class="inline"
+                           onsubmit="return ucConfirm(this, '<?= t('sal_conseils_delete_confirm', 'Supprimer ce conseil ?') ?>')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
                         <?php else: ?>
                         <span class="text-gray-400 text-xs italic"><?= t('sal_not_editable', 'Non modifiable') ?></span>
                         <?php endif; ?>

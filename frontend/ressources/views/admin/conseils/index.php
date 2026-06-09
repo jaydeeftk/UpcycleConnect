@@ -69,19 +69,25 @@
                         </span>
                     </td>
                     <td class="p-4 text-right space-x-2">
-                        <a href="/admin/conseils/<?= $conseil['id'] ?>/valider"
-                           class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>">
-                            <i class="fas fa-check"></i>
-                        </a>
-                        <a href="/admin/conseils/<?= $conseil['id'] ?>/rejeter"
-                           class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-amber-50 text-amber-500 hover:bg-amber-500 hover:text-white transition-colors" title="<?= t('adm_btn_reject', 'Rejeter') ?>">
-                            <i class="fas fa-times"></i>
-                        </a>
-                        <a href="/admin/conseils/<?= $conseil['id'] ?>/delete"
-                           onclick="return ucConfirm(this, '<?= t('adm_conseils_confirm_delete', 'Supprimer définitivement ce conseil ?') ?>')"
-                           class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
-                            <i class="fas fa-trash"></i>
-                        </a>
+                        <form method="POST" action="/admin/conseils/<?= $conseil['id'] ?>/valider" class="inline">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        <form method="POST" action="/admin/conseils/<?= $conseil['id'] ?>/rejeter" class="inline">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-amber-50 text-amber-500 hover:bg-amber-500 hover:text-white transition-colors" title="<?= t('adm_btn_reject', 'Rejeter') ?>">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                        <form method="POST" action="/admin/conseils/<?= $conseil['id'] ?>/delete" class="inline"
+                           onsubmit="return ucConfirm(this, '<?= t('adm_conseils_confirm_delete', 'Supprimer définitivement ce conseil ?') ?>')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <?php } ?>

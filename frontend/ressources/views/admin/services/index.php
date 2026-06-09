@@ -43,11 +43,13 @@
                         <i class="far fa-clock mr-1 text-slate-400"></i><?= intval($service['duree'] ?? 0) ?> <?= t('adm_services_days', 'jours') ?>
                     </td>
                     <td class="p-4 text-right">
-                        <a href="/admin/services/<?= $service['id'] ?>/delete"
-                           onclick="return ucConfirm(this, '<?= t('adm_services_confirm_delete', 'Supprimer ce service définitivement ?') ?>')"
-                           class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
-                            <i class="fas fa-trash"></i>
-                        </a>
+                        <form method="POST" action="/admin/services/<?= $service['id'] ?>/delete" class="inline"
+                              onsubmit="return ucConfirm(this, '<?= t('adm_services_confirm_delete', 'Supprimer ce service définitivement ?') ?>')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <?php } ?>

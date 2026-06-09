@@ -42,11 +42,13 @@
                         <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($n['message'] ?? $n['contenu'] ?? '') ?></p>
                         <p class="text-xs text-gray-400 mt-1"><?= formatDate($n['date'] ?? $n['date_envoi'] ?? '', true) ?></p>
                     </div>
-                    <a href="/admin/notifications/<?= $n['id'] ?>/delete"
-                       onclick="return ucConfirm(this, '<?= t('adm_notifs_confirm_delete', 'Supprimer ?') ?>')"
-                       class="text-red-500 hover:text-red-700 ml-2">
-                        <i class="fas fa-trash text-xs"></i>
-                    </a>
+                    <form method="POST" action="/admin/notifications/<?= $n['id'] ?>/delete" class="inline ml-2"
+                          onsubmit="return ucConfirm(this, '<?= t('adm_notifs_confirm_delete', 'Supprimer ?') ?>')">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </form>
                 </div>
                 <?php endforeach; ?>
             </div>

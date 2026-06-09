@@ -134,11 +134,13 @@ unset($_SESSION['success'], $_SESSION['error']);
                 class="text-blue-600 hover:text-blue-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                 <i class="fas fa-edit"></i>
             </button>
-            <a href="/salaries/formations/<?= $formation['id'] ?? 0 ?>/delete"
-               onclick="return ucConfirm(this, '<?= t('sal_formations_delete_confirm', 'Supprimer cette formation ?') ?>')"
-               class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
-                <i class="fas fa-trash"></i>
-            </a>
+            <form method="POST" action="/salaries/formations/<?= $formation['id'] ?? 0 ?>/delete" class="inline"
+               onsubmit="return ucConfirm(this, '<?= t('sal_formations_delete_confirm', 'Supprimer cette formation ?') ?>')">
+                <?= csrf_field() ?>
+                <button type="submit" class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
         </div>
     </td>
     <td class="px-6 py-4 text-sm text-gray-600">

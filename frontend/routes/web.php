@@ -106,14 +106,11 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/utilisateurs/{id}', 'Admin\UtilisateurController@show');
     $router->post('/utilisateurs/{id}/update', 'Admin\UtilisateurController@update');
     $router->get('/utilisateurs/{id}/delete', 'Admin\UtilisateurController@confirmDelete');
-    $router->get('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
+    $router->post('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');
     $router->post('/utilisateurs/{id}/statut', 'Admin\UtilisateurController@statut');
     $router->post('/utilisateurs/{id}/role', 'Admin\UtilisateurController@role');
 
     $router->get('/annonces', 'Admin\AnnonceController@index');
-    $router->get('/annonces/{id}/validate', 'Admin\AnnonceController@validate');
-    $router->get('/annonces/{id}/reject', 'Admin\AnnonceController@reject');
-    $router->get('/annonces/{id}/delete', 'Admin\AnnonceController@delete');
     $router->post('/annonces/{id}/valider', 'Admin\AnnonceController@validate');
     $router->post('/annonces/{id}/refuser', 'Admin\AnnonceController@reject');
     $router->post('/annonces/{id}/supprimer', 'Admin\AnnonceController@delete');
@@ -121,38 +118,36 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/evenements', 'Admin\EvenementController@index');
     $router->get('/evenements/create', 'Admin\EvenementController@create');
     $router->post('/evenements/store', 'Admin\EvenementController@store');
-    $router->get('/evenements/{id}/delete', 'Admin\EvenementController@delete');
     $router->post('/evenements/{id}/delete', 'Admin\EvenementController@delete');
 
     $router->get('/formations', 'Admin\FormationController@index');
     $router->get('/formations/create', 'Admin\FormationController@create');
     $router->post('/formations/store', 'Admin\FormationController@store');
-    $router->get('/formations/{id}/valider', 'Admin\FormationController@valider');
-    $router->get('/formations/{id}/rejeter', 'Admin\FormationController@rejeter');
-    $router->get('/formations/{id}/delete', 'Admin\FormationController@delete');
+    $router->post('/formations/{id}/valider', 'Admin\FormationController@valider');
+    $router->post('/formations/{id}/rejeter', 'Admin\FormationController@rejeter');
+    $router->post('/formations/{id}/delete', 'Admin\FormationController@delete');
 
     $router->get('/conteneurs', 'Admin\ConteneurController@index');
     $router->get('/conteneurs/{id}', 'Admin\ConteneurController@show');
     $router->post('/conteneurs/store', 'Admin\ConteneurController@store');
     $router->post('/conteneurs/{id}/update', 'Admin\ConteneurController@update');
-    $router->get('/conteneurs/{id}/accept', 'Admin\ConteneurController@accept');
-    $router->get('/conteneurs/{id}/refuse', 'Admin\ConteneurController@refuse');
-    $router->get('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
+    $router->post('/conteneurs/{id}/accept', 'Admin\ConteneurController@accept');
+    $router->post('/conteneurs/{id}/refuse', 'Admin\ConteneurController@refuse');
+    $router->post('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
 
     $router->get('/categories', 'Admin\CategorieController@index');
     $router->post('/categories/store', 'Admin\CategorieController@store');
-    $router->get('/categories/{id}/delete', 'Admin\CategorieController@delete');
+    $router->post('/categories/{id}/delete', 'Admin\CategorieController@delete');
 
     $router->get('/contrats', 'Admin\ContratController@index');
     $router->post('/contrats/store', 'Admin\ContratController@store');
-    $router->get('/contrats/{id}/delete', 'Admin\ContratController@delete');
     $router->post('/contrats/{id}/supprimer', 'Admin\ContratController@delete');
 
     $router->get('/factures', 'Admin\FactureController@index');
     $router->get('/factures/{id}/pdf', 'Admin\FactureController@pdf');
     $router->get('/notifications', 'Admin\NotificationController@index');
     $router->post('/notifications/store', 'Admin\NotificationController@store');
-    $router->get('/notifications/{id}/delete', 'Admin\NotificationController@delete');
+    $router->post('/notifications/{id}/delete', 'Admin\NotificationController@delete');
     $router->get('/messages', 'Admin\MessageController@index');
 
     $router->get('/parametres', 'Admin\ParametreController@index');
@@ -173,7 +168,7 @@ $router->group(['prefix' => 'admin'], function($router) {
 
     $router->get('/services', 'Admin\ServicesController@index');
     $router->post('/services/store', 'Admin\ServicesController@store');
-    $router->get('/services/{id}/delete', 'Admin\ServicesController@delete');  
+    $router->post('/services/{id}/delete', 'Admin\ServicesController@delete');
 
     $router->get('/planning', 'Admin\PlanningController@index');
 
@@ -196,36 +191,36 @@ $router->group(['prefix' => 'salaries'], function($router) {
     $router->post('/conseils/store', 'salaries\ConseilController@store');
     $router->get('/conseils/{id}/edit', 'salaries\ConseilController@edit');
     $router->post('/conseils/{id}/update', 'salaries\ConseilController@update');
-    $router->get('/conseils/{id}/delete', 'salaries\ConseilController@delete');
+    $router->post('/conseils/{id}/delete', 'salaries\ConseilController@delete');
 
     
     $router->get('/formations', 'salaries\FormationController@index');
     $router->post('/formations/store', 'salaries\FormationController@store');
     $router->get('/formations/{id}/edit', 'salaries\FormationController@edit');
     $router->post('/formations/{id}/update', 'salaries\FormationController@update');
-    $router->get('/formations/{id}/delete', 'salaries\FormationController@delete');
+    $router->post('/formations/{id}/delete', 'salaries\FormationController@delete');
 
     
     $router->get('/evenements', 'salaries\EvenementController@index');
     $router->post('/evenements/store', 'salaries\EvenementController@store');
     $router->get('/evenements/{id}/edit', 'salaries\EvenementController@edit');
     $router->post('/evenements/{id}/update', 'salaries\EvenementController@update');
-    $router->get('/evenements/{id}/delete', 'salaries\EvenementController@delete');
+    $router->post('/evenements/{id}/delete', 'salaries\EvenementController@delete');
 
    
     $router->get('/ateliers', 'salaries\AtelierController@index');
     $router->post('/ateliers/store', 'salaries\AtelierController@store');
     $router->get('/ateliers/{id}/edit', 'salaries\AtelierController@edit');
     $router->post('/ateliers/{id}/update', 'salaries\AtelierController@update');
-    $router->get('/ateliers/{id}/delete', 'salaries\AtelierController@delete');
+    $router->post('/ateliers/{id}/delete', 'salaries\AtelierController@delete');
 
    
     $router->get('/planning', 'salaries\PlanningController@index');
     $router->post('/planning/evenement/create', 'salaries\PlanningController@storeEvenement');
     $router->post('/planning/formation/create', 'salaries\PlanningController@storeFormation');
     $router->post('/planning/atelier/create', 'salaries\PlanningController@storeAtelier');
-    $router->get('/planning/evenement/delete/{id}', 'salaries\PlanningController@deleteEvenement');
-    $router->get('/planning/formation/delete/{id}', 'salaries\PlanningController@deleteFormation');
-    $router->get('/planning/atelier/delete/{id}', 'salaries\PlanningController@deleteAtelier');
+    $router->post('/planning/evenement/delete/{id}', 'salaries\PlanningController@deleteEvenement');
+    $router->post('/planning/formation/delete/{id}', 'salaries\PlanningController@deleteFormation');
+    $router->post('/planning/atelier/delete/{id}', 'salaries\PlanningController@deleteAtelier');
 
 });

@@ -39,11 +39,13 @@
                     <td class="px-6 py-4 font-medium"><?= htmlspecialchars($c['nom'] ?? '') ?></td>
                     <td class="px-6 py-4 text-gray-600 text-sm"><?= htmlspecialchars($c['description'] ?? '-') ?></td>
                     <td class="px-6 py-4">
-                        <a href="/admin/categories/<?= $c['id'] ?>/delete"
-                            onclick="return ucConfirm(this, '<?= t('adm_categories_confirm_delete', 'Supprimer cette catégorie ?') ?>')"
-                            class="text-red-600 hover:text-red-800">
-                            <i class="fas fa-trash"></i>
-                        </a>
+                        <form method="POST" action="/admin/categories/<?= $c['id'] ?>/delete" class="inline"
+                            onsubmit="return ucConfirm(this, '<?= t('adm_categories_confirm_delete', 'Supprimer cette catégorie ?') ?>')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>

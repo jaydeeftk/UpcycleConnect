@@ -87,10 +87,17 @@
                         <p class="text-center text-base-content/70 mb-8"><?= t('auth_register_subtitle', 'Créez votre compte UpcycleConnect.') ?></p>
 
                         <form class="space-y-5" method="POST" action="/register">
-                            <div>
-                                <label class="block text-sm font-medium mb-2"><?= t('auth_label_fullname', 'Nom complet') ?></label>
-                                <input type="text" name="nom" required minlength="2" placeholder="<?= t('auth_placeholder_fullname', 'Votre nom complet') ?>"
-                                    class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2"><?= t('auth_label_firstname', 'Prénom') ?></label>
+                                    <input type="text" name="prenom" required minlength="2" value="<?= htmlspecialchars($prenom ?? '') ?>" placeholder="<?= t('auth_placeholder_firstname', 'Votre prénom') ?>"
+                                        class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2"><?= t('auth_label_lastname', 'Nom') ?></label>
+                                    <input type="text" name="nom" required minlength="2" value="<?= htmlspecialchars($nom ?? '') ?>" placeholder="<?= t('auth_placeholder_lastname', 'Votre nom') ?>"
+                                        class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 focus:outline-none focus:ring-2 focus:ring-black" />
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-2"><?= t('auth_label_email', 'Adresse email') ?></label>

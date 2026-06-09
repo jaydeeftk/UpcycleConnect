@@ -71,6 +71,7 @@
             <button onclick="document.getElementById('modal-formation').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors"><i class="fas fa-times text-xl"></i></button>
         </div>
         <form method="POST" action="/admin/formations/store" class="p-6">
+        <?= csrf_field() ?>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><?= t('adm_formations_label_titre', 'Titre') ?></label>

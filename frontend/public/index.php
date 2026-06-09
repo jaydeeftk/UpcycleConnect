@@ -22,6 +22,7 @@ spl_autoload_register(function ($class) {
 require_once __DIR__ . '/../app/helpers/lang.php';
 require_once __DIR__ . '/../app/helpers/format.php';
 require_once __DIR__ . '/../app/helpers/images.php';
+require_once __DIR__ . '/../app/helpers/csrf.php';
 
 $config = require_once __DIR__ . '/../config/app.php';
 
@@ -84,7 +85,14 @@ class Router
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = getCleanPath();
-       
+
+        // Protection CSRF : toute requete POST doit porter un jeton valide
+        // (champ csrf_token des formulaires, ou en-tete X-CSRF-Token pour le JS).
+        if ($method === 'POST' && !csrf_verify()) {
+            http_response_code(403);
+            view('errors.419');
+            return;
+        }
 
         foreach ($this->routes[$method] ?? [] as $route => $handler) {
             $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $route);

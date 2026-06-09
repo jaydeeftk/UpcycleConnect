@@ -7,6 +7,7 @@
         </div>
 
         <form action="/admin-portal-access" method="POST" class="space-y-5">
+        <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-semibold text-gray-700">Identifiant Administrateur</label>
                 <input type="email" name="email" placeholder="admin@upcycle.com" 

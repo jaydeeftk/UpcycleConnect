@@ -16,6 +16,7 @@
             <div class="bg-red-50 text-red-600 text-sm rounded-lg px-4 py-3 mb-4"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
         <form method="POST" action="/maintenance-login" class="space-y-4">
+        <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_portal_label_id', 'Identifiant Administrateur') ?></label>
                 <input type="email" name="email" placeholder="admin@upcycleconnect.fr"

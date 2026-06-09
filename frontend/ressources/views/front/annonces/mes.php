@@ -40,11 +40,13 @@
                         <a href="/annonces/<?= $id ?>" class="btn btn-ghost btn-sm"><?= t('annmes_view', 'Voir') ?></a>
                         <?php if (in_array('vendre', $aa, true)): ?>
                             <form method="POST" action="/annonces/<?= $id ?>/vendre">
+                            <?= csrf_field() ?>
                                 <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check mr-1"></i><?= t('annmes_sold', 'Vendue') ?></button>
                             </form>
                         <?php endif; ?>
                         <?php if (in_array('retirer', $aa, true)): ?>
                             <form method="POST" action="/annonces/<?= $id ?>/annuler" onsubmit="return ucConfirm(this, '<?= t('annmes_remove_confirm', 'Retirer cette annonce ?') ?>')">
+                            <?= csrf_field() ?>
                                 <button type="submit" class="btn btn-outline btn-error btn-sm"><i class="fas fa-times mr-1"></i><?= t('annmes_remove', 'Retirer') ?></button>
                             </form>
                         <?php endif; ?>

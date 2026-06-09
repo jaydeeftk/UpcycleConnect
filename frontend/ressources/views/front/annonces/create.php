@@ -30,6 +30,7 @@
     <div class="bg-base-100 rounded-2xl shadow-sm p-8 space-y-8">
 
         <form method="POST" action="/annonces/store" enctype="multipart/form-data">
+        <?= csrf_field() ?>
 
             <div>
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">

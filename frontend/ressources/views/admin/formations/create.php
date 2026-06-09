@@ -16,6 +16,7 @@
 
 <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
     <form method="POST" action="/admin/formations/store">
+    <?= csrf_field() ?>
         <div class="grid grid-cols-2 gap-4">
             <div class="col-span-2">
                 <label class="block text-sm font-medium mb-1"><?= t('adm_formations_label_titre', 'Titre') ?></label>

@@ -9,6 +9,7 @@
 
     <div class="bg-base-100 rounded-3xl shadow-sm p-8 md:p-10">
         <form class="space-y-8" method="POST" action="/demande-prestation">
+        <?= csrf_field() ?>
 
             <div class="grid md:grid-cols-2 gap-6">
                 <div>

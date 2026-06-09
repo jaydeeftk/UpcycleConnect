@@ -8,6 +8,7 @@
 <div class="mb-6 bg-white rounded-lg shadow p-6">
     <h3 class="text-lg font-bold mb-4"><?= t('adm_categories_add_title', 'Ajouter une catégorie') ?></h3>
     <form method="POST" action="/admin/categories/store" class="flex gap-4">
+    <?= csrf_field() ?>
         <input type="text" name="nom" placeholder="<?= t('adm_categories_name_ph', 'Nom de la catégorie') ?>" required
             class="flex-1 border rounded-lg px-4 py-2">
         <input type="text" name="description" placeholder="<?= t('adm_categories_desc_ph', 'Description (optionnel)') ?>"

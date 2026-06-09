@@ -14,6 +14,7 @@
         <?php endif; ?>
 
         <form method="POST" action="/mot-de-passe-oublie" class="space-y-4">
+        <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-medium mb-2"><?= t('auth_label_email', 'Adresse email') ?></label>
                 <input type="email" name="email" required placeholder="<?= t('auth_placeholder_email', 'votre@email.com') ?>"

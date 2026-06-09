@@ -58,6 +58,7 @@
 
                         <?php if (isset($_SESSION['user']) && ($_SESSION['user']['id'] ?? 0) == ($sujet['auteur_id'] ?? -1) && !($sujet['resolu'] ?? false)): ?>
                             <form method="POST" action="/conseils/forum/<?= $sujet['id'] ?>/solution/<?= $reponse['id'] ?>">
+                            <?= csrf_field() ?>
                                 <button type="submit" class="btn btn-success btn-xs gap-1">
                                     <i class="fas fa-check"></i> <?= t('conssuj_mark_solution', 'Marquer comme solution') ?>
                                 </button>
@@ -86,6 +87,7 @@
             <?php endif; ?>
 
             <form method="POST" action="/conseils/forum/<?= $sujet['id'] ?>/repondre">
+            <?= csrf_field() ?>
                 <div class="mb-4">
                     <textarea
                         name="contenu"

@@ -211,6 +211,7 @@
                                         <?php foreach ($rendus as $a): ?>
                                             <?php [$suffix, $label, $icon, $cls, $confirm] = $actionsUI[$a]; ?>
                                             <form method="POST" action="/professionnel/projets/<?= $projet['id'] ?>/<?= $suffix ?>"<?= $confirm ? ' onsubmit="return ucConfirm(this, \'' . htmlspecialchars(t('pro_project_delete_confirm', 'Supprimer ce projet ?'), ENT_QUOTES) . '\')"' : '' ?>>
+                                            <?= csrf_field() ?>
                                                 <button type="submit" class="text-xs px-2 py-1 rounded <?= $cls ?> transition">
                                                     <i class="fas <?= $icon ?> mr-1"></i><?= $label ?>
                                                 </button>
@@ -242,6 +243,7 @@
                                     <p class="text-xs text-gray-400"><?= formatDate($favori['date'] ?? '') ?></p>
                                 </div>
                                 <form method="POST" action="/professionnel/favoris/<?= $favori['id'] ?>/remove">
+                                <?= csrf_field() ?>
                                     <button type="submit" class="text-pink-400 hover:text-pink-600">
                                         <i class="fas fa-heart-broken text-sm"></i>
                                     </button>
@@ -276,6 +278,7 @@
                                 </div>
                                 <?php if (empty($notif['lu'])): ?>
                                     <form method="POST" action="/professionnel/notifications/<?= $notif['id'] ?? '' ?>/lu" class="inline">
+                                    <?= csrf_field() ?>
                                         <button type="submit" class="text-xs text-emerald-600 hover:text-emerald-700 whitespace-nowrap" title="<?= t('pro_notifs_mark_read', 'Marquer comme lue') ?>"><i class="fas fa-check"></i></button>
                                     </form>
                                 <?php endif; ?>
@@ -316,6 +319,7 @@
                                         <td class="py-3 text-right">
                                             <?php if (in_array($cStatut, ['actif', 'suspendu'])): ?>
                                                 <form method="POST" action="/professionnel/contrats/<?= $contrat['id'] ?? '' ?>/resilier" class="inline" onsubmit="return ucConfirm(this, '<?= htmlspecialchars(t('pro_contract_resilier_confirm', 'Résilier ce contrat ? Cette action est définitive.'), ENT_QUOTES) ?>');">
+                                                <?= csrf_field() ?>
                                                     <button type="submit" class="text-xs font-semibold text-red-600 hover:text-white hover:bg-red-600 border border-red-200 rounded-lg px-3 py-1.5 transition-colors">
                                                         <i class="fas fa-ban mr-1"></i><?= t('pro_contract_resilier', 'Résilier') ?>
                                                     </button>

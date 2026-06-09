@@ -27,6 +27,7 @@
         <div id="section-general" class="param-section bg-white rounded-lg shadow p-6">
             <h3 class="text-xl font-bold mb-6"><?= t('adm_params_general_title', 'Paramètres généraux') ?></h3>
             <form method="POST" action="/admin/parametres/update" class="space-y-4">
+            <?= csrf_field() ?>
                 <div>
                     <label class="block text-sm font-medium mb-2"><?= t('adm_params_label_site_name', 'Nom du site') ?></label>
                     <input type="text" name="nom_site" value="<?= htmlspecialchars($parametres['nom_site'] ?? 'UpcycleConnect') ?>" class="w-full border rounded-lg px-4 py-2">
@@ -112,6 +113,7 @@
                 </div>
             </div>
             <form method="POST" action="/admin/parametres/update-maintenance">
+            <?= csrf_field() ?>
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-medium text-white text-lg <?= $active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600' ?>">
                     <?php if ($active): ?>
                         <i class="fas fa-times-circle"></i> <?= t('adm_params_disable_maintenance', 'Désactiver le mode maintenance') ?>

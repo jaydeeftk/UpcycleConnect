@@ -7,6 +7,7 @@
 <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
     <h3 class="text-lg font-bold mb-6"><?= t('adm_users_create_title', 'Créer un utilisateur') ?></h3>
     <form method="POST" action="/admin/utilisateurs/store" class="space-y-4">
+    <?= csrf_field() ?>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_nom', 'Nom *') ?></label>

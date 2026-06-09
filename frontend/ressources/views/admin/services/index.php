@@ -63,6 +63,7 @@
             <button onclick="document.getElementById('addModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors"><i class="fas fa-times text-xl"></i></button>
         </div>
         <form method="POST" action="/admin/services/store" class="p-6">
+        <?= csrf_field() ?>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_services_label_title', 'Titre de la prestation') ?></label>

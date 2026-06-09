@@ -46,6 +46,7 @@
     <div class="bg-base-100 rounded-2xl shadow-sm p-8 space-y-8">
 
         <form method="POST" action="/conteneurs/store">
+        <?= csrf_field() ?>
 
             <div class="mb-8">
                 <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">

@@ -70,6 +70,7 @@
                             <i class="fas fa-external-link-alt text-xs"></i>
                         </a>
                         <form method="POST" action="/admin/forum/sujets/<?= $idSujet ?>/supprimer" class="inline" onsubmit="return ucConfirm(this, '<?= t('adm_forum_confirm_delete', 'Supprimer ce sujet et toutes ses réponses ?') ?>');">
+                        <?= csrf_field() ?>
                             <button type="submit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors" title="<?= t('adm_btn_delete', 'Supprimer') ?>">
                                 <i class="fas fa-trash text-xs"></i>
                             </button>

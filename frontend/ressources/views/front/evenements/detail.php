@@ -96,6 +96,7 @@ $imgUrl = !empty($evenement['image_url'])
                 <?php if (isset($_SESSION['user'])): ?>
                     <?php if ($evenement['est_inscrit'] ?? false): ?>
                         <form method="POST" action="/evenements/<?= $evenement['id'] ?? '' ?>/desinscrire">
+                        <?= csrf_field() ?>
                             <button type="submit" class="bg-red-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-red-700 transition">
                                 <i class="fas fa-times mr-2"></i><?= t('evtdet_btn_unregister', 'Se désinscrire') ?>
                             </button>
@@ -107,6 +108,7 @@ $imgUrl = !empty($evenement['image_url'])
                         </a>
                     <?php else: ?>
                         <form method="POST" action="/evenements/<?= $evenement['id'] ?? '' ?>/participer">
+                        <?= csrf_field() ?>
                             <button type="submit" class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
                                 <i class="fas fa-check mr-2"></i><?= t('evtdet_btn_register', "S'inscrire à l'événement") ?>
                             </button>

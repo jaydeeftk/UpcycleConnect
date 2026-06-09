@@ -58,6 +58,7 @@
                         <p class="text-center text-base-content/70 mb-8"><?= t('auth_login_subtitle', 'Accédez à votre espace personnel.') ?></p>
 
                         <form class="space-y-5" method="POST" action="/login">
+                        <?= csrf_field() ?>
                             <div>
                                 <label class="block text-sm font-medium mb-2"><?= t('auth_label_email', 'Adresse email') ?></label>
                                 <input type="email" name="email" placeholder="<?= t('auth_placeholder_email', 'votre@email.com') ?>"
@@ -88,6 +89,7 @@
                         <p class="text-center text-base-content/70 mb-8"><?= t('auth_register_subtitle', 'Créez votre compte UpcycleConnect.') ?></p>
 
                         <form class="space-y-5" method="POST" action="/register">
+                        <?= csrf_field() ?>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium mb-2"><?= t('auth_label_firstname', 'Prénom') ?></label>

@@ -1,3 +1,12 @@
+<?php
+// On masque les evenements deja passes (date < aujourd'hui).
+$evenements = array_values(array_filter($evenements ?? [], function ($e) {
+    $d = $e['date'] ?? '';
+    if ($d === '') return true;
+    $ts = strtotime($d);
+    return $ts === false || $ts >= time();
+}));
+?>
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
     <div class="mb-12">
         <h1 class="text-4xl md:text-5xl font-bold mb-4"><?= t('evtidx_title', 'Événements à venir') ?></h1>

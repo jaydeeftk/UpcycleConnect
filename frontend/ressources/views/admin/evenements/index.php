@@ -105,13 +105,14 @@
 </div>
 
 <script>
+var STATUT_LBL = {a_venir:'À venir', en_attente:'En attente', validee:'Validée', refusee:'Refusée', en_cours:'En cours', termine:'Terminé', actif:'Actif'};
 function openEvtDetail(e) {
     document.getElementById('evt-modal-titre').textContent = e.titre || '<?= t('adm_events_js_default_title', 'Événement') ?>';
     document.getElementById('evt-date').textContent = (e.date || '').substring(0,10).split('-').reverse().join('/');
     document.getElementById('evt-lieu').textContent = e.lieu || '—';
     document.getElementById('evt-prix').textContent = e.prix > 0 ? e.prix.toFixed(2) + ' €' : '<?= t('adm_events_free', 'Gratuit') ?>';
     document.getElementById('evt-capacite').textContent = e.capacite ? e.capacite + ' <?= t('adm_events_js_places', 'places') ?>' : '—';
-    document.getElementById('evt-statut').textContent = e.statut || '—';
+    document.getElementById('evt-statut').textContent = STATUT_LBL[e.statut] || e.statut || '—';
     const sal = ((e.nom_salarie || '') + ' ' + (e.prenom_salarie || '')).trim();
     document.getElementById('evt-animateur').textContent = sal || '—';
     document.getElementById('evt-desc').textContent = e.description || '—';

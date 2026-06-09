@@ -128,7 +128,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                     <?= htmlspecialchars($item['titre'] ?? '—') ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                    <?= $item['date_debut'] ? date('d/m/Y H:i', strtotime($item['date_debut'])) : '—' ?>
+                    <?= formatDate($item['date_debut'] ?? '', true) ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">
                     <?= htmlspecialchars($item['lieu'] ?? '—') ?>
@@ -147,7 +147,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                     };
                     ?>
                     <span class="px-3 py-1 rounded-full text-xs font-semibold <?= $statutClass ?>">
-                        <?= ucfirst(str_replace('_', ' ', htmlspecialchars($statut))) ?>
+                        <?= htmlspecialchars(formatStatut($statut)) ?>
                     </span>
                 </td>
                 <td class="px-6 py-4">

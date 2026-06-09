@@ -53,7 +53,7 @@
                     </td>
                     <td class="p-4">
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border <?= $badgeStyle ?> uppercase">
-                            <?= str_replace('_', ' ', $status) ?>
+                            <?= htmlspecialchars(formatStatut($status)) ?>
                         </span>
                     </td>
                     <td class="p-4 text-right">
@@ -113,12 +113,13 @@
 </div>
 
 <script>
+var STATUT_LBL = {a_venir:'À venir', en_attente:'En attente', validee:'Validée', refusee:'Refusée', en_cours:'En cours', termine:'Terminé', actif:'Actif'};
 function openAnnonceDetail(a) {
     document.getElementById('annonce-modal-titre').textContent = a.titre || '<?= t('adm_annonces_js_default_title', 'Annonce') ?>';
     document.getElementById('annonce-prix').textContent = parseFloat(a.prix || 0).toFixed(2) + ' €';
     document.getElementById('annonce-ville').textContent = a.ville || '—';
     document.getElementById('annonce-categorie').textContent = a.categorie || '—';
-    document.getElementById('annonce-statut').textContent = a.statut || '—';
+    document.getElementById('annonce-statut').textContent = STATUT_LBL[a.statut] || a.statut || '—';
     document.getElementById('annonce-desc').textContent = a.description || '—';
     document.getElementById('modal-annonce').classList.remove('hidden');
 }

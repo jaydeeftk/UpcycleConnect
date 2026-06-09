@@ -1,37 +1,47 @@
+<?php if (empty($prestation) || empty($prestation['titre'])): ?>
+<section class="max-w-3xl mx-auto px-6 lg:px-10 py-24 text-center">
+    <div class="text-6xl mb-6">🔍</div>
+    <h1 class="text-3xl md:text-4xl font-bold mb-4"><?= t('prestdet_not_found', 'Prestation introuvable') ?></h1>
+    <p class="text-base-content/70 mb-8"><?= t('prestdet_not_found_desc', 'Cette prestation n\'existe pas ou n\'est plus disponible.') ?></p>
+    <a href="/prestations"
+        class="inline-block bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
+        <?= t('prestdet_cta_back', 'Retour aux prestations') ?>
+    </a>
+</section>
+<?php else: ?>
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
     <div class="grid lg:grid-cols-2 gap-12 items-start">
 
         <div class="bg-base-100 rounded-3xl shadow-sm overflow-hidden">
             <img src="<?= uc_image('prestation', $prestation['id'] ?? ($prestation['titre'] ?? '')) ?>"
-                alt="<?= t('prestdet_img_alt', 'Réparation d\'appareils') ?>" class="w-full h-full object-cover min-h-[420px]">
+                alt="<?= htmlspecialchars($prestation['titre']) ?>" class="w-full h-full object-cover min-h-[420px]">
         </div>
 
         <div>
-            <div class="text-sm text-base-content/60 mb-2"><?= t('prestdet_breadcrumb', 'Réparation • Électroménager • Paris') ?></div>
-            <h1 class="text-4xl md:text-5xl font-bold mb-6"><?= t('prestdet_title', 'Réparation d\'appareils électroménagers') ?></h1>
-            <p class="text-base-content/70 text-lg leading-relaxed mb-6">
-                <?= t('prestdet_intro1', 'Faites réparer vos petits appareils électroménagers par un prestataire qualifié. Cette prestation permet de redonner vie à vos équipements du quotidien plutôt que de les remplacer.') ?>
+            <div class="text-sm text-base-content/60 mb-2"><?= htmlspecialchars($prestation['categorie'] ?? t('prestdet_breadcrumb_fallback', 'Prestation')) ?></div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6"><?= htmlspecialchars($prestation['titre']) ?></h1>
+            <?php if (!empty($prestation['description'])): ?>
+            <p class="text-base-content/70 text-lg leading-relaxed mb-8 whitespace-pre-line">
+                <?= htmlspecialchars($prestation['description']) ?>
             </p>
-            <p class="text-base-content/70 leading-relaxed mb-8">
-                <?= t('prestdet_intro2', 'Que ce soit pour un grille-pain, un mixeur, une cafetière ou un autre appareil, le prestataire réalise un diagnostic et vous accompagne dans la remise en état de votre objet de manière responsable et durable.') ?>
-            </p>
+            <?php endif; ?>
 
             <div class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-3 mb-8">
+                <?php if (!empty($prestation['categorie'])): ?>
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('prestdet_info_category', 'Catégorie') ?></span>
-                    <span class="text-base-content/70"><?= t('prestdet_info_category_val', 'Réparation') ?></span>
+                    <span class="text-base-content/70"><?= htmlspecialchars($prestation['categorie']) ?></span>
                 </div>
+                <?php endif; ?>
+                <?php if (!empty($prestation['duree'])): ?>
                 <div class="flex justify-between">
-                    <span class="font-medium"><?= t('prestdet_info_type', 'Type d\'objet') ?></span>
-                    <span class="text-base-content/70"><?= t('prestdet_info_type_val', 'Électroménager') ?></span>
+                    <span class="font-medium"><?= t('prestdet_info_duration', 'Durée') ?></span>
+                    <span class="text-base-content/70"><?= htmlspecialchars($prestation['duree']) ?></span>
                 </div>
-                <div class="flex justify-between">
-                    <span class="font-medium"><?= t('prestdet_info_location', 'Localisation') ?></span>
-                    <span class="text-base-content/70"><?= t('prestdet_info_location_val', 'Paris') ?></span>
-                </div>
+                <?php endif; ?>
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('prestdet_info_price', 'Tarif indicatif') ?></span>
-                    <span class="text-base-content/70"><?= t('prestdet_info_price_val', 'À partir de 25€') ?></span>
+                    <span class="text-base-content/70 font-semibold"><?= formatPrix($prestation['prix'] ?? 0) ?></span>
                 </div>
             </div>
 
@@ -75,3 +85,4 @@
         </div>
     </div>
 </section>
+<?php endif; ?>

@@ -14,7 +14,7 @@
             <div class="flex items-center gap-2 mb-4">
                 <?php if (($annonce['type_annonce'] ?? '') === 'vente'): ?>
                     <span class="badge badge-ghost gap-1"><i class="fas fa-tag text-blue-500"></i> <?= t('annshow_sale', 'Vente') ?></span>
-                    <span class="text-2xl font-bold text-blue-500"><?= $annonce['prix'] ?? 0 ?>€</span>
+                    <span class="text-2xl font-bold text-blue-500"><?= htmlspecialchars(formatPrix($annonce['prix'] ?? 0)) ?></span>
                 <?php else: ?>
                     <span class="badge badge-ghost gap-1"><i class="fas fa-heart text-green-500"></i> <?= t('annshow_free_gift', 'Don gratuit') ?></span>
                 <?php endif; ?>

@@ -75,7 +75,15 @@
         </form>
     </div>
 
-    <?php $formations = $formations ?? []; ?>
+    <?php
+    // Masque les formations déjà passées (la date est dépassée).
+    $formations = array_values(array_filter($formations ?? [], function ($f) {
+        $d = $f['date'] ?? '';
+        if ($d === '') return true;
+        $ts = strtotime($d);
+        return $ts === false || $ts >= time();
+    }));
+    ?>
 
     <div class="flex items-center justify-between mb-6">
         <p class="text-sm text-base-content/50"><?= count($formations) ?> <?= t('catfor_results_count', 'formation(s) trouvée(s)') ?></p>
@@ -132,7 +140,7 @@
                         <div class="h-1.5 rounded-full <?= $complet ? 'bg-red-400' : ($presque ? 'bg-orange-400' : 'bg-purple-400') ?>" style="width:<?= $pct ?>%"></div>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold"><?= $formation['prix'] ?? 0 ?>€</span>
+                        <span class="text-xl font-bold"><?= htmlspecialchars(formatPrix($formation['prix'] ?? 0)) ?></span>
                         <?php if ($complet): ?>
                             <button class="btn btn-disabled btn-sm" disabled><?= t('catfor_full', 'Complet') ?></button>
                         <?php else: ?>

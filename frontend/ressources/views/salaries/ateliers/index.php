@@ -91,7 +91,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <?= htmlspecialchars($atelier['theme'] ?? '') ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">
-                    <?= $atelier['date_atelier'] ? date('d/m/Y H:i', strtotime($atelier['date_atelier'])) : '—' ?>
+                    <?= formatDate($atelier['date_atelier'] ?? '', true) ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">
                     <?= htmlspecialchars($atelier['lieu'] ?? '—') ?>
@@ -110,7 +110,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     $color = $colors[$statut] ?? 'bg-gray-100 text-gray-800';
                     ?>
                     <span class="px-2 py-1 rounded-full text-xs font-medium <?= $color ?>">
-                        <?= ucfirst(str_replace('_', ' ', $statut)) ?>
+                        <?= htmlspecialchars(formatStatut($statut)) ?>
                     </span>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">

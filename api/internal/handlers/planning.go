@@ -13,7 +13,7 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 	idUtilisateur := parts[len(parts)-1]
 
 	evRows, err := database.DB.Query(
-		`SELECT e.Id_Evenements, e.Titre, e.Date_, e.Lieu, e.Statut
+		`SELECT e.Id_Evenements, e.Titre, e.Date_, e.Lieu, e.Statut, COALESCE(e.Duree, 0)
 		FROM Evenements e
 		JOIN Participer_evenements pe ON pe.Id_Evenements = e.Id_Evenements
 		JOIN Particuliers p ON p.Id_Particuliers = pe.Id_Particuliers
@@ -25,13 +25,13 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		defer evRows.Close()
 		for evRows.Next() {
-			var id int
+			var id, duree int
 			var titre, lieu, statut string
 			var date *string
-			evRows.Scan(&id, &titre, &date, &lieu, &statut)
+			evRows.Scan(&id, &titre, &date, &lieu, &statut, &duree)
 			evenements = append(evenements, map[string]interface{}{
 				"id": id, "titre": titre, "date": date,
-				"lieu": lieu, "statut": statut, "type": "evenement",
+				"lieu": lieu, "statut": statut, "duree": duree, "type": "evenement",
 			})
 		}
 	}

@@ -66,6 +66,9 @@ func PeutRepondre(statut string) error {
 	if statut == StatutSujetFerme {
 		return EtatInvalide("Ce sujet est fermé : aucune réponse ne peut y être ajoutée")
 	}
+	if statut == StatutSujetResolu {
+		return EtatInvalide("Ce sujet est marqué comme résolu : aucune réponse ne peut y être ajoutée")
+	}
 	return nil
 }
 

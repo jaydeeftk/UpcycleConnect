@@ -23,6 +23,7 @@ $router->post('/conseils/forum/store', 'Front\ConseilController@storeSujet');
 $router->get('/conseils/forum/{id}', 'Front\ConseilController@showSujet');
 $router->post('/conseils/forum/{id}/repondre', 'Front\ConseilController@storeReponse');
 $router->post('/conseils/forum/{idSujet}/solution/{idReponse}', 'Front\ConseilController@marquerSolution');
+$router->post('/conseils/forum/reponses/{id}/supprimer', 'Front\ConseilController@deleteReponse');
 $router->get('/conseils/{id}', 'Front\ConseilController@showConseil');
 
 $router->get('/score', 'Front\ScoreController@index');

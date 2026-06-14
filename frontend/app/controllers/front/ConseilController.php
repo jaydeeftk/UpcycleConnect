@@ -18,25 +18,30 @@ class ConseilController
         $conseils = [];
         $sujets   = [];
 
+        $catConseil = $_GET['cat_conseil'] ?? 'tous';
+        $catForum   = $_GET['cat_forum'] ?? 'tous';
+
         try {
-            $res      = $this->api->get('/conseils', ['categorie' => $_GET['categorie'] ?? '']);
+            $res      = $this->api->get('/conseils', ['categorie' => $catConseil === 'tous' ? '' : $catConseil]);
             $conseils = $res['data'] ?? $res;
         } catch (\Exception $e) {
             $conseils = [];
         }
 
         try {
-            $res    = $this->api->get('/forum/sujets', ['categorie' => $_GET['categorie'] ?? '']);
+            $res    = $this->api->get('/forum/sujets', ['categorie' => $catForum === 'tous' ? '' : $catForum]);
             $sujets = $res['data'] ?? $res;
         } catch (\Exception $e) {
             $sujets = [];
         }
 
         return view('front.conseils.index', [
-            'title'    => 'Espace Conseils - UpcycleConnect',
-            'conseils' => $conseils,
-            'sujets'   => $sujets,
-            'onglet'   => $_GET['onglet'] ?? 'conseils',
+            'title'      => 'Espace Conseils - UpcycleConnect',
+            'conseils'   => $conseils,
+            'sujets'     => $sujets,
+            'onglet'     => $_GET['onglet'] ?? 'conseils',
+            'catConseil' => $catConseil,
+            'catForum'   => $catForum,
         ]);
     }
 
@@ -133,5 +138,23 @@ class ConseilController
         } catch (\Exception $e) {}
 
         redirect('/conseils/forum/' . $idSujet);
+    }
+
+    public function deleteReponse($id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+
+        $idSujet = $_POST['id_sujet'] ?? null;
+
+        try {
+            $this->api->delete('/forum/reponses/' . $id);
+            $_SESSION['success'] = t('conssuj_reply_deleted', 'Votre réponse a été supprimée.');
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+
+        redirect($idSujet ? '/conseils/forum/' . $idSujet : '/conseils?onglet=forum');
     }
 }

@@ -40,6 +40,7 @@
                     <label class="block text-sm font-medium mb-2"><?= t('conscre_label_cat', 'Catégorie') ?> <span class="text-red-500">*</span></label>
                     <select name="categorie" class="select select-bordered w-full" required>
                         <option value="" disabled selected><?= t('conscre_cat_placeholder', 'Sélectionnez une catégorie') ?></option>
+                        <option value="general" <?= ($_POST['categorie'] ?? '') === 'general' ? 'selected' : '' ?>><?= t('conscre_cat_general', 'Général') ?></option>
                         <option value="recyclage" <?= ($_POST['categorie'] ?? '') === 'recyclage' ? 'selected' : '' ?>><?= t('conscre_cat_recyclage', 'Recyclage') ?></option>
                         <option value="entretien" <?= ($_POST['categorie'] ?? '') === 'entretien' ? 'selected' : '' ?>><?= t('conscre_cat_entretien', 'Entretien des matériaux') ?></option>
                         <option value="upcycling" <?= ($_POST['categorie'] ?? '') === 'upcycling' ? 'selected' : '' ?>><?= t('conscre_cat_upcycling', 'Upcycling créatif') ?></option>

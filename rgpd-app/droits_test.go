@@ -2,18 +2,14 @@ package main
 
 import "testing"
 
-// TestTypesDroit verrouille l'énumération des droits acceptés (art. 15 à
-// 21 RGPD). La validation applicative rejette toute valeur hors ENUM avant
-// d'atteindre la base (défense en profondeur) : ce test documente et fige
-// ce contrat.
 func TestTypesDroit(t *testing.T) {
 	valides := []string{
-		"acces",         // art. 15
-		"rectification", // art. 16
-		"effacement",    // art. 17
-		"portabilite",   // art. 20
-		"limitation",    // art. 18
-		"opposition",    // art. 21
+		"acces",
+		"rectification",
+		"effacement",
+		"portabilite",
+		"limitation",
+		"opposition",
 	}
 	for _, d := range valides {
 		if !typesDroit[d] {
@@ -22,11 +18,11 @@ func TestTypesDroit(t *testing.T) {
 	}
 
 	invalides := []string{
-		"",              // vide
-		"Acces",         // casse non normalisée
-		"suppression",   // synonyme non normalisé
-		"acces ",        // espace parasite
-		"droit_inconnu", // hors périmètre
+		"",
+		"Acces",
+		"suppression",
+		"acces ",
+		"droit_inconnu",
 	}
 	for _, d := range invalides {
 		if typesDroit[d] {

@@ -83,7 +83,7 @@ const ITEMS = <?= json_encode(array_merge(
         'titre' => $e['titre'] ?? '',
         'date'  => $e['date'] ?? '',
         'lieu'  => $e['lieu'] ?? '',
-        'duree' => 0,
+        'duree' => $e['duree'] ?? 0,
         'type'  => 'evenement',
         'url'   => '/evenements/' . ($e['id'] ?? 0),
     ], $evenements ?? [])
@@ -116,15 +116,34 @@ function formatHeure(d) {
     return String(d.getHours()).padStart(2,'0') + 'h' + String(d.getMinutes()).padStart(2,'0');
 }
 
+function trierParHeure(items) {
+    return [...items].sort((a, b) => {
+        const da = itemDate(a), db = itemDate(b);
+        if (!da || !db) return 0;
+        return da - db;
+    });
+}
+
 function colorClass(type) {
     return type === 'formation'
         ? 'bg-purple-100 text-purple-700 border-purple-300'
         : 'bg-blue-100 text-blue-700 border-blue-300';
 }
 
-function cardHtml(item) {
+function formatPlageHoraire(item) {
     const d = itemDate(item);
-    const heure = d ? formatHeure(d) : '';
+    if (!d) return '';
+    let label = formatHeure(d);
+    if (item.duree && item.duree > 0) {
+        const fin = new Date(d);
+        fin.setHours(fin.getHours() + item.duree);
+        label += ' - ' + formatHeure(fin);
+    }
+    return label;
+}
+
+function cardHtml(item) {
+    const heure = formatPlageHoraire(item);
     return `<a href="${item.url}" class="${colorClass(item.type)} border rounded-lg p-2 text-xs cursor-pointer hover:opacity-80 transition block mb-1">
         <div class="font-semibold">${heure}</div>
         <div class="mt-0.5 leading-tight">${item.titre}</div>
@@ -168,7 +187,7 @@ function renderJour() {
         html += `<div class="flex gap-4 items-start">
             <span class="text-xs text-base-content/40 w-12 pt-1 flex-shrink-0"><?= t('planning_all_day', 'Journée') ?></span>
             <div class="flex-1 border-t border-base-200 pt-1 min-h-8">
-                ${sansHeure.map(cardHtml).join('')}
+                ${trierParHeure(sansHeure).map(cardHtml).join('')}
             </div>
         </div>`;
     }
@@ -179,7 +198,7 @@ function renderJour() {
         html += `<div class="flex gap-4 items-start">
             <span class="text-xs text-base-content/40 w-12 pt-1 flex-shrink-0">${label}</span>
             <div class="flex-1 border-t border-base-200 pt-1 min-h-8">
-                ${items.map(cardHtml).join('')}
+                ${trierParHeure(items).map(cardHtml).join('')}
             </div>
         </div>`;
     }
@@ -216,7 +235,7 @@ function renderSemaine() {
     html += '</div><div class="grid grid-cols-7 min-h-64 divide-x divide-base-300">';
     for (const d of jours) {
         const items = ITEMS.filter(i => { const id = itemDate(i); return id && sameDay(id, d); });
-        html += `<div class="p-2 min-h-32">${items.map(cardHtml).join('')}</div>`;
+        html += `<div class="p-2 min-h-32">${trierParHeure(items).map(cardHtml).join('')}</div>`;
     }
     html += '</div></div>';
     document.getElementById('vue-container').innerHTML = html;
@@ -248,7 +267,7 @@ function renderMois() {
         const items = ITEMS.filter(i => { const id = itemDate(i); return id && sameDay(id, cur); });
         html += `<div class="p-2 min-h-20 ${isToday ? 'bg-primary/5' : ''}">
             <span class="text-sm ${isToday ? 'font-bold text-primary' : 'text-base-content/60'}">${d}</span>
-            ${items.map(i => `<a href="${i.url}" class="${colorClass(i.type)} rounded text-xs p-1 mt-1 leading-tight block hover:opacity-80 transition">${i.titre}</a>`).join('')}
+            ${trierParHeure(items).map(i => `<a href="${i.url}" class="${colorClass(i.type)} rounded text-xs p-1 mt-1 leading-tight block hover:opacity-80 transition">${formatHeure(itemDate(i))} ${i.titre}</a>`).join('')}
         </div>`;
     }
     html += '</div></div>';

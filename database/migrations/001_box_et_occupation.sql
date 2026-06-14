@@ -1,15 +1,4 @@
--- 001_box_et_occupation.sql
--- Phase 3 — Schéma & intégrité : modèle Conteneur 1—N Box.
---
--- Un Conteneur contient plusieurs Box (casiers). Chaque Box a une capacité.
--- Un Objet déposé occupe une Box. L'occupation est DÉRIVÉE
--- (COUNT des objets en stock dans la box) et opposée à Box.Capacite côté service,
--- sous SELECT ... FOR UPDATE. La base garantit la cohérence structurelle (FK),
--- la couche service garantit l'invariant d'occupation.
---
--- Idempotent : ré-exécutable sans erreur (gardes information_schema).
 
--- --- Table Box (net-new) ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS Box(
    Id_Box INT AUTO_INCREMENT,
    Reference VARCHAR(50) NOT NULL,
@@ -23,7 +12,7 @@ CREATE TABLE IF NOT EXISTS Box(
    CONSTRAINT chk_box_statut CHECK (Statut IN ('disponible','pleine','maintenance','hors_service'))
 );
 
--- --- Lien Objet -> Box (colonne nullable, idempotent) -------------------------
+
 DROP PROCEDURE IF EXISTS _mig_add_col;
 DELIMITER //
 CREATE PROCEDURE _mig_add_col(IN tbl VARCHAR(64), IN col VARCHAR(64), IN ddl TEXT)
@@ -38,7 +27,7 @@ DELIMITER ;
 CALL _mig_add_col('Objets', 'Id_Box', 'Id_Box INT NULL');
 DROP PROCEDURE IF EXISTS _mig_add_col;
 
--- --- FK Objet -> Box (idempotent) --------------------------------------------
+
 DROP PROCEDURE IF EXISTS _mig_add_fk;
 DELIMITER //
 CREATE PROCEDURE _mig_add_fk(IN tbl VARCHAR(64), IN fkname VARCHAR(64), IN ddl TEXT)

@@ -264,3 +264,18 @@ func (s *ForumService) SupprimerReponse(idReponse int) error {
 	}
 	return nil
 }
+
+// SupprimerReponseUtilisateur permet a un particulier de supprimer sa propre reponse.
+func (s *ForumService) SupprimerReponseUtilisateur(idUtilisateur, idReponse int) error {
+	auteur, err := s.repo.AuteurReponse(database.DB, idReponse)
+	if errors.Is(err, sql.ErrNoRows) {
+		return domain.Introuvable("Réponse introuvable")
+	}
+	if err != nil {
+		return err
+	}
+	if auteur != idUtilisateur {
+		return domain.Forbidden("Vous ne pouvez supprimer que vos propres messages")
+	}
+	return s.SupprimerReponse(idReponse)
+}

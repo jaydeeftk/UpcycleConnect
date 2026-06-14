@@ -16,7 +16,10 @@ var inscriptionSvc = services.NewInscriptionService()
 
 func GetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		"SELECT Id_Evenements, Titre, Description, Date_, Lieu, Capacite, Statut, COALESCE(Prix,0) FROM Evenements ORDER BY Date_ DESC",
+		`SELECT e.Id_Evenements, e.Titre, e.Description, e.Date_, e.Lieu, e.Capacite, e.Statut,
+		        COALESCE(e.Prix,0), COALESCE(e.Categorie,''), COALESCE(e.Duree,0),
+		        (SELECT COUNT(*) FROM Participer_evenements pe WHERE pe.Id_Evenements = e.Id_Evenements)
+		 FROM Evenements e ORDER BY e.Date_ DESC`,
 	)
 	if err != nil {
 		httpx.JSONServerError(w, err)
@@ -25,20 +28,23 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	type Evenement struct {
-		ID          int     `json:"id"`
-		Titre       string  `json:"titre"`
-		Description string  `json:"description"`
-		Date        string  `json:"date"`
-		Lieu        string  `json:"lieu"`
-		Capacite    int     `json:"capacite"`
-		Statut      string  `json:"statut"`
-		Prix        float64 `json:"prix"`
+		ID           int     `json:"id"`
+		Titre        string  `json:"titre"`
+		Description  string  `json:"description"`
+		Date         string  `json:"date"`
+		Lieu         string  `json:"lieu"`
+		Capacite     int     `json:"capacite"`
+		Statut       string  `json:"statut"`
+		Prix         float64 `json:"prix"`
+		Categorie    string  `json:"categorie"`
+		Duree        int     `json:"duree"`
+		Participants int     `json:"participants"`
 	}
 
 	evts := []Evenement{}
 	for rows.Next() {
 		var e Evenement
-		rows.Scan(&e.ID, &e.Titre, &e.Description, &e.Date, &e.Lieu, &e.Capacite, &e.Statut, &e.Prix)
+		rows.Scan(&e.ID, &e.Titre, &e.Description, &e.Date, &e.Lieu, &e.Capacite, &e.Statut, &e.Prix, &e.Categorie, &e.Duree, &e.Participants)
 		evts = append(evts, e)
 	}
 	httpx.JSONOK(w, http.StatusOK, evts)
@@ -163,15 +169,23 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 			Capacite    int     `json:"capacite"`
 			Statut      string  `json:"statut"`
 			Prix        float64 `json:"prix"`
+			Categorie   string  `json:"categorie"`
+			Duree       int     `json:"duree"`
 			IdSalaries  *int    `json:"id_salaries"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 			return
 		}
+		if body.Categorie == "" {
+			body.Categorie = "atelier"
+		}
+		if body.Duree <= 0 {
+			body.Duree = 2
+		}
 		result, err := database.DB.Exec(
-			"INSERT INTO Evenements (Titre, Description, Date_, Lieu, Capacite, Statut, Prix, Id_Salaries) VALUES (?,?,?,?,?,?,?,?)",
-			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, body.Prix, body.IdSalaries,
+			"INSERT INTO Evenements (Titre, Description, Date_, Lieu, Capacite, Statut, Prix, Categorie, Duree, Id_Salaries) VALUES (?,?,?,?,?,?,?,?,?,?)",
+			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, body.Prix, body.Categorie, body.Duree, body.IdSalaries,
 		)
 		if err != nil {
 			httpx.JSONServerError(w, err)
@@ -182,20 +196,29 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodPut:
 		var body struct {
-			Titre       string `json:"titre"`
-			Description string `json:"description"`
-			Date        string `json:"date"`
-			Lieu        string `json:"lieu"`
-			Capacite    int    `json:"capacite"`
-			Statut      string `json:"statut"`
+			Titre       string  `json:"titre"`
+			Description string  `json:"description"`
+			Date        string  `json:"date"`
+			Lieu        string  `json:"lieu"`
+			Capacite    int     `json:"capacite"`
+			Statut      string  `json:"statut"`
+			Prix        float64 `json:"prix"`
+			Categorie   string  `json:"categorie"`
+			Duree       int     `json:"duree"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 			return
 		}
+		if body.Categorie == "" {
+			body.Categorie = "atelier"
+		}
+		if body.Duree <= 0 {
+			body.Duree = 2
+		}
 		_, err := database.DB.Exec(
-			"UPDATE Evenements SET Titre=?, Description=?, Date_=?, Lieu=?, Capacite=?, Statut=? WHERE Id_Evenements=?",
-			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, id,
+			"UPDATE Evenements SET Titre=?, Description=?, Date_=?, Lieu=?, Capacite=?, Statut=?, Prix=?, Categorie=?, Duree=? WHERE Id_Evenements=?",
+			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, body.Prix, body.Categorie, body.Duree, id,
 		)
 		if err != nil {
 			httpx.JSONServerError(w, err)

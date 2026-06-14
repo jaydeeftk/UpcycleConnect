@@ -1,5 +1,20 @@
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
 
+    <?php if (!empty($_SESSION['success'])): ?>
+        <div class="alert alert-success mb-6">
+            <i class="fas fa-check-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['success']) ?></span>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="alert alert-error mb-6">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['error']) ?></span>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
     <div class="mb-10">
         <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -22,6 +37,7 @@
                     <?php
                     $categories = [
                         ['slug' => 'tous',            'label' => 'Tous',                      'icon' => 'fa-th-large',     'color' => 'text-base-content'],
+                        ['slug' => 'general',         'label' => 'Général',                   'icon' => 'fa-comment',      'color' => 'text-slate-500'],
                         ['slug' => 'recyclage',       'label' => 'Recyclage',                 'icon' => 'fa-recycle',      'color' => 'text-green-500'],
                         ['slug' => 'entretien',       'label' => 'Entretien des matériaux',   'icon' => 'fa-tools',        'color' => 'text-yellow-500'],
                         ['slug' => 'upcycling',       'label' => 'Upcycling créatif',         'icon' => 'fa-paint-brush',  'color' => 'text-purple-500'],
@@ -29,11 +45,12 @@
                         ['slug' => 'bricolage',       'label' => 'Bricolage & Réparation',    'icon' => 'fa-wrench',       'color' => 'text-orange-500'],
                         ['slug' => 'bonnes-pratiques','label' => 'Bonnes pratiques',          'icon' => 'fa-check-circle', 'color' => 'text-blue-500'],
                     ];
-                    $categorieActive = $_GET['categorie'] ?? 'tous';
+                    // Filtre de categorie propre a l'onglet actif (conseils / forum ont chacun leur filtre)
+                    $categorieActive = $onglet === 'forum' ? $catForum : $catConseil;
                     foreach ($categories as $cat):
                     ?>
                         <li>
-                            <a href="?onglet=<?= $onglet ?>&categorie=<?= $cat['slug'] ?>"
+                            <a href="?onglet=<?= $onglet ?>&cat_conseil=<?= $onglet === 'conseils' ? $cat['slug'] : $catConseil ?>&cat_forum=<?= $onglet === 'forum' ? $cat['slug'] : $catForum ?>"
                                class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition <?= $categorieActive === $cat['slug'] ? 'bg-base-200 font-semibold' : 'hover:bg-base-200' ?>">
                                 <i class="fas <?= $cat['icon'] ?> <?= $cat['color'] ?> w-4"></i>
                                 <?= $cat['label'] ?>
@@ -57,11 +74,11 @@
         <div class="lg:col-span-3 space-y-8">
 
             <div class="tabs tabs-boxed bg-base-100 p-1 rounded-2xl shadow-sm w-fit">
-                <a href="?onglet=conseils&categorie=<?= $categorieActive ?>"
+                <a href="?onglet=conseils&cat_conseil=<?= $catConseil ?>&cat_forum=<?= $catForum ?>"
                    class="tab <?= $onglet === 'conseils' ? 'tab-active' : '' ?>">
                     <i class="fas fa-lightbulb mr-2"></i> <?= t('considx_tab_advice', 'Conseils') ?>
                 </a>
-                <a href="?onglet=forum&categorie=<?= $categorieActive ?>"
+                <a href="?onglet=forum&cat_conseil=<?= $catConseil ?>&cat_forum=<?= $catForum ?>"
                    class="tab <?= $onglet === 'forum' ? 'tab-active' : '' ?>">
                     <i class="fas fa-comments mr-2"></i> <?= t('considx_tab_forum', 'Forum') ?>
                 </a>
@@ -77,7 +94,7 @@
                 <?php else: ?>
                     <div class="space-y-4">
                         <?php foreach ($conseils as $conseil):
-                            $catInfo = array_values(array_filter($categories, fn($c) => $c['slug'] === $conseil['categorie']))[0] ?? $categories[0];
+                            $catInfo = array_values(array_filter($categories, fn($c) => $c['slug'] === $conseil['categorie']))[0] ?? $categories[1];
                         ?>
                             <article class="bg-base-100 rounded-2xl shadow-sm p-6 hover:shadow-md transition">
                                 <div class="flex items-start justify-between gap-4">
@@ -146,7 +163,7 @@
                 <?php else: ?>
                     <div class="space-y-3">
                         <?php foreach ($sujets as $sujet):
-                            $catInfo = array_values(array_filter($categories, fn($c) => $c['slug'] === $sujet['categorie']))[0] ?? $categories[0];
+                            $catInfo = array_values(array_filter($categories, fn($c) => $c['slug'] === $sujet['categorie']))[0] ?? $categories[1];
                         ?>
                             <a href="/conseils/forum/<?= $sujet['id'] ?>"
                                class="block bg-base-100 rounded-2xl shadow-sm p-5 hover:shadow-md transition">

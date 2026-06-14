@@ -25,20 +25,41 @@
         </div>
     </div>
 
-    <div class="flex flex-wrap gap-3 mb-8">
-        <a href="?type=tous" class="btn btn-sm <?= ($_GET['type'] ?? 'tous') === 'tous' ? 'btn-neutral' : 'btn-ghost' ?>">
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <?php
+            $type = $_GET['type'] ?? 'tous';
+            $locParam = $localisation !== '' ? '&localisation=' . urlencode($localisation) : '';
+        ?>
+        <a href="?type=tous<?= $locParam ?>" class="btn btn-sm <?= $type === 'tous' ? 'btn-neutral' : 'btn-ghost' ?>">
             <?= t('annidx_filter_all', 'Tout voir') ?>
         </a>
-        <a href="?type=don" class="btn btn-sm <?= ($_GET['type'] ?? '') === 'don' ? 'btn-neutral' : 'btn-ghost' ?>">
+        <a href="?type=don<?= $locParam ?>" class="btn btn-sm <?= $type === 'don' ? 'btn-neutral' : 'btn-ghost' ?>">
             <i class="fas fa-heart mr-2 text-green-500"></i> <?= t('annidx_filter_don', 'Dons') ?>
         </a>
-        <a href="?type=vente" class="btn btn-sm <?= ($_GET['type'] ?? '') === 'vente' ? 'btn-neutral' : 'btn-ghost' ?>">
+        <a href="?type=vente<?= $locParam ?>" class="btn btn-sm <?= $type === 'vente' ? 'btn-neutral' : 'btn-ghost' ?>">
             <i class="fas fa-tag mr-2 text-blue-500"></i> <?= t('annidx_filter_vente', 'Ventes') ?>
         </a>
+
+        <form method="GET" class="flex items-center gap-2 ml-auto">
+            <?php if ($type !== 'tous'): ?>
+                <input type="hidden" name="type" value="<?= htmlspecialchars($type) ?>">
+            <?php endif; ?>
+            <div class="relative">
+                <i class="fas fa-map-marker-alt absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40 text-sm"></i>
+                <input type="text" name="localisation" value="<?= htmlspecialchars($localisation) ?>"
+                       placeholder="<?= t('annidx_location_placeholder', 'Ville ou code postal') ?>"
+                       class="input input-bordered input-sm pl-9 w-48">
+            </div>
+            <button type="submit" class="btn btn-sm btn-neutral">
+                <i class="fas fa-search mr-2"></i><?= t('annidx_search_btn', 'Rechercher') ?>
+            </button>
+            <?php if ($localisation !== ''): ?>
+                <a href="?type=<?= htmlspecialchars($type) ?>" class="btn btn-sm btn-ghost"><?= t('catevt_reset', 'Réinitialiser') ?></a>
+            <?php endif; ?>
+        </form>
     </div>
 
     <?php
-    $type = $_GET['type'] ?? 'tous';
     $annoncesFiltered = $annonces ?? [];
     if ($type === 'don') {
         $annoncesFiltered = array_filter($annonces, fn($a) => ($a['type_annonce'] ?? '') === 'don');

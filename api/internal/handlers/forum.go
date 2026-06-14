@@ -125,6 +125,28 @@ func MarquerSolution(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Réponse marquée comme solution"})
 }
 
+func DeleteForumReponse(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	userID := middleware.GetUserID(r)
+	if userID == 0 {
+		httpx.JSONError(w, http.StatusUnauthorized, "Authentification requise")
+		return
+	}
+	id, err := idDepuisChemin(r.URL.Path, "/api/forum/reponses/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	if err := forumSvc.SupprimerReponseUtilisateur(userID, id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Réponse supprimée"})
+}
+
 func ForumSujetsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

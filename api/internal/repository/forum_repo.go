@@ -189,6 +189,12 @@ func (ForumRepo) SupprimerSujet(q Querier, idSujet int) (int64, error) {
 	return res.RowsAffected()
 }
 
+func (ForumRepo) AuteurReponse(q Querier, idReponse int) (int, error) {
+	var idUtilisateur int
+	err := q.QueryRow("SELECT Id_Utilisateurs FROM Reponses WHERE Id_Reponses = ?", idReponse).Scan(&idUtilisateur)
+	return idUtilisateur, err
+}
+
 func (ForumRepo) SupprimerReponse(q Querier, idReponse int) (int64, error) {
 	res, err := q.Exec("DELETE FROM Reponses WHERE Id_Reponses = ?", idReponse)
 	if err != nil {

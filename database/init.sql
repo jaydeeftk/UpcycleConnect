@@ -139,6 +139,8 @@ CREATE TABLE IF NOT EXISTS Evenements(
    Capacite INT,
    Statut VARCHAR(50),
    Prix DECIMAL(10,2) DEFAULT 0,
+   Categorie VARCHAR(50) DEFAULT 'atelier',
+   Duree INT DEFAULT 2,
    Id_Salaries INT NULL,
    PRIMARY KEY(Id_Evenements),
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
@@ -765,11 +767,11 @@ INSERT INTO Salaries (Poste, Responsable, Date_Debut_Contrat, Id_Utilisateurs)
 VALUES ('Animateur', 'Direction', NOW(), LAST_INSERT_ID());
 
 
-INSERT INTO Evenements (Date_, Titre, Description, Lieu, Capacite, Statut, Prix, Id_Salaries)
+INSERT INTO Evenements (Date_, Titre, Description, Lieu, Capacite, Statut, Prix, Categorie, Duree, Id_Salaries)
 VALUES 
-(DATE_ADD(CONCAT(CURDATE(), ' 14:00:00'), INTERVAL 12 DAY), 'Atelier Upcycling Textile', 'Apprenez à transformer vos vieux vêtements en créations uniques.', 'Paris 10ème', 20, 'a_venir', 0.00, 1),
-(DATE_ADD(CONCAT(CURDATE(), ' 10:00:00'), INTERVAL 21 DAY), 'Workshop Mobilier Recyclé', 'Créez des meubles à partir de matériaux récupérés.', 'Paris 11ème', 15, 'a_venir', 25.00, 1),
-(DATE_ADD(CONCAT(CURDATE(), ' 09:30:00'), INTERVAL 33 DAY), 'Journée Zéro Déchet', 'Une journée pour découvrir les pratiques zéro déchet.', 'Paris 13ème', 50, 'a_venir', 0.00, 1);
+(DATE_ADD(CONCAT(CURDATE(), ' 14:00:00'), INTERVAL 12 DAY), 'Atelier Upcycling Textile', 'Apprenez à transformer vos vieux vêtements en créations uniques.', 'Paris 10ème', 20, 'a_venir', 0.00, 'atelier', 3, 1),
+(DATE_ADD(CONCAT(CURDATE(), ' 10:00:00'), INTERVAL 21 DAY), 'Workshop Mobilier Recyclé', 'Créez des meubles à partir de matériaux récupérés.', 'Paris 11ème', 15, 'a_venir', 25.00, 'atelier', 4, 1),
+(DATE_ADD(CONCAT(CURDATE(), ' 09:30:00'), INTERVAL 33 DAY), 'Journée Zéro Déchet', 'Une journée pour découvrir les pratiques zéro déchet.', 'Paris 13ème', 50, 'a_venir', 0.00, 'communautaire', 6, 1);
 
 
 INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Date_formation, Places_total, Places_dispo, Localisation, Categorie, Id_Salaries)
@@ -857,6 +859,7 @@ ALTER TABLE Codes_Barres ADD UNIQUE KEY uq_codebarres_code (Code);
 ALTER TABLE Contrats ADD COLUMN Statut VARCHAR(50) NOT NULL DEFAULT 'actif';
 ALTER TABLE Annonces            ADD CONSTRAINT chk_annonces_statut   CHECK (Statut IN ('en_attente','validee','refusee','retiree','vendue'));
 ALTER TABLE Evenements          ADD CONSTRAINT chk_evenements_statut CHECK (Statut IN ('brouillon','a_venir','en_cours','termine','annule'));
+ALTER TABLE Evenements          ADD CONSTRAINT chk_evenements_categorie CHECK (Categorie IN ('atelier','marche','conference','exposition','communautaire'));
 ALTER TABLE Formations          ADD CONSTRAINT chk_formations_statut CHECK (Statut IN ('en_attente','actif','rejete','cloturee'));
 ALTER TABLE Contrats            ADD CONSTRAINT chk_contrats_statut   CHECK (Statut IN ('brouillon','actif','suspendu','resilie','expire'));
 ALTER TABLE Demandes_conteneurs ADD CONSTRAINT chk_demandes_statut   CHECK (Statut IN ('en_attente','validee','refusee','deposee'));

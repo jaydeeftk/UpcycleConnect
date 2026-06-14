@@ -1,29 +1,17 @@
 <?php
-/**
- * Helper d'illustration — pools d'images thematiques + selection DETERMINISTE par item.
- *
- * Probleme resolu : les listes affichaient UNE image par categorie => toutes les cartes
- * d'une meme categorie etaient identiques (et plusieurs categories partageaient la meme
- * photo). Ici, chaque item pioche dans un POOL thematique selon son identifiant :
- *   - VARIETE : deux items voisins ont (presque) toujours une image differente ;
- *   - STABILITE : un meme item garde TOUJOURS la meme image (pas de scintillement) ;
- *   - FIABILITE : toutes les photos sont des ids Unsplash deja eprouves sur le site
- *     (aucune image inventee => aucun lien casse).
- */
+
 
 if (!function_exists('uc_image')) {
 
-    /** Construit l'URL Unsplash CDN homogene pour un id de photo. */
+
     function uc_unsplash(string $id, int $w = 900): string
     {
         return "https://images.unsplash.com/{$id}?auto=format&fit=crop&w={$w}&q=80";
     }
 
-    /** Banques thematiques (ids Unsplash valides, deja servis en prod). */
     function uc_image_pools(): array
     {
         return [
-            // Evenements : marche, atelier, conference, expo, communautaire, rassemblement…
             'evenement' => [
                 'photo-1488459716781-31db52582fe9',
                 'photo-1452860606245-08befc0ff44b',
@@ -34,7 +22,6 @@ if (!function_exists('uc_image')) {
                 'photo-1517048676732-d65bc937f952',
                 'photo-1521791136064-7986c2920216',
             ],
-            // Formations : couture, menuiserie, electronique, peinture, jardinage, recyclage…
             'formation' => [
                 'photo-1558618666-fcd25c85cd64',
                 'photo-1504148455328-c376907d081c',
@@ -47,7 +34,7 @@ if (!function_exists('uc_image')) {
                 'photo-1452860606245-08befc0ff44b',
                 'photo-1524178232363-1fb2b075b655',
             ],
-            // Services / prestations : reparation, transformation, recyclage, upcycling, nettoyage…
+ 
             'service' => [
                 'photo-1609205807107-2d29e8f53dd6',
                 'photo-1452860606245-08befc0ff44b',

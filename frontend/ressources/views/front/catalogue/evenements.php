@@ -1,10 +1,10 @@
 <?php
-$typeColors = [
-    'Marché'        => 'bg-green-100 text-green-700',
-    'Atelier'       => 'bg-purple-100 text-purple-700',
-    'Conférence'    => 'bg-blue-100 text-blue-700',
-    'Exposition'    => 'bg-pink-100 text-pink-700',
-    'Communautaire' => 'bg-orange-100 text-orange-700',
+$typeInfo = [
+    'marche'        => ['label' => t('catevt_type_marche', 'Marché'),        'class' => 'bg-green-100 text-green-700'],
+    'atelier'       => ['label' => t('catevt_type_atelier', 'Atelier'),       'class' => 'bg-purple-100 text-purple-700'],
+    'conference'    => ['label' => t('catevt_type_conference', 'Conférence'), 'class' => 'bg-blue-100 text-blue-700'],
+    'exposition'    => ['label' => t('catevt_type_exposition', 'Exposition'), 'class' => 'bg-pink-100 text-pink-700'],
+    'communautaire' => ['label' => t('catevt_type_communautaire', 'Communautaire'), 'class' => 'bg-orange-100 text-orange-700'],
 ];
 ?>
 
@@ -26,36 +26,36 @@ $typeColors = [
             <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catevt_filter_type', 'Type') ?></label>
                 <select name="type" class="select select-bordered w-full select-sm">
-                    <option value=""><?= t('catevt_filter_all', 'Tous') ?></option>
-                    <option value="atelier"><?= t('catevt_type_atelier', 'Atelier') ?></option>
-                    <option value="marche"><?= t('catevt_type_marche', 'Marché') ?></option>
-                    <option value="conference"><?= t('catevt_type_conference', 'Conférence') ?></option>
-                    <option value="exposition"><?= t('catevt_type_exposition', 'Exposition') ?></option>
-                    <option value="communautaire"><?= t('catevt_type_communautaire', 'Communautaire') ?></option>
+                    <option value="" <?= ($_GET['type'] ?? '') === '' ? 'selected' : '' ?>><?= t('catevt_filter_all', 'Tous') ?></option>
+                    <option value="atelier" <?= ($_GET['type'] ?? '') === 'atelier' ? 'selected' : '' ?>><?= t('catevt_type_atelier', 'Atelier') ?></option>
+                    <option value="marche" <?= ($_GET['type'] ?? '') === 'marche' ? 'selected' : '' ?>><?= t('catevt_type_marche', 'Marché') ?></option>
+                    <option value="conference" <?= ($_GET['type'] ?? '') === 'conference' ? 'selected' : '' ?>><?= t('catevt_type_conference', 'Conférence') ?></option>
+                    <option value="exposition" <?= ($_GET['type'] ?? '') === 'exposition' ? 'selected' : '' ?>><?= t('catevt_type_exposition', 'Exposition') ?></option>
+                    <option value="communautaire" <?= ($_GET['type'] ?? '') === 'communautaire' ? 'selected' : '' ?>><?= t('catevt_type_communautaire', 'Communautaire') ?></option>
                 </select>
             </div>
             <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catevt_filter_price', 'Tarif') ?></label>
                 <select name="tarif" class="select select-bordered w-full select-sm">
-                    <option value=""><?= t('catevt_filter_all', 'Tous') ?></option>
-                    <option value="gratuit"><?= t('catevt_price_free', 'Gratuit') ?></option>
-                    <option value="payant"><?= t('catevt_price_paid', 'Payant') ?></option>
+                    <option value="" <?= ($_GET['tarif'] ?? '') === '' ? 'selected' : '' ?>><?= t('catevt_filter_all', 'Tous') ?></option>
+                    <option value="gratuit" <?= ($_GET['tarif'] ?? '') === 'gratuit' ? 'selected' : '' ?>><?= t('catevt_price_free', 'Gratuit') ?></option>
+                    <option value="payant" <?= ($_GET['tarif'] ?? '') === 'payant' ? 'selected' : '' ?>><?= t('catevt_price_paid', 'Payant') ?></option>
                 </select>
             </div>
             <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catevt_filter_date', 'Date') ?></label>
-                <input type="date" name="date" class="input input-bordered w-full input-sm">
+                <input type="date" name="date" value="<?= htmlspecialchars($_GET['date'] ?? '') ?>" class="input input-bordered w-full input-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catevt_filter_location', 'Localisation') ?></label>
-                <input type="text" name="localisation" placeholder="<?= t('catevt_location_placeholder', 'Ville ou arrondissement') ?>" class="input input-bordered w-full input-sm">
+                <input type="text" name="localisation" value="<?= htmlspecialchars($_GET['localisation'] ?? '') ?>" placeholder="<?= t('catevt_location_placeholder', 'Ville ou arrondissement') ?>" class="input input-bordered w-full input-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catevt_sort_by', 'Trier par') ?></label>
                 <select name="tri" class="select select-bordered w-full select-sm">
-                    <option value="date"><?= t('catevt_filter_date', 'Date') ?></option>
-                    <option value="prix_asc"><?= t('catevt_sort_price_asc', 'Prix croissant') ?></option>
-                    <option value="popularite"><?= t('catevt_sort_popularity', 'Popularité') ?></option>
+                    <option value="date" <?= ($_GET['tri'] ?? 'date') === 'date' ? 'selected' : '' ?>><?= t('catevt_filter_date', 'Date') ?></option>
+                    <option value="prix_asc" <?= ($_GET['tri'] ?? '') === 'prix_asc' ? 'selected' : '' ?>><?= t('catevt_sort_price_asc', 'Prix croissant') ?></option>
+                    <option value="popularite" <?= ($_GET['tri'] ?? '') === 'popularite' ? 'selected' : '' ?>><?= t('catevt_sort_popularity', 'Popularité') ?></option>
                 </select>
             </div>
             <div class="md:col-span-5 flex justify-end gap-3">
@@ -91,13 +91,15 @@ $typeColors = [
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php foreach ($evenements as $ev):
             $date         = $ev['date']         ?? '';
-            $type         = $ev['type']         ?? ($ev['statut'] ?? '');
+            $categorie    = $ev['categorie']    ?? 'atelier';
             $titre        = $ev['titre']        ?? '';
             $description  = $ev['description']  ?? '';
             $prix         = isset($ev['prix'])   ? $ev['prix'] : null;
             $lieu         = $ev['lieu']         ?? '';
-            $participants = $ev['participants'] ?? ($ev['capacite'] ?? 0);
-            $colorClass   = $typeColors[$type]  ?? 'bg-blue-100 text-blue-700';
+            $duree        = $ev['duree']        ?? 0;
+            $participants = $ev['participants'] ?? 0;
+            $capacite     = $ev['capacite'] ?? 0;
+            $info         = $typeInfo[$categorie] ?? $typeInfo['atelier'];
             $imgUrl       = uc_image('evenement', $ev['id'] ?? $titre);
         ?>
             <div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition group">
@@ -107,13 +109,13 @@ $typeColors = [
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                     <div class="absolute top-3 left-3">
-                        <span class="badge badge-sm <?= $colorClass ?> border-0"><?= htmlspecialchars(formatStatut($type)) ?></span>
+                        <span class="badge badge-sm <?= $info['class'] ?> border-0"><?= htmlspecialchars($info['label']) ?></span>
                     </div>
                     <div class="absolute top-3 right-3">
                         <?php if ($prix === 0 || $prix === null): ?>
                             <span class="badge badge-success badge-sm"><?= t('catevt_price_free', 'Gratuit') ?></span>
                         <?php else: ?>
-                            <span class="badge badge-ghost badge-sm bg-white/90"><?= htmlspecialchars(formatPrix($prix)) ?></span>
+                            <span class="badge badge-ghost badge-sm bg-base-100/90 text-base-content border-0"><?= htmlspecialchars(formatPrix($prix)) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="absolute bottom-3 left-4 right-4">
@@ -125,7 +127,10 @@ $typeColors = [
                     <div class="space-y-1.5 mb-4 text-xs text-base-content/50">
                         <div><i class="fas fa-calendar-alt mr-2 w-3"></i><?= htmlspecialchars(formatDate($date, true)) ?></div>
                         <div><i class="fas fa-map-marker-alt mr-2 w-3"></i><?= htmlspecialchars($lieu) ?></div>
-                        <div><i class="fas fa-users mr-2 w-3"></i><?= htmlspecialchars((string)$participants) ?> <?= t('catevt_participants', 'participant') ?><?= ((int)$participants) > 1 ? 's' : '' ?></div>
+                        <?php if ($duree > 0): ?>
+                            <div><i class="fas fa-hourglass-half mr-2 w-3"></i><?= (int)$duree ?> <?= t('catevt_duration_hours', 'h') ?></div>
+                        <?php endif; ?>
+                        <div><i class="fas fa-users mr-2 w-3"></i><?= htmlspecialchars((string)$participants) ?>/<?= htmlspecialchars((string)$capacite) ?> <?= t('catevt_participants', 'participant') ?><?= ((int)$capacite) > 1 ? 's' : '' ?></div>
                     </div>
                     <div class="flex items-center justify-end">
                         <a href="/evenements/<?= $ev['id'] ?>" class="btn btn-neutral btn-sm"><?= t('catevt_participate', 'Participer') ?></a>

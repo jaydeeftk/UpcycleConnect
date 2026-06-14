@@ -69,9 +69,20 @@ class AnnonceController
         } catch (\Exception $e) {
             $annonces = [];
         }
+
+        $localisation = trim($_GET['localisation'] ?? '');
+        if ($localisation !== '') {
+            $annonces = array_values(array_filter($annonces, function ($a) use ($localisation) {
+                $ville = $a['ville'] ?? '';
+                $cp    = $a['code_postal'] ?? '';
+                return stripos($ville, $localisation) !== false || stripos($cp, $localisation) !== false;
+            }));
+        }
+
         return view('front.annonces.index', [
             'title'    => 'Toutes les annonces - UpcycleConnect',
             'annonces' => $annonces,
+            'localisation' => $localisation,
         ]);
     }
     public function create()

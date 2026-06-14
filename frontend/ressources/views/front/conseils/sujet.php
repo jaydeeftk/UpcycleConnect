@@ -1,5 +1,20 @@
 <section class="max-w-4xl mx-auto px-6 lg:px-10 py-16">
 
+    <?php if (!empty($_SESSION['success'])): ?>
+        <div class="alert alert-success mb-6">
+            <i class="fas fa-check-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['success']) ?></span>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="alert alert-error mb-6">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['error']) ?></span>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
     <div class="mb-8">
         <a href="/conseils?onglet=forum" class="flex items-center gap-2 text-sm text-base-content/50 hover:text-base-content transition mb-6">
             <i class="fas fa-arrow-left"></i> <?= t('conssuj_back_forum', 'Retour au forum') ?>
@@ -56,14 +71,26 @@
                             <span>· <?= formatDate($reponse['date'] ?? '') ?></span>
                         </div>
 
-                        <?php if (isset($_SESSION['user']) && ($_SESSION['user']['id'] ?? 0) == ($sujet['auteur_id'] ?? -1) && !($sujet['resolu'] ?? false)): ?>
-                            <form method="POST" action="/conseils/forum/<?= $sujet['id'] ?>/solution/<?= $reponse['id'] ?>">
-                            <?= csrf_field() ?>
-                                <button type="submit" class="btn btn-success btn-xs gap-1">
-                                    <i class="fas fa-check"></i> <?= t('conssuj_mark_solution', 'Marquer comme solution') ?>
-                                </button>
-                            </form>
-                        <?php endif; ?>
+                        <div class="flex items-center gap-2">
+                            <?php if (isset($_SESSION['user']) && ($_SESSION['user']['id'] ?? 0) == ($sujet['auteur_id'] ?? -1) && !($sujet['resolu'] ?? false)): ?>
+                                <form method="POST" action="/conseils/forum/<?= $sujet['id'] ?>/solution/<?= $reponse['id'] ?>">
+                                <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-success btn-xs gap-1">
+                                        <i class="fas fa-check"></i> <?= t('conssuj_mark_solution', 'Marquer comme solution') ?>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+
+                            <?php if (isset($_SESSION['user']) && ($_SESSION['user']['id'] ?? 0) == ($reponse['auteur_id'] ?? -1)): ?>
+                                <form method="POST" action="/conseils/forum/reponses/<?= $reponse['id'] ?>/supprimer" onsubmit="return confirm('<?= t('conssuj_confirm_delete', 'Supprimer définitivement ce message ?') ?>');">
+                                <?= csrf_field() ?>
+                                    <input type="hidden" name="id_sujet" value="<?= $sujet['id'] ?>">
+                                    <button type="submit" class="btn btn-ghost btn-xs gap-1 text-error">
+                                        <i class="fas fa-trash"></i> <?= t('conssuj_delete', 'Supprimer') ?>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -75,7 +102,7 @@
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_SESSION['user'])): ?>
+    <?php if (isset($_SESSION['user']) && !($sujet['resolu'] ?? false)): ?>
         <div class="bg-base-100 rounded-2xl shadow-sm p-8">
             <h2 class="text-lg font-semibold mb-6"><?= t('conssuj_your_answer', 'Votre réponse') ?></h2>
 
@@ -103,6 +130,11 @@
                     </button>
                 </div>
             </form>
+        </div>
+    <?php elseif ($sujet['resolu'] ?? false): ?>
+        <div class="bg-base-100 rounded-2xl shadow-sm p-8 text-center">
+            <div class="text-success mb-2"><i class="fas fa-check-circle text-2xl"></i></div>
+            <p class="text-base-content/60"><?= t('conssuj_resolved_locked', 'Ce sujet est marqué comme résolu. Il n\'est plus possible d\'y répondre.') ?></p>
         </div>
     <?php else: ?>
         <div class="bg-base-100 rounded-2xl shadow-sm p-8 text-center">

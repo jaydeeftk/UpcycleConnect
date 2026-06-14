@@ -60,7 +60,12 @@ $estPasse = $evtDate !== '' && ($tsEvt = strtotime($evtDate)) !== false && $tsEv
                     <span class="font-medium flex items-center gap-2">
                         <i class="fas fa-users text-purple-500 w-4"></i> <?= t('evtdet_capacity', 'Capacité') ?>
                     </span>
-                    <span class="text-base-content/70"><?= htmlspecialchars($evenement['capacite']) ?> <?= t('evtdet_seats', 'places') ?></span>
+                    <span class="text-base-content/70">
+                        <?php
+                            $places_restantes = max(0, (int)$evenement['capacite'] - (int)($evenement['participants'] ?? 0));
+                        ?>
+                        <?= $places_restantes ?> / <?= htmlspecialchars($evenement['capacite']) ?> <?= t('evtdet_seats_left', 'places restantes') ?>
+                    </span>
                 </div>
                 <?php endif; ?>
                 <div class="flex justify-between items-center py-2">

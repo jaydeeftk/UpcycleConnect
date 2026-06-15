@@ -16,7 +16,7 @@ var inscriptionSvc = services.NewInscriptionService()
 
 func GetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		`SELECT e.Id_Evenements, e.Titre, e.Description, e.Date_, e.Lieu, e.Capacite, e.Statut,
+		`SELECT e.Id_Evenements, e.Titre, e.Description, COALESCE(DATE_FORMAT(e.Date_, '%Y-%m-%dT%H:%i:%s'),''), e.Lieu, e.Capacite, e.Statut,
 		        COALESCE(e.Prix,0), COALESCE(e.Categorie,''), COALESCE(e.Duree,0),
 		        (SELECT COUNT(*) FROM Participer_evenements pe WHERE pe.Id_Evenements = e.Id_Evenements)
 		 FROM Evenements e ORDER BY e.Date_ DESC`,
@@ -122,7 +122,7 @@ func DesinscrireEvenement(w http.ResponseWriter, r *http.Request) {
 
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
-		`SELECT e.Id_Evenements, e.Titre, e.Description, e.Date_, e.Lieu, e.Capacite, e.Statut,
+		`SELECT e.Id_Evenements, e.Titre, e.Description, COALESCE(DATE_FORMAT(e.Date_, '%Y-%m-%dT%H:%i:%s'),''), e.Lieu, e.Capacite, e.Statut,
 			COALESCE(u.Nom, ''), COALESCE(u.Prenom, '')
 		FROM Evenements e
 		LEFT JOIN Salaries s ON s.Id_Salaries = e.Id_Salaries

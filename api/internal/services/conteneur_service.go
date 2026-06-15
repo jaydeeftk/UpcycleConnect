@@ -54,7 +54,7 @@ type CreationDepotInput struct {
 }
 
 func (s *ConteneurService) CreerDemande(idUtilisateur int, in CreationDepotInput) (int64, error) {
-	if err := domain.ValiderCreationDepot(in.TypeObjet, in.Destination, in.PrixVente); err != nil {
+	if err := domain.ValiderCreationDepot(in.TypeObjet, in.Destination, in.PrixVente, in.DateDepot); err != nil {
 		return 0, err
 	}
 	if in.IdConteneur <= 0 {

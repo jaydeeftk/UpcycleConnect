@@ -128,7 +128,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                     <?= htmlspecialchars($item['titre'] ?? '—') ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                    <?= formatDate($item['date_debut'] ?? '', true) ?>
+                    <?= formatDate($item['date'] ?? '', true) ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">
                     <?= htmlspecialchars($item['lieu'] ?? '—') ?>

@@ -47,11 +47,14 @@ function formatDate(?string $dateStr, bool $withTime = false): string
     if (empty($dateStr) || str_starts_with($dateStr, '0000-00-00')) {
         return '—';
     }
-    $ts = strtotime($dateStr);
-    if ($ts === false) {
+    if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/', $dateStr, $m)) {
         return $dateStr;
     }
-    return $withTime ? date('d/m/Y à H\hi', $ts) : date('d/m/Y', $ts);
+    $date = $m[3] . '/' . $m[2] . '/' . $m[1];
+    if ($withTime && isset($m[4])) {
+        $date .= ' à ' . $m[4] . 'h' . $m[5];
+    }
+    return $date;
 }
 
 function formatPrix($prix): string

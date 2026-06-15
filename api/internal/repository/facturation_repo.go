@@ -380,6 +380,17 @@ func (FacturationRepo) CreerHistorique(q Querier, idParticulier int, statut, obs
 	return err
 }
 
+// NotifierAdmins dépose une notification dans le centre de notifications de
+// chaque administrateur (best-effort, hors transaction de paiement).
+func (FacturationRepo) NotifierAdmins(q Querier, contenu string) error {
+	_, err := q.Exec(
+		`INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs)
+		 SELECT ?, NOW(), 0, a.Id_Administrateurs, a.Id_Utilisateurs FROM Administrateurs a`,
+		contenu,
+	)
+	return err
+}
+
 func (FacturationRepo) CreerPaiement(q Querier, p PaiementCreation) (int64, error) {
 	res, err := q.Exec(
 		`INSERT INTO Paiements (Date_, Montant, Statut, Methode, Reference_stripe, Id_Facture, Id_Utilisateurs)

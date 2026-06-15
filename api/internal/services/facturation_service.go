@@ -15,6 +15,7 @@ import (
 
 type FacturationService struct {
 	repo repository.FacturationRepo
+	insc repository.InscriptionRepo
 }
 
 func NewFacturationService() *FacturationService { return &FacturationService{} }
@@ -351,7 +352,8 @@ func (s *FacturationService) PreparerCheckout(typ string, idItem int) (CheckoutD
 }
 
 func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ string, idItem int, referenceStripe string) error {
-	return withTx(func(tx *sql.Tx) error {
+	surbooking := false
+	err := withTx(func(tx *sql.Tx) error {
 		deja, err := s.repo.PaiementReferenceExiste(tx, referenceStripe)
 		if err != nil {
 			return err
@@ -407,9 +409,80 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 		if err != nil {
 			return err
 		}
+
+		inscrit, err := s.inscrireDansTx(tx, idParticulier, typ, idItem)
+		if err != nil {
+			return err
+		}
+
+		statut := domain.StatutPaiementPaye
 		observations := fmt.Sprintf("Achat %s #%d - facture %s (%.2f EUR)", typ, idItem, numero, ttcCoherent)
-		return s.repo.CreerHistorique(tx, idParticulier, domain.StatutPaiementPaye, observations)
+		if !inscrit {
+			surbooking = true
+			statut = "surbooking"
+			observations = fmt.Sprintf("SURBOOKING - %s #%d facture %s (%.2f EUR) encaisse mais complet : place a regulariser ou rembourser", typ, idItem, numero, ttcCoherent)
+		}
+		return s.repo.CreerHistorique(tx, idParticulier, statut, observations)
 	})
+	if err != nil {
+		return err
+	}
+	if surbooking {
+		_ = s.repo.NotifierAdmins(database.DB, fmt.Sprintf("Surbooking : paiement encaisse pour %s #%d complet — place a regulariser ou rembourser.", typ, idItem))
+	}
+	return nil
+}
+
+// inscrireDansTx inscrit le particulier à l'item payé, dans la transaction du
+// paiement (verrou FOR UPDATE sur la formation/événement). Retourne false sans
+// erreur si l'item est complet : le paiement est conservé et l'appelant marque
+// un surbooking à régulariser. Le ré-incrément/annulation relève de l'item 12.
+func (s *FacturationService) inscrireDansTx(tx *sql.Tx, idParticulier int, typ string, idItem int) (bool, error) {
+	switch typ {
+	case "formation":
+		deja, err := s.insc.EstInscritFormation(tx, idParticulier, idItem)
+		if err != nil {
+			return false, err
+		}
+		if deja {
+			return true, nil
+		}
+		snap, err := s.insc.FormationPourMAJ(tx, idItem)
+		if err != nil {
+			return false, err
+		}
+		if snap.PlacesDispo <= 0 {
+			return false, nil
+		}
+		if err := s.insc.InsererReservationFormation(tx, idParticulier, idItem); err != nil {
+			return false, err
+		}
+		if err := s.insc.DecrementerPlacesFormation(tx, idItem); err != nil {
+			return false, err
+		}
+		return true, nil
+	case "evenement":
+		deja, err := s.insc.EstInscritEvenement(tx, idParticulier, idItem)
+		if err != nil {
+			return false, err
+		}
+		if deja {
+			return true, nil
+		}
+		snap, err := s.insc.EvenementPourMAJ(tx, idItem)
+		if err != nil {
+			return false, err
+		}
+		n, err := s.insc.CompterParticipantsEvenement(tx, idItem)
+		if err != nil {
+			return false, err
+		}
+		if n >= snap.Capacite {
+			return false, nil
+		}
+		return true, s.insc.InsererParticipationEvenement(tx, idParticulier, idItem)
+	}
+	return false, domain.Invalide("Type d'inscription invalide")
 }
 
 func (s *FacturationService) creerFactureUnique(tx *sql.Tx, f repository.FactureCreation) (string, int64, error) {

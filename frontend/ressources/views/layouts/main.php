@@ -160,6 +160,7 @@
     </main>
 
     <?php include __DIR__ . '/../components/front/footer.php'; ?>
+    <?php include __DIR__ . '/../components/front/tutoriel.php'; ?>
 
     <script>
     (function() {

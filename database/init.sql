@@ -802,7 +802,7 @@ INSERT INTO Professionnels_artisans (Nom_Entreprise, Type, Id_Utilisateurs)
 VALUES ('Atelier Demo', 'artisan', LAST_INSERT_ID());
 
 INSERT INTO Utilisateurs (Nom, Prenom, Email, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu)
-VALUES ('Demo', 'Particulier', 'part@demo.test', '$2a$10$lWyuQ0lXGoWJtjmNnYvGSOyBpnKcoc8kMxrYIGFRmz5i8/lJqGlHW', 'actif', NOW(), 1, 1);
+VALUES ('Demo', 'Particulier', 'part@demo.test', '$2a$10$lWyuQ0lXGoWJtjmNnYvGSOyBpnKcoc8kMxrYIGFRmz5i8/lJqGlHW', 'actif', NOW(), 1, 0);
 INSERT INTO Particuliers (Score, Id_Utilisateurs)
 VALUES (0, LAST_INSERT_ID());
 

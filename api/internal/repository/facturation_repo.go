@@ -293,12 +293,22 @@ func (FacturationRepo) CreerLigneFacture(q Querier, l LigneFactureCreation) erro
 }
 
 type PaiementLigne struct {
-	ID      int
-	Montant float64
-	Statut  string
-	Methode string
-	Date    string
-	Facture string
+	ID        int
+	Montant   float64
+	Statut    string
+	Methode   string
+	Date      string
+	Facture   string
+	IdFacture int
+}
+
+type CommandeReference struct {
+	Trouve        bool
+	Statut        string
+	Montant       float64
+	IdFacture     int
+	NumeroFacture string
+	Type          string
 }
 
 type PaiementCreation struct {
@@ -313,7 +323,8 @@ type PaiementCreation struct {
 func (FacturationRepo) PaiementsDeLUtilisateur(q Querier, idUtilisateur int) ([]PaiementLigne, error) {
 	rows, err := q.Query(
 		`SELECT p.Id_Paiements, COALESCE(p.Montant,0), COALESCE(p.Statut,''),
-			COALESCE(p.Methode,''), COALESCE(p.Date_,''), COALESCE(f.Numero_facture,'')
+			COALESCE(p.Methode,''), COALESCE(p.Date_,''), COALESCE(f.Numero_facture,''),
+			COALESCE(f.Id_Facture,0)
 		FROM Paiements p
 		LEFT JOIN Factures f ON f.Id_Facture = p.Id_Facture
 		WHERE p.Id_Utilisateurs = ?
@@ -326,12 +337,47 @@ func (FacturationRepo) PaiementsDeLUtilisateur(q Querier, idUtilisateur int) ([]
 	out := []PaiementLigne{}
 	for rows.Next() {
 		var p PaiementLigne
-		if err := rows.Scan(&p.ID, &p.Montant, &p.Statut, &p.Methode, &p.Date, &p.Facture); err != nil {
+		if err := rows.Scan(&p.ID, &p.Montant, &p.Statut, &p.Methode, &p.Date, &p.Facture, &p.IdFacture); err != nil {
 			return nil, err
 		}
 		out = append(out, p)
 	}
 	return out, rows.Err()
+}
+
+func (FacturationRepo) PaiementParReference(q Querier, reference string) (CommandeReference, error) {
+	var c CommandeReference
+	err := q.QueryRow(
+		`SELECT COALESCE(p.Statut,''), COALESCE(p.Montant,0), COALESCE(f.Id_Facture,0),
+			COALESCE(f.Numero_facture,''), COALESCE(f.Type,'')
+		FROM Paiements p
+		LEFT JOIN Factures f ON f.Id_Facture = p.Id_Facture
+		WHERE p.Reference_stripe = ? LIMIT 1`, reference,
+	).Scan(&c.Statut, &c.Montant, &c.IdFacture, &c.NumeroFacture, &c.Type)
+	if errors.Is(err, sql.ErrNoRows) {
+		return CommandeReference{}, nil
+	}
+	if err != nil {
+		return CommandeReference{}, err
+	}
+	c.Trouve = true
+	return c, nil
+}
+
+func (FacturationRepo) IdParticulier(q Querier, idUtilisateur int) (int, error) {
+	var id int
+	err := q.QueryRow(
+		"SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", idUtilisateur,
+	).Scan(&id)
+	return id, err
+}
+
+func (FacturationRepo) CreerHistorique(q Querier, idParticulier int, statut, observations string) error {
+	_, err := q.Exec(
+		"INSERT INTO Historique (Date_Depot, Statut_depot, Observations, Id_Particuliers) VALUES (NOW(), ?, ?, ?)",
+		statut, observations, idParticulier,
+	)
+	return err
 }
 
 func (FacturationRepo) CreerPaiement(q Querier, p PaiementCreation) (int64, error) {

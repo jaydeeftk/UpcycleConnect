@@ -44,6 +44,11 @@
                             class="inline-block bg-black text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">
                             <?= t('payidx_pay_now', 'Régler maintenant') ?>
                         </a>
+                    <?php elseif (!empty($paiement['id_facture'])): ?>
+                        <a href="/factures/<?= (int)$paiement['id_facture'] ?>/pdf" target="_blank"
+                            class="inline-flex items-center gap-2 text-sm font-medium text-black hover:underline">
+                            <i class="fas fa-file-pdf"></i> <?= t('payidx_download_invoice', 'Télécharger la facture') ?>
+                        </a>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>

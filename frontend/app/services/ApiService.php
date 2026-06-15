@@ -108,11 +108,13 @@ class ApiService
                 if (!is_array($item)) return $item;
                 $newItem = array_change_key_case($item, CASE_LOWER);
                 if (isset($newItem['id_annonces'])) $newItem['id'] = $newItem['id_annonces'];
+                if (isset($newItem['id_evenements'])) $newItem['id'] = $newItem['id_evenements'];
                 return $newItem;
             }, $result['data']);
         } elseif (is_array($result)) {
             $result = array_change_key_case($result, CASE_LOWER);
             if (isset($result['id_annonces'])) $result['id'] = $result['id_annonces'];
+            if (isset($result['id_evenements'])) $result['id'] = $result['id_evenements'];
         }
 
         if ($httpCode >= 400) {

@@ -13,7 +13,7 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 	idUtilisateur := parts[len(parts)-1]
 
 	evRows, err := database.DB.Query(
-		`SELECT e.Id_Evenements, e.Titre, e.Date_, e.Lieu, e.Statut, COALESCE(e.Duree, 0)
+		`SELECT e.Id_Evenements, e.Titre, COALESCE(DATE_FORMAT(e.Date_, '%Y-%m-%dT%H:%i:%s'),''), e.Lieu, e.Statut, COALESCE(e.Duree, 0)
 		FROM Evenements e
 		JOIN Participer_evenements pe ON pe.Id_Evenements = e.Id_Evenements
 		JOIN Particuliers p ON p.Id_Particuliers = pe.Id_Particuliers
@@ -40,7 +40,7 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fRows, err := database.DB.Query(
-		`SELECT f.Id_Formations, f.Titre, COALESCE(f.Date_formation, ''), 
+		`SELECT f.Id_Formations, f.Titre, COALESCE(DATE_FORMAT(f.Date_formation, '%Y-%m-%dT%H:%i:%s'),''),
 			COALESCE(f.Localisation, ''), f.Statut, COALESCE(f.Duree, 0)
 		FROM Formations f
 		JOIN Reserver_formation rf ON rf.Id_Formations = f.Id_Formations

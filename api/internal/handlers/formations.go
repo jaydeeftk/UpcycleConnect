@@ -13,7 +13,7 @@ import (
 
 func GetFormations(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT Id_Formations, Titre, Description, Prix, Duree, Statut, 
-			  COALESCE(Date_formation, ''), COALESCE(Places_total, 0), 
+			  COALESCE(DATE_FORMAT(Date_formation, '%Y-%m-%dT%H:%i:%s'),''), COALESCE(Places_total, 0),
 			  COALESCE(Places_dispo, 0), COALESCE(Localisation, ''), 
 			  COALESCE(Categorie, '') 
 			  FROM Formations WHERE Statut = 'actif'`
@@ -123,7 +123,7 @@ func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
 		`SELECT f.Id_Formations, COALESCE(f.Titre,''), COALESCE(f.Description,''),
 			COALESCE(f.Prix,0), COALESCE(f.Duree,0), COALESCE(f.Statut,'en_attente'),
-			COALESCE(f.Date_formation,''), COALESCE(f.Places_total,0), COALESCE(f.Places_dispo,0),
+			COALESCE(DATE_FORMAT(f.Date_formation, '%Y-%m-%dT%H:%i:%s'),''), COALESCE(f.Places_total,0), COALESCE(f.Places_dispo,0),
 			COALESCE(f.Localisation,''), COALESCE(u.Nom,''), COALESCE(u.Prenom,'')
 		FROM Formations f
 		LEFT JOIN Salaries s ON s.Id_Salaries = f.Id_Salaries

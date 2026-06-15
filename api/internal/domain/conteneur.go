@@ -1,6 +1,9 @@
 package domain
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 const (
 	StatutDemandeEnAttente = "en_attente"
@@ -24,9 +27,25 @@ const StatutBoxDisponible = "disponible"
 
 const StatutConteneurDisponible = "disponible"
 
-func ValiderCreationDepot(typeObjet, destination string, prix float64) error {
+func ValiderDate(valeur string) error {
+	v := strings.TrimSpace(valeur)
+	if v == "" {
+		return Invalide("La date est obligatoire")
+	}
+	for _, layout := range []string{"2006-01-02", "2006-01-02T15:04", "2006-01-02T15:04:05", "2006-01-02 15:04:05"} {
+		if _, err := time.Parse(layout, v); err == nil {
+			return nil
+		}
+	}
+	return Invalide("Format de date invalide")
+}
+
+func ValiderCreationDepot(typeObjet, destination string, prix float64, dateDepot string) error {
 	if strings.TrimSpace(typeObjet) == "" {
 		return Invalide("Le type d'objet est obligatoire")
+	}
+	if err := ValiderDate(dateDepot); err != nil {
+		return err
 	}
 	switch destination {
 	case DestinationDon:

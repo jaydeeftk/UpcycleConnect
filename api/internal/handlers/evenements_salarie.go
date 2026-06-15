@@ -10,7 +10,7 @@ import (
 
 func GetEvenementsSalarie(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(`
-		SELECT e.Id_Evenements, e.Titre, e.Description, e.Lieu, e.Date_, e.Capacite, e.Statut,
+		SELECT e.Id_Evenements, e.Titre, e.Description, e.Lieu, COALESCE(DATE_FORMAT(e.Date_, '%Y-%m-%dT%H:%i:%s'),''), e.Capacite, e.Statut,
 		       u.Nom, u.Prenom
 		FROM Evenements e
 		JOIN Salaries s ON e.Id_Salaries = s.Id_Salaries
@@ -119,7 +119,7 @@ func GetEvenementSalarie(w http.ResponseWriter, r *http.Request) {
 	var date *string
 
 	err := database.DB.QueryRow(`
-		SELECT Id_Evenements, Titre, Description, Lieu, Date_, Capacite, Statut
+		SELECT Id_Evenements, Titre, Description, Lieu, COALESCE(DATE_FORMAT(Date_, '%Y-%m-%dT%H:%i:%s'),''), Capacite, Statut
 		FROM Evenements
 		WHERE Id_Evenements = ?
 	`, id).Scan(&idEvenement, &titre, &description, &lieu, &date, &capacite, &statut)

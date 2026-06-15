@@ -5,6 +5,7 @@ import (
 
 	"log"
 	"net/http"
+	_ "time/tzdata"
 
 	"upcycleconnect/internal/database"
 	routes "upcycleconnect/internal/routes"

@@ -192,9 +192,10 @@
             if (!results.length) { hideDropdown(); return; }
             dropdown.style.display = 'block';
             dropdown.innerHTML = results.map(function(c) {
-                var cp = c.codesPostaux && c.codesPostaux[0] ? ' — ' + c.codesPostaux[0] : '';
-                return '<div class="geo-item" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f1f5f9;transition:background 120ms" data-value="' + c.nom + cp.replace('— ','') + '" data-label="' + c.nom + cp + '">' +
-                    '<span style="font-weight:600">' + c.nom + '</span><span style="color:#94a3b8;font-size:11px">' + cp + '</span>' +
+                var cps = (c.codesPostaux || []).filter(Boolean);
+                var hint = cps.length ? (cps.length > 1 ? cps[0] + '…' : cps[0]) : '';
+                return '<div class="geo-item" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f1f5f9;transition:background 120ms" data-nom="' + c.nom + '" data-cps="' + encodeURIComponent(JSON.stringify(cps)) + '">' +
+                    '<span style="font-weight:600">' + c.nom + '</span>' + (hint ? '<span style="color:#94a3b8;font-size:11px"> — ' + hint + '</span>' : '') +
                     '</div>';
             }).join('');
             dropdown.querySelectorAll('.geo-item').forEach(function(item) {
@@ -202,10 +203,45 @@
                 item.addEventListener('mouseleave', function() { this.style.background = ''; });
                 item.addEventListener('mousedown', function(e) {
                     e.preventDefault();
-                    if (activeInput) activeInput.value = this.dataset.label.trim();
+                    selectCommune(item.dataset.nom, JSON.parse(decodeURIComponent(item.dataset.cps)));
                     hideDropdown();
                 });
             });
+        }
+
+        function selectCommune(nom, cps) {
+            if (!activeInput) return;
+            activeInput.value = nom;
+            if (activeInput.form) remplirCodePostal(activeInput.form, cps);
+        }
+
+        function remplirCodePostal(form, cps) {
+            var field = form.querySelector('[name="code_postal"]');
+            if (!field) return;
+            if (cps.length > 1) {
+                if (field.tagName !== 'SELECT') {
+                    var sel = document.createElement('select');
+                    sel.name = 'code_postal';
+                    sel.className = field.className;
+                    sel.required = field.required;
+                    field.parentNode.replaceChild(sel, field);
+                    field = sel;
+                }
+                field.innerHTML = cps.map(function(code) { return '<option value="' + code + '">' + code + '</option>'; }).join('');
+                field.value = cps[0];
+            } else {
+                if (field.tagName !== 'INPUT') {
+                    var inp = document.createElement('input');
+                    inp.type = 'text';
+                    inp.name = 'code_postal';
+                    inp.className = field.className;
+                    inp.required = field.required;
+                    inp.maxLength = 5;
+                    field.parentNode.replaceChild(inp, field);
+                    field = inp;
+                }
+                field.value = cps[0] || '';
+            }
         }
 
         var debounceTimer;

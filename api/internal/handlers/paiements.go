@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"math"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/checkout/session"
+	"github.com/stripe/stripe-go/v76/webhook"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
 )
@@ -85,46 +87,70 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"checkout_url": s.URL})
 }
 
+// PaiementSuccess est purement cosmétique : la page de retour Stripe LIT la
+// commande déjà persistée par le webhook (source de vérité). Elle ne déclenche
+// aucune écriture — si le client ferme l'onglet, le webhook persiste quand même.
 func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.URL.Query().Get("session_id")
 	if sessionID == "" {
 		httpx.JSONError(w, http.StatusBadRequest, "Session de paiement manquante")
 		return
 	}
-
-	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
-	if stripe.Key == "" {
-		httpx.JSONError(w, http.StatusInternalServerError, "Stripe non configuré")
-		return
-	}
-
-	s, err := session.Get(sessionID, nil)
+	commande, err := facturationSvc.CommandeParReference(sessionID)
 	if err != nil {
-		httpx.JSONError(w, http.StatusBadGateway, "Session de paiement introuvable")
-		return
-	}
-	if s.PaymentStatus != stripe.CheckoutSessionPaymentStatusPaid {
-		httpx.JSONError(w, http.StatusPaymentRequired, "Paiement non confirmé")
-		return
-	}
-
-	typ := s.Metadata["type"]
-	itemID, _ := strconv.Atoi(s.Metadata["item_id"])
-	userID, _ := strconv.Atoi(s.Metadata["user_id"])
-	if userID == 0 {
-
-		userID, _ = strconv.Atoi(s.ClientReferenceID)
-	}
-	if userID == 0 || itemID == 0 || typ == "" {
-		httpx.JSONError(w, http.StatusUnprocessableEntity, "Session de paiement incomplète")
-		return
-	}
-
-	if err := facturationSvc.EnregistrerPaiementItem(userID, typ, itemID, s.ID); err != nil {
 		httpx.WriteError(w, err)
 		return
 	}
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Paiement confirmé"})
+	httpx.JSONOK(w, http.StatusOK, commande)
+}
+
+// StripeWebhook est l'unique source de vérité de la persistance d'un paiement.
+// Stripe appelle cet endpoint sur checkout.session.completed : la signature est
+// vérifiée, puis la commande est enregistrée de façon idempotente et atomique
+// (Facture + Ligne_Facture + Paiement + Historique dans une seule transaction).
+func StripeWebhook(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	secret := os.Getenv("STRIPE_WEBHOOK_SECRET")
+	if secret == "" {
+		httpx.JSONError(w, http.StatusInternalServerError, "Webhook Stripe non configuré")
+		return
+	}
+	payload, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 65536))
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Corps de requête illisible")
+		return
+	}
+	event, err := webhook.ConstructEventWithOptions(payload, r.Header.Get("Stripe-Signature"), secret,
+		webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true})
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Signature webhook invalide")
+		return
+	}
+	if event.Type == "checkout.session.completed" {
+		var s stripe.CheckoutSession
+		if err := json.Unmarshal(event.Data.Raw, &s); err != nil {
+			httpx.JSONError(w, http.StatusBadRequest, "Données de session illisibles")
+			return
+		}
+		if s.PaymentStatus == stripe.CheckoutSessionPaymentStatusPaid {
+			typ := s.Metadata["type"]
+			itemID, _ := strconv.Atoi(s.Metadata["item_id"])
+			userID, _ := strconv.Atoi(s.Metadata["user_id"])
+			if userID == 0 {
+				userID, _ = strconv.Atoi(s.ClientReferenceID)
+			}
+			if userID != 0 && itemID != 0 && typ != "" {
+				if err := facturationSvc.EnregistrerPaiementItem(userID, typ, itemID, s.ID); err != nil {
+					httpx.JSONServerError(w, err)
+					return
+				}
+			}
+		}
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})
 }
 
 func GetPaiementsUser(w http.ResponseWriter, r *http.Request) {

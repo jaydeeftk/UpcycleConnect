@@ -69,6 +69,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/planning/", middleware.OwnerFromPath(handlers.GetPlanning))
 	mux.HandleFunc("/api/historique/", middleware.OwnerFromPath(handlers.GetHistorique))
 	mux.HandleFunc("/api/paiements/checkout", middleware.JWTAuth(handlers.CreateCheckoutSession))
+	mux.HandleFunc("/api/paiements/webhook", handlers.StripeWebhook)
 	mux.HandleFunc("/api/paiements/success", handlers.PaiementSuccess)
 	mux.HandleFunc("/api/paiements/", middleware.OwnerFromPath(handlers.GetPaiementsUser))
 

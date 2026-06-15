@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -266,12 +267,13 @@ func (s *FacturationService) ObtenirFacture(idFacture int) (FactureDTO, error) {
 }
 
 type PaiementDTO struct {
-	ID      int     `json:"id"`
-	Montant float64 `json:"montant"`
-	Statut  string  `json:"statut"`
-	Methode string  `json:"methode"`
-	Date    string  `json:"date"`
-	Facture string  `json:"facture"`
+	ID        int     `json:"id"`
+	Montant   float64 `json:"montant"`
+	Statut    string  `json:"statut"`
+	Methode   string  `json:"methode"`
+	Date      string  `json:"date"`
+	Facture   string  `json:"facture"`
+	IdFacture int     `json:"id_facture"`
 }
 
 func (s *FacturationService) PaiementsDeLUtilisateur(idUtilisateur int) ([]PaiementDTO, error) {
@@ -283,10 +285,30 @@ func (s *FacturationService) PaiementsDeLUtilisateur(idUtilisateur int) ([]Paiem
 	for _, p := range lignes {
 		out = append(out, PaiementDTO{
 			ID: p.ID, Montant: p.Montant, Statut: p.Statut, Methode: p.Methode,
-			Date: p.Date, Facture: p.Facture,
+			Date: p.Date, Facture: p.Facture, IdFacture: p.IdFacture,
 		})
 	}
 	return out, nil
+}
+
+type CommandeDTO struct {
+	Trouve        bool    `json:"trouve"`
+	Statut        string  `json:"statut"`
+	Montant       float64 `json:"montant"`
+	IdFacture     int     `json:"id_facture"`
+	NumeroFacture string  `json:"numero_facture"`
+	Type          string  `json:"type"`
+}
+
+func (s *FacturationService) CommandeParReference(reference string) (CommandeDTO, error) {
+	c, err := s.repo.PaiementParReference(database.DB, reference)
+	if err != nil {
+		return CommandeDTO{}, err
+	}
+	return CommandeDTO{
+		Trouve: c.Trouve, Statut: c.Statut, Montant: c.Montant,
+		IdFacture: c.IdFacture, NumeroFacture: c.NumeroFacture, Type: c.Type,
+	}, nil
 }
 
 type CheckoutData struct {
@@ -360,7 +382,6 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 		if err != nil {
 			return err
 		}
-		_ = numero
 
 		ligne := repository.LigneFactureCreation{
 			Description: titre, Quantite: 1, PrixUnitaireHT: ht, TotalHT: ht, IdFacture: idFacture,
@@ -375,11 +396,19 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 			return err
 		}
 
-		_, err = s.repo.CreerPaiement(tx, repository.PaiementCreation{
+		if _, err := s.repo.CreerPaiement(tx, repository.PaiementCreation{
 			Montant: ttcCoherent, Statut: domain.StatutPaiementPaye, Methode: domain.MethodePaiementCarte,
 			ReferenceStripe: referenceStripe, IdFacture: idFacture, IdUtilisateur: idUtilisateur,
-		})
-		return err
+		}); err != nil {
+			return err
+		}
+
+		idParticulier, err := s.repo.IdParticulier(tx, idUtilisateur)
+		if err != nil {
+			return err
+		}
+		observations := fmt.Sprintf("Achat %s #%d - facture %s (%.2f EUR)", typ, idItem, numero, ttcCoherent)
+		return s.repo.CreerHistorique(tx, idParticulier, domain.StatutPaiementPaye, observations)
 	})
 }
 

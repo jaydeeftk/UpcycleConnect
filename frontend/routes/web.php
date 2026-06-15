@@ -75,6 +75,7 @@ $router->get('/mes-prestations', 'Front\UserController@mesPrestations');
 $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
 $router->get('/paiement/success', 'Front\UserController@paiementSuccess');
+$router->get('/factures/{id}/pdf', 'Front\UserController@facturePdf');
 
 $router->get('/professionnel', 'Front\ProfessionnelController@dashboard');
 $router->get('/professionnel/projets/create', 'Front\ProfessionnelController@createProjet');

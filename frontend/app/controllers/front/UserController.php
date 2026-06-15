@@ -83,11 +83,37 @@ class UserController
 
     public function paiementSuccess()
     {
+        $commande = null;
+        $sessionId = $_GET['session_id'] ?? '';
+        if ($sessionId !== '') {
+            try {
+                $res = $this->api->get('/paiements/success', ['session_id' => $sessionId]);
+                $commande = $res['data'] ?? null;
+            } catch (\Exception $e) {
+                $commande = null;
+            }
+        }
         return view('front.paiements.success', [
-            'title' => 'Paiement confirmé - UpcycleConnect',
-            'type'  => $_GET['type'] ?? '',
-            'id'    => $_GET['id'] ?? '',
+            'title'    => 'Paiement confirmé - UpcycleConnect',
+            'commande' => $commande,
         ]);
+    }
+
+    public function facturePdf($id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+        $res = $this->api->getRaw('/factures/' . (int)$id . '/pdf');
+        if (($res['code'] ?? 0) >= 400 || empty($res['body'])) {
+            http_response_code(($res['code'] ?? 0) ?: 502);
+            echo 'Facture indisponible';
+            return;
+        }
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="facture-' . (int)$id . '.pdf"');
+        echo $res['body'];
     }
 
     public function historique()

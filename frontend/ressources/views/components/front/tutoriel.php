@@ -60,10 +60,7 @@ $tuto = [
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    const tutorielVu = localStorage.getItem('tutoriel_vu');
-    if (tutorielVu) return;
-
-    const TUTO = <?= json_encode($tuto, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    const TUTO =<?= json_encode($tuto, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     const etapes = TUTO.steps;
 
     let etapeActuelle = 0;
@@ -180,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function terminerTutoriel() {
-        localStorage.setItem('tutoriel_vu', 'true');
         fetch('/tutoriel/done').catch(function () {});
         document.body.style.overflow = '';
         overlay.remove();

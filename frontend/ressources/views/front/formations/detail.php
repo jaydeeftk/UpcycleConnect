@@ -67,12 +67,19 @@ $estPasse      = $tsFormation !== false && $tsFormation < time();
                     </button>
                 <?php elseif (isset($_SESSION['user'])): ?>
                     <?php if ($formation['est_inscrit'] ?? false): ?>
-                        <form method="POST" action="/formations/<?= $formation['id'] ?>/desinscrire">
-                        <?= csrf_field() ?>
-                            <button type="submit" class="bg-red-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-red-700 transition">
-                                <i class="fas fa-times mr-2"></i><?= t('fordet_unsubscribe', 'Se désinscrire') ?>
+                        <?php if (($formation['prix'] ?? 0) > 0): ?>
+                            <button disabled class="bg-base-300 text-base-content/50 px-8 py-3 rounded-xl font-medium cursor-not-allowed"
+                                    title="<?= t('fordet_paid_refund_hint', 'Pour annuler une inscription payante, faites une demande de remboursement.') ?>">
+                                <i class="fas fa-check mr-2"></i><?= t('fordet_registered_paid', 'Inscrit — annulation via demande de remboursement') ?>
                             </button>
-                        </form>
+                        <?php else: ?>
+                            <form method="POST" action="/formations/<?= $formation['id'] ?>/desinscrire">
+                            <?= csrf_field() ?>
+                                <button type="submit" class="bg-red-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-red-700 transition">
+                                    <i class="fas fa-times mr-2"></i><?= t('fordet_unsubscribe', 'Se désinscrire') ?>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     <?php elseif (($formation['places_dispo'] ?? 0) > 0): ?>
                         <?php if (($formation['prix'] ?? 0) > 0): ?>
                             <a href="/payer?type=formation&id_item=<?= $formation['id'] ?>&montant=<?= $formation['prix'] ?>&titre=<?= urlencode($formation['titre'] ?? '') ?>"

@@ -106,12 +106,19 @@ $estPasse = $evtDate !== '' && ($tsEvt = strtotime($evtDate)) !== false && $tsEv
                     </span>
                 <?php elseif (isset($_SESSION['user'])): ?>
                     <?php if ($evenement['est_inscrit'] ?? false): ?>
-                        <form method="POST" action="/evenements/<?= $evenement['id'] ?? '' ?>/desinscrire">
-                        <?= csrf_field() ?>
-                            <button type="submit" class="bg-red-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-red-700 transition">
-                                <i class="fas fa-times mr-2"></i><?= t('evtdet_btn_unregister', 'Se désinscrire') ?>
+                        <?php if (($evenement['prix'] ?? 0) > 0): ?>
+                            <button disabled class="bg-base-300 text-base-content/50 px-8 py-3 rounded-xl font-medium cursor-not-allowed"
+                                    title="<?= t('evtdet_paid_refund_hint', 'Pour annuler une inscription payante, faites une demande de remboursement.') ?>">
+                                <i class="fas fa-check mr-2"></i><?= t('evtdet_registered_paid', 'Inscrit — annulation via demande de remboursement') ?>
                             </button>
-                        </form>
+                        <?php else: ?>
+                            <form method="POST" action="/evenements/<?= $evenement['id'] ?? '' ?>/desinscrire">
+                            <?= csrf_field() ?>
+                                <button type="submit" class="bg-red-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-red-700 transition">
+                                    <i class="fas fa-times mr-2"></i><?= t('evtdet_btn_unregister', 'Se désinscrire') ?>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     <?php elseif (($evenement['prix'] ?? 0) > 0): ?>
                         <a href="/payer?type=evenement&id_item=<?= $evenement['id'] ?? '' ?>&montant=<?= $evenement['prix'] ?? 0 ?>&titre=<?= urlencode($evenement['titre'] ?? '') ?>"
                            class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition text-center">

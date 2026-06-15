@@ -236,7 +236,7 @@ func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {
 		}
 		rForm, _ := database.DB.Query(
 			`SELECT f.Id_Formations, f.Titre, COALESCE(f.Date_formation,''), COALESCE(f.Localisation,''), COALESCE(f.Statut,'')
-			FROM Participer p
+			FROM Reserver_formation p
 			JOIN Formations f ON f.Id_Formations = p.Id_Formations
 			WHERE p.Id_Particuliers = ?
 			ORDER BY f.Date_formation DESC`, idPart,
@@ -756,20 +756,17 @@ func AdminPlanningAction(w http.ResponseWriter, r *http.Request) {
 	planType := parts[2]
 	itemId := parts[3]
 
-	var idPart int
-	if err := database.DB.QueryRow("SELECT Id_Particuliers FROM Particuliers WHERE Id_Utilisateurs = ?", uid).Scan(&idPart); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Utilisateur non particulier")
+	if planType != "formation" && planType != "evenement" {
+		httpx.JSONError(w, http.StatusBadRequest, "Type inconnu")
 		return
 	}
-
-	switch planType {
-	case "evenement":
-		database.DB.Exec("DELETE FROM Participer_evenements WHERE Id_Particuliers = ? AND Id_Evenements = ?", idPart, itemId)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription événement effectuée"})
-	case "formation":
-		database.DB.Exec("DELETE FROM Participer WHERE Id_Particuliers = ? AND Id_Formations = ?", idPart, itemId)
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription formation effectuée"})
-	default:
-		httpx.JSONError(w, http.StatusBadRequest, "Type inconnu")
+	uidInt, _ := strconv.Atoi(uid)
+	itemIdInt, _ := strconv.Atoi(itemId)
+	// Même seam in-tx que la désinscription user (DELETE réel + ré-incrément
+	// formation), au lieu de l'ancien DELETE sur la table orpheline Participer.
+	if err := inscriptionSvc.AnnulerInscription(uidInt, planType, itemIdInt); err != nil {
+		httpx.WriteError(w, err)
+		return
 	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Désinscription effectuée"})
 }

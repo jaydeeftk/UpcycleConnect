@@ -114,10 +114,16 @@ class AnnonceController
             'etat'         => $_POST['etat'] ?? '',
             'type_annonce' => $_POST['type_annonce'] ?? 'don',
             'prix'         => $_POST['type_annonce'] === 'vente' ? (float)($_POST['prix'] ?? 0) : 0,
-            'ville'        => $_POST['ville'] ?? '',
-            'code_postal'  => $_POST['code_postal'] ?? '',
+            'ville'        => trim($_POST['ville'] ?? ''),
+            'code_postal'  => trim($_POST['code_postal'] ?? ''),
             'user_id'      => $_SESSION['user']['id'] ?? 0,
         ];
+        if (!preg_match('/^\d{5}$/', $data['code_postal'])) {
+            return view('front.annonces.create', [
+                'title' => 'Déposer une annonce - UpcycleConnect',
+                'error' => 'Code postal invalide : 5 chiffres attendus.',
+            ]);
+        }
         try {
             $this->api->post('/annonces/create', $data);
             return view('front.annonces.create', [

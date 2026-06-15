@@ -88,15 +88,65 @@ func (s *InscriptionService) DesinscrireEvenement(idUtilisateur, idEvenement int
 		if err := snap.PeutDesinscrire(time.Now()); err != nil {
 			return err
 		}
+		if snap.Prix > 0 {
+			return domain.EtatInvalide("Désinscription d'un événement payant : merci de faire une demande de remboursement.")
+		}
 
-		n, err := s.repo.SupprimerParticipationEvenement(tx, idPart, idEvenement)
+		retiree, err := s.libererPlaceTx(tx, idPart, "evenement", idEvenement)
 		if err != nil {
 			return err
 		}
-		if n == 0 {
+		if !retiree {
 			return domain.EtatInvalide("Vous n'êtes pas inscrit à cet événement")
 		}
 		return nil
+	})
+}
+
+// libererPlaceTx retire l'inscription d'un particulier et rend le siège, dans la
+// transaction de l'appelant. Verrou FOR UPDATE sur la formation ; le ré-incrément
+// (clampé à Places_total) n'a lieu QUE si une ligne a réellement été retirée
+// (garde rows-affected : double-désinscription = un seul retour). Les événements
+// ont une capacité computée (Capacite − COUNT) : pas de compteur à ré-incrémenter.
+// Seam partagé : désinscription user, annulation admin, et refund (item 16).
+func (s *InscriptionService) libererPlaceTx(tx *sql.Tx, idPart int, typ string, idItem int) (bool, error) {
+	switch typ {
+	case "formation":
+		if _, err := s.repo.FormationPourMAJ(tx, idItem); err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return false, domain.Introuvable("Formation introuvable")
+			}
+			return false, err
+		}
+		n, err := s.repo.SupprimerReservationFormation(tx, idPart, idItem)
+		if err != nil {
+			return false, err
+		}
+		if n == 0 {
+			return false, nil
+		}
+		return true, s.repo.IncrementerPlacesFormation(tx, idItem)
+	case "evenement":
+		n, err := s.repo.SupprimerParticipationEvenement(tx, idPart, idItem)
+		if err != nil {
+			return false, err
+		}
+		return n > 0, nil
+	}
+	return false, domain.Invalide("Type d'inscription invalide")
+}
+
+// AnnulerInscription retire l'inscription d'un particulier (annulation admin, ou
+// refund via l'item 16) en passant par le même seam in-tx que la désinscription
+// user, sans contrôle de date ni blocage payant. No-op propre si déjà annulé.
+func (s *InscriptionService) AnnulerInscription(idUtilisateur int, typ string, idItem int) error {
+	return withTx(func(tx *sql.Tx) error {
+		idPart, err := s.resoudreParticulier(tx, idUtilisateur)
+		if err != nil {
+			return err
+		}
+		_, err = s.libererPlaceTx(tx, idPart, typ, idItem)
+		return err
 	})
 }
 
@@ -214,16 +264,18 @@ func (s *InscriptionService) DesinscrireFormation(idUtilisateur, idFormation int
 		if err := snap.PeutDesinscrire(time.Now()); err != nil {
 			return err
 		}
+		if snap.Prix > 0 {
+			return domain.EtatInvalide("Désinscription d'une formation payante : merci de faire une demande de remboursement.")
+		}
 
-		n, err := s.repo.SupprimerReservationFormation(tx, idPart, idFormation)
+		retiree, err := s.libererPlaceTx(tx, idPart, "formation", idFormation)
 		if err != nil {
 			return err
 		}
-		if n == 0 {
+		if !retiree {
 			return domain.EtatInvalide("Vous n'êtes pas inscrit à cette formation")
 		}
-
-		return s.repo.IncrementerPlacesFormation(tx, idFormation)
+		return nil
 	})
 }
 

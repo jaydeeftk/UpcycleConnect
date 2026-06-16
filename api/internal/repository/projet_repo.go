@@ -157,6 +157,52 @@ func (ProjetRepo) ProjetIdDeLEtape(q Querier, idEtape int) (int, error) {
 }
 
 func (ProjetRepo) SupprimerEtape(q Querier, idEtape int) error {
-	_, err := q.Exec("DELETE FROM Etapes WHERE Id_Etapes = ?", idEtape)
+	_, err := q.Exec("DELETE FROM Medias WHERE Id_Etapes = ?", idEtape)
+	if err != nil {
+		return err
+	}
+	_, err = q.Exec("DELETE FROM Etapes WHERE Id_Etapes = ?", idEtape)
 	return err
+}
+
+func (ProjetRepo) AjouterPhotoEtape(q Querier, idEtape int, url, typePhoto string) (int, error) {
+	res, err := q.Exec(
+		`INSERT INTO Medias (Date_Ajout, URL, Id_Etapes, Type_photo) VALUES (NOW(), ?, ?, ?)`,
+		url, idEtape, typePhoto,
+	)
+	if err != nil {
+		return 0, err
+	}
+	id, err := res.LastInsertId()
+	return int(id), err
+}
+
+type PhotoLigne struct {
+	ID        int
+	URL       string
+	TypePhoto string
+}
+
+func (ProjetRepo) PhotosDesEtapes(q Querier, idProjet int) (map[int][]PhotoLigne, error) {
+	rows, err := q.Query(
+		`SELECT m.Id_Medias, COALESCE(m.URL,''), COALESCE(m.Type_photo,''), m.Id_Etapes
+		 FROM Medias m
+		 JOIN Etapes e ON e.Id_Etapes = m.Id_Etapes
+		 WHERE e.Id_Projets = ? AND m.Id_Etapes IS NOT NULL
+		 ORDER BY m.Id_Medias ASC`, idProjet,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[int][]PhotoLigne{}
+	for rows.Next() {
+		var p PhotoLigne
+		var idEt int
+		if err := rows.Scan(&p.ID, &p.URL, &p.TypePhoto, &idEt); err != nil {
+			return nil, err
+		}
+		out[idEt] = append(out[idEt], p)
+	}
+	return out, rows.Err()
 }

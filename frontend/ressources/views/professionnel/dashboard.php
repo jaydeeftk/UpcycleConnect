@@ -185,7 +185,9 @@
                             <?php $aa = $projet['allowed_actions'] ?? []; ?>
                             <div class="border border-gray-200 rounded-lg p-4">
                                 <div>
-                                    <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($projet['titre'] ?? '') ?></h4>
+                                    <h4 class="font-semibold text-gray-800">
+                                        <a href="/professionnel/projets/<?= (int)($projet['id'] ?? 0) ?>" class="hover:underline"><?= htmlspecialchars($projet['titre'] ?? '') ?></a>
+                                    </h4>
                                     <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars(substr($projet['description'] ?? '', 0, 80)) ?><?= strlen($projet['description'] ?? '') > 80 ? '...' : '' ?></p>
                                     <div class="flex items-center gap-2 mt-2">
                                         <?php

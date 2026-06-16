@@ -83,6 +83,10 @@ $router->post('/remboursements/demande', 'Front\UserController@demandeRemboursem
 $router->get('/professionnel', 'Front\ProfessionnelController@dashboard');
 $router->get('/professionnel/projets/create', 'Front\ProfessionnelController@createProjet');
 $router->post('/professionnel/projets/store', 'Front\ProfessionnelController@storeProjet');
+$router->get('/professionnel/projets/{id}', 'Front\ProfessionnelController@showProjet');
+$router->post('/professionnel/projets/{id}/update', 'Front\ProfessionnelController@updateProjet');
+$router->post('/professionnel/projets/{id}/etapes', 'Front\ProfessionnelController@ajouterEtape');
+$router->post('/professionnel/projets/{idProjet}/etapes/{idEtape}/delete', 'Front\ProfessionnelController@supprimerEtape');
 $router->post('/professionnel/projets/{id}/delete', 'Front\ProfessionnelController@deleteProjet');
 $router->post('/professionnel/projets/{id}/suspendre', 'Front\ProfessionnelController@suspendreProjet');
 $router->post('/professionnel/projets/{id}/reprendre', 'Front\ProfessionnelController@reprendreProjet');

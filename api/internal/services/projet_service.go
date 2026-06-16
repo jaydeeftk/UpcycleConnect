@@ -47,10 +47,22 @@ type ProjetDTO struct {
 }
 
 type EtapeDTO struct {
-	ID          int    `json:"id"`
-	Nom         string `json:"nom"`
-	Description string `json:"description"`
-	Visuel      string `json:"visuel"`
+	ID          int        `json:"id"`
+	Nom         string     `json:"nom"`
+	Description string     `json:"description"`
+	Visuel      string     `json:"visuel"`
+	Photos      []PhotoDTO `json:"photos"`
+}
+
+type PhotoDTO struct {
+	ID        int    `json:"id"`
+	URL       string `json:"url"`
+	TypePhoto string `json:"type_photo"`
+}
+
+type PhotoEtapeInput struct {
+	URL       string
+	TypePhoto string
 }
 
 func (s *ProjetService) ListerProjets(idPro int) ([]ProjetDTO, error) {
@@ -197,11 +209,58 @@ func (s *ProjetService) ListerEtapes(idPro, idProjet int) ([]EtapeDTO, error) {
 	if err != nil {
 		return nil, err
 	}
+	photos, err := s.repo.PhotosDesEtapes(database.DB, idProjet)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]EtapeDTO, 0, len(lignes))
 	for _, l := range lignes {
-		out = append(out, EtapeDTO{ID: l.ID, Nom: l.Nom, Description: l.Description, Visuel: l.Visuel})
+		etPhotos := make([]PhotoDTO, 0)
+		for _, p := range photos[l.ID] {
+			etPhotos = append(etPhotos, PhotoDTO{ID: p.ID, URL: p.URL, TypePhoto: p.TypePhoto})
+		}
+		out = append(out, EtapeDTO{ID: l.ID, Nom: l.Nom, Description: l.Description, Visuel: l.Visuel, Photos: etPhotos})
 	}
 	return out, nil
+}
+
+// AjouterPhotoEtape : ajoute un media a une etape (item 3). L'URL est deja
+// resolue cote PHP (stockage public/uploads). Verifie l'ownership pro -> projet
+// -> etape avant l'INSERT.
+func (s *ProjetService) AjouterPhotoEtape(idPro, idEtape int, in PhotoEtapeInput) (int, error) {
+	if idPro <= 0 {
+		return 0, domain.Forbidden("Action réservée aux professionnels")
+	}
+	if strings.TrimSpace(in.URL) == "" {
+		return 0, domain.Invalide("L'URL de la photo est obligatoire")
+	}
+	if in.TypePhoto != "avant" && in.TypePhoto != "apres" {
+		return 0, domain.Invalide("Type de photo invalide (avant/apres)")
+	}
+	var idMedia int
+	err := withTx(func(tx *sql.Tx) error {
+		idProjet, err := s.repo.ProjetIdDeLEtape(tx, idEtape)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Étape introuvable")
+		} else if err != nil {
+			return err
+		}
+		snap, err := s.repo.ProjetPourMAJ(tx, idProjet)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Projet introuvable")
+		} else if err != nil {
+			return err
+		}
+		if !snap.AppartientAuPro(idPro) {
+			return domain.Forbidden("Cette étape n'est pas la vôtre")
+		}
+		if err := snap.PeutModifierContenu(); err != nil {
+			return err
+		}
+		idMedia, err = s.repo.AjouterPhotoEtape(tx, idEtape, in.URL, in.TypePhoto)
+		return err
+	})
+	return idMedia, err
 }
 
 func (s *ProjetService) AjouterEtape(idPro, idProjet int, in EtapeInput) (int, error) {

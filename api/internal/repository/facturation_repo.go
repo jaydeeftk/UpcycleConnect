@@ -316,6 +316,7 @@ type PaiementCreation struct {
 	Statut          string
 	Methode         string
 	ReferenceStripe string
+	PaymentIntent   string
 	IdFacture       int64
 	IdUtilisateur   int
 }
@@ -393,14 +394,167 @@ func (FacturationRepo) NotifierAdmins(q Querier, contenu string) error {
 
 func (FacturationRepo) CreerPaiement(q Querier, p PaiementCreation) (int64, error) {
 	res, err := q.Exec(
-		`INSERT INTO Paiements (Date_, Montant, Statut, Methode, Reference_stripe, Id_Facture, Id_Utilisateurs)
-		 VALUES (NOW(), ?, ?, ?, NULLIF(?,''), ?, ?)`,
-		p.Montant, p.Statut, p.Methode, p.ReferenceStripe, p.IdFacture, p.IdUtilisateur,
+		`INSERT INTO Paiements (Date_, Montant, Statut, Methode, Reference_stripe, Ref_paiement_intent, Id_Facture, Id_Utilisateurs)
+		 VALUES (NOW(), ?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, ?)`,
+		p.Montant, p.Statut, p.Methode, p.ReferenceStripe, p.PaymentIntent, p.IdFacture, p.IdUtilisateur,
 	)
 	if err != nil {
 		return 0, err
 	}
 	return res.LastInsertId()
+}
+
+// --- Remboursements (item 16) ---
+
+type DemandeRembLigne struct {
+	ID            int
+	IdPaiement    int
+	IdParticulier int
+	Motif         string
+	Statut        string
+	DateDemande   string
+	Montant       float64
+	Nom           string
+	Prenom        string
+}
+
+type DemandeRembSnapshot struct {
+	Statut     string
+	IdPaiement int
+	IdPart     int
+	Motif      string
+}
+
+type PaiementRembInfo struct {
+	Statut        string
+	Montant       float64
+	IdUtilisateur int
+	PaymentIntent string
+	IdFacture     int
+}
+
+func (FacturationRepo) CreerDemandeRemboursement(q Querier, idPaiement, idParticulier int, motif string) (int64, error) {
+	res, err := q.Exec(
+		`INSERT INTO Demandes_remboursement (Id_Paiements, Id_Particuliers, Motif, Statut, Date_demande)
+		 VALUES (?, ?, NULLIF(?,''), 'en_attente', NOW())`,
+		idPaiement, idParticulier, motif,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (FacturationRepo) DemandeRembEnCoursExiste(q Querier, idPaiement int) (bool, error) {
+	var n int
+	err := q.QueryRow(
+		"SELECT COUNT(*) FROM Demandes_remboursement WHERE Id_Paiements = ? AND Statut IN ('en_attente','approuvee')",
+		idPaiement,
+	).Scan(&n)
+	return n > 0, err
+}
+
+func (FacturationRepo) PaiementOwnerStatutPourMAJ(q Querier, idPaiement int) (int, string, error) {
+	var idUser int
+	var statut string
+	err := q.QueryRow(
+		"SELECT Id_Utilisateurs, COALESCE(Statut,'') FROM Paiements WHERE Id_Paiements = ? FOR UPDATE",
+		idPaiement,
+	).Scan(&idUser, &statut)
+	return idUser, statut, err
+}
+
+func (FacturationRepo) DemandeRembPourMAJ(q Querier, idDemande int) (DemandeRembSnapshot, error) {
+	var d DemandeRembSnapshot
+	err := q.QueryRow(
+		"SELECT COALESCE(Statut,''), Id_Paiements, Id_Particuliers, COALESCE(Motif,'') FROM Demandes_remboursement WHERE Id_Demande = ? FOR UPDATE",
+		idDemande,
+	).Scan(&d.Statut, &d.IdPaiement, &d.IdPart, &d.Motif)
+	return d, err
+}
+
+func (FacturationRepo) PaiementRembInfoPourMAJ(q Querier, idPaiement int) (PaiementRembInfo, error) {
+	var p PaiementRembInfo
+	err := q.QueryRow(
+		`SELECT COALESCE(Statut,''), COALESCE(Montant,0), Id_Utilisateurs, COALESCE(Ref_paiement_intent,''), Id_Facture
+		 FROM Paiements WHERE Id_Paiements = ? FOR UPDATE`,
+		idPaiement,
+	).Scan(&p.Statut, &p.Montant, &p.IdUtilisateur, &p.PaymentIntent, &p.IdFacture)
+	return p, err
+}
+
+func (FacturationRepo) ItemDeFacture(q Querier, idFacture int) (string, int, error) {
+	var idForm, idEvt sql.NullInt64
+	err := q.QueryRow(
+		"SELECT Id_Formations, Id_Evenements FROM Lignes_Facture WHERE Id_Facture = ? LIMIT 1",
+		idFacture,
+	).Scan(&idForm, &idEvt)
+	if err != nil {
+		return "", 0, err
+	}
+	if idForm.Valid {
+		return "formation", int(idForm.Int64), nil
+	}
+	if idEvt.Valid {
+		return "evenement", int(idEvt.Int64), nil
+	}
+	return "", 0, nil
+}
+
+func (FacturationRepo) MajPaiementStatut(q Querier, idPaiement int, statut string) error {
+	_, err := q.Exec("UPDATE Paiements SET Statut = ? WHERE Id_Paiements = ?", statut, idPaiement)
+	return err
+}
+
+func (FacturationRepo) FinaliserRemboursementPaiement(q Querier, idPaiement int, refundID, motif string) error {
+	_, err := q.Exec(
+		`UPDATE Paiements SET Statut = 'rembourse', Date_remboursement = NOW(),
+		    Motif_remboursement = NULLIF(?,''), Ref_refund = ? WHERE Id_Paiements = ?`,
+		motif, refundID, idPaiement,
+	)
+	return err
+}
+
+func (FacturationRepo) MajDemandeRembStatut(q Querier, idDemande int, statut string) error {
+	_, err := q.Exec(
+		"UPDATE Demandes_remboursement SET Statut = ?, Date_traitement = NOW() WHERE Id_Demande = ?",
+		statut, idDemande,
+	)
+	return err
+}
+
+func (FacturationRepo) NotifierUtilisateur(q Querier, idUtilisateur int, contenu string) error {
+	_, err := q.Exec(
+		`INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs)
+		 SELECT ?, NOW(), 0, (SELECT MIN(Id_Administrateurs) FROM Administrateurs), ?`,
+		contenu, idUtilisateur,
+	)
+	return err
+}
+
+func (FacturationRepo) ListerDemandesRemb(q Querier) ([]DemandeRembLigne, error) {
+	rows, err := q.Query(
+		`SELECT d.Id_Demande, d.Id_Paiements, d.Id_Particuliers, COALESCE(d.Motif,''), COALESCE(d.Statut,''),
+		    COALESCE(d.Date_demande,''), COALESCE(p.Montant,0), COALESCE(u.Nom,''), COALESCE(u.Prenom,'')
+		 FROM Demandes_remboursement d
+		 JOIN Paiements p ON p.Id_Paiements = d.Id_Paiements
+		 JOIN Particuliers pa ON pa.Id_Particuliers = d.Id_Particuliers
+		 JOIN Utilisateurs u ON u.Id_Utilisateurs = pa.Id_Utilisateurs
+		 ORDER BY d.Id_Demande DESC`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []DemandeRembLigne{}
+	for rows.Next() {
+		var d DemandeRembLigne
+		if err := rows.Scan(&d.ID, &d.IdPaiement, &d.IdParticulier, &d.Motif, &d.Statut, &d.DateDemande, &d.Montant, &d.Nom, &d.Prenom); err != nil {
+			return nil, err
+		}
+		out = append(out, d)
+	}
+	return out, rows.Err()
 }
 
 func (FacturationRepo) PaiementReferenceExiste(q Querier, reference string) (bool, error) {

@@ -18,7 +18,7 @@ func GetConseils(w http.ResponseWriter, r *http.Request) {
 		JOIN Utilisateurs u ON u.Id_Utilisateurs = s.Id_Utilisateurs`
 
 	args := []interface{}{}
-	if categorie != "" {
+	if categorie != "" && categorie != "tous" {
 		query += " WHERE c.Categorie = ?"
 		args = append(args, categorie)
 	}

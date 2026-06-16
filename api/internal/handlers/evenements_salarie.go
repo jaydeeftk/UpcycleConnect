@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"upcycleconnect/internal/database"
+	"upcycleconnect/internal/domain"
+	"upcycleconnect/internal/httpx"
 )
 
 func GetEvenementsSalarie(w http.ResponseWriter, r *http.Request) {
@@ -71,8 +73,12 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.Titre == "" || body.IdUtilisateurs == 0 {
-		http.Error(w, `{"message": "Titre et id_salaries requis"}`, http.StatusBadRequest)
+	if err := domain.ValiderCreationEvenement(body.Titre, body.Date, body.Lieu, body.Capacite, 0); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	if body.IdUtilisateurs == 0 {
+		http.Error(w, `{"message": "id_salaries requis"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -86,9 +92,10 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Statut = cycle de vie (a_venir = futur), Statut_validation = moderation.
 	result, err := database.DB.Exec(`
-		INSERT INTO Evenements (Titre, Description, Lieu, Date_, Capacite, Statut, Id_Salaries)
-		VALUES (?, ?, ?, ?, ?, 'en_attente', ?)
+		INSERT INTO Evenements (Titre, Description, Lieu, Date_, Capacite, Statut, Statut_validation, Id_Salaries)
+		VALUES (?, ?, ?, ?, ?, 'a_venir', 'en_attente', ?)
 	`, body.Titre, body.Description, body.Lieu, body.Date, body.Capacite, idSalaries)
 
 	if err != nil {

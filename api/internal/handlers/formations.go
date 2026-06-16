@@ -16,7 +16,7 @@ func GetFormations(w http.ResponseWriter, r *http.Request) {
 			  COALESCE(DATE_FORMAT(Date_formation, '%Y-%m-%dT%H:%i:%s'),''), COALESCE(Places_total, 0),
 			  COALESCE(Places_dispo, 0), COALESCE(Localisation, ''), 
 			  COALESCE(Categorie, '') 
-			  FROM Formations WHERE Statut = 'actif'`
+			  FROM Formations WHERE Statut_validation = 'valide'`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -161,11 +161,18 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 		action := parts[1]
 		switch action {
 		case "valider":
-			database.DB.Exec("UPDATE Formations SET Statut='actif' WHERE Id_Formations=?", id)
+			database.DB.Exec("UPDATE Formations SET Statut='actif', Statut_validation='valide', Motif_refus=NULL WHERE Id_Formations=?", id)
+			notifierSalarieFormation(id, "Votre formation a été validée et publiée.")
 			httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation validée"})
 			return
 		case "rejeter":
-			database.DB.Exec("UPDATE Formations SET Statut='rejete' WHERE Id_Formations=?", id)
+			motif := r.URL.Query().Get("motif")
+			database.DB.Exec("UPDATE Formations SET Statut='rejete', Statut_validation='refuse', Motif_refus=NULLIF(?, '') WHERE Id_Formations=?", motif, id)
+			msg := "Votre formation a été refusée."
+			if motif != "" {
+				msg += " Motif : " + motif
+			}
+			notifierSalarieFormation(id, msg)
 			httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation rejetée"})
 			return
 		}

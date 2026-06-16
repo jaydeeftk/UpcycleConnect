@@ -65,6 +65,22 @@
                 </td>
                 <td class="p-4 text-right">
                     <div class="flex justify-end gap-2">
+                        <?php if (($e['statut_validation'] ?? 'en_attente') === 'en_attente'): ?>
+                            <form method="POST" action="/admin/evenements/<?= $e['id'] ?>/valider" class="inline">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>">
+                                    <i class="fas fa-check text-xs"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="/admin/evenements/<?= $e['id'] ?>/rejeter" class="inline"
+                                  onsubmit="var m=prompt('<?= t('adm_events_reject_motif', 'Motif du refus :') ?>',''); if(m===null) return false; this.elements.motif.value=m; return true;">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="motif" value="">
+                                <button type="submit" class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors" title="<?= t('adm_btn_reject', 'Rejeter') ?>">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                         <button onclick="openEvtDetail(<?= htmlspecialchars(json_encode($e)) ?>)"
                             class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors" title="<?= t('adm_btn_view_detail', 'Voir détail') ?>">
                             <i class="fas fa-eye text-xs"></i>

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"upcycleconnect/internal/database"
+	"upcycleconnect/internal/domain"
+	"upcycleconnect/internal/httpx"
 )
 
 func GetAteliers(w http.ResponseWriter, r *http.Request) {
@@ -69,8 +71,12 @@ func CreateAtelier(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.Theme == "" || body.IdUtilisateurs == 0 {
-		http.Error(w, `{"message": "Thème et id_salaries requis"}`, http.StatusBadRequest)
+	if err := domain.ValiderCreationAtelier(body.Theme, body.DateAtelier, body.Lieu); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	if body.IdUtilisateurs == 0 {
+		http.Error(w, `{"message": "id_salaries requis"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -92,8 +98,8 @@ func CreateAtelier(w http.ResponseWriter, r *http.Request) {
 	createur := prenom + " " + nom
 
 	result, err := database.DB.Exec(`
-		INSERT INTO Atelier (Theme, Date_creation, Createur, Date_atelier, Lieu, Statut, Id_Salaries)
-		VALUES (?, ?, ?, ?, ?, 'en_attente', ?)
+		INSERT INTO Atelier (Theme, Date_creation, Createur, Date_atelier, Lieu, Statut, Statut_validation, Id_Salaries)
+		VALUES (?, ?, ?, ?, ?, 'en_attente', 'en_attente', ?)
 	`, body.Theme, dateCreation, createur, body.DateAtelier, body.Lieu, idSalaries)
 
 	if err != nil {

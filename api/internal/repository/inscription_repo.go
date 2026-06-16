@@ -35,7 +35,7 @@ func (InscriptionRepo) FicheEvenement(q Querier, idEvenement int) (EvenementFich
 		`SELECT e.Id_Evenements, e.Titre, e.Description, e.Lieu, e.Statut, e.Date_,
 		        e.Capacite, COALESCE(e.Prix,0),
 		        (SELECT COUNT(*) FROM Participer_evenements pe WHERE pe.Id_Evenements = e.Id_Evenements)
-		 FROM Evenements e WHERE e.Id_Evenements = ?`,
+		 FROM Evenements e WHERE e.Id_Evenements = ? AND e.Statut_validation = 'valide'`,
 		idEvenement,
 	).Scan(&f.ID, &f.Titre, &f.Description, &f.Lieu, &f.Statut, &f.Date, &f.Capacite, &f.Prix, &f.Participants)
 	return f, err
@@ -112,7 +112,7 @@ func (InscriptionRepo) FicheFormation(q Querier, idFormation int) (FormationFich
 		`SELECT Id_Formations, Titre, Description, COALESCE(Prix,0), COALESCE(Duree,0), Statut,
 		        Date_formation, COALESCE(Places_total,0), COALESCE(Places_dispo,0),
 		        COALESCE(Localisation,''), COALESCE(Categorie,'')
-		 FROM Formations WHERE Id_Formations = ?`,
+		 FROM Formations WHERE Id_Formations = ? AND Statut_validation = 'valide'`,
 		idFormation,
 	).Scan(&f.ID, &f.Titre, &f.Description, &f.Prix, &f.Duree, &f.Statut, &f.Date,
 		&f.PlacesTotal, &f.PlacesDispo, &f.Localisation, &f.Categorie)

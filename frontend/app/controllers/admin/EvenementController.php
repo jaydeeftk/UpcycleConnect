@@ -49,4 +49,20 @@ class EvenementController
         try { $this->api->delete('/admin/evenements/' . $id); } catch (\Exception $e) {}
         redirect('/admin/evenements');
     }
+
+    public function valider($id)
+    {
+        try { $this->api->put('/admin/evenements/' . $id . '/valider', []); }
+        catch (\Exception $e) { $_SESSION['error'] = $e->getMessage(); }
+        redirect('/admin/evenements');
+    }
+
+    public function rejeter($id)
+    {
+        $motif = trim($_POST['motif'] ?? '');
+        $ep = '/admin/evenements/' . $id . '/rejeter' . ($motif !== '' ? '?motif=' . urlencode($motif) : '');
+        try { $this->api->put($ep, []); }
+        catch (\Exception $e) { $_SESSION['error'] = $e->getMessage(); }
+        redirect('/admin/evenements');
+    }
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"upcycleconnect/internal/database"
+	"upcycleconnect/internal/domain"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
 
@@ -101,10 +102,14 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 			return
 		}
+		if err := domain.ValiderCreationFormation(body.Titre, body.DateFormation, body.PlacesTotal, body.Prix); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		result, err := database.DB.Exec(
-			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Date_formation,
+			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Statut_validation, Date_formation,
 				Places_total, Places_dispo, Localisation, Categorie, Id_Salaries)
-			VALUES (?,?,?,?,'en_attente',?,?,?,?,?,?)`,
+			VALUES (?,?,?,?,'en_attente','en_attente',?,?,?,?,?,?)`,
 			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation,
 			body.PlacesTotal, body.PlacesTotal, body.Localisation, body.Categorie, salarieID,
 		)

@@ -44,14 +44,15 @@ class FormationController
     public function store()
     {
         try {
-           $this->api->post('/salaries/formations/create', [
-    'titre'       => $_POST['titre'] ?? '',
-    'description' => $_POST['description'] ?? '',
-    'prix'        => (float)($_POST['prix'] ?? 0),
-    'duree'       => (int)($_POST['duree'] ?? 0),
-    'date'        => $_POST['date'] ?? '',
-    'lieu'        => $_POST['lieu'] ?? '',
-    'id_salaries' => $_SESSION['user']['id'] ?? 0
+           $this->api->post('/salaries/formations', [
+    'titre'          => $_POST['titre'] ?? '',
+    'description'    => $_POST['description'] ?? '',
+    'prix'           => (float)($_POST['prix'] ?? 0),
+    'duree'          => (int)($_POST['duree'] ?? 0),
+    'date_formation' => $_POST['date'] ?? '',
+    'places_total'   => (int)($_POST['places_total'] ?? 0),
+    'localisation'   => $_POST['lieu'] ?? '',
+    'categorie'      => $_POST['categorie'] ?? '',
 ]);
 
             $_SESSION['success'] = t('sal_flash_formation_added', 'Formation ajoutée avec succès.');

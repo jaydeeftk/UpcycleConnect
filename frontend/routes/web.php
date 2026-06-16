@@ -121,6 +121,8 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/evenements', 'Admin\EvenementController@index');
     $router->get('/evenements/create', 'Admin\EvenementController@create');
     $router->post('/evenements/store', 'Admin\EvenementController@store');
+    $router->post('/evenements/{id}/valider', 'Admin\EvenementController@valider');
+    $router->post('/evenements/{id}/rejeter', 'Admin\EvenementController@rejeter');
     $router->post('/evenements/{id}/delete', 'Admin\EvenementController@delete');
 
     $router->get('/formations', 'Admin\FormationController@index');

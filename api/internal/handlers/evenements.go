@@ -19,7 +19,7 @@ func GetEvenements(w http.ResponseWriter, r *http.Request) {
 		`SELECT e.Id_Evenements, e.Titre, e.Description, COALESCE(DATE_FORMAT(e.Date_, '%Y-%m-%dT%H:%i:%s'),''), e.Lieu, e.Capacite, e.Statut,
 		        COALESCE(e.Prix,0), COALESCE(e.Categorie,''), COALESCE(e.Duree,0),
 		        (SELECT COUNT(*) FROM Participer_evenements pe WHERE pe.Id_Evenements = e.Id_Evenements)
-		 FROM Evenements e ORDER BY e.Date_ DESC`,
+		 FROM Evenements e WHERE e.Statut_validation = 'valide' ORDER BY e.Date_ DESC`,
 	)
 	if err != nil {
 		httpx.JSONServerError(w, err)
@@ -123,6 +123,7 @@ func DesinscrireEvenement(w http.ResponseWriter, r *http.Request) {
 func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
 		`SELECT e.Id_Evenements, e.Titre, e.Description, COALESCE(DATE_FORMAT(e.Date_, '%Y-%m-%dT%H:%i:%s'),''), e.Lieu, e.Capacite, e.Statut,
+			COALESCE(e.Statut_validation,'en_attente'), COALESCE(e.Motif_refus,''),
 			COALESCE(u.Nom, ''), COALESCE(u.Prenom, '')
 		FROM Evenements e
 		LEFT JOIN Salaries s ON s.Id_Salaries = e.Id_Salaries
@@ -136,21 +137,23 @@ func AdminGetEvenements(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	type Evt struct {
-		ID          int    `json:"id"`
-		Titre       string `json:"titre"`
-		Description string `json:"description"`
-		Date        string `json:"date"`
-		Lieu        string `json:"lieu"`
-		Capacite    int    `json:"capacite"`
-		Statut      string `json:"statut"`
-		NomSalarie  string `json:"nom_salarie"`
-		PrenomSal   string `json:"prenom_salarie"`
+		ID               int    `json:"id"`
+		Titre            string `json:"titre"`
+		Description      string `json:"description"`
+		Date             string `json:"date"`
+		Lieu             string `json:"lieu"`
+		Capacite         int    `json:"capacite"`
+		Statut           string `json:"statut"`
+		StatutValidation string `json:"statut_validation"`
+		MotifRefus       string `json:"motif_refus"`
+		NomSalarie       string `json:"nom_salarie"`
+		PrenomSal        string `json:"prenom_salarie"`
 	}
 
 	evts := []Evt{}
 	for rows.Next() {
 		var e Evt
-		rows.Scan(&e.ID, &e.Titre, &e.Description, &e.Date, &e.Lieu, &e.Capacite, &e.Statut, &e.NomSalarie, &e.PrenomSal)
+		rows.Scan(&e.ID, &e.Titre, &e.Description, &e.Date, &e.Lieu, &e.Capacite, &e.Statut, &e.StatutValidation, &e.MotifRefus, &e.NomSalarie, &e.PrenomSal)
 		evts = append(evts, e)
 	}
 	httpx.JSONOK(w, http.StatusOK, evts)

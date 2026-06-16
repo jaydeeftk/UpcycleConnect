@@ -116,6 +116,24 @@ class UserController
         echo $res['body'];
     }
 
+    public function demandeRemboursement()
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+        try {
+            $this->api->post('/remboursements', [
+                'id_paiement' => (int)($_POST['id_paiement'] ?? 0),
+                'motif'       => $_POST['motif'] ?? '',
+            ]);
+            $_SESSION['success'] = 'Votre demande de remboursement a bien été enregistrée.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/paiements');
+    }
+
     public function historique()
     {
         $historique = [];

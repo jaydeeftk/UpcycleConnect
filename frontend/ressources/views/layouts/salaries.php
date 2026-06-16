@@ -155,6 +155,13 @@
                         <span class="sb-text font-semibold text-sm"><?= t('sal_nav_planning', 'Planning') ?></span>
                     </a>
                 </li>
+                <li>
+                    <a href="/salaries/remboursements"
+                       class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'remboursements') ? 'active' : '' ?>">
+                        <i class="fas fa-rotate-left text-lg w-5 text-center"></i>
+                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_remboursements', 'Remboursements') ?></span>
+                    </a>
+                </li>
             </ul>
 
             <div class="border-t border-slate-800/50 mt-6 pt-6">

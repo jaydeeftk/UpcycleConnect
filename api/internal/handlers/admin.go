@@ -80,19 +80,25 @@ func AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	database.DB.QueryRow("SELECT COUNT(*) FROM Formations").Scan(&formations)
 	database.DB.QueryRow("SELECT COUNT(*) FROM Conteneurs").Scan(&conteneurs)
 
-	var annoncesEnAttente, demandesEnAttente int
+	var annoncesEnAttente, demandesEnAttente, evenementsEnAttente, formationsEnAttente, ateliersEnAttente int
 	database.DB.QueryRow("SELECT COUNT(*) FROM Annonces WHERE Statut='en_attente'").Scan(&annoncesEnAttente)
 	database.DB.QueryRow("SELECT COUNT(*) FROM Demandes_conteneurs WHERE Statut='en_attente'").Scan(&demandesEnAttente)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Evenements WHERE Statut_validation='en_attente'").Scan(&evenementsEnAttente)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Formations WHERE Statut_validation='en_attente'").Scan(&formationsEnAttente)
+	database.DB.QueryRow("SELECT COUNT(*) FROM Atelier WHERE Statut_validation='en_attente'").Scan(&ateliersEnAttente)
 
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
-		"utilisateurs":        users,
-		"annonces":            annonces,
-		"evenements":          evenements,
-		"messages":            messages,
-		"formations":          formations,
-		"conteneurs":          conteneurs,
-		"annonces_en_attente": annoncesEnAttente,
-		"demandes_en_attente": demandesEnAttente,
+		"utilisateurs":          users,
+		"annonces":              annonces,
+		"evenements":            evenements,
+		"messages":              messages,
+		"formations":            formations,
+		"conteneurs":            conteneurs,
+		"annonces_en_attente":   annoncesEnAttente,
+		"demandes_en_attente":   demandesEnAttente,
+		"evenements_en_attente": evenementsEnAttente,
+		"formations_en_attente": formationsEnAttente,
+		"ateliers_en_attente":   ateliersEnAttente,
 	})
 }
 

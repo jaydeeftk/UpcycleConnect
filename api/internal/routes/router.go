@@ -99,12 +99,21 @@ func NewRouter() http.Handler {
 		}
 	}))
 	mux.HandleFunc("/api/admin/evenements/", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/api/admin/evenements/")
+		parts := strings.Split(strings.Trim(path, "/"), "/")
+		if len(parts) >= 2 && (parts[1] == "valider" || parts[1] == "rejeter") {
+			handlers.AdminEvenementAction(w, r)
+			return
+		}
 		if r.Method == http.MethodDelete {
 			handlers.AdminDeleteEvenement(w, r)
 		} else {
 			handlers.AdminCreateEvenement(w, r)
 		}
 	}))
+
+	mux.HandleFunc("/api/admin/ateliers", middleware.AdminOnly(handlers.AdminGetAteliers))
+	mux.HandleFunc("/api/admin/ateliers/", middleware.AdminOnly(handlers.AdminAtelierAction))
 
 	mux.HandleFunc("/api/admin/formations", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {

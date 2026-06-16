@@ -8,12 +8,6 @@
         <p class="text-base-content/60 mt-1"><?= t('paypay_subtitle', 'Paiement sécurisé via Stripe') ?></p>
     </div>
 
-    <?php if (isset($_GET['pending'])): ?>
-        <div class="alert alert-warning mb-6">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span><?= t('paypay_pending_notice', 'Le système de paiement Stripe est en cours de configuration. Votre inscription a été prise en compte.') ?></span>
-        </div>
-    <?php endif; ?>
 
     <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 mb-6">
         <h2 class="font-semibold mb-4"><?= t('paypay_summary', 'Récapitulatif') ?></h2>
@@ -28,14 +22,10 @@
     </div>
 
     <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 mb-6">
-        <h2 class="font-semibold mb-4 flex items-center gap-2">
-            <i class="fas fa-lock text-green-500"></i> <?= t('paypay_payment_info', 'Informations de paiement') ?>
-        </h2>
-
-        <div id="stripe-card-element" class="bg-base-200 rounded-xl p-4 mb-4">
-            <p class="text-sm text-base-content/50 text-center py-4">
-                <i class="fas fa-credit-card text-2xl mb-2 block"></i>
-                <?= t('paypay_stripe_config', 'Stripe en cours de configuration...') ?>
+        <div class="flex items-start gap-3 p-4 bg-base-200 rounded-xl mb-4">
+            <i class="fas fa-lock text-green-500 mt-1"></i>
+            <p class="text-sm text-base-content/70">
+                <?= t('paypay_hosted_notice', 'Vous allez être redirigé vers Stripe, notre prestataire de paiement sécurisé, pour saisir vos informations bancaires et finaliser le paiement.') ?>
             </p>
         </div>
 
@@ -64,7 +54,6 @@
 <script>
 
 const TOKEN = <?= json_encode($_SESSION['user']['token'] ?? '') ?>;
-const stripe = Stripe('pk_test_51TJkt7GjiAXa1AoyxnXTnjNzOChs8pI9PbKxFmJGuYVYYtNBa8im7erdIn7p5eQR2woteHVaBcmo3g8Al10ghAs500LxVozkxR');
 
 async function handlePaiement() {
     const btn = document.getElementById('btn-payer');

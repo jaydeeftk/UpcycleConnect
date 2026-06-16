@@ -202,10 +202,19 @@ func ValiderCommission(taux, base, montant float64) error {
 }
 
 const (
-	StatutPaiementEnAttente = "en_attente"
-	StatutPaiementPaye      = "paye"
-	StatutPaiementEchoue    = "echoue"
-	StatutPaiementRembourse = "rembourse"
+	StatutPaiementEnAttente            = "en_attente"
+	StatutPaiementPaye                 = "paye"
+	StatutPaiementEchoue               = "echoue"
+	StatutPaiementRembourse            = "rembourse"
+	StatutPaiementRemboursementEnCours = "remboursement_en_cours"
+)
+
+const (
+	StatutDemandeRembEnAttente  = "en_attente"
+	StatutDemandeRembApprouvee  = "approuvee"
+	StatutDemandeRembRefusee    = "refusee"
+	StatutDemandeRembRemboursee = "remboursee"
+	StatutDemandeRembEchouee    = "echouee"
 )
 
 const (

@@ -5,20 +5,26 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/refund"
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/domain"
 	"upcycleconnect/internal/repository"
 )
 
 type FacturationService struct {
-	repo repository.FacturationRepo
-	insc repository.InscriptionRepo
+	repo    repository.FacturationRepo
+	insc    repository.InscriptionRepo
+	inscSvc *InscriptionService
 }
 
-func NewFacturationService() *FacturationService { return &FacturationService{} }
+func NewFacturationService() *FacturationService {
+	return &FacturationService{inscSvc: NewInscriptionService()}
+}
 
 const alphabetFacture = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const nbTentativesNumero = 6
@@ -351,7 +357,7 @@ func (s *FacturationService) PreparerCheckout(typ string, idItem int) (CheckoutD
 	return CheckoutData{Montant: domain.Round2(prix), Titre: titre}, nil
 }
 
-func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ string, idItem int, referenceStripe string) error {
+func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ string, idItem int, referenceStripe, paymentIntent string) error {
 	surbooking := false
 	err := withTx(func(tx *sql.Tx) error {
 		deja, err := s.repo.PaiementReferenceExiste(tx, referenceStripe)
@@ -400,7 +406,7 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 
 		if _, err := s.repo.CreerPaiement(tx, repository.PaiementCreation{
 			Montant: ttcCoherent, Statut: domain.StatutPaiementPaye, Methode: domain.MethodePaiementCarte,
-			ReferenceStripe: referenceStripe, IdFacture: idFacture, IdUtilisateur: idUtilisateur,
+			ReferenceStripe: referenceStripe, PaymentIntent: paymentIntent, IdFacture: idFacture, IdUtilisateur: idUtilisateur,
 		}); err != nil {
 			return err
 		}
@@ -577,4 +583,267 @@ func (s *FacturationService) SupprimerAbonnement(id string) error {
 
 func (s *FacturationService) Finances() (repository.FinancesAgregat, error) {
 	return s.repo.AgregatFinances(database.DB)
+}
+
+// --- Remboursements (item 16) ---
+
+type DemandeRembDTO struct {
+	ID         int     `json:"id"`
+	IdPaiement int     `json:"id_paiement"`
+	Motif      string  `json:"motif"`
+	Statut     string  `json:"statut"`
+	Date       string  `json:"date_demande"`
+	Montant    float64 `json:"montant"`
+	Nom        string  `json:"nom"`
+	Prenom     string  `json:"prenom"`
+}
+
+func (s *FacturationService) ListerDemandesRemboursement() ([]DemandeRembDTO, error) {
+	lignes, err := s.repo.ListerDemandesRemb(database.DB)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]DemandeRembDTO, 0, len(lignes))
+	for _, d := range lignes {
+		out = append(out, DemandeRembDTO{
+			ID: d.ID, IdPaiement: d.IdPaiement, Motif: d.Motif, Statut: d.Statut,
+			Date: d.DateDemande, Montant: d.Montant, Nom: d.Nom, Prenom: d.Prenom,
+		})
+	}
+	return out, nil
+}
+
+// CreerDemandeRemboursement : un particulier demande le remboursement de SON
+// paiement (statut 'paye', pas déjà demandé). Verrou FOR UPDATE sur le paiement.
+func (s *FacturationService) CreerDemandeRemboursement(idUtilisateur, idPaiement int, motif string) (int64, error) {
+	var idDemande int64
+	err := withTx(func(tx *sql.Tx) error {
+		owner, statut, err := s.repo.PaiementOwnerStatutPourMAJ(tx, idPaiement)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Paiement introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if owner != idUtilisateur {
+			return domain.Forbidden("Ce paiement ne vous appartient pas")
+		}
+		if statut != domain.StatutPaiementPaye {
+			return domain.EtatInvalide("Seul un paiement payé peut faire l'objet d'une demande de remboursement")
+		}
+		idPart, err := s.repo.IdParticulier(tx, idUtilisateur)
+		if err != nil {
+			return err
+		}
+		existe, err := s.repo.DemandeRembEnCoursExiste(tx, idPaiement)
+		if err != nil {
+			return err
+		}
+		if existe {
+			return domain.Deja("Une demande de remboursement est déjà en cours sur ce paiement")
+		}
+		idDemande, err = s.repo.CreerDemandeRemboursement(tx, idPaiement, idPart, motif)
+		return err
+	})
+	return idDemande, err
+}
+
+func (s *FacturationService) RefuserDemandeRemboursement(idDemande int) error {
+	return withTx(func(tx *sql.Tx) error {
+		d, err := s.repo.DemandeRembPourMAJ(tx, idDemande)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Demande introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if d.Statut != domain.StatutDemandeRembEnAttente {
+			return domain.EtatInvalide("Seule une demande en attente peut être refusée")
+		}
+		if err := s.repo.MajDemandeRembStatut(tx, idDemande, domain.StatutDemandeRembRefusee); err != nil {
+			return err
+		}
+		idUser, _, _ := s.repo.PaiementOwnerStatutPourMAJ(tx, d.IdPaiement)
+		_ = s.repo.NotifierUtilisateur(tx, idUser, "Votre demande de remboursement a été refusée.")
+		return nil
+	})
+}
+
+// RefundDirect : un salarié/admin rembourse sans demande préalable. Crée quand
+// même une Demandes_remboursement (audit trail homogène) puis passe par le MÊME
+// seam d'exécution que l'approbation d'une demande.
+func (s *FacturationService) RefundDirect(idPaiement int, motif string) error {
+	var idDemande int64
+	err := withTx(func(tx *sql.Tx) error {
+		owner, statut, err := s.repo.PaiementOwnerStatutPourMAJ(tx, idPaiement)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Paiement introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if statut != domain.StatutPaiementPaye {
+			return domain.EtatInvalide("Seul un paiement payé peut être remboursé")
+		}
+		existe, err := s.repo.DemandeRembEnCoursExiste(tx, idPaiement)
+		if err != nil {
+			return err
+		}
+		if existe {
+			return domain.Deja("Une demande de remboursement est déjà en cours sur ce paiement")
+		}
+		idPart, err := s.repo.IdParticulier(tx, owner)
+		if err != nil {
+			return err
+		}
+		idDemande, err = s.repo.CreerDemandeRemboursement(tx, idPaiement, idPart, motif)
+		return err
+	})
+	if err != nil {
+		return err
+	}
+	return s.ExecuterRemboursement(int(idDemande))
+}
+
+type infoRemboursement struct {
+	idPaiement    int
+	idUtilisateur int
+	paymentIntent string
+	typ           string
+	idItem        int
+	motif         string
+}
+
+// ExecuterRemboursement orchestre la séquence NON transactionnelle et ré-entrante :
+// phase 1 (tx courte) verrouille le paiement et le marque 'remboursement_en_cours' ;
+// phase 2 appelle le refund Stripe avec une clé d'idempotence = id de la demande
+// (un retry rend le MÊME refund, jamais 2×) ; phase 3 (tx) finalise la DB (statut
+// 'rembourse' + libération du siège via le seam de l'item 12 + Historique + notif).
+// Un crash entre 2 et 3 laisse le paiement en 'remboursement_en_cours' : au retry,
+// la clé d'idempotence évite un 2e mouvement d'argent et la DB se complète.
+func (s *FacturationService) ExecuterRemboursement(idDemande int) error {
+	info, action, err := s.preparerRemboursement(idDemande)
+	if err != nil {
+		return err
+	}
+	if action == "noop" {
+		return nil
+	}
+
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+	if stripe.Key == "" {
+		return domain.Invalide("Stripe non configuré")
+	}
+	params := &stripe.RefundParams{PaymentIntent: stripe.String(info.paymentIntent)}
+	params.SetIdempotencyKey(fmt.Sprintf("refund-demande-%d", idDemande))
+	rf, err := refund.New(params)
+	if err != nil {
+		_ = s.echecRemboursement(info.idPaiement, idDemande)
+		return fmt.Errorf("échec du remboursement Stripe : %w", err)
+	}
+	return s.finaliserRemboursement(idDemande, info, rf.ID)
+}
+
+func (s *FacturationService) preparerRemboursement(idDemande int) (infoRemboursement, string, error) {
+	var info infoRemboursement
+	action := ""
+	err := withTx(func(tx *sql.Tx) error {
+		d, err := s.repo.DemandeRembPourMAJ(tx, idDemande)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Demande introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if d.Statut == domain.StatutDemandeRembRemboursee {
+			action = "noop"
+			return nil
+		}
+		if d.Statut == domain.StatutDemandeRembRefusee {
+			return domain.EtatInvalide("Demande déjà refusée")
+		}
+
+		p, err := s.repo.PaiementRembInfoPourMAJ(tx, d.IdPaiement)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Paiement introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if p.Statut == domain.StatutPaiementRembourse {
+			action = "noop"
+			return nil
+		}
+		if p.Statut != domain.StatutPaiementPaye && p.Statut != domain.StatutPaiementRemboursementEnCours {
+			return domain.EtatInvalide("Le paiement n'est pas dans un état remboursable")
+		}
+		if p.PaymentIntent == "" {
+			return domain.EtatInvalide("PaymentIntent Stripe absent : remboursement impossible")
+		}
+		typ, idItem, err := s.repo.ItemDeFacture(tx, p.IdFacture)
+		if err != nil {
+			return err
+		}
+
+		if p.Statut == domain.StatutPaiementPaye {
+			if err := s.repo.MajPaiementStatut(tx, d.IdPaiement, domain.StatutPaiementRemboursementEnCours); err != nil {
+				return err
+			}
+		}
+		if d.Statut == domain.StatutDemandeRembEnAttente {
+			if err := s.repo.MajDemandeRembStatut(tx, idDemande, domain.StatutDemandeRembApprouvee); err != nil {
+				return err
+			}
+		}
+		info = infoRemboursement{
+			idPaiement: d.IdPaiement, idUtilisateur: p.IdUtilisateur,
+			paymentIntent: p.PaymentIntent, typ: typ, idItem: idItem, motif: d.Motif,
+		}
+		action = "refund"
+		return nil
+	})
+	return info, action, err
+}
+
+func (s *FacturationService) finaliserRemboursement(idDemande int, info infoRemboursement, refundID string) error {
+	return withTx(func(tx *sql.Tx) error {
+		p, err := s.repo.PaiementRembInfoPourMAJ(tx, info.idPaiement)
+		if err != nil {
+			return err
+		}
+		if p.Statut == domain.StatutPaiementRembourse {
+			// Déjà finalisé (ré-entrance/concurrence) : on clôt juste la demande.
+			return s.repo.MajDemandeRembStatut(tx, idDemande, domain.StatutDemandeRembRemboursee)
+		}
+		if err := s.repo.FinaliserRemboursementPaiement(tx, info.idPaiement, refundID, info.motif); err != nil {
+			return err
+		}
+		idPart, err := s.repo.IdParticulier(tx, info.idUtilisateur)
+		if err != nil {
+			return err
+		}
+		if info.typ != "" && info.idItem != 0 {
+			if _, err := s.inscSvc.LibererPlaceTx(tx, idPart, info.typ, info.idItem); err != nil {
+				return err
+			}
+		}
+		obs := fmt.Sprintf("Remboursement %s #%d (refund %s)", info.typ, info.idItem, refundID)
+		if err := s.repo.CreerHistorique(tx, idPart, domain.StatutPaiementRembourse, obs); err != nil {
+			return err
+		}
+		if err := s.repo.MajDemandeRembStatut(tx, idDemande, domain.StatutDemandeRembRemboursee); err != nil {
+			return err
+		}
+		_ = s.repo.NotifierUtilisateur(tx, info.idUtilisateur, "Votre remboursement a été effectué.")
+		return nil
+	})
+}
+
+func (s *FacturationService) echecRemboursement(idPaiement, idDemande int) error {
+	return withTx(func(tx *sql.Tx) error {
+		_ = s.repo.MajPaiementStatut(tx, idPaiement, domain.StatutPaiementPaye)
+		_ = s.repo.MajDemandeRembStatut(tx, idDemande, domain.StatutDemandeRembEchouee)
+		_ = s.repo.NotifierAdmins(tx, fmt.Sprintf("Échec du remboursement Stripe (demande #%d, paiement #%d) : à retraiter.", idDemande, idPaiement))
+		return nil
+	})
 }

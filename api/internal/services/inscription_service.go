@@ -92,7 +92,7 @@ func (s *InscriptionService) DesinscrireEvenement(idUtilisateur, idEvenement int
 			return domain.EtatInvalide("Désinscription d'un événement payant : merci de faire une demande de remboursement.")
 		}
 
-		retiree, err := s.libererPlaceTx(tx, idPart, "evenement", idEvenement)
+		retiree, err := s.LibererPlaceTx(tx, idPart, "evenement", idEvenement)
 		if err != nil {
 			return err
 		}
@@ -103,13 +103,13 @@ func (s *InscriptionService) DesinscrireEvenement(idUtilisateur, idEvenement int
 	})
 }
 
-// libererPlaceTx retire l'inscription d'un particulier et rend le siège, dans la
+// LibererPlaceTx retire l'inscription d'un particulier et rend le siège, dans la
 // transaction de l'appelant. Verrou FOR UPDATE sur la formation ; le ré-incrément
 // (clampé à Places_total) n'a lieu QUE si une ligne a réellement été retirée
 // (garde rows-affected : double-désinscription = un seul retour). Les événements
 // ont une capacité computée (Capacite − COUNT) : pas de compteur à ré-incrémenter.
 // Seam partagé : désinscription user, annulation admin, et refund (item 16).
-func (s *InscriptionService) libererPlaceTx(tx *sql.Tx, idPart int, typ string, idItem int) (bool, error) {
+func (s *InscriptionService) LibererPlaceTx(tx *sql.Tx, idPart int, typ string, idItem int) (bool, error) {
 	switch typ {
 	case "formation":
 		if _, err := s.repo.FormationPourMAJ(tx, idItem); err != nil {
@@ -145,7 +145,7 @@ func (s *InscriptionService) AnnulerInscription(idUtilisateur int, typ string, i
 		if err != nil {
 			return err
 		}
-		_, err = s.libererPlaceTx(tx, idPart, typ, idItem)
+		_, err = s.LibererPlaceTx(tx, idPart, typ, idItem)
 		return err
 	})
 }
@@ -268,7 +268,7 @@ func (s *InscriptionService) DesinscrireFormation(idUtilisateur, idFormation int
 			return domain.EtatInvalide("Désinscription d'une formation payante : merci de faire une demande de remboursement.")
 		}
 
-		retiree, err := s.libererPlaceTx(tx, idPart, "formation", idFormation)
+		retiree, err := s.LibererPlaceTx(tx, idPart, "formation", idFormation)
 		if err != nil {
 			return err
 		}

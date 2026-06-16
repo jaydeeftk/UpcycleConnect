@@ -73,6 +73,10 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/paiements/success", handlers.PaiementSuccess)
 	mux.HandleFunc("/api/paiements/", middleware.OwnerFromPath(handlers.GetPaiementsUser))
 
+	mux.HandleFunc("/api/remboursements", middleware.JWTAuth(handlers.CreerDemandeRemboursement))
+	mux.HandleFunc("/api/salaries/remboursements", middleware.SalarieOnly(handlers.ListerDemandesRemboursement))
+	mux.HandleFunc("/api/salaries/remboursements/", middleware.SalarieOnly(handlers.RemboursementAction))
+
 	mux.HandleFunc("/api/factures/", middleware.JWTAuth(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			handlers.GenerateFacturePDF(w, r)

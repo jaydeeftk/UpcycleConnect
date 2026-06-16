@@ -142,8 +142,12 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 			if userID == 0 {
 				userID, _ = strconv.Atoi(s.ClientReferenceID)
 			}
+			piID := ""
+			if s.PaymentIntent != nil {
+				piID = s.PaymentIntent.ID
+			}
 			if userID != 0 && itemID != 0 && typ != "" {
-				if err := facturationSvc.EnregistrerPaiementItem(userID, typ, itemID, s.ID); err != nil {
+				if err := facturationSvc.EnregistrerPaiementItem(userID, typ, itemID, s.ID, piID); err != nil {
 					httpx.JSONServerError(w, err)
 					return
 				}

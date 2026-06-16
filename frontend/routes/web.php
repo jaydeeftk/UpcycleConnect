@@ -28,6 +28,8 @@ $router->get('/conseils/{id}', 'Front\ConseilController@showConseil');
 
 $router->get('/score', 'Front\ScoreController@index');
 $router->get('/planning', 'Front\PlanningController@index');
+$router->post('/planning/ajouter', 'Front\PlanningController@ajouter');
+$router->post('/planning/{id}/supprimer', 'Front\PlanningController@supprimer');
 
 $router->get('/annonces', 'Front\AnnonceController@index');
 $router->get('/annonces/create', 'Front\AnnonceController@create');

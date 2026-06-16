@@ -66,6 +66,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/forum/reponses/", middleware.JWTAuth(handlers.DeleteForumReponse))
 
 	mux.HandleFunc("/api/score/", middleware.OwnerFromPath(handlers.GetScore))
+	mux.HandleFunc("/api/planning/personnel", middleware.JWTAuth(handlers.AjouterEntreePlanning))
+	mux.HandleFunc("/api/planning/personnel/", middleware.JWTAuth(handlers.SupprimerEntreePlanning))
 	mux.HandleFunc("/api/planning/", middleware.OwnerFromPath(handlers.GetPlanning))
 	mux.HandleFunc("/api/historique/", middleware.OwnerFromPath(handlers.GetHistorique))
 	mux.HandleFunc("/api/paiements/checkout", middleware.JWTAuth(handlers.CreateCheckoutSession))

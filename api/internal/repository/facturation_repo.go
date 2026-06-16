@@ -34,6 +34,18 @@ type ContratProLigne struct {
 	Statut    string
 	DateDebut string
 	DateFin   string
+	Montant   float64
+	Frequence string
+}
+
+type FacturationProAgregat struct {
+	NbContratsActifs    int
+	NbContratsResilie   int
+	TotalContratsActifs float64
+	TotalAbonnements    float64
+	TotalCampagnes      float64
+	TotalCommissions    float64
+	TotalGeneral        float64
 }
 
 type ContratCreation struct {
@@ -74,7 +86,8 @@ func (FacturationRepo) AdminListerContrats(q Querier) ([]ContratAdminLigne, erro
 func (FacturationRepo) ContratsDuProfessionnel(q Querier, idProfessionnel int) ([]ContratProLigne, error) {
 	rows, err := q.Query(
 		`SELECT c.Id_Contrats, COALESCE(c.Type,''), COALESCE(c.Statut,''),
-			COALESCE(c.Date_debut,''), COALESCE(c.Date_fin,'')
+			COALESCE(c.Date_debut,''), COALESCE(c.Date_fin,''),
+			COALESCE(c.Montant, 0), COALESCE(c.Frequence, 'mensuel')
 		FROM Contrats c
 		WHERE c.Id_Professionnels = ?
 		ORDER BY c.Id_Contrats DESC`, idProfessionnel,
@@ -86,12 +99,45 @@ func (FacturationRepo) ContratsDuProfessionnel(q Querier, idProfessionnel int) (
 	out := []ContratProLigne{}
 	for rows.Next() {
 		var c ContratProLigne
-		if err := rows.Scan(&c.ID, &c.Type, &c.Statut, &c.DateDebut, &c.DateFin); err != nil {
+		if err := rows.Scan(&c.ID, &c.Type, &c.Statut, &c.DateDebut, &c.DateFin, &c.Montant, &c.Frequence); err != nil {
 			return nil, err
 		}
 		out = append(out, c)
 	}
 	return out, rows.Err()
+}
+
+// FacturationDuProfessionnel calcule l'agregat de facturation d'un pro :
+// somme des Contrats actifs (ventiles par frequence/type), somme des
+// commissions prelevees sur les factures liees au pro (descriptif 3.1).
+func (FacturationRepo) FacturationDuProfessionnel(q Querier, idProfessionnel int) (FacturationProAgregat, error) {
+	var a FacturationProAgregat
+	err := q.QueryRow(
+		`SELECT
+			COALESCE(SUM(CASE WHEN Statut='actif' THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN Statut='resilie' THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN Statut='actif' THEN Montant ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN Statut='actif' AND Frequence='mensuel' THEN Montant ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN Statut='actif' AND Frequence='campagne' THEN Montant ELSE 0 END), 0)
+		FROM Contrats WHERE Id_Professionnels = ?`,
+		idProfessionnel,
+	).Scan(&a.NbContratsActifs, &a.NbContratsResilie, &a.TotalContratsActifs, &a.TotalAbonnements, &a.TotalCampagnes)
+	if err != nil {
+		return a, err
+	}
+	if err := q.QueryRow(
+		`SELECT COALESCE(SUM(co.Montant), 0)
+		 FROM Commissions co
+		 JOIN Factures f ON f.Id_Facture = co.Id_Facture
+		 JOIN Utilisateurs u ON u.Id_Utilisateurs = f.Id_Utilisateurs
+		 JOIN Professionnels_artisans p ON p.Id_Utilisateurs = u.Id_Utilisateurs
+		 WHERE p.Id_Professionnels = ?`,
+		idProfessionnel,
+	).Scan(&a.TotalCommissions); err != nil {
+		return a, err
+	}
+	a.TotalGeneral = a.TotalContratsActifs + a.TotalCommissions
+	return a, nil
 }
 
 func (FacturationRepo) ProfessionnelExiste(q Querier, idProfessionnel int) (bool, error) {

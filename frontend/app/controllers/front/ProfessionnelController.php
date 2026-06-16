@@ -56,11 +56,18 @@ class ProfessionnelController
             $contrats = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
         } catch (\Exception $e) {}
 
+        $facturation = [];
+        try {
+            $r = $this->api->get('/professionnels/facturation');
+            $facturation = $r['data'] ?? [];
+        } catch (\Exception $e) {}
+
         return view('professionnel.dashboard', [
             'profil'   => $profil,
             'projets'  => $projets,
             'favoris'  => $favoris,
             'contrats' => $contrats,
+            'facturation' => $facturation,
             'notifications' => $notifications,
             'notifsNonLues' => $notifsNonLues,
             'impact'   => $impact,

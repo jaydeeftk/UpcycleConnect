@@ -83,11 +83,23 @@ func (s *FacturationService) ListerContrats() ([]ContratAdminDTO, error) {
 }
 
 type ContratProDTO struct {
-	ID        int    `json:"id"`
-	Type      string `json:"type"`
-	Statut    string `json:"statut"`
-	DateDebut string `json:"date_debut"`
-	DateFin   string `json:"date_fin"`
+	ID        int     `json:"id"`
+	Type      string  `json:"type"`
+	Statut    string  `json:"statut"`
+	DateDebut string  `json:"date_debut"`
+	DateFin   string  `json:"date_fin"`
+	Montant   float64 `json:"montant"`
+	Frequence string  `json:"frequence"`
+}
+
+type FacturationProDTO struct {
+	NbContratsActifs    int     `json:"nb_contrats_actifs"`
+	NbContratsResilie   int     `json:"nb_contrats_resilie"`
+	TotalContratsActifs float64 `json:"total_contrats_actifs"`
+	TotalAbonnements    float64 `json:"total_abonnements"`
+	TotalCampagnes      float64 `json:"total_campagnes"`
+	TotalCommissions    float64 `json:"total_commissions"`
+	TotalGeneral        float64 `json:"total_general"`
 }
 
 func (s *FacturationService) ContratsDuProfessionnel(idUtilisateur int) ([]ContratProDTO, error) {
@@ -106,9 +118,35 @@ func (s *FacturationService) ContratsDuProfessionnel(idUtilisateur int) ([]Contr
 	for _, c := range lignes {
 		out = append(out, ContratProDTO{
 			ID: c.ID, Type: c.Type, Statut: c.Statut, DateDebut: c.DateDebut, DateFin: c.DateFin,
+			Montant: c.Montant, Frequence: c.Frequence,
 		})
 	}
 	return out, nil
+}
+
+// FacturationDuProfessionnel : agregat (descriptif 3.1) — abonnements,
+// campagnes pub, commissions prelevees. Resoud le pro depuis l'utilisateur.
+func (s *FacturationService) FacturationDuProfessionnel(idUtilisateur int) (FacturationProDTO, error) {
+	idPro, err := s.repo.IdProfessionnel(database.DB, idUtilisateur)
+	if errors.Is(err, sql.ErrNoRows) {
+		return FacturationProDTO{}, domain.Forbidden("Action réservée aux professionnels")
+	}
+	if err != nil {
+		return FacturationProDTO{}, err
+	}
+	a, err := s.repo.FacturationDuProfessionnel(database.DB, idPro)
+	if err != nil {
+		return FacturationProDTO{}, err
+	}
+	return FacturationProDTO{
+		NbContratsActifs:    a.NbContratsActifs,
+		NbContratsResilie:   a.NbContratsResilie,
+		TotalContratsActifs: a.TotalContratsActifs,
+		TotalAbonnements:    a.TotalAbonnements,
+		TotalCampagnes:      a.TotalCampagnes,
+		TotalCommissions:    a.TotalCommissions,
+		TotalGeneral:        a.TotalGeneral,
+	}, nil
 }
 
 type ContratInput struct {

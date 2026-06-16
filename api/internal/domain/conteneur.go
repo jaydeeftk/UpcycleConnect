@@ -106,16 +106,47 @@ type BoxSnapshot struct {
 	Capacite   int
 	Statut     string
 	Occupation int
+	Taille     string
 }
+
+const (
+	TailleBoxStandard   = "standard"
+	TailleBoxEncombrant = "encombrant"
+)
 
 func (b BoxSnapshot) PeutAccueillir() bool {
 	return b.Statut == StatutBoxDisponible && b.Occupation < b.Capacite
 }
 
-func ChoisirBox(boxes []BoxSnapshot) (int, bool) {
+// TailleObjetRequise associe un Type_objet a la taille minimale d'UpcycleBox
+// requise (l'audit cible 'encombrant' / 'standard'). Toute chose contenant les
+// mots-cles 'meuble', 'gros', 'electromenager'... va en encombrant ; le reste
+// en standard.
+func TailleObjetRequise(typeObjet string) string {
+	t := strings.ToLower(strings.TrimSpace(typeObjet))
+	for _, kw := range []string{"meuble", "gros", "encombrant", "electromenager", "matelas", "canape", "table"} {
+		if strings.Contains(t, kw) {
+			return TailleBoxEncombrant
+		}
+	}
+	return TailleBoxStandard
+}
+
+// ChoisirBox prend l'UpcycleBox disponible le plus adapte a la taille requise.
+// On essaie d'abord la taille exacte ; si rien ne convient et que la taille
+// requise est 'standard', on accepte un 'encombrant' (un objet standard tient
+// dans un grand tiroir, l'inverse non).
+func ChoisirBox(boxes []BoxSnapshot, tailleRequise string) (int, bool) {
 	for _, b := range boxes {
-		if b.PeutAccueillir() {
+		if b.PeutAccueillir() && b.Taille == tailleRequise {
 			return b.ID, true
+		}
+	}
+	if tailleRequise == TailleBoxStandard {
+		for _, b := range boxes {
+			if b.PeutAccueillir() && b.Taille == TailleBoxEncombrant {
+				return b.ID, true
+			}
 		}
 	}
 	return 0, false

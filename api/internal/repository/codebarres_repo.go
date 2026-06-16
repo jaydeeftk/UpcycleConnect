@@ -15,11 +15,11 @@ func (CodeBarreRepo) EstViolationUnicite(err error) bool {
 	return errors.As(err, &me) && me.Number == codeMySQLDuplicate
 }
 
-func (CodeBarreRepo) Creer(q Querier, idObjet int, code string) error {
+func (CodeBarreRepo) Creer(q Querier, idObjet int, code string, idBox int) error {
 	_, err := q.Exec(
-		`INSERT INTO Codes_Barres (Code, Date_generation, Statut, Id_Objets)
-		 VALUES (?, NOW(), ?, ?)`,
-		code, domain.StatutCodeBarreActive, idObjet,
+		`INSERT INTO Codes_Barres (Code, Date_generation, Statut, Id_Objets, Id_Box)
+		 VALUES (?, NOW(), ?, ?, ?)`,
+		code, domain.StatutCodeBarreActive, idObjet, idBox,
 	)
 	return err
 }

@@ -136,6 +136,29 @@ func ProfessionnelEtapeAction(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
+		// Forme photo: /projets/{idProjet}/etapes/{idEtape}/photos -> 4 segments.
+		if len(segs) == 4 && segs[1] == "etapes" && segs[3] == "photos" {
+			idEtape, err := strconv.Atoi(segs[2])
+			if err != nil {
+				httpx.JSONError(w, http.StatusBadRequest, "Identifiant d'étape invalide")
+				return
+			}
+			var body struct {
+				URL       string `json:"url"`
+				TypePhoto string `json:"type_photo"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+				return
+			}
+			idMedia, err := projetSvc.AjouterPhotoEtape(profID, idEtape, services.PhotoEtapeInput{URL: body.URL, TypePhoto: body.TypePhoto})
+			if err != nil {
+				httpx.WriteError(w, err)
+				return
+			}
+			httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": idMedia, "message": "Photo ajoutée"})
+			return
+		}
 		if len(segs) != 2 {
 			httpx.JSONError(w, http.StatusBadRequest, "Chemin d'étape invalide")
 			return

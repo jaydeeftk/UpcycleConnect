@@ -118,6 +118,115 @@ class ProfessionnelController
         exit;
     }
 
+    // Detail projet : carte avec form edition + form ajout etape (multipart)
+    // + liste des etapes existantes avec photos avant/apres.
+    public function showProjet($id)
+    {
+        if (!isset($_SESSION['user'])) { redirect('/login'); }
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+        $projets = [];
+        $etapes  = [];
+        try {
+            $r = $this->api->get('/professionnels/projets');
+            $projets = isset($r['data']) && is_array($r['data']) ? $r['data'] : [];
+        } catch (\Exception $e) {}
+        $projet = null;
+        foreach ($projets as $p) { if ((int)($p['id'] ?? 0) === (int)$id) { $projet = $p; break; } }
+        if ($projet === null) {
+            $_SESSION['error'] = 'Projet introuvable.';
+            redirect('/professionnel'); return;
+        }
+        try {
+            $r = $this->api->get('/professionnels/projets/' . (int)$id);
+            $etapes = isset($r['data']) && is_array($r['data']) ? $r['data'] : [];
+        } catch (\Exception $e) {}
+        return view('professionnel.projets.detail', [
+            'page_title' => 'Projet : ' . ($projet['titre'] ?? ''),
+            'layout'     => 'raw',
+            'projet'     => $projet,
+            'etapes'     => $etapes,
+        ]);
+    }
+
+    public function updateProjet($id)
+    {
+        if (!isset($_SESSION['user'])) { redirect('/login'); }
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+        try {
+            $this->api->put('/professionnels/projets/' . (int)$id, [
+                'titre'       => $_POST['titre'] ?? '',
+                'description' => $_POST['description'] ?? '',
+            ]);
+            $_SESSION['success'] = 'Projet mis à jour.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/projets/' . (int)$id);
+    }
+
+    // Ajout d'une etape avec photos multipart avant/apres. Le PHP ecrit les
+    // fichiers dans public/uploads/projets/{idProjet}/{idEtape}/ puis POSTe
+    // les URLs resolues a l'API qui INSERE les Medias avec ownership check.
+    public function ajouterEtape($id)
+    {
+        if (!isset($_SESSION['user'])) { redirect('/login'); }
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+        $idProjet = (int)$id;
+        try {
+            $r = $this->api->post('/professionnels/projets/' . $idProjet . '/etapes', [
+                'nom'         => $_POST['nom'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'visuel'      => '',
+            ]);
+            $idEtape = (int)($r['data']['id'] ?? 0);
+            if ($idEtape > 0) {
+                foreach (['avant' => 'photo_avant', 'apres' => 'photo_apres'] as $type => $field) {
+                    if (!empty($_FILES[$field]) && ($_FILES[$field]['error'] ?? 99) === UPLOAD_ERR_OK) {
+                        $url = $this->stockerPhotoEtape($idProjet, $idEtape, $_FILES[$field]);
+                        if ($url) {
+                            $this->api->post('/professionnels/projets/' . $idProjet . '/etapes/' . $idEtape . '/photos', [
+                                'url'        => $url,
+                                'type_photo' => $type,
+                            ]);
+                        }
+                    }
+                }
+            }
+            $_SESSION['success'] = 'Étape ajoutée.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/projets/' . $idProjet);
+    }
+
+    public function supprimerEtape($idProjet, $idEtape)
+    {
+        if (!isset($_SESSION['user'])) { redirect('/login'); }
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+        try {
+            $this->api->delete('/professionnels/projets/' . (int)$idProjet . '/etapes/' . (int)$idEtape);
+            $_SESSION['success'] = 'Étape supprimée.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/projets/' . (int)$idProjet);
+    }
+
+    private function stockerPhotoEtape($idProjet, $idEtape, array $file)
+    {
+        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+        $mime = mime_content_type($file['tmp_name'] ?? '') ?: '';
+        if (!isset($allowed[$mime])) { return null; }
+        if (($file['size'] ?? 0) > 5 * 1024 * 1024) { return null; }
+        $ext = $allowed[$mime];
+        $dir = __DIR__ . '/../../../public/uploads/projets/' . (int)$idProjet . '/' . (int)$idEtape;
+        if (!is_dir($dir) && !mkdir($dir, 0o755, true)) { return null; }
+        $name = bin2hex(random_bytes(8)) . '.' . $ext;
+        $dest = $dir . '/' . $name;
+        if (!move_uploaded_file($file['tmp_name'], $dest)) { return null; }
+        return '/uploads/projets/' . (int)$idProjet . '/' . (int)$idEtape . '/' . $name;
+    }
+
     public function suspendreProjet($id) { $this->transitionProjet($id, 'suspendre'); }
     public function reprendreProjet($id) { $this->transitionProjet($id, 'reprendre'); }
     public function terminerProjet($id)  { $this->transitionProjet($id, 'terminer'); }

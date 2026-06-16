@@ -190,6 +190,19 @@
                                                     </button>
                                                 </div>
                                                 <p class="text-xs text-green-600 mt-1"><?= t('demidx_reveal_hint', 'Entrez votre mot de passe pour afficher le code de dépôt.') ?></p>
+                                                <?php if (!empty($conteneur['box_reference'])): ?>
+                                                    <div class="mt-3 pt-3 border-t border-green-200">
+                                                        <p class="text-xs text-green-700">
+                                                            <i class="fas fa-cube mr-1"></i>
+                                                            <?= t('demidx_box_label', 'Votre UpcycleBox :') ?>
+                                                            <span class="font-mono font-bold"><?= htmlspecialchars($conteneur['box_reference']) ?></span>
+                                                            <?php if (!empty($conteneur['box_taille'])): ?>
+                                                                · <span class="italic"><?= htmlspecialchars(formatStatut($conteneur['box_taille'])) ?></span>
+                                                            <?php endif; ?>
+                                                        </p>
+                                                        <p class="text-xs text-green-600 mt-1"><?= t('demidx_box_hint', 'Ce code n\'ouvre que cet UpcycleBox précis.') ?></p>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
                                         <?php if (!empty($conteneur['code_barre'])): ?>

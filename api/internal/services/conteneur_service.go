@@ -112,12 +112,13 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 		if err != nil {
 			return err
 		}
-		idBox, ok := domain.ChoisirBox(boxes)
+		tailleRequise := domain.TailleObjetRequise(snap.Type)
+		idBox, ok := domain.ChoisirBox(boxes, tailleRequise)
 		if !ok {
-			return domain.Complet("Conteneur plein : aucune box ne peut accueillir ce dépôt")
+			return domain.Complet("Conteneur plein : aucun UpcycleBox ne peut accueillir ce dépôt")
 		}
 
-		code, err = s.assignerCodeUnique(tx, idDemande)
+		code, err = s.assignerCodeUnique(tx, idDemande, idBox)
 		if err != nil {
 			return err
 		}
@@ -129,7 +130,7 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 			return err
 		}
 
-		return s.assignerCodeBarreUnique(tx, idObjet)
+		return s.assignerCodeBarreUnique(tx, idObjet, idBox)
 	})
 	if err != nil {
 		return "", err
@@ -137,10 +138,10 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 	return code, nil
 }
 
-func (s *ConteneurService) assignerCodeUnique(tx *sql.Tx, idDemande int) (string, error) {
+func (s *ConteneurService) assignerCodeUnique(tx *sql.Tx, idDemande, idBox int) (string, error) {
 	for i := 0; i < nbTentativesCode; i++ {
 		code := genererCodeAcces()
-		err := s.repo.AssignerCodeEtValider(tx, idDemande, code)
+		err := s.repo.AssignerCodeEtValider(tx, idDemande, code, idBox)
 		if err == nil {
 			return code, nil
 		}
@@ -152,9 +153,9 @@ func (s *ConteneurService) assignerCodeUnique(tx *sql.Tx, idDemande int) (string
 	return "", domain.Conflit("Impossible de générer un code d'accès unique, réessayez")
 }
 
-func (s *ConteneurService) assignerCodeBarreUnique(tx *sql.Tx, idObjet int) error {
+func (s *ConteneurService) assignerCodeBarreUnique(tx *sql.Tx, idObjet, idBox int) error {
 	for i := 0; i < nbTentativesCode; i++ {
-		err := s.barcodes.Creer(tx, idObjet, genererCodeBarre())
+		err := s.barcodes.Creer(tx, idObjet, genererCodeBarre(), idBox)
 		if err == nil {
 			return nil
 		}
@@ -195,14 +196,17 @@ func (s *ConteneurService) transitionDemande(
 }
 
 type DemandeDTO struct {
-	ID          int    `json:"id"`
-	TypeObjet   string `json:"type_objet"`
-	Description string `json:"description"`
-	EtatUsure   string `json:"etat_usure"`
-	Statut      string `json:"statut"`
-	CodeAcces   string `json:"code_acces"`
-	Date        string `json:"date"`
-	CodeBarre   string `json:"code_barre"`
+	ID           int    `json:"id"`
+	TypeObjet    string `json:"type_objet"`
+	Description  string `json:"description"`
+	EtatUsure    string `json:"etat_usure"`
+	Statut       string `json:"statut"`
+	CodeAcces    string `json:"code_acces"`
+	Date         string `json:"date"`
+	CodeBarre    string `json:"code_barre"`
+	IdBox        int    `json:"id_box"`
+	BoxReference string `json:"box_reference"`
+	BoxTaille    string `json:"box_taille"`
 }
 
 func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeDTO, error) {
@@ -222,7 +226,7 @@ func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeD
 		out = append(out, DemandeDTO{
 			ID: d.ID, TypeObjet: d.TypeObjet, Description: d.Description,
 			EtatUsure: d.EtatUsure, Statut: d.Statut, CodeAcces: d.CodeAcces, Date: d.Date,
-			CodeBarre: d.CodeBarre,
+			CodeBarre: d.CodeBarre, IdBox: d.IdBox, BoxReference: d.BoxReference, BoxTaille: d.BoxTaille,
 		})
 	}
 	return out, nil

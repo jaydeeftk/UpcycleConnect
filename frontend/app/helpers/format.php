@@ -32,6 +32,8 @@ function formatStatut(string $statut): string
         'mensuel'       => 'Mensuel',
         'campagne'      => 'Par campagne',
         'unique'        => 'Unique',
+        'standard'      => 'Standard',
+        'encombrant'    => 'Encombrant',
         'publie'        => 'Publié',
         'publiee'       => 'Publiée',
         'vendue'        => 'Vendue',

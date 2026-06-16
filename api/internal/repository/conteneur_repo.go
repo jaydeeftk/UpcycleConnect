@@ -92,7 +92,7 @@ func (ConteneurRepo) DemandePourMAJ(q Querier, idDemande int) (domain.DemandeSna
 
 func (ConteneurRepo) BoxesDuConteneurPourMAJ(q Querier, idConteneur int) ([]domain.BoxSnapshot, error) {
 	rows, err := q.Query(
-		`SELECT b.Id_Box, b.Capacite, b.Statut,
+		`SELECT b.Id_Box, b.Capacite, b.Statut, COALESCE(b.Taille, 'standard'),
 		        (SELECT COUNT(*) FROM Objets o WHERE o.Id_Box = b.Id_Box AND o.Statut IN ('en_stock','reserve_pro')) AS occupation
 		 FROM Box b
 		 WHERE b.Id_Conteneurs = ?
@@ -108,7 +108,7 @@ func (ConteneurRepo) BoxesDuConteneurPourMAJ(q Querier, idConteneur int) ([]doma
 	boxes := []domain.BoxSnapshot{}
 	for rows.Next() {
 		var b domain.BoxSnapshot
-		if err := rows.Scan(&b.ID, &b.Capacite, &b.Statut, &b.Occupation); err != nil {
+		if err := rows.Scan(&b.ID, &b.Capacite, &b.Statut, &b.Taille, &b.Occupation); err != nil {
 			return nil, err
 		}
 		boxes = append(boxes, b)
@@ -116,12 +116,44 @@ func (ConteneurRepo) BoxesDuConteneurPourMAJ(q Querier, idConteneur int) ([]doma
 	return boxes, rows.Err()
 }
 
-func (ConteneurRepo) AssignerCodeEtValider(q Querier, idDemande int, code string) error {
+func (ConteneurRepo) AssignerCodeEtValider(q Querier, idDemande int, code string, idBox int) error {
 	_, err := q.Exec(
-		"UPDATE Demandes_conteneurs SET Statut='validee', Code_acces=? WHERE Id_Demandes_conteneurs=? AND Statut='en_attente'",
-		code, idDemande,
+		"UPDATE Demandes_conteneurs SET Statut='validee', Code_acces=?, Id_Box=? WHERE Id_Demandes_conteneurs=? AND Statut='en_attente'",
+		code, idBox, idDemande,
 	)
 	return err
+}
+
+// DemandeAccesBox : retourne (idBox lie, statut). Sert au controle strict de
+// l'endpoint d'ouverture : un code n'ouvre QUE le tiroir lie a sa demande.
+func (ConteneurRepo) DemandeAccesBox(q Querier, codeAcces string) (int, string, error) {
+	var idBox int
+	var statut string
+	err := q.QueryRow(
+		`SELECT COALESCE(Id_Box, 0), COALESCE(Statut, '')
+		 FROM Demandes_conteneurs WHERE Code_acces = ?`,
+		codeAcces,
+	).Scan(&idBox, &statut)
+	return idBox, statut, err
+}
+
+// BoxInfo : details d'un UpcycleBox pour l'affichage (admin / particulier).
+type BoxInfo struct {
+	ID          int
+	Reference   string
+	Taille      string
+	Statut      string
+	IdConteneur int
+}
+
+func (ConteneurRepo) BoxParID(q Querier, idBox int) (BoxInfo, error) {
+	var b BoxInfo
+	err := q.QueryRow(
+		`SELECT Id_Box, COALESCE(Reference,''), COALESCE(Taille,'standard'),
+		        COALESCE(Statut,''), Id_Conteneurs
+		 FROM Box WHERE Id_Box = ?`, idBox,
+	).Scan(&b.ID, &b.Reference, &b.Taille, &b.Statut, &b.IdConteneur)
+	return b, err
 }
 
 func (ConteneurRepo) MajStatutDemande(q Querier, idDemande int, statut string) error {
@@ -157,24 +189,29 @@ func (ConteneurRepo) CreerObjetEnStock(q Querier, o ObjetCreation) (int, error) 
 }
 
 type DemandeLigne struct {
-	ID          int
-	TypeObjet   string
-	Description string
-	EtatUsure   string
-	Statut      string
-	CodeAcces   string
-	Date        string
-	CodeBarre   string
+	ID           int
+	TypeObjet    string
+	Description  string
+	EtatUsure    string
+	Statut       string
+	CodeAcces    string
+	Date         string
+	CodeBarre    string
+	IdBox        int
+	BoxReference string
+	BoxTaille    string
 }
 
 func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, error) {
 	rows, err := q.Query(
 		`SELECT d.Id_Demandes_conteneurs, COALESCE(d.Type_objet,''), COALESCE(d.Description,''),
 		        COALESCE(d.Etat_usure,''), COALESCE(d.Statut,'en_attente'), COALESCE(d.Code_acces,''),
-		        COALESCE(d.Date_demande,''), COALESCE(cb.Code,'')
+		        COALESCE(d.Date_demande,''), COALESCE(cb.Code,''),
+		        COALESCE(d.Id_Box, 0), COALESCE(b.Reference, ''), COALESCE(b.Taille, '')
 		 FROM Demandes_conteneurs d
 		 LEFT JOIN Objets o ON o.Id_Demandes_conteneurs = d.Id_Demandes_conteneurs
 		 LEFT JOIN Codes_Barres cb ON cb.Id_Objets = o.Id_Objets
+		 LEFT JOIN Box b ON b.Id_Box = d.Id_Box
 		 WHERE d.Id_Particuliers = ? ORDER BY d.Date_demande DESC`,
 		idParticulier,
 	)
@@ -186,7 +223,8 @@ func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, 
 	liste := []DemandeLigne{}
 	for rows.Next() {
 		var d DemandeLigne
-		if err := rows.Scan(&d.ID, &d.TypeObjet, &d.Description, &d.EtatUsure, &d.Statut, &d.CodeAcces, &d.Date, &d.CodeBarre); err != nil {
+		if err := rows.Scan(&d.ID, &d.TypeObjet, &d.Description, &d.EtatUsure, &d.Statut, &d.CodeAcces, &d.Date, &d.CodeBarre,
+			&d.IdBox, &d.BoxReference, &d.BoxTaille); err != nil {
 			return nil, err
 		}
 		liste = append(liste, d)

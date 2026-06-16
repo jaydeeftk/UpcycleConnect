@@ -11,12 +11,27 @@
             <h1 class="text-3xl font-bold"><?= t('planning_title', 'Mon Planning') ?></h1>
             <p class="text-base-content/60 mt-2"><?= t('planning_subtitle', 'Retrouvez tous vos cours, événements et activités en cours et à venir.') ?></p>
         </div>
-        <div class="tabs tabs-boxed bg-base-100 p-1 rounded-2xl shadow-sm">
-            <button onclick="setVue('jour')" id="tab-jour" class="tab"><?= t('planning_tab_day', 'Jour') ?></button>
-            <button onclick="setVue('semaine')" id="tab-semaine" class="tab tab-active"><?= t('planning_tab_week', 'Semaine') ?></button>
-            <button onclick="setVue('mois')" id="tab-mois" class="tab"><?= t('planning_tab_month', 'Mois') ?></button>
+        <div class="flex flex-col items-end gap-3">
+            <button type="button" onclick="document.getElementById('modal-add-planning').classList.remove('hidden')"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-600 transition">
+                <i class="fas fa-plus mr-2"></i><?= t('planning_btn_add', 'Ajouter au planning') ?>
+            </button>
+            <div class="tabs tabs-boxed bg-base-100 p-1 rounded-2xl shadow-sm">
+                <button onclick="setVue('jour')" id="tab-jour" class="tab"><?= t('planning_tab_day', 'Jour') ?></button>
+                <button onclick="setVue('semaine')" id="tab-semaine" class="tab tab-active"><?= t('planning_tab_week', 'Semaine') ?></button>
+                <button onclick="setVue('mois')" id="tab-mois" class="tab"><?= t('planning_tab_month', 'Mois') ?></button>
+            </div>
         </div>
     </div>
+
+    <?php if (!empty($_SESSION['success'])): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6"><i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($_SESSION['success']) ?></div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6"><i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($_SESSION['error']) ?></div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
     <div class="grid lg:grid-cols-4 gap-8">
 
@@ -33,6 +48,11 @@
                         <i class="fas fa-calendar-check text-blue-500"></i>
                         <div class="flex-1 text-sm"><?= t('planning_evenements', 'Événements') ?></div>
                         <span class="font-bold text-blue-500"><?= count($evenements ?? []) ?></span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl">
+                        <i class="fas fa-bookmark text-emerald-500"></i>
+                        <div class="flex-1 text-sm"><?= t('planning_libres', 'Entrées personnelles') ?></div>
+                        <span class="font-bold text-emerald-500"><?= count($libres ?? []) ?></span>
                     </div>
                 </div>
             </div>
@@ -62,7 +82,31 @@
             <div class="flex gap-4 mt-4 text-xs text-base-content/50">
                 <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-purple-200 inline-block"></span> <?= t('planning_type_formation', 'Formation') ?></span>
                 <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-200 inline-block"></span> <?= t('planning_type_evenement', 'Événement') ?></span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-200 inline-block"></span> <?= t('planning_type_libre', 'Entrée personnelle') ?></span>
             </div>
+
+            <?php if (!empty($libres)): ?>
+            <div class="bg-base-100 rounded-2xl shadow-sm p-5 mt-6">
+                <h3 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-4"><?= t('planning_libres_list', 'Mes entrées personnelles') ?></h3>
+                <ul class="space-y-2">
+                    <?php foreach ($libres as $l): ?>
+                        <li class="flex items-center justify-between gap-4 p-3 bg-emerald-50 rounded-xl">
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium truncate"><?= htmlspecialchars($l['titre'] ?? '') ?></div>
+                                <div class="text-xs text-base-content/60"><?= formatDate($l['date'] ?? '', true) ?><?= !empty($l['lieu']) ? ' · ' . htmlspecialchars($l['lieu']) : '' ?></div>
+                            </div>
+                            <form method="POST" action="/planning/<?= (int)($l['id'] ?? 0) ?>/supprimer"
+                                  onsubmit="return ucConfirm(this, '<?= t('planning_libre_confirm_delete', 'Supprimer cette entrée ?') ?>')">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm" title="<?= t('planning_libre_delete', 'Supprimer') ?>">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -86,7 +130,16 @@ const ITEMS = <?= json_encode(array_merge(
         'duree' => $e['duree'] ?? 0,
         'type'  => 'evenement',
         'url'   => '/evenements/' . ($e['id'] ?? 0),
-    ], $evenements ?? [])
+    ], $evenements ?? []),
+    array_map(fn($l) => [
+        'id'    => $l['id'] ?? 0,
+        'titre' => $l['titre'] ?? '',
+        'date'  => $l['date'] ?? '',
+        'lieu'  => $l['lieu'] ?? '',
+        'duree' => $l['duree'] ?? 0,
+        'type'  => 'libre',
+        'url'   => '#',
+    ], $libres ?? [])
 )) ?>;
 
 let vue = 'semaine';
@@ -127,9 +180,9 @@ function trierParHeure(items) {
 }
 
 function colorClass(type) {
-    return type === 'formation'
-        ? 'bg-purple-100 text-purple-700 border-purple-300'
-        : 'bg-blue-100 text-blue-700 border-blue-300';
+    if (type === 'formation') return 'bg-purple-100 text-purple-700 border-purple-300';
+    if (type === 'libre')     return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+    return 'bg-blue-100 text-blue-700 border-blue-300';
 }
 
 function formatPlageHoraire(item) {
@@ -269,7 +322,7 @@ function renderMois() {
         const items = ITEMS.filter(i => { const id = itemDate(i); return id && sameDay(id, cur); });
         html += `<div class="p-2 min-h-20 ${isToday ? 'bg-primary/5' : ''}">
             <span class="text-sm ${isToday ? 'font-bold text-primary' : 'text-base-content/60'}">${d}</span>
-            ${trierParHeure(items).map(i => `<a href="${i.url}" class="${colorClass(i.type)} rounded text-xs p-1 mt-1 leading-tight block hover:opacity-80 transition">${formatHeure(itemDate(i))} ${i.titre}</a>`).join('')}
+            ${trierParHeure(items).map(i => `<a href="${i.url}" class="${colorClass(i.type)} rounded text-xs p-1 mt-1 leading-tight block hover:opacity-80 transition">${formatPlageHoraire(i)} ${i.titre}</a>`).join('')}
         </div>`;
     }
     html += '</div></div>';
@@ -289,14 +342,74 @@ function renderProchain() {
         return;
     }
     const p = futurs[0];
+    const badgeLabel = p.type === 'formation'
+        ? '<?= t('planning_type_formation', 'Formation') ?>'
+        : (p.type === 'libre' ? '<?= t('planning_type_libre', 'Entrée personnelle') ?>' : '<?= t('planning_type_evenement', 'Événement') ?>');
+    const badgeCls = p.type === 'formation' ? 'bg-purple-100 text-purple-700'
+        : (p.type === 'libre' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700');
+    const titreHtml = p.url && p.url !== '#'
+        ? `<a href="${p.url}" class="font-semibold text-sm hover:underline block mb-1">${p.titre}</a>`
+        : `<div class="font-semibold text-sm mb-1">${p.titre}</div>`;
     el.innerHTML = `
-        <div class="badge badge-sm ${p.type === 'formation' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} border-0 mb-2">${p.type === 'formation' ? '<?= t('planning_type_formation', 'Formation') ?>' : '<?= t('planning_type_evenement', 'Événement') ?>'}</div>
-        <a href="${p.url}" class="font-semibold text-sm hover:underline block mb-1">${p.titre}</a>
+        <div class="badge badge-sm ${badgeCls} border-0 mb-2">${badgeLabel}</div>
+        ${titreHtml}
         <div class="text-xs text-base-content/60 space-y-1">
-            <div><i class="fas fa-calendar mr-1"></i>${formatDate(p._d)}</div>
-            <div><i class="fas fa-map-marker-alt mr-1"></i>${p.lieu}</div>
+            <div><i class="fas fa-calendar mr-1"></i>${formatDate(p._d)} · ${formatPlageHoraire(p)}</div>
+            <div><i class="fas fa-map-marker-alt mr-1"></i>${p.lieu || '—'}</div>
         </div>`;
 }
 
 render();
 </script>
+
+<div id="modal-add-planning" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold"><?= t('planning_add_title', 'Ajouter au planning') ?></h3>
+            <button type="button" onclick="document.getElementById('modal-add-planning').classList.add('hidden')"
+                    class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <form method="POST" action="/planning/ajouter">
+            <?= csrf_field() ?>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('planning_add_titre', 'Titre') ?> *</label>
+                <input type="text" name="titre" required maxlength="150"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="<?= t('planning_add_titre_ph', 'Ex : Rendez-vous artisan') ?>">
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('planning_add_debut', 'Début') ?> *</label>
+                    <input type="datetime-local" name="date_debut" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('planning_add_fin', 'Fin') ?></label>
+                    <input type="datetime-local" name="date_fin"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('planning_add_lieu', 'Lieu') ?></label>
+                <input type="text" name="lieu" maxlength="150"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="<?= t('planning_add_lieu_ph', 'Ex : Paris 11ème') ?>">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('planning_add_description', 'Description') ?></label>
+                <textarea name="description" rows="3" maxlength="255"
+                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="<?= t('planning_add_description_ph', 'Notes...') ?>"></textarea>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('modal-add-planning').classList.add('hidden')"
+                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><?= t('planning_add_cancel', 'Annuler') ?></button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    <i class="fas fa-save mr-2"></i><?= t('planning_add_submit', 'Ajouter') ?>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

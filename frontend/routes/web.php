@@ -76,6 +76,7 @@ $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
 $router->get('/paiement/success', 'Front\UserController@paiementSuccess');
 $router->get('/factures/{id}/pdf', 'Front\UserController@facturePdf');
+$router->post('/remboursements/demande', 'Front\UserController@demandeRemboursement');
 
 $router->get('/professionnel', 'Front\ProfessionnelController@dashboard');
 $router->get('/professionnel/projets/create', 'Front\ProfessionnelController@createProjet');
@@ -224,5 +225,10 @@ $router->group(['prefix' => 'salaries'], function($router) {
     $router->post('/planning/evenement/delete/{id}', 'salaries\PlanningController@deleteEvenement');
     $router->post('/planning/formation/delete/{id}', 'salaries\PlanningController@deleteFormation');
     $router->post('/planning/atelier/delete/{id}', 'salaries\PlanningController@deleteAtelier');
+
+    $router->get('/remboursements', 'salaries\RemboursementController@index');
+    $router->post('/remboursements/direct', 'salaries\RemboursementController@direct');
+    $router->post('/remboursements/{id}/approuver', 'salaries\RemboursementController@approuver');
+    $router->post('/remboursements/{id}/refuser', 'salaries\RemboursementController@refuser');
 
 });

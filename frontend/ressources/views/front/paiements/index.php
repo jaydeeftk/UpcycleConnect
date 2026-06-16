@@ -7,6 +7,15 @@
         </p>
     </div>
 
+    <?php if (!empty($_SESSION['success'])): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6"><i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($_SESSION['success']) ?></div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6"><i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($_SESSION['error']) ?></div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
     <?php if (!isset($_SESSION['user'])): ?>
         <div class="bg-base-100 rounded-2xl border border-base-300 p-8 text-center">
             <p class="text-base-content/70 mb-4"><?= t('payidx_login_required', 'Vous devez être connecté pour voir vos paiements.') ?></p>
@@ -29,7 +38,12 @@
                             <div class="text-sm text-base-content/60"><?= formatDate($paiement['date'] ?? '') ?></div>
                         </div>
                         <?php $statutPaye = in_array($paiement['statut'] ?? '', ['paye', 'payé', 'success', '1', 'completed']); ?>
-                        <?php if ($statutPaye): ?>
+                        <?php $statutRembourse = ($paiement['statut'] ?? '') === 'rembourse'; ?>
+                        <?php if ($statutRembourse): ?>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <?= t('payidx_status_refunded', 'Remboursé') ?>
+                            </span>
+                        <?php elseif ($statutPaye): ?>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                 <?= t('payidx_status_paid', 'Payé') ?>
                             </span>
@@ -39,16 +53,30 @@
                             </span>
                         <?php endif; ?>
                     </div>
-                    <?php if (!$statutPaye): ?>
+                    <?php if (!$statutPaye && !$statutRembourse): ?>
                         <a href="/payer"
                             class="inline-block bg-black text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">
                             <?= t('payidx_pay_now', 'Régler maintenant') ?>
                         </a>
-                    <?php elseif (!empty($paiement['id_facture'])): ?>
-                        <a href="/factures/<?= (int)$paiement['id_facture'] ?>/pdf" target="_blank"
-                            class="inline-flex items-center gap-2 text-sm font-medium text-black hover:underline">
-                            <i class="fas fa-file-pdf"></i> <?= t('payidx_download_invoice', 'Télécharger la facture') ?>
-                        </a>
+                    <?php else: ?>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <?php if (!empty($paiement['id_facture'])): ?>
+                                <a href="/factures/<?= (int)$paiement['id_facture'] ?>/pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 text-sm font-medium text-black hover:underline">
+                                    <i class="fas fa-file-pdf"></i> <?= t('payidx_download_invoice', 'Télécharger la facture') ?>
+                                </a>
+                            <?php endif; ?>
+                            <?php if ($statutPaye): ?>
+                                <form method="POST" action="/remboursements/demande" class="inline"
+                                      onsubmit="return ucConfirm(this, '<?= t('payidx_refund_confirm', 'Demander le remboursement de ce paiement ?') ?>')">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="id_paiement" value="<?= (int)($paiement['id'] ?? 0) ?>">
+                                    <button type="submit" class="inline-flex items-center gap-2 text-sm font-medium text-red-600 hover:underline">
+                                        <i class="fas fa-rotate-left"></i> <?= t('payidx_request_refund', 'Demander un remboursement') ?>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>

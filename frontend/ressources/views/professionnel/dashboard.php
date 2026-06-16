@@ -288,6 +288,38 @@
                 <?php endif; ?>
             </div>
 
+            <!-- Facturation cumulée -->
+            <?php $fact = $facturation ?? []; ?>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold"><?= t('pro_billing_title', 'Facturation cumulée') ?></h3>
+                    <span class="text-xs text-gray-500"><?= t('pro_billing_subtitle', 'Abonnements, campagnes publicitaires et commissions prélevées') ?></span>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-blue-50 rounded-xl p-4">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1"><?= t('pro_billing_subs', 'Abonnements') ?></div>
+                        <div class="text-xl font-bold text-blue-600"><?= htmlspecialchars(formatPrix($fact['total_abonnements'] ?? 0)) ?></div>
+                    </div>
+                    <div class="bg-purple-50 rounded-xl p-4">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1"><?= t('pro_billing_ads', 'Campagnes pub') ?></div>
+                        <div class="text-xl font-bold text-purple-600"><?= htmlspecialchars(formatPrix($fact['total_campagnes'] ?? 0)) ?></div>
+                    </div>
+                    <div class="bg-orange-50 rounded-xl p-4">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1"><?= t('pro_billing_commissions', 'Commissions') ?></div>
+                        <div class="text-xl font-bold text-orange-600"><?= htmlspecialchars(formatPrix($fact['total_commissions'] ?? 0)) ?></div>
+                    </div>
+                    <div class="bg-emerald-50 rounded-xl p-4 border-2 border-emerald-200">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1"><?= t('pro_billing_total', 'Total cumulé') ?></div>
+                        <div class="text-xl font-bold text-emerald-700"><?= htmlspecialchars(formatPrix($fact['total_general'] ?? 0)) ?></div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <?= t('pro_billing_note', 'Contrats actifs : ') ?><?= (int)($fact['nb_contrats_actifs'] ?? 0) ?>
+                    <?= t('pro_billing_resilies', ' · Résiliés : ') ?><?= (int)($fact['nb_contrats_resilie'] ?? 0) ?>
+                </div>
+            </div>
+
             <!-- Contrats -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-bold mb-4"><?= t('pro_contracts_title', 'Mes contrats') ?></h3>
@@ -302,6 +334,8 @@
                             <thead>
                                 <tr class="text-left text-gray-500 border-b">
                                     <th class="pb-3"><?= t('pro_contracts_col_type', 'Type') ?></th>
+                                    <th class="pb-3 text-right"><?= t('pro_contracts_col_amount', 'Montant') ?></th>
+                                    <th class="pb-3"><?= t('pro_contracts_col_freq', 'Fréquence') ?></th>
                                     <th class="pb-3"><?= t('pro_contracts_col_status', 'Statut') ?></th>
                                     <th class="pb-3"><?= t('pro_contracts_col_start', 'Début') ?></th>
                                     <th class="pb-3"><?= t('pro_contracts_col_end', 'Fin') ?></th>
@@ -313,6 +347,8 @@
                                     <?php $cStatut = strtolower($contrat['statut'] ?? ''); $cCol = statutCouleur($cStatut); ?>
                                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                                         <td class="py-3"><?= htmlspecialchars($contrat['type'] ?? '') ?></td>
+                                        <td class="py-3 text-right font-semibold"><?= htmlspecialchars(formatPrix($contrat['montant'] ?? 0)) ?></td>
+                                        <td class="py-3 text-xs text-gray-600"><?= htmlspecialchars(formatStatut($contrat['frequence'] ?? '')) ?></td>
                                         <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold" style="background:<?= $cCol ?>1a;color:<?= $cCol ?>"><?= formatStatut($contrat['statut'] ?? '') ?></span></td>
                                         <td class="py-3"><?= formatDate($contrat['date_debut'] ?? '') ?></td>
                                         <td class="py-3"><?= formatDate($contrat['date_fin'] ?? '') ?></td>

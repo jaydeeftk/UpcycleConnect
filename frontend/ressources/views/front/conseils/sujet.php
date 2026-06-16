@@ -102,7 +102,12 @@
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_SESSION['user']) && !($sujet['resolu'] ?? false)): ?>
+    <?php
+    $sujetStatut = $sujet['statut'] ?? 'ouvert';
+    $sujetFerme  = $sujetStatut === 'ferme';
+    $sujetResolu = $sujetStatut === 'resolu' || ($sujet['resolu'] ?? false);
+    ?>
+    <?php if (isset($_SESSION['user']) && !$sujetResolu && !$sujetFerme): ?>
         <div class="bg-base-100 rounded-2xl shadow-sm p-8">
             <h2 class="text-lg font-semibold mb-6"><?= t('conssuj_your_answer', 'Votre réponse') ?></h2>
 
@@ -131,7 +136,12 @@
                 </div>
             </form>
         </div>
-    <?php elseif ($sujet['resolu'] ?? false): ?>
+    <?php elseif ($sujetFerme): ?>
+        <div class="bg-base-100 rounded-2xl shadow-sm p-8 text-center">
+            <div class="text-base-content/60 mb-2"><i class="fas fa-lock text-2xl"></i></div>
+            <p class="text-base-content/60"><?= t('conssuj_closed_locked', 'Ce sujet est fermé. Il n\'est plus possible d\'y répondre.') ?></p>
+        </div>
+    <?php elseif ($sujetResolu): ?>
         <div class="bg-base-100 rounded-2xl shadow-sm p-8 text-center">
             <div class="text-success mb-2"><i class="fas fa-check-circle text-2xl"></i></div>
             <p class="text-base-content/60"><?= t('conssuj_resolved_locked', 'Ce sujet est marqué comme résolu. Il n\'est plus possible d\'y répondre.') ?></p>

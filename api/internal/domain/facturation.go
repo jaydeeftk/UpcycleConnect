@@ -3,6 +3,8 @@ package domain
 import (
 	"fmt"
 	"math"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -147,6 +149,30 @@ func ActionsAbonnementAdmin(statut string) []string {
 }
 
 const TVAParDefaut = 20.0
+
+const (
+	TauxCommissionMin    = 0.05
+	TauxCommissionMax    = 0.10
+	TauxCommissionDefaut = 0.10
+)
+
+func TauxCommission() float64 {
+	v := os.Getenv("COMMISSION_RATE")
+	if v == "" {
+		return TauxCommissionDefaut
+	}
+	f, err := strconv.ParseFloat(v, 64)
+	if err != nil {
+		return TauxCommissionDefaut
+	}
+	if f < TauxCommissionMin {
+		return TauxCommissionMin
+	}
+	if f > TauxCommissionMax {
+		return TauxCommissionMax
+	}
+	return f
+}
 
 const (
 	StatutFactureBrouillon = "brouillon"

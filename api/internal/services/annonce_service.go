@@ -66,11 +66,6 @@ func (s *AnnonceService) RetirerAnnonce(idUtilisateur, idAnnonce int) error {
 		domain.AnnonceSnapshot.PeutRetirer, domain.StatutAnnRetiree)
 }
 
-func (s *AnnonceService) MarquerVendue(idUtilisateur, idAnnonce int) error {
-	return s.transitionProprietaire(idUtilisateur, idAnnonce,
-		domain.AnnonceSnapshot.PeutMarquerVendue, domain.StatutAnnVendue)
-}
-
 func (s *AnnonceService) transitionProprietaire(
 	idUtilisateur, idAnnonce int,
 	garde func(domain.AnnonceSnapshot) error,

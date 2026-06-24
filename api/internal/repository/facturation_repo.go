@@ -338,6 +338,44 @@ func (FacturationRepo) CreerLigneFacture(q Querier, l LigneFactureCreation) erro
 	return err
 }
 
+type AnnonceAchat struct {
+	Prix   float64
+	Titre  string
+	Statut string
+	Type   string
+}
+
+func (FacturationRepo) AnnoncePourAchat(q Querier, idAnnonce int) (AnnonceAchat, error) {
+	var a AnnonceAchat
+	err := q.QueryRow(
+		`SELECT COALESCE(Prix,0), COALESCE(Titre,''), COALESCE(Statut,''), COALESCE(Type_annonce,'')
+		 FROM Annonces WHERE Id_Annonces = ?`, idAnnonce,
+	).Scan(&a.Prix, &a.Titre, &a.Statut, &a.Type)
+	return a, err
+}
+
+func (FacturationRepo) MarquerAnnonceVendue(q Querier, idAnnonce int) error {
+	_, err := q.Exec("UPDATE Annonces SET Statut = 'vendue' WHERE Id_Annonces = ?", idAnnonce)
+	return err
+}
+
+type CommissionCreation struct {
+	Taux         float64
+	TauxApplique float64
+	Montant      float64
+	IdAnnonce    int
+	IdFacture    int64
+}
+
+func (FacturationRepo) CreerCommission(q Querier, c CommissionCreation) error {
+	_, err := q.Exec(
+		`INSERT INTO Commissions (Taux, taux_applique, Montant, Date_, Id_Annonces, Id_Facture)
+		 VALUES (?, ?, ?, NOW(), ?, ?)`,
+		c.Taux, c.TauxApplique, c.Montant, c.IdAnnonce, c.IdFacture,
+	)
+	return err
+}
+
 type PaiementLigne struct {
 	ID        int
 	Montant   float64

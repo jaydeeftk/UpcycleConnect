@@ -42,6 +42,11 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if body.Type == "annonce" && middleware.GetRole(r) != "professionnel" {
+		httpx.JSONError(w, http.StatusForbidden, "Seuls les professionnels peuvent acheter une annonce")
+		return
+	}
+
 	checkout, err := facturationSvc.PreparerCheckout(body.Type, body.IdItem)
 	if err != nil {
 		httpx.WriteError(w, err)
@@ -54,6 +59,11 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	}
 	userStr := strconv.Itoa(userID)
 	itemStr := strconv.Itoa(body.IdItem)
+
+	cancelURL := appURL + "/catalogue/" + body.Type + "s"
+	if body.Type == "annonce" {
+		cancelURL = appURL + "/annonces/" + itemStr
+	}
 
 	params := &stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
@@ -72,7 +82,7 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
 		SuccessURL: stripe.String(appURL + "/paiement/success?session_id={CHECKOUT_SESSION_ID}"),
-		CancelURL:  stripe.String(appURL + "/catalogue/" + body.Type + "s"),
+		CancelURL:  stripe.String(cancelURL),
 	}
 	params.AddMetadata("type", body.Type)
 	params.AddMetadata("item_id", itemStr)

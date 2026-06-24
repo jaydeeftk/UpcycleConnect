@@ -1,0 +1,3 @@
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='Commissions' AND COLUMN_NAME='taux_applique')=0,
+    "ALTER TABLE Commissions ADD COLUMN taux_applique DECIMAL(5,4) NULL",'DO 0');
+PREPARE st FROM @s; EXECUTE st; DEALLOCATE PREPARE st;

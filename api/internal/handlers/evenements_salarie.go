@@ -151,6 +151,11 @@ func GetEvenementSalarie(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateEvenement(w http.ResponseWriter, r *http.Request) {
+	_, salarieID, ok := getSalarieFromContext(r)
+	if !ok {
+		http.Error(w, `{"message": "Profil salarié introuvable"}`, http.StatusForbidden)
+		return
+	}
 	parts := strings.Split(r.URL.Path, "/")
 	id := parts[len(parts)-1]
 
@@ -167,15 +172,16 @@ func UpdateEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.Titre == "" {
-		http.Error(w, `{"message": "Titre requis"}`, http.StatusBadRequest)
+	if err := domain.ValiderCreationEvenement(body.Titre, body.Date, body.Lieu, body.Capacite, 0); err != nil {
+		httpx.WriteError(w, err)
 		return
 	}
 
 	_, err := database.DB.Exec(`
-		UPDATE Evenements SET Titre = ?, Description = ?, Lieu = ?, Date_ = ?, Capacite = ?
-		WHERE Id_Evenements = ?
-	`, body.Titre, body.Description, body.Lieu, body.Date, body.Capacite, id)
+		UPDATE Evenements SET Titre = ?, Description = ?, Lieu = ?, Date_ = ?, Capacite = ?,
+			Statut_validation = 'en_attente', Motif_refus = NULL
+		WHERE Id_Evenements = ? AND Id_Salaries = ?
+	`, body.Titre, body.Description, body.Lieu, body.Date, body.Capacite, id, salarieID)
 
 	if err != nil {
 		http.Error(w, `{"message": "Erreur lors de la mise à jour"}`, http.StatusInternalServerError)

@@ -34,6 +34,19 @@ func ValiderCreationAnnonce(titre, typeAnnonce string, prix float64) error {
 	return nil
 }
 
+func ValiderCodePostal(codePostal string) error {
+	cp := strings.TrimSpace(codePostal)
+	if len(cp) != 5 {
+		return Invalide("Code postal invalide : 5 chiffres attendus")
+	}
+	for _, c := range cp {
+		if c < '0' || c > '9' {
+			return Invalide("Code postal invalide : 5 chiffres attendus")
+		}
+	}
+	return nil
+}
+
 func ValiderAchatAnnonce(statut, typeAnnonce string, prix float64) error {
 	if typeAnnonce != TypeAnnVente {
 		return EtatInvalide("Cette annonce n'est pas en vente")

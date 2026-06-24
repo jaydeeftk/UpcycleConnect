@@ -49,6 +49,12 @@
                     <i class="fas fa-envelope mr-2"></i> <?= t('annshow_contact_seller', 'Contacter le déposant') ?>
                 </a>
                 <?php if (($_SESSION['user']['role'] ?? '') === 'professionnel'): ?>
+                    <?php if (($annonce['type_annonce'] ?? '') === 'vente' && ($annonce['statut'] ?? '') === 'validee'): ?>
+                        <a href="/payer?type=annonce&id_item=<?= (int)$annonce['id'] ?>&montant=<?= htmlspecialchars((string)($annonce['prix'] ?? 0)) ?>&titre=<?= urlencode($annonce['titre'] ?? '') ?>"
+                           class="btn btn-success w-full mt-2 gap-2">
+                            <i class="fas fa-cart-shopping"></i> <?= t('annshow_buy', 'Acheter') ?> <?= htmlspecialchars(formatPrix($annonce['prix'] ?? 0)) ?>
+                        </a>
+                    <?php endif; ?>
                     <form method="POST" action="/professionnels/favoris/<?= $annonce['id'] ?>/toggle" class="mt-2">
                     <?= csrf_field() ?>
                         <button type="submit" class="btn btn-outline btn-pink w-full gap-2">

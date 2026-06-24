@@ -372,6 +372,10 @@ func (s *FacturationService) resoudrePrixItem(q repository.Querier, typ string, 
 		prix, titre, err = s.repo.PrixFormation(q, idItem)
 	case "evenement":
 		prix, titre, err = s.repo.PrixEvenement(q, idItem)
+	case "annonce":
+		var a repository.AnnonceAchat
+		a, err = s.repo.AnnoncePourAchat(q, idItem)
+		prix, titre = a.Prix, a.Titre
 	default:
 		return 0, "", domain.Invalide("Type de paiement invalide")
 	}
@@ -385,6 +389,19 @@ func (s *FacturationService) resoudrePrixItem(q repository.Querier, typ string, 
 }
 
 func (s *FacturationService) PreparerCheckout(typ string, idItem int) (CheckoutData, error) {
+	if typ == "annonce" {
+		a, err := s.repo.AnnoncePourAchat(database.DB, idItem)
+		if errors.Is(err, sql.ErrNoRows) {
+			return CheckoutData{}, domain.Introuvable("Annonce introuvable")
+		}
+		if err != nil {
+			return CheckoutData{}, err
+		}
+		if err := domain.ValiderAchatAnnonce(a.Statut, a.Type, a.Prix); err != nil {
+			return CheckoutData{}, err
+		}
+		return CheckoutData{Montant: domain.Round2(a.Prix), Titre: a.Titre}, nil
+	}
 	prix, titre, err := s.resoudrePrixItem(database.DB, typ, idItem)
 	if err != nil {
 		return CheckoutData{}, err
@@ -447,6 +464,17 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 			ReferenceStripe: referenceStripe, PaymentIntent: paymentIntent, IdFacture: idFacture, IdUtilisateur: idUtilisateur,
 		}); err != nil {
 			return err
+		}
+
+		if typ == "annonce" {
+			if err := s.repo.MarquerAnnonceVendue(tx, idItem); err != nil {
+				return err
+			}
+			taux := domain.TauxCommission()
+			return s.repo.CreerCommission(tx, repository.CommissionCreation{
+				Taux: domain.Round2(taux * 100), TauxApplique: taux,
+				Montant: domain.Round2(taux * prix), IdAnnonce: idItem, IdFacture: idFacture,
+			})
 		}
 
 		idParticulier, err := s.repo.IdParticulier(tx, idUtilisateur)

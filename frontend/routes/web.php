@@ -37,7 +37,6 @@ $router->post('/annonces/store', 'Front\AnnonceController@store');
 $router->get('/mes-annonces', 'Front\AnnonceController@mesAnnonces');
 $router->get('/annonces/{id}', 'Front\AnnonceController@show');
 $router->post('/annonces/{id}/annuler', 'Front\AnnonceController@annuler');
-$router->post('/annonces/{id}/vendre', 'Front\AnnonceController@vendre');
 
 $router->get('/conteneurs/create', 'Front\ConteneurController@create');
 $router->post('/conteneurs/store', 'Front\ConteneurController@store');

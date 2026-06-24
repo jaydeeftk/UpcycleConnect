@@ -34,6 +34,19 @@ func ValiderCreationAnnonce(titre, typeAnnonce string, prix float64) error {
 	return nil
 }
 
+func ValiderAchatAnnonce(statut, typeAnnonce string, prix float64) error {
+	if typeAnnonce != TypeAnnVente {
+		return EtatInvalide("Cette annonce n'est pas en vente")
+	}
+	if statut != StatutAnnValidee {
+		return EtatInvalide("Cette annonce n'est plus disponible à l'achat")
+	}
+	if prix <= 0 {
+		return Invalide("Prix d'annonce invalide")
+	}
+	return nil
+}
+
 type AnnonceSnapshot struct {
 	Statut       string
 	Type         string
@@ -62,13 +75,6 @@ func (a AnnonceSnapshot) PeutRetirer() error {
 	return nil
 }
 
-func (a AnnonceSnapshot) PeutMarquerVendue() error {
-	if a.Statut != StatutAnnValidee {
-		return EtatInvalide("Seule une annonce publiée peut être marquée vendue")
-	}
-	return nil
-}
-
 func AnnonceVisible(statut string, estProprietaire, estAdmin bool) bool {
 	if estProprietaire || estAdmin {
 		return true
@@ -84,9 +90,6 @@ func (a AnnonceSnapshot) ActionsAnnonce(estProprietaire, estAdmin bool) []string
 	if estProprietaire {
 		if a.PeutRetirer() == nil {
 			actions = append(actions, "retirer")
-		}
-		if a.PeutMarquerVendue() == nil {
-			actions = append(actions, "vendre")
 		}
 	}
 	return actions

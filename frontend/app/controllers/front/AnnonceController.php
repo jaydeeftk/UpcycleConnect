@@ -20,15 +20,6 @@ class AnnonceController
         redirect('/mes-annonces');
     }
 
-    public function vendre($id)
-    {
-        if (!isset($_SESSION['user'])) {
-            redirect('/login');
-        }
-        try { $this->api->post('/annonces/' . $id . '/vendre', []); } catch (\Exception $e) {}
-        redirect('/mes-annonces');
-    }
-
     public function mesAnnonces()
     {
         if (!isset($_SESSION['user'])) {

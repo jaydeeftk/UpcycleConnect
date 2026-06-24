@@ -41,6 +41,9 @@ func (s *AnnonceService) CreerAnnonce(idUtilisateur int, in CreationAnnonceInput
 	if err := domain.ValiderCreationAnnonce(in.Titre, in.Type, in.Prix); err != nil {
 		return 0, err
 	}
+	if err := domain.ValiderCodePostal(in.CodePostal); err != nil {
+		return 0, err
+	}
 	var newID int64
 	err := withTx(func(tx *sql.Tx) error {
 		idPart, err := s.resoudreParticulier(tx, idUtilisateur)

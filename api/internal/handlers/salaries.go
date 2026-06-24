@@ -149,8 +149,9 @@ func SalarieFormationAction(w http.ResponseWriter, r *http.Request) {
 		json.NewDecoder(r.Body).Decode(&body)
 		database.DB.Exec(
 			`UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Date_formation=?,
-				Places_total=?, Localisation=?, Categorie=?
-			WHERE Id_Formations=? AND Id_Salaries=? AND Statut='en_attente'`,
+				Places_total=?, Localisation=?, Categorie=?,
+				Statut_validation='en_attente', Motif_refus=NULL
+			WHERE Id_Formations=? AND Id_Salaries=?`,
 			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation,
 			body.PlacesTotal, body.Localisation, body.Categorie, id, salarieID,
 		)

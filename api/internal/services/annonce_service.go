@@ -15,16 +15,41 @@ type AnnonceService struct {
 
 func NewAnnonceService() *AnnonceService { return &AnnonceService{} }
 
-func (s *AnnonceService) resoudreParticulier(q repository.Querier, idUtilisateur int) (int, error) {
-	idPart, err := s.repo.IdParticulier(q, idUtilisateur)
-	if errors.Is(err, sql.ErrNoRows) {
-		return 0, domain.Forbidden("Action réservée aux particuliers")
-	}
-	if err != nil {
-		return 0, err
-	}
-	return idPart, nil
+// proprietaireInfo identifie le type de compte et l'ID fonctionnel du propriétaire.
+type proprietaireInfo struct {
+	idParticulier   int // 0 si professionnel
+	idProfessionnel int // 0 si particulier
+	estPro          bool
 }
+
+// resoudreProprietaire résout l'identité fonctionnelle d'un utilisateur :
+// particulier en priorité, sinon professionnel. Renvoie une erreur 403
+// uniquement si l'utilisateur n'existe dans aucune des deux tables.
+func (s *AnnonceService) resoudreProprietaire(q repository.Querier, idUtilisateur int) (proprietaireInfo, error) {
+	if idPart, err := s.repo.IdParticulier(q, idUtilisateur); err == nil {
+		return proprietaireInfo{idParticulier: idPart}, nil
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		return proprietaireInfo{}, err
+	}
+
+	if idPro, err := s.repo.IdProfessionnel(q, idUtilisateur); err == nil {
+		return proprietaireInfo{idProfessionnel: idPro, estPro: true}, nil
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		return proprietaireInfo{}, err
+	}
+
+	return proprietaireInfo{}, domain.Forbidden("Compte non reconnu comme particulier ou professionnel")
+}
+
+// idFonctionnel retourne l'identifiant à comparer avec AnnonceSnapshot.Proprietaire.
+func (p proprietaireInfo) idFonctionnel() int {
+	if p.estPro {
+		return p.idProfessionnel
+	}
+	return p.idParticulier
+}
+
+// ─── Création ────────────────────────────────────────────────────────────────
 
 type CreationAnnonceInput struct {
 	Titre       string
@@ -46,14 +71,16 @@ func (s *AnnonceService) CreerAnnonce(idUtilisateur int, in CreationAnnonceInput
 	}
 	var newID int64
 	err := withTx(func(tx *sql.Tx) error {
-		idPart, err := s.resoudreParticulier(tx, idUtilisateur)
+		prop, err := s.resoudreProprietaire(tx, idUtilisateur)
 		if err != nil {
 			return err
 		}
 		id, err := s.repo.Creer(tx, repository.AnnonceCreation{
 			Titre: in.Titre, Description: in.Description, Categorie: in.Categorie,
 			Etat: in.Etat, Type: in.Type, Prix: in.Prix, Ville: in.Ville,
-			CodePostal: in.CodePostal, IdParticulier: idPart,
+			CodePostal: in.CodePostal,
+			IdParticulier:   prop.idParticulier,
+			IdProfessionnel: prop.idProfessionnel,
 		})
 		if err != nil {
 			return err
@@ -63,6 +90,8 @@ func (s *AnnonceService) CreerAnnonce(idUtilisateur int, in CreationAnnonceInput
 	})
 	return newID, err
 }
+
+// ─── Retrait (propriétaire) ───────────────────────────────────────────────────
 
 func (s *AnnonceService) RetirerAnnonce(idUtilisateur, idAnnonce int) error {
 	return s.transitionProprietaire(idUtilisateur, idAnnonce,
@@ -75,7 +104,7 @@ func (s *AnnonceService) transitionProprietaire(
 	cible string,
 ) error {
 	return withTx(func(tx *sql.Tx) error {
-		idPart, err := s.resoudreParticulier(tx, idUtilisateur)
+		prop, err := s.resoudreProprietaire(tx, idUtilisateur)
 		if err != nil {
 			return err
 		}
@@ -86,7 +115,8 @@ func (s *AnnonceService) transitionProprietaire(
 		if err != nil {
 			return err
 		}
-		if snap.Proprietaire != idPart {
+		// Vérification ownership : même type de compte ET même ID fonctionnel.
+		if snap.EstPro != prop.estPro || snap.Proprietaire != prop.idFonctionnel() {
 			return domain.Forbidden("Cette annonce ne vous appartient pas")
 		}
 		if err := garde(snap); err != nil {
@@ -95,6 +125,8 @@ func (s *AnnonceService) transitionProprietaire(
 		return s.repo.MettreStatut(tx, idAnnonce, cible)
 	})
 }
+
+// ─── Transitions admin ────────────────────────────────────────────────────────
 
 func (s *AnnonceService) ValiderAnnonce(idAnnonce int) error {
 	return s.transitionAdmin(idAnnonce,
@@ -137,6 +169,8 @@ func (s *AnnonceService) SupprimerAnnonce(idAnnonce int) error {
 	return nil
 }
 
+// ─── Lecture ─────────────────────────────────────────────────────────────────
+
 type FicheAnnonceDTO struct {
 	ID                int      `json:"id"`
 	Titre             string   `json:"titre"`
@@ -168,18 +202,19 @@ func (s *AnnonceService) FicheAnnonce(idUtilisateur int, role string, idAnnonce 
 	estAdmin := role == "admin"
 	estProprietaire := false
 	if idUtilisateur != 0 && !estAdmin {
-		if idPart, e := s.repo.IdParticulier(database.DB, idUtilisateur); e == nil {
-			estProprietaire = idPart == f.Proprietaire
+		prop, e := s.resoudreProprietaire(database.DB, idUtilisateur)
+		if e == nil {
+			estProprietaire = (prop.estPro == f.EstPro) && (prop.idFonctionnel() == f.Proprietaire)
 		}
 	}
 
 	if !domain.AnnonceVisible(f.Statut, estProprietaire, estAdmin) {
-
 		return dto, domain.Introuvable("Annonce introuvable")
 	}
 
 	snap := domain.AnnonceSnapshot{
-		Statut: f.Statut, Type: f.Type, Prix: f.Prix, Proprietaire: f.Proprietaire,
+		Statut: f.Statut, Type: f.Type, Prix: f.Prix,
+		Proprietaire: f.Proprietaire, EstPro: f.EstPro,
 	}
 	dto = FicheAnnonceDTO{
 		ID: f.ID, Titre: f.Titre, Description: f.Description, Categorie: f.Categorie,
@@ -232,16 +267,13 @@ func (s *AnnonceService) ListerPubliees() ([]AnnonceListeDTO, error) {
 }
 
 func (s *AnnonceService) MesAnnonces(idUtilisateur int) ([]AnnonceListeDTO, error) {
-	idPart, err := s.repo.IdParticulier(database.DB, idUtilisateur)
-	if errors.Is(err, sql.ErrNoRows) {
-		return []AnnonceListeDTO{}, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	rows, err := s.repo.ListerParProprietaire(database.DB, idPart)
+	rows, err := s.repo.ListerParUtilisateur(database.DB, idUtilisateur)
 	if err != nil {
 		return nil, err
 	}
 	return versListeDTO(rows, true), nil
+}
+
+func (s *AnnonceService) ListerAdmin() ([]map[string]interface{}, error) {
+	return s.repo.ListerAdmin(database.DB)
 }

@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS Annonces(
    Date_publication DATETIME,
    Contenu VARCHAR(255),
    Statut VARCHAR(50),
-   Id_Particuliers INT NOT NULL,
+   Id_Particuliers INT NULL,
    PRIMARY KEY(Id_Annonces),
    FOREIGN KEY(Id_Particuliers) REFERENCES Particuliers(Id_Particuliers)
 );
@@ -743,6 +743,9 @@ ALTER TABLE Annonces ADD COLUMN Type_annonce VARCHAR(50);
 ALTER TABLE Annonces ADD COLUMN Prix DECIMAL(10,2) DEFAULT 0;
 ALTER TABLE Annonces ADD COLUMN Ville VARCHAR(100);
 ALTER TABLE Annonces ADD COLUMN Code_postal VARCHAR(10);
+ALTER TABLE Annonces ADD COLUMN Id_Professionnels INT NULL;
+ALTER TABLE Annonces ADD CONSTRAINT fk_annonces_professionnel FOREIGN KEY (Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels);
+ALTER TABLE Annonces ADD CONSTRAINT chk_annonces_proprietaire CHECK ((Id_Particuliers IS NOT NULL AND Id_Professionnels IS NULL) OR (Id_Particuliers IS NULL AND Id_Professionnels IS NOT NULL));
 ALTER TABLE Evenements MODIFY COLUMN Id_Salaries INT NULL;
 
 CREATE TABLE IF NOT EXISTS Visites (

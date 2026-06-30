@@ -64,7 +64,8 @@ type AnnonceSnapshot struct {
 	Statut       string
 	Type         string
 	Prix         float64
-	Proprietaire int
+	Proprietaire int  // Id_Particuliers ou Id_Professionnels selon EstPro
+	EstPro       bool // true si le propriétaire est un professionnel
 }
 
 func (a AnnonceSnapshot) PeutValider() error {

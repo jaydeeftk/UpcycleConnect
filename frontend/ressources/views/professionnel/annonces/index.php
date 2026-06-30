@@ -96,9 +96,11 @@
                         $typeLabel = $type === 'vente' ? t('ann_type_sale', 'Vente') : t('ann_type_gift', 'Don');
                         $st = $a['statut'] ?? '';
                         $stCls = match($st) {
-                            'publiee', 'active'    => 'bg-green-100 text-green-700',
+                            'validee'     => 'bg-green-100 text-green-700',
+                                            'vendue'      => 'bg-blue-100 text-blue-700',
                             'en_attente'           => 'bg-yellow-100 text-yellow-700',
-                            'annulee', 'supprimee' => 'bg-red-100 text-red-600',
+                            'retiree'     => 'bg-red-100 text-red-600',
+                                            'refusee'     => 'bg-gray-100 text-gray-600',
                             default                => 'bg-gray-100 text-gray-600',
                         };
                     ?>
@@ -121,7 +123,7 @@
                                class="text-blue-500 hover:text-blue-700 text-sm" title="<?= t('pro_ann_view', 'Voir') ?>">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <?php if (!in_array($st, ['annulee', 'supprimee'])): ?>
+                            <?php if (!in_array($st, ['retiree', 'refusee', 'vendue'])): ?>
                             <form method="POST" action="/professionnel/annonces/<?= (int)($a['id'] ?? 0) ?>/annuler"
                                   onsubmit="return confirm('<?= t('pro_ann_cancel_confirm', 'Annuler cette annonce ?') ?>')">
                                 <?= csrf_field() ?>
@@ -185,9 +187,11 @@
                         $isOwner   = (int)($a['user_id'] ?? $a['id_utilisateur'] ?? 0) === $userId;
                         $st = $a['statut'] ?? '';
                         $stCls = match($st) {
-                            'publiee', 'active'    => 'bg-green-100 text-green-700',
+                            'validee'     => 'bg-green-100 text-green-700',
+                                            'vendue'      => 'bg-blue-100 text-blue-700',
                             'en_attente'           => 'bg-yellow-100 text-yellow-700',
-                            'annulee', 'supprimee' => 'bg-red-100 text-red-600',
+                            'retiree'     => 'bg-red-100 text-red-600',
+                                            'refusee'     => 'bg-gray-100 text-gray-600',
                             default                => 'bg-gray-100 text-gray-600',
                         };
                     ?>
@@ -218,7 +222,7 @@
                                class="text-blue-500 hover:text-blue-700 text-sm font-medium">
                                 <i class="fas fa-eye mr-1"></i><?= t('pro_ann_view', 'Voir') ?>
                             </a>
-                            <?php if ($isOwner && !in_array($st, ['annulee', 'supprimee'])): ?>
+                            <?php if ($isOwner && !in_array($st, ['retiree', 'refusee', 'vendue'])): ?>
                             <form method="POST" action="/professionnel/annonces/<?= (int)($a['id'] ?? 0) ?>/annuler"
                                   onsubmit="return confirm('<?= t('pro_ann_cancel_confirm', 'Annuler cette annonce ?') ?>')">
                                 <?= csrf_field() ?>

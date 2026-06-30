@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
 	"upcycleconnect/internal/services"
@@ -116,33 +115,10 @@ func AnnulerAnnonce(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		`SELECT a.Id_Annonces, COALESCE(a.Titre,''), COALESCE(a.Statut,'en_attente'),
-			COALESCE(a.Date_publication,''), COALESCE(a.Categorie,''),
-			COALESCE(a.Description,''), COALESCE(a.Prix,0), COALESCE(a.Ville,''),
-			COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(u.Email,'')
-		FROM Annonces a
-		JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
-		JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
-		ORDER BY a.Id_Annonces DESC`,
-	)
+	annonces, err := annonceSvc.ListerAdmin()
 	if err != nil {
 		httpx.JSONServerError(w, err)
 		return
-	}
-	defer rows.Close()
-
-	annonces := []map[string]interface{}{}
-	for rows.Next() {
-		var id int
-		var prix float64
-		var titre, statut, date, categorie, desc, ville, nom, prenom, email string
-		rows.Scan(&id, &titre, &statut, &date, &categorie, &desc, &prix, &ville, &nom, &prenom, &email)
-		annonces = append(annonces, map[string]interface{}{
-			"id": id, "titre": titre, "statut": statut, "date_publication": date,
-			"categorie": categorie, "description": desc, "prix": prix, "ville": ville,
-			"nom": nom, "prenom": prenom, "email": email,
-		})
 	}
 	httpx.JSONOK(w, http.StatusOK, annonces)
 }

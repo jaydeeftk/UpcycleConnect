@@ -92,6 +92,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_type', 'Type') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_titre', 'Titre') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_date', 'Date') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_duree', 'Durée') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_lieu', 'Lieu') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_animateur', 'Animateur') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_statut', 'Statut') ?></th>
@@ -101,7 +102,7 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
         <tbody class="divide-y divide-gray-200">
             <?php if (empty($items)): ?>
             <tr>
-                <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-10 text-center text-gray-500">
                     <i class="fas fa-calendar text-4xl mb-3 text-gray-300 block"></i>
                     <?= t('sal_planning_empty', 'Aucun élément dans le planning pour le moment.') ?>
                 </td>
@@ -129,6 +130,20 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
                     <?= formatDate($item['date'] ?? '', true) ?>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                    <?php
+                    $duree = (int)($item['duree'] ?? 0);
+                    if ($duree >= 60) {
+                        $h = intdiv($duree, 60);
+                        $m = $duree % 60;
+                        echo $h . 'h' . ($m > 0 ? str_pad($m, 2, '0', STR_PAD_LEFT) : '');
+                    } elseif ($duree > 0) {
+                        echo $duree . ' min';
+                    } else {
+                        echo '—';
+                    }
+                    ?>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">
                     <?= htmlspecialchars($item['lieu'] ?? '—') ?>

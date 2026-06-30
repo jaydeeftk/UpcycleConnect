@@ -37,11 +37,19 @@
                             <h2 class="text-2xl font-semibold"><?= htmlspecialchars(formatPrix($paiement['montant'] ?? 0)) ?></h2>
                             <div class="text-sm text-base-content/60"><?= formatDate($paiement['date'] ?? '') ?></div>
                         </div>
-                        <?php $statutPaye = in_array($paiement['statut'] ?? '', ['paye', 'payé', 'success', '1', 'completed']); ?>
-                        <?php $statutRembourse = ($paiement['statut'] ?? '') === 'rembourse'; ?>
+                        <?php
+                            $st = $paiement['statut'] ?? '';
+                            $statutPaye              = in_array($st, ['paye', 'payé', 'success', '1', 'completed']);
+                            $statutRembourse         = $st === 'rembourse';
+                            $statutEnAttenteRemb     = in_array($st, ['en_attente_remboursement', 'remboursement_en_attente', 'en_attente']);
+                        ?>
                         <?php if ($statutRembourse): ?>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                <?= t('payidx_status_refunded', 'Remboursé') ?>
+                                <i class="fas fa-check-circle mr-1"></i> <?= t('payidx_status_refunded', 'Remboursé') ?>
+                            </span>
+                        <?php elseif ($statutEnAttenteRemb): ?>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                                <i class="fas fa-clock mr-1"></i> <?= t('payidx_status_refund_pending', 'Remboursement en attente') ?>
                             </span>
                         <?php elseif ($statutPaye): ?>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
@@ -53,7 +61,7 @@
                             </span>
                         <?php endif; ?>
                     </div>
-                    <?php if (!$statutPaye && !$statutRembourse): ?>
+                    <?php if (!$statutPaye && !$statutRembourse && !$statutEnAttenteRemb): ?>
                         <a href="/payer"
                             class="inline-block bg-black text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">
                             <?= t('payidx_pay_now', 'Régler maintenant') ?>
@@ -66,7 +74,7 @@
                                     <i class="fas fa-file-pdf"></i> <?= t('payidx_download_invoice', 'Télécharger la facture') ?>
                                 </a>
                             <?php endif; ?>
-                            <?php if ($statutPaye): ?>
+                            <?php if ($statutPaye && !$statutEnAttenteRemb): ?>
                                 <form method="POST" action="/remboursements/demande" class="inline"
                                       onsubmit="return ucConfirm(this, '<?= t('payidx_refund_confirm', 'Demander le remboursement de ce paiement ?') ?>')">
                                     <?= csrf_field() ?>
@@ -75,6 +83,10 @@
                                         <i class="fas fa-rotate-left"></i> <?= t('payidx_request_refund', 'Demander un remboursement') ?>
                                     </button>
                                 </form>
+                            <?php elseif ($statutEnAttenteRemb): ?>
+                                <span class="inline-flex items-center gap-2 text-sm text-orange-600">
+                                    <i class="fas fa-hourglass-half"></i> <?= t('payidx_refund_processing', 'Votre demande est en cours de traitement') ?>
+                                </span>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

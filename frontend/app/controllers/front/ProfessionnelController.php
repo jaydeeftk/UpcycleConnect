@@ -246,6 +246,87 @@ class ProfessionnelController
         exit;
     }
 
+    // ─── Annonces pro ────────────────────────────────────────────────────────
+
+    public function annonces()
+    {
+        $annonces    = [];
+        $mesAnnonces = [];
+        try {
+            $r        = $this->api->get('/annonces');
+            $annonces = $r['data'] ?? (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        try {
+            $r           = $this->api->get('/annonces/user');
+            $mesAnnonces = $r['data'] ?? (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        $localisation = trim($_GET['localisation'] ?? '');
+        $type         = $_GET['type'] ?? 'tous';
+
+        if ($localisation !== '') {
+            $annonces = array_values(array_filter($annonces, function ($a) use ($localisation) {
+                return stripos($a['ville'] ?? '', $localisation) !== false
+                    || stripos($a['code_postal'] ?? '', $localisation) !== false;
+            }));
+        }
+        if ($type !== 'tous') {
+            $annonces = array_values(array_filter($annonces, fn($a) => ($a['type_annonce'] ?? '') === $type));
+        }
+
+        return view('professionnel.annonces.index', [
+            'annonces'     => $annonces,
+            'mesAnnonces'  => $mesAnnonces,
+            'localisation' => $localisation,
+            'page_title'   => 'Annonces',
+            'layout'       => 'raw',
+        ]);
+    }
+
+    public function createAnnonce()
+    {
+        return view('professionnel.annonces.create', [
+            'page_title' => 'Nouvelle annonce',
+            'layout'     => 'raw',
+        ]);
+    }
+
+    public function storeAnnonce()
+    {
+        $data = [
+            'titre'        => $_POST['titre']        ?? '',
+            'categorie'    => $_POST['categorie']    ?? '',
+            'description'  => $_POST['description']  ?? '',
+            'etat'         => $_POST['etat']         ?? '',
+            'type_annonce' => $_POST['type_annonce'] ?? 'don',
+            'prix'         => $_POST['type_annonce'] === 'vente' ? (float)($_POST['prix'] ?? 0) : 0,
+            'ville'        => trim($_POST['ville']        ?? ''),
+            'code_postal'  => trim($_POST['code_postal']  ?? ''),
+            'user_id'      => $_SESSION['user']['id'] ?? 0,
+        ];
+        if (!preg_match('/^\d{5}$/', $data['code_postal'])) {
+            return view('professionnel.annonces.create', [
+                'page_title' => 'Nouvelle annonce',
+                'layout'     => 'raw',
+                'error'      => 'Code postal invalide : 5 chiffres attendus.',
+            ]);
+        }
+        try {
+            $this->api->post('/annonces/create', $data);
+            $_SESSION['success'] = 'Annonce soumise avec succès. Elle sera vérifiée avant publication.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/annonces');
+    }
+
+    public function annulerAnnonce($id)
+    {
+        try { $this->api->post('/annonces/' . $id . '/annuler', []); } catch (\Exception $e) {}
+        redirect('/professionnel/annonces');
+    }
+
     public function notificationLue($id)
     {
         try { $this->api->post('/notifications/' . $id . '/lu', []); } catch (\Exception $e) {}

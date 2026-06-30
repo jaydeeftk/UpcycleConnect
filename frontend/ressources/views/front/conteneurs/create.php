@@ -153,6 +153,7 @@
                             class="input input-bordered w-full"
                             required
                             min="<?= date('Y-m-d', strtotime('+1 day')) ?>"
+                            max="<?= date('Y-m-d', strtotime('+2 years')) ?>"
                             value="<?= htmlspecialchars($_POST['date_depot'] ?? '') ?>"
                         >
                         <p class="text-xs text-base-content/50 mt-1"><?= t('contcre_date_help', 'Le dépôt doit être prévu au minimum 24h après votre demande.') ?></p>

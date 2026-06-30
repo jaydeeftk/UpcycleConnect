@@ -88,6 +88,31 @@ class CatalogueController
             $services = [];
         }
 
+        // Filtres côté PHP (les champs disponibles en BDD : id, titre, description, prix, duree, categorie)
+        $categorie = $_GET['categorie'] ?? '';
+        $prixMax   = $_GET['prix_max'] ?? '';
+        $tri       = $_GET['tri'] ?? 'pertinence';
+
+        if ($categorie !== '') {
+            $services = array_values(array_filter($services, fn($s) => strtolower($s['categorie'] ?? '') === strtolower($categorie)));
+        }
+
+        if ($prixMax !== '' && is_numeric($prixMax)) {
+            $services = array_values(array_filter($services, fn($s) => (float)($s['prix'] ?? 0) <= (float)$prixMax));
+        }
+
+        switch ($tri) {
+            case 'prix_asc':
+                usort($services, fn($a, $b) => (float)($a['prix'] ?? 0) <=> (float)($b['prix'] ?? 0));
+                break;
+            case 'prix_desc':
+                usort($services, fn($a, $b) => (float)($b['prix'] ?? 0) <=> (float)($a['prix'] ?? 0));
+                break;
+            default:
+                // Pertinence : ordre naturel de l'API
+                break;
+        }
+
         return view('front.catalogue.services', [
             'title'    => 'Services - UpcycleConnect',
             'services' => $services,

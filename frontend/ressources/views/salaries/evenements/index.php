@@ -179,7 +179,8 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date', 'Date') ?></label>
                     <input type="datetime-local" name="date"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                           min="<?= date('Y-m-d\TH:i') ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_lieu', 'Lieu') ?></label>
@@ -235,7 +236,8 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date', 'Date') ?></label>
                     <input type="datetime-local" name="date" id="edit-date"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                           min="<?= date('Y-m-d\TH:i') ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_lieu', 'Lieu') ?></label>

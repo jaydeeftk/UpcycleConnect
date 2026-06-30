@@ -101,6 +101,11 @@ $router->post('/professionnel/contrats/{id}/resilier', 'Front\ProfessionnelContr
 $router->post('/professionnel/notifications/{id}/lu', 'Front\ProfessionnelController@notificationLue');
 $router->get('/professionnel/impact/pdf', 'Front\ProfessionnelController@impactPdf');
 
+$router->get('/professionnel/annonces', 'Front\ProfessionnelController@annonces');
+$router->get('/professionnel/annonces/create', 'Front\ProfessionnelController@createAnnonce');
+$router->post('/professionnel/annonces/store', 'Front\ProfessionnelController@storeAnnonce');
+$router->post('/professionnel/annonces/{id}/annuler', 'Front\ProfessionnelController@annulerAnnonce');
+
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
 $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');
 

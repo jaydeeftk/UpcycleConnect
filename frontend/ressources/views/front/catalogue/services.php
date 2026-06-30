@@ -14,7 +14,7 @@
     </div>
 
     <div class="bg-base-100 rounded-2xl shadow-sm p-6 mb-8">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catsvc_filter_category', 'Catégorie') ?></label>
                 <select name="categorie" class="select select-bordered w-full select-sm">
@@ -31,19 +31,14 @@
                 <input type="number" name="prix_max" min="0" placeholder="<?= t('catsvc_filter_price_ph', 'Ex : 100') ?>" value="<?= htmlspecialchars($_GET['prix_max'] ?? '') ?>" class="input input-bordered w-full input-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catsvc_filter_location', 'Localisation') ?></label>
-                <input type="text" name="localisation" placeholder="<?= t('catsvc_filter_location_ph', 'Ville ou code postal') ?>" value="<?= htmlspecialchars($_GET['localisation'] ?? '') ?>" class="input input-bordered w-full input-sm">
-            </div>
-            <div>
                 <label class="block text-xs font-semibold text-base-content/50 mb-2 uppercase"><?= t('catsvc_filter_sort', 'Trier par') ?></label>
                 <select name="tri" class="select select-bordered w-full select-sm">
                     <option value="pertinence"><?= t('catsvc_sort_relevance', 'Pertinence') ?></option>
                     <option value="prix_asc" <?= ($_GET['tri'] ?? '') === 'prix_asc' ? 'selected' : '' ?>><?= t('catsvc_sort_price_asc', 'Prix croissant') ?></option>
                     <option value="prix_desc" <?= ($_GET['tri'] ?? '') === 'prix_desc' ? 'selected' : '' ?>><?= t('catsvc_sort_price_desc', 'Prix décroissant') ?></option>
-                    <option value="note" <?= ($_GET['tri'] ?? '') === 'note' ? 'selected' : '' ?>><?= t('catsvc_sort_rating', 'Mieux notés') ?></option>
                 </select>
             </div>
-            <div class="md:col-span-4 flex justify-end gap-3">
+            <div class="md:col-span-3 flex justify-end gap-3">
                 <a href="/catalogue/services" class="btn btn-ghost btn-sm"><?= t('catsvc_reset_btn', 'Réinitialiser') ?></a>
                 <button type="submit" class="btn btn-neutral btn-sm">
                     <i class="fas fa-filter mr-2"></i><?= t('catsvc_filter_btn', 'Filtrer') ?>
@@ -77,7 +72,7 @@
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                     <div class="absolute top-3 left-3">
-                        <span class="badge badge-sm bg-white/90 text-gray-700 border-0"><?= htmlspecialchars($service['categorie'] ?? '') ?></span>
+                        <span class="badge badge-sm bg-white/90 text-gray-800 border-0" style="color:#1f2937!important"><?= htmlspecialchars($service['categorie'] ?? '') ?></span>
                     </div>
                 </div>
                 <div class="p-6">

@@ -21,10 +21,19 @@ class FinancesController
             $finances = [];
         }
 
+        $remboursements = [];
+        try {
+            $res = $this->api->get('/remboursements');
+            $remboursements = $res['data'] ?? (is_array($res) && !isset($res['success']) ? $res : []);
+        } catch (\Exception $e) {
+            $remboursements = [];
+        }
+
         return view('admin.finances.index', [
-            'finances' => $finances,
-            'page_title' => 'Tableau de bord financier',
-            'page_subtitle' => 'Suivi du chiffre d\'affaires et des commissions'
+            'finances'        => $finances,
+            'remboursements'  => $remboursements,
+            'page_title'      => 'Tableau de bord financier',
+            'page_subtitle'   => 'Suivi du chiffre d\'affaires et des commissions'
         ]);
     }
 }

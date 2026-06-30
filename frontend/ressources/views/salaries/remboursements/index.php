@@ -44,6 +44,15 @@ unset($_SESSION['success'], $_SESSION['error']);
 
 <!  Liste des demandes  >
 <div class="bg-white rounded-lg shadow overflow-hidden">
+    <?php
+    $demandesEnAttente = array_filter($demandes ?? [], fn($d) => ($d['statut'] ?? '') === 'en_attente');
+    ?>
+    <?php if (!empty($demandes) && empty($demandesEnAttente)): ?>
+    <div class="px-6 py-4 bg-green-50 border-b border-green-100 flex items-center gap-2 text-green-700 text-sm font-medium">
+        <i class="fas fa-check-circle"></i>
+        <?= t('sal_remb_none_pending', 'Aucun remboursement en attente — tout est traité.') ?>
+    </div>
+    <?php endif; ?>
     <table class="min-w-full">
         <thead class="bg-gray-50">
             <tr>

@@ -34,7 +34,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/annonces" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                    <a href="/professionnel/annonces" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-bullhorn w-5"></i><span><?= t('pro_nav_annonces', 'Annonces') ?></span>
                     </a>
                 </li>
@@ -234,7 +234,7 @@
                     <div class="text-center py-6 text-gray-400">
                         <i class="fas fa-heart text-3xl mb-2 block"></i>
                         <p class="text-sm"><?= t('pro_favorites_empty', 'Aucune annonce en favoris.') ?></p>
-                        <a href="/annonces" class="text-blue-500 hover:underline text-sm mt-1 inline-block"><?= t('pro_favorites_browse', 'Parcourir les annonces') ?></a>
+                        <a href="/professionnel/annonces" class="text-blue-500 hover:underline text-sm mt-1 inline-block"><?= t('pro_favorites_browse', 'Parcourir les annonces') ?></a>
                     </div>
                 <?php else: ?>
                     <div class="space-y-3">

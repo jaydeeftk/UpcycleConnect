@@ -62,6 +62,70 @@
     </div>
 </div>
 
+<!-- Section remboursements (lecture seule) -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mt-6">
+    <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fas fa-rotate-left text-amber-500"></i>
+            <?= t('adm_finances_remb_title', 'Demandes de remboursement') ?>
+        </h3>
+        <?php
+        $rembEnAttente = array_filter($remboursements ?? [], fn($r) => ($r['statut'] ?? '') === 'en_attente');
+        $nbAttente = count($rembEnAttente);
+        ?>
+        <?php if ($nbAttente > 0): ?>
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                <i class="fas fa-clock"></i> <?= $nbAttente ?> <?= t('adm_finances_remb_pending', 'en attente') ?>
+            </span>
+        <?php else: ?>
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                <i class="fas fa-check-circle"></i> <?= t('adm_finances_remb_none_pending', 'Aucun en attente') ?>
+            </span>
+        <?php endif; ?>
+    </div>
+
+    <?php if (empty($remboursements)): ?>
+        <p class="text-slate-400 text-sm italic text-center py-8"><?= t('adm_finances_remb_empty', 'Aucune demande de remboursement enregistrée.') ?></p>
+    <?php else: ?>
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+            <thead>
+                <tr class="border-b border-slate-100">
+                    <th class="text-left text-xs font-semibold text-slate-500 uppercase pb-3 pr-4"><?= t('adm_finances_remb_col_demandeur', 'Demandeur') ?></th>
+                    <th class="text-left text-xs font-semibold text-slate-500 uppercase pb-3 pr-4"><?= t('adm_finances_remb_col_montant', 'Montant') ?></th>
+                    <th class="text-left text-xs font-semibold text-slate-500 uppercase pb-3 pr-4"><?= t('adm_finances_remb_col_motif', 'Motif') ?></th>
+                    <th class="text-left text-xs font-semibold text-slate-500 uppercase pb-3 pr-4"><?= t('adm_finances_remb_col_date', 'Date demande') ?></th>
+                    <th class="text-left text-xs font-semibold text-slate-500 uppercase pb-3"><?= t('adm_finances_remb_col_statut', 'Statut') ?></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                <?php foreach ($remboursements as $r):
+                    $st  = $r['statut'] ?? '';
+                    $cls = match ($st) {
+                        'remboursee' => 'bg-green-100 text-green-700',
+                        'en_attente' => 'bg-yellow-100 text-yellow-700',
+                        'approuvee'  => 'bg-blue-100 text-blue-700',
+                        'refusee'    => 'bg-gray-100 text-gray-600',
+                        'echouee'    => 'bg-red-100 text-red-700',
+                        default      => 'bg-gray-100 text-gray-600',
+                    };
+                ?>
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 pr-4 text-slate-800 font-medium"><?= htmlspecialchars(trim(($r['prenom'] ?? '') . ' ' . ($r['nom'] ?? '')) ?: '—') ?></td>
+                    <td class="py-3 pr-4 font-semibold"><?= htmlspecialchars(formatPrix($r['montant'] ?? 0)) ?></td>
+                    <td class="py-3 pr-4 text-slate-600"><?= htmlspecialchars($r['motif'] ?? '—') ?: '—' ?></td>
+                    <td class="py-3 pr-4 text-slate-500 whitespace-nowrap"><?= formatDate($r['date_demande'] ?? '', true) ?></td>
+                    <td class="py-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold <?= $cls ?>"><?= htmlspecialchars(formatStatut($st)) ?></span>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php endif; ?>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const finances = <?= json_encode($finances ?? []) ?>;

@@ -171,7 +171,10 @@
         function createDropdown() {
             var el = document.createElement('div');
             el.id = 'geo-dropdown';
-            el.style.cssText = 'position:absolute;z-index:9999;background:white;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;min-width:240px;font-family:inherit';
+            var isDark = document.documentElement.classList.contains('dark');
+            var bg  = isDark ? '#1e293b' : '#ffffff';
+            var bdr = isDark ? '#334155' : '#e2e8f0';
+            el.style.cssText = 'position:absolute;z-index:9999;background:' + bg + ';border:1px solid ' + bdr + ';border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.1);max-height:240px;overflow-y:auto;min-width:240px;font-family:inherit';
             document.body.appendChild(el);
             return el;
         }
@@ -192,15 +195,20 @@
             positionDropdown(input);
             if (!results.length) { hideDropdown(); return; }
             dropdown.style.display = 'block';
+            var isDark = document.documentElement.classList.contains('dark');
+            var txtMain  = isDark ? '#f1f5f9' : '#1e293b';
+            var txtHint  = isDark ? '#94a3b8' : '#94a3b8';
+            var bdrItem  = isDark ? '#334155' : '#f1f5f9';
+            var bgHover  = isDark ? '#334155' : '#f0fdf4';
             dropdown.innerHTML = results.map(function(c) {
                 var cps = (c.codesPostaux || []).filter(Boolean);
                 var hint = cps.length ? (cps.length > 1 ? cps[0] + '…' : cps[0]) : '';
-                return '<div class="geo-item" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f1f5f9;transition:background 120ms" data-nom="' + c.nom + '" data-cps="' + encodeURIComponent(JSON.stringify(cps)) + '">' +
-                    '<span style="font-weight:600">' + c.nom + '</span>' + (hint ? '<span style="color:#94a3b8;font-size:11px"> — ' + hint + '</span>' : '') +
+                return '<div class="geo-item" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid ' + bdrItem + ';transition:background 120ms;color:' + txtMain + '" data-nom="' + c.nom + '" data-cps="' + encodeURIComponent(JSON.stringify(cps)) + '">' +
+                    '<span style="font-weight:600">' + c.nom + '</span>' + (hint ? '<span style="color:' + txtHint + ';font-size:11px"> — ' + hint + '</span>' : '') +
                     '</div>';
             }).join('');
             dropdown.querySelectorAll('.geo-item').forEach(function(item) {
-                item.addEventListener('mouseenter', function() { this.style.background = '#f0fdf4'; });
+                item.addEventListener('mouseenter', function() { this.style.background = bgHover; });
                 item.addEventListener('mouseleave', function() { this.style.background = ''; });
                 item.addEventListener('mousedown', function(e) {
                     e.preventDefault();

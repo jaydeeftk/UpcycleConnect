@@ -72,6 +72,29 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     </div>
 </div>
 
+<!  Vue grille (jour / semaine / mois)  >
+<div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-800"><?= t('sal_planning_grid_title', 'Vue calendrier') ?></h3>
+        <div class="tabs tabs-boxed bg-gray-100 p-1 rounded-2xl">
+            <button onclick="setVue('jour')" id="tab-jour" class="tab"><?= t('planning_tab_day', 'Jour') ?></button>
+            <button onclick="setVue('semaine')" id="tab-semaine" class="tab tab-active"><?= t('planning_tab_week', 'Semaine') ?></button>
+            <button onclick="setVue('mois')" id="tab-mois" class="tab"><?= t('planning_tab_month', 'Mois') ?></button>
+        </div>
+    </div>
+    <div class="flex items-center justify-between mb-3">
+        <button onclick="naviguer(-1)" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></button>
+        <span id="periode-label" class="font-semibold text-gray-700"></span>
+        <button onclick="naviguer(1)" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    <div id="vue-container"></div>
+    <div class="flex gap-4 mt-4 text-xs text-gray-500">
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-200 inline-block"></span> <?= t('sal_type_evenement', 'Événement') ?></span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-200 inline-block"></span> <?= t('sal_type_formation', 'Formation') ?></span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-purple-200 inline-block"></span> <?= t('sal_type_atelier', 'Atelier') ?></span>
+    </div>
+</div>
+
 <!  Filtres  >
 <div class="flex gap-2 mb-4">
     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-green-500 text-white text-sm font-medium transition"
@@ -166,13 +189,21 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
                     </span>
                 </td>
                 <td class="px-6 py-4">
-                    <form method="POST" action="/salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)($item['id'] ?? 0) ?>" class="inline"
-                       onsubmit="return ucConfirm(this, '<?= t('sal_planning_delete_confirm', 'Supprimer cet élément ?') ?>')">
-                        <?= csrf_field() ?>
-                        <button type="submit" class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
+                    <div class="flex items-center gap-3">
+                        <?php if ($item['peut_deleguer'] ?? false): ?>
+                            <button type="button" class="text-purple-600 hover:text-purple-800" title="<?= t('sal_action_deleguer', 'Déléguer') ?>"
+                                    onclick="ouvrirDeleguer('<?= htmlspecialchars($item['type']) ?>', <?= (int)($item['id'] ?? 0) ?>, '<?= htmlspecialchars(addslashes($item['titre'] ?? ''), ENT_QUOTES) ?>')">
+                                <i class="fas fa-user-friends"></i>
+                            </button>
+                        <?php endif; ?>
+                        <form method="POST" action="/salaries/planning/<?= htmlspecialchars($item['type']) ?>/delete/<?= (int)($item['id'] ?? 0) ?>" class="inline"
+                           onsubmit="return ucConfirm(this, '<?= t('sal_planning_delete_confirm', 'Supprimer cet élément ?') ?>')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -257,6 +288,19 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_date_debut', 'Date de début') ?> *</label>
+                    <input type="datetime-local" name="date_debut" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_date_fin', 'Date de fin') ?></label>
+                    <input type="date" name="date_fin"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <p class="text-xs text-gray-400 mt-1"><?= t('sal_field_date_fin_hint', 'Si la formation dure plusieurs jours') ?></p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('sal_field_prix', 'Prix (€)') ?></label>
                     <input type="number" name="prix" min="0" step="0.01" placeholder="0.00"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
@@ -322,6 +366,277 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     </div>
 </div>
 
+<!-- Modal Déléguer -->
+<div id="modal-deleguer" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold"><?= t('sal_deleguer_title', 'Déléguer') ?> — <span id="deleguer-titre"></span></h3>
+            <button type="button" onclick="document.getElementById('modal-deleguer').classList.add('hidden')"
+                    class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-4"><?= t('sal_deleguer_hint', 'Choisissez le salarié qui animera cet événement à votre place.') ?></p>
+        <select id="deleguer-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4">
+            <option value="0"><?= t('sal_deleguer_moi', '— Moi-même (aucune délégation) —') ?></option>
+        </select>
+        <div class="flex justify-end gap-3">
+            <button type="button" onclick="document.getElementById('modal-deleguer').classList.add('hidden')"
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><?= t('sal_cancel', 'Annuler') ?></button>
+            <button type="button" onclick="validerDelegation()" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
+                <i class="fas fa-check mr-2"></i><?= t('sal_deleguer_valider', 'Valider') ?>
+            </button>
+        </div>
+        <p id="deleguer-erreur" class="text-red-600 text-xs mt-2 hidden"></p>
+    </div>
+</div>
+
+<script>
+const TOKEN = <?= json_encode($token ?? '') ?>;
+const ITEMS = <?= json_encode(array_map(fn($i) => [
+    'id'       => $i['id'] ?? 0,
+    'titre'    => $i['titre'] ?? '',
+    'date'     => $i['date'] ?? '',
+    'date_fin' => $i['date_fin'] ?? '',
+    'lieu'     => $i['lieu'] ?? '',
+    'duree'    => $i['duree'] ?? 0,
+    'type'     => $i['type'] ?? 'evenement',
+], array_values($items ?? []))) ?>;
+
+let vue = 'semaine';
+let filtreType = 'all';
+
+function itemsVisibles() {
+    return filtreType === 'all' ? ITEMS : ITEMS.filter(i => i.type === filtreType);
+}
+let dateRef = new Date();
+dateRef.setHours(0,0,0,0);
+
+const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const JOURS_COURTS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const JOURS_LONGS  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+
+// Plage horaire affichee dans la vue "Semaine" (grille avec heures, comme un vrai
+// calendrier) : un creneau de 14h a 17h occupe visuellement 3 lignes de la grille.
+const SEMAINE_HEURE_DEBUT = 9;
+const SEMAINE_HEURE_FIN   = 19;
+const SEMAINE_ROW_H       = 48;
+
+function itemDate(item) {
+    if (!item.date) return null;
+    const m = String(item.date).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+    if (!m) return null;
+    return new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+}
+
+function sameDay(a, b) {
+    return a.getFullYear() === b.getFullYear() &&
+           a.getMonth() === b.getMonth() &&
+           a.getDate() === b.getDate();
+}
+
+// Une formation avec date_fin (plusieurs jours) apparait sur chaque jour de la
+// grille compris entre sa date de debut et sa date de fin.
+function itemCouvreJour(item, jour) {
+    const debut = itemDate(item);
+    if (!debut) return false;
+    if (!item.date_fin) return sameDay(debut, jour);
+    const m = String(item.date_fin).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return sameDay(debut, jour);
+    const fin       = new Date(+m[1], +m[2] - 1, +m[3]);
+    const jourSeul  = new Date(jour.getFullYear(), jour.getMonth(), jour.getDate());
+    const debutSeul = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate());
+    return jourSeul >= debutSeul && jourSeul <= fin;
+}
+
+function formatHeure(d) {
+    return String(d.getHours()).padStart(2,'0') + 'h' + String(d.getMinutes()).padStart(2,'0');
+}
+
+function trierParHeure(items) {
+    return [...items].sort((a, b) => {
+        const da = itemDate(a), db = itemDate(b);
+        if (!da || !db) return 0;
+        return da - db;
+    });
+}
+
+function colorClass(type) {
+    if (type === 'formation') return 'bg-green-100 text-green-700 border-green-300';
+    if (type === 'atelier')   return 'bg-purple-100 text-purple-700 border-purple-300';
+    return 'bg-blue-100 text-blue-700 border-blue-300';
+}
+
+function formatPlageHoraire(item) {
+    const d = itemDate(item);
+    if (!d) return '';
+    let label = formatHeure(d);
+    if (item.duree && item.duree > 0) {
+        const fin = new Date(d);
+        fin.setHours(fin.getHours() + item.duree);
+        label += ' - ' + formatHeure(fin);
+    }
+    return label;
+}
+
+function cardHtml(item) {
+    const heure = formatPlageHoraire(item);
+    return `<div class="${colorClass(item.type)} border rounded-lg p-2 text-xs mb-1">
+        <div class="font-semibold">${heure}</div>
+        <div class="mt-0.5 leading-tight">${item.titre}</div>
+        ${item.lieu ? `<div class="mt-1 opacity-70"><i class="fas fa-map-marker-alt mr-1"></i>${item.lieu}</div>` : ''}
+    </div>`;
+}
+
+// Bloc positionne en absolu dans la grille horaire de la vue "Semaine" : le top
+// et la hauteur sont calcules a partir de l'heure de debut et de la duree, pour
+// qu'un creneau de 14h a 17h occupe visuellement l'espace entre ces deux heures.
+function carteSemainePositionnee(item) {
+    const d = itemDate(item);
+    const debutH = d ? Math.max(SEMAINE_HEURE_DEBUT, Math.min(d.getHours() + d.getMinutes() / 60, SEMAINE_HEURE_FIN)) : SEMAINE_HEURE_DEBUT;
+    const dureeH = item.duree && item.duree > 0 ? item.duree : 1;
+    const top    = (debutH - SEMAINE_HEURE_DEBUT) * SEMAINE_ROW_H;
+    const height = Math.max(dureeH * SEMAINE_ROW_H, 22);
+    const heure  = formatPlageHoraire(item);
+    return `<div class="${colorClass(item.type)} border rounded-lg p-1 text-xs overflow-hidden absolute left-1 right-1" style="top:${top}px;height:${height}px;">
+        <div class="font-semibold leading-tight">${heure}</div>
+        <div class="leading-tight">${item.titre}</div>
+    </div>`;
+}
+
+function setVue(v) {
+    vue = v;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active'));
+    document.getElementById('tab-' + v).classList.add('tab-active');
+    render();
+}
+
+function naviguer(dir) {
+    if (vue === 'jour')    dateRef.setDate(dateRef.getDate() + dir);
+    if (vue === 'semaine') dateRef.setDate(dateRef.getDate() + dir * 7);
+    if (vue === 'mois')    dateRef.setMonth(dateRef.getMonth() + dir);
+    render();
+}
+
+function render() {
+    if (vue === 'jour')    renderJour();
+    if (vue === 'semaine') renderSemaine();
+    if (vue === 'mois')    renderMois();
+}
+
+function renderJour() {
+    const label = JOURS_LONGS[dateRef.getDay()] + ' ' + dateRef.getDate() + ' ' + MOIS_FR[dateRef.getMonth()] + ' ' + dateRef.getFullYear();
+    document.getElementById('periode-label').textContent = label;
+
+    const itemsDuJour = itemsVisibles().filter(i => itemCouvreJour(i, dateRef));
+    const heures = Array.from({length: 16}, (_, i) => i + 6);
+    const sansHeure = itemsDuJour.filter(i => { const d = itemDate(i); return d && d.getHours() < 6; });
+
+    let html = '<div class="bg-gray-50 rounded-lg p-4 space-y-3">';
+    if (sansHeure.length > 0) {
+        html += `<div class="flex gap-4 items-start">
+            <span class="text-xs text-gray-400 w-12 pt-1 flex-shrink-0"><?= t('planning_all_day', 'Journée') ?></span>
+            <div class="flex-1 border-t border-gray-200 pt-1 min-h-8">${trierParHeure(sansHeure).map(cardHtml).join('')}</div>
+        </div>`;
+    }
+    for (const h of heures) {
+        const label2 = String(h).padStart(2,'0') + 'h00';
+        const items = itemsDuJour.filter(i => { const d = itemDate(i); return d && d.getHours() === h; });
+        html += `<div class="flex gap-4 items-start">
+            <span class="text-xs text-gray-400 w-12 pt-1 flex-shrink-0">${label2}</span>
+            <div class="flex-1 border-t border-gray-200 pt-1 min-h-8">${trierParHeure(items).map(cardHtml).join('')}</div>
+        </div>`;
+    }
+    html += '</div>';
+    document.getElementById('vue-container').innerHTML = html;
+}
+
+function renderSemaine() {
+    const lundi = new Date(dateRef);
+    const jour = dateRef.getDay();
+    const diff = jour === 0 ? -6 : 1 - jour;
+    lundi.setDate(dateRef.getDate() + diff);
+
+    const jours = Array.from({length: 7}, (_, i) => {
+        const d = new Date(lundi);
+        d.setDate(lundi.getDate() + i);
+        return d;
+    });
+
+    const dimanche = jours[6];
+    document.getElementById('periode-label').textContent =
+        '<?= t('planning_week_of', 'Semaine du') ?> ' + lundi.getDate() + ' <?= t('planning_week_to', 'au') ?> ' + dimanche.getDate() + ' ' + MOIS_FR[dimanche.getMonth()] + ' ' + dimanche.getFullYear();
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const heuresAxe = Array.from({length: SEMAINE_HEURE_FIN - SEMAINE_HEURE_DEBUT}, (_, i) => SEMAINE_HEURE_DEBUT + i);
+    const hauteurTotale = heuresAxe.length * SEMAINE_ROW_H;
+
+    let html = '<div class="bg-white border border-gray-200 rounded-lg overflow-hidden">';
+    html += '<div class="grid" style="grid-template-columns: 48px repeat(7, 1fr);">';
+    html += '<div class="border-b border-gray-200"></div>';
+    for (const d of jours) {
+        const isToday = sameDay(d, today);
+        html += `<div class="p-3 text-center text-sm border-b border-l border-gray-200 ${isToday ? 'bg-green-50 font-bold text-green-600' : 'text-gray-400'}">
+            ${JOURS_COURTS[d.getDay()]} ${d.getDate()}
+        </div>`;
+    }
+    html += '</div>';
+
+    html += '<div class="grid" style="grid-template-columns: 48px repeat(7, 1fr);">';
+    html += `<div style="height:${hauteurTotale}px;">`;
+    for (const h of heuresAxe) {
+        html += `<div class="text-xs text-gray-400 text-right pr-1" style="height:${SEMAINE_ROW_H}px;">${String(h).padStart(2,'0')}h</div>`;
+    }
+    html += '</div>';
+    for (const d of jours) {
+        const items = itemsVisibles().filter(i => itemCouvreJour(i, d));
+        html += `<div class="relative border-l border-gray-200" style="height:${hauteurTotale}px;">`;
+        for (let i = 0; i < heuresAxe.length; i++) {
+            html += `<div class="absolute left-0 right-0 border-t border-gray-100" style="top:${i * SEMAINE_ROW_H}px;"></div>`;
+        }
+        html += items.map(carteSemainePositionnee).join('');
+        html += '</div>';
+    }
+    html += '</div></div>';
+    document.getElementById('vue-container').innerHTML = html;
+}
+
+function renderMois() {
+    const annee = dateRef.getFullYear();
+    const mois  = dateRef.getMonth();
+    document.getElementById('periode-label').textContent = MOIS_FR[mois] + ' ' + annee;
+
+    const premier = new Date(annee, mois, 1);
+    const dernier = new Date(annee, mois + 1, 0);
+    const today   = new Date(); today.setHours(0,0,0,0);
+
+    let joursVides = premier.getDay() === 0 ? 6 : premier.getDay() - 1;
+
+    let html = '<div class="bg-white border border-gray-200 rounded-lg overflow-hidden">';
+    html += '<div class="grid grid-cols-7 border-b border-gray-200">';
+    for (const j of ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']) {
+        html += `<div class="p-3 text-center text-xs font-semibold text-gray-400">${j}</div>`;
+    }
+    html += '</div><div class="grid grid-cols-7 divide-x divide-y divide-gray-200">';
+    for (let i = 0; i < joursVides; i++) {
+        html += '<div class="p-2 min-h-20 bg-gray-50"></div>';
+    }
+    for (let d = 1; d <= dernier.getDate(); d++) {
+        const cur = new Date(annee, mois, d);
+        const isToday = sameDay(cur, today);
+        const items = itemsVisibles().filter(i => itemCouvreJour(i, cur));
+        html += `<div class="p-2 min-h-20 ${isToday ? 'bg-green-50' : ''}">
+            <span class="text-sm ${isToday ? 'font-bold text-green-600' : 'text-gray-500'}">${d}</span>
+            ${trierParHeure(items).map(i => `<div class="${colorClass(i.type)} rounded text-xs p-1 mt-1 leading-tight">${formatPlageHoraire(i)} ${i.titre}</div>`).join('')}
+        </div>`;
+    }
+    html += '</div></div>';
+    document.getElementById('vue-container').innerHTML = html;
+}
+
+render();
+</script>
+
 <script>
 
 document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -337,13 +652,66 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         document.querySelectorAll('.planning-row').forEach(row => {
             row.style.display = (filter === 'all' || row.dataset.type === filter) ? '' : 'none';
         });
+
+        filtreType = filter;
+        render();
     });
 });
 
 
-['modal-evenement', 'modal-formation', 'modal-atelier'].forEach(id => {
+['modal-evenement', 'modal-formation', 'modal-atelier', 'modal-deleguer'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) this.classList.add('hidden');
     });
 });
+</script>
+
+<script>
+// --- Délégation (animateur assigné) ---
+let deleguerType = null, deleguerId = null;
+
+function ouvrirDeleguer(type, id, titre) {
+    deleguerType = type;
+    deleguerId = id;
+    document.getElementById('deleguer-titre').textContent = titre;
+    document.getElementById('deleguer-erreur').classList.add('hidden');
+    const select = document.getElementById('deleguer-select');
+    select.innerHTML = '<option value="0"><?= t('sal_deleguer_moi', '— Moi-même (aucune délégation) —') ?></option>';
+    fetch('/api/salaries/liste', { headers: { 'Authorization': 'Bearer ' + TOKEN } })
+        .then(r => r.json())
+        .then(json => {
+            const salaries = json.data || json;
+            if (Array.isArray(salaries)) {
+                salaries.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.prenom + ' ' + s.nom;
+                    select.appendChild(opt);
+                });
+            }
+        })
+        .catch(() => {});
+    document.getElementById('modal-deleguer').classList.remove('hidden');
+}
+
+function validerDelegation() {
+    const idAnimateur = parseInt(document.getElementById('deleguer-select').value, 10) || 0;
+    const err = document.getElementById('deleguer-erreur');
+    err.classList.add('hidden');
+    fetch('/api/salaries/deleguer/' + deleguerType + '/' + deleguerId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({ id_animateur: idAnimateur })
+    })
+        .then(r => r.json().then(json => ({ ok: r.ok, json })))
+        .then(({ ok, json }) => {
+            if (!ok) {
+                err.textContent = (json && json.error) || <?= json_encode(t('sal_deleguer_err_generic', 'Une erreur est survenue.')) ?>;
+                err.classList.remove('hidden');
+                return;
+            }
+            location.reload();
+        })
+        .catch(() => {});
+}
 </script>

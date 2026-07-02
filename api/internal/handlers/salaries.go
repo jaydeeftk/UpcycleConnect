@@ -63,7 +63,7 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		rows, err := database.DB.Query(
 			`SELECT Id_Formations, Titre, Description, Prix, Duree, COALESCE(Statut,'en_attente'),
-				COALESCE(Date_formation,''), COALESCE(Places_total,0), COALESCE(Places_dispo,0),
+				COALESCE(Date_formation,''), COALESCE(DATE_FORMAT(Date_fin, '%Y-%m-%d'),''), COALESCE(Places_total,0), COALESCE(Places_dispo,0),
 				COALESCE(Localisation,''), COALESCE(Categorie,'')
 			FROM Formations WHERE Id_Salaries=? ORDER BY Id_Formations DESC`, salarieID,
 		)
@@ -75,12 +75,12 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 		formations := []map[string]interface{}{}
 		for rows.Next() {
 			var id, duree, pTotal, pDispo int
-			var titre, desc, statut, date, loc, cat string
+			var titre, desc, statut, date, dateFin, loc, cat string
 			var prix float64
-			rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &pTotal, &pDispo, &loc, &cat)
+			rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &dateFin, &pTotal, &pDispo, &loc, &cat)
 			formations = append(formations, map[string]interface{}{
 				"id": id, "titre": titre, "description": desc, "prix": prix,
-				"duree": duree, "statut": statut, "date": date,
+				"duree": duree, "statut": statut, "date": date, "date_fin": dateFin,
 				"places_total": pTotal, "places_dispo": pDispo,
 				"localisation": loc, "categorie": cat,
 			})
@@ -94,6 +94,7 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 			Prix          float64 `json:"prix"`
 			Duree         int     `json:"duree"`
 			DateFormation string  `json:"date_formation"`
+			DateFin       string  `json:"date_fin"`
 			PlacesTotal   int     `json:"places_total"`
 			Localisation  string  `json:"localisation"`
 			Categorie     string  `json:"categorie"`
@@ -106,11 +107,14 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteError(w, err)
 			return
 		}
+		if body.PlacesTotal == 0 {
+			body.PlacesTotal = 20
+		}
 		result, err := database.DB.Exec(
-			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Statut_validation, Date_formation,
+			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Statut_validation, Date_formation, Date_fin,
 				Places_total, Places_dispo, Localisation, Categorie, Id_Salaries)
-			VALUES (?,?,?,?,'en_attente','en_attente',?,?,?,?,?,?)`,
-			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation,
+			VALUES (?,?,?,?,'en_attente','en_attente',?,NULLIF(?, ''),?,?,?,?,?)`,
+			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation, body.DateFin,
 			body.PlacesTotal, body.PlacesTotal, body.Localisation, body.Categorie, salarieID,
 		)
 		if err != nil {
@@ -142,17 +146,18 @@ func SalarieFormationAction(w http.ResponseWriter, r *http.Request) {
 			Prix          float64 `json:"prix"`
 			Duree         int     `json:"duree"`
 			DateFormation string  `json:"date_formation"`
+			DateFin       string  `json:"date_fin"`
 			PlacesTotal   int     `json:"places_total"`
 			Localisation  string  `json:"localisation"`
 			Categorie     string  `json:"categorie"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
 		database.DB.Exec(
-			`UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Date_formation=?,
+			`UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Date_formation=?, Date_fin=NULLIF(?, ''),
 				Places_total=?, Localisation=?, Categorie=?,
 				Statut_validation='en_attente', Motif_refus=NULL
 			WHERE Id_Formations=? AND Id_Salaries=?`,
-			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation,
+			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation, body.DateFin,
 			body.PlacesTotal, body.Localisation, body.Categorie, id, salarieID,
 		)
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation mise à jour"})

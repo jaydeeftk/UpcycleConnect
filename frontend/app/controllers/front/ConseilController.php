@@ -75,6 +75,7 @@ class ConseilController
         return view('front.conseils.sujet', [
             'title' => ($sujet['titre'] ?? 'Sujet') . ' - Forum UpcycleConnect',
             'sujet' => $sujet,
+            'token' => $_SESSION['user']['token'] ?? '',
         ]);
     }
 

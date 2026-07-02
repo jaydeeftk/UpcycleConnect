@@ -597,6 +597,69 @@ func (s *FacturationService) ListerAbonnements() ([]AbonnementDTO, error) {
 	return out, nil
 }
 
+const PrixAbonnementPremium = 24.99
+
+func (s *FacturationService) ProAbonnementActuel(idPro int) (*AbonnementDTO, error) {
+	lignes, err := s.repo.AbonnementsDuPro(database.DB, idPro)
+	if err != nil {
+		return nil, err
+	}
+	if len(lignes) == 0 {
+		return nil, nil
+	}
+	a := lignes[0]
+	return &AbonnementDTO{
+		ID: a.ID, Type: a.Type, Statut: a.Statut, Prix: a.Prix,
+		DateDebut: a.DateDebut, DateFin: a.DateFin,
+		ActionsAutorisees: domain.ActionsAbonnementAdmin(a.Statut),
+	}, nil
+}
+
+func (s *FacturationService) ProSouscrireAbonnement(idPro int, referenceStripe string) (string, error) {
+	if idPro <= 0 {
+		return "", domain.Forbidden("Action réservée aux professionnels")
+	}
+	actuel, err := s.ProAbonnementActuel(idPro)
+	if err != nil {
+		return "", err
+	}
+	if actuel != nil && (actuel.Statut == domain.StatutAbonnementActif || actuel.Statut == domain.StatutAbonnementSuspendu) {
+		return "", domain.Conflit("Vous avez déjà un abonnement en cours")
+	}
+	id := "ABO-" + suffixeAleatoire(8)
+	err = s.repo.CreerAbonnement(database.DB, repository.AbonnementCreation{
+		ID: id, Type: "premium", Prix: PrixAbonnementPremium,
+		DateDebut: time.Now().Format("2006-01-02"), Statut: domain.StatutAbonnementActif,
+		IdProfessionnels: idPro, ReferenceStripe: referenceStripe,
+	})
+	if err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+// CompleterAbonnementProStripe cree l'abonnement apres paiement Stripe confirme.
+// Idempotent via la contrainte UNIQUE sur Reference_Stripe : si le webhook est
+// livre plusieurs fois, la 2e tentative echoue silencieusement (deja traite).
+func (s *FacturationService) CompleterAbonnementProStripe(idPro int, referenceStripe string) error {
+	_, err := s.ProSouscrireAbonnement(idPro, referenceStripe)
+	if err != nil && s.repo.EstViolationUnicite(err) {
+		return nil
+	}
+	return err
+}
+
+func (s *FacturationService) ProResilierAbonnement(idPro int) error {
+	actuel, err := s.ProAbonnementActuel(idPro)
+	if err != nil {
+		return err
+	}
+	if actuel == nil {
+		return domain.Introuvable("Aucun abonnement en cours")
+	}
+	return s.TransitionAbonnement(actuel.ID, "resilier")
+}
+
 type AbonnementInput struct {
 	Type      string
 	Prix      float64

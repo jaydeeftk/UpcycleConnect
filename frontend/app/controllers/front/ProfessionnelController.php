@@ -379,4 +379,59 @@ class ProfessionnelController
         header('Location: /professionnel/recuperation');
         exit;
     }
+
+    public function abonnement()
+    {
+        $abonnement = null;
+        try {
+            $r = $this->api->get('/professionnels/abonnement');
+            $abonnement = $r['data'] ?? $r;
+            if (!is_array($abonnement)) { $abonnement = null; }
+        } catch (\Exception $e) {}
+
+        return view('professionnel.abonnement.index', [
+            'abonnement' => $abonnement,
+            'page_title' => 'Abonnement Premium',
+            'layout'     => 'raw',
+            'token'      => $_SESSION['user']['token'] ?? '',
+        ]);
+    }
+
+    public function resilierAbonnement()
+    {
+        try {
+            $this->api->post('/professionnels/abonnement/resilier', []);
+            $_SESSION['success'] = 'Abonnement résilié.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/abonnement');
+    }
+
+    public function publicites()
+    {
+        $publicites = [];
+        try {
+            $r = $this->api->get('/professionnels/publicites');
+            $publicites = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        return view('professionnel.publicites.index', [
+            'publicites' => $publicites,
+            'page_title' => 'Campagnes publicitaires',
+            'layout'     => 'raw',
+            'token'      => $_SESSION['user']['token'] ?? '',
+        ]);
+    }
+
+    public function annulerPublicite($id)
+    {
+        try {
+            $this->api->post('/professionnels/publicites/' . $id . '/annuler', []);
+            $_SESSION['success'] = 'Campagne annulée.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/publicites');
+    }
 }

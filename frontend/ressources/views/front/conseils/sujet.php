@@ -49,11 +49,12 @@
         </div>
     </div>
 
-    <?php if (!empty($sujet['reponses'])): ?>
+    <div id="reponses-wrapper" class="<?= empty($sujet['reponses']) ? 'hidden' : '' ?>">
         <div class="space-y-4 mb-10">
-            <h2 class="text-lg font-semibold"><?= count($sujet['reponses']) ?> <?= t('conssuj_reply', 'réponse') ?><?= count($sujet['reponses']) > 1 ? 's' : '' ?></h2>
+            <h2 class="text-lg font-semibold"><span id="reponses-count-n"><?= count($sujet['reponses'] ?? []) ?></span> <?= t('conssuj_reply', 'réponse') ?><span id="reponses-count-s"><?= count($sujet['reponses'] ?? []) > 1 ? 's' : '' ?></span></h2>
 
-            <?php foreach ($sujet['reponses'] as $reponse): ?>
+            <div id="reponses-list" class="space-y-4">
+            <?php foreach ($sujet['reponses'] ?? [] as $reponse): ?>
                 <div class="bg-base-100 rounded-2xl shadow-sm p-6 <?= ($reponse['est_solution'] ?? false) ? 'border-2 border-success' : '' ?>">
                     <?php if ($reponse['est_solution'] ?? false): ?>
                         <div class="flex items-center gap-2 text-success text-sm font-semibold mb-3">
@@ -94,13 +95,13 @@
                     </div>
                 </div>
             <?php endforeach; ?>
+            </div>
         </div>
-    <?php else: ?>
-        <div class="text-center py-10 text-base-content/40 mb-10">
-            <i class="fas fa-comments text-4xl mb-3 block"></i>
-            <p><?= t('conssuj_empty', 'Aucune réponse pour l\'instant. Soyez le premier à répondre !') ?></p>
-        </div>
-    <?php endif; ?>
+    </div>
+    <div id="reponses-empty" class="text-center py-10 text-base-content/40 mb-10 <?= empty($sujet['reponses']) ? '' : 'hidden' ?>">
+        <i class="fas fa-comments text-4xl mb-3 block"></i>
+        <p><?= t('conssuj_empty', 'Aucune réponse pour l\'instant. Soyez le premier à répondre !') ?></p>
+    </div>
 
     <?php
     $sujetStatut = $sujet['statut'] ?? 'ouvert';
@@ -156,3 +157,69 @@
     <?php endif; ?>
 
 </section>
+
+<script>
+(function () {
+    var SUJET_ID = <?= (int)($sujet['id'] ?? 0) ?>;
+    var TOKEN = <?= json_encode($token ?? '') ?>;
+    var USER_ID = <?= (int)($_SESSION['user']['id'] ?? 0) ?>;
+    var lastCount = <?= count($sujet['reponses'] ?? []) ?>;
+
+    if (!SUJET_ID) return;
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+    }
+
+    function carteReponse(r) {
+        var suppr = '';
+        if (USER_ID && USER_ID === r.auteur_id) {
+            suppr = '<form method="POST" action="/conseils/forum/reponses/' + r.id + '/supprimer" ' +
+                'onsubmit="return confirm(\'<?= t('conssuj_confirm_delete', 'Supprimer définitivement ce message ?') ?>\');">' +
+                '<?= csrf_field() ?>' +
+                '<input type="hidden" name="id_sujet" value="' + SUJET_ID + '">' +
+                '<button type="submit" class="btn btn-ghost btn-xs gap-1 text-error">' +
+                '<i class="fas fa-trash"></i> <?= t('conssuj_delete', 'Supprimer') ?></button></form>';
+        }
+        return '<div class="bg-base-100 rounded-2xl shadow-sm p-6 uc-reponse-live" data-id="' + r.id + '">' +
+            '<p class="text-base-content/80 leading-relaxed mb-4">' + escapeHtml(r.contenu).replace(/\n/g, '<br>') + '</p>' +
+            '<div class="flex items-center justify-between">' +
+            '<div class="flex items-center gap-2 text-sm text-base-content/50">' +
+            '<i class="fas fa-user-circle text-lg"></i>' +
+            '<span class="font-medium text-base-content/70">' + escapeHtml(r.auteur) + '</span>' +
+            '<span class="badge badge-ghost badge-sm">' + escapeHtml(r.auteur_statut) + '</span>' +
+            '<span>· ' + escapeHtml(r.date) + '</span></div>' +
+            '<div class="flex items-center gap-2">' + suppr + '</div>' +
+            '</div></div>';
+    }
+
+    function poll() {
+        fetch('/api/forum/sujets/' + SUJET_ID + '/reponses', {
+            headers: TOKEN ? { 'Authorization': 'Bearer ' + TOKEN } : {}
+        })
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (json) {
+                var reponses = (json && json.data) || json;
+                if (!Array.isArray(reponses) || reponses.length <= lastCount) return;
+
+                var nouvelles = reponses.slice(lastCount);
+                var liste = document.getElementById('reponses-list');
+                nouvelles.forEach(function (r) {
+                    if (liste.querySelector('[data-id="' + r.id + '"]')) return;
+                    liste.insertAdjacentHTML('beforeend', carteReponse(r));
+                });
+
+                lastCount = reponses.length;
+                document.getElementById('reponses-wrapper').classList.remove('hidden');
+                document.getElementById('reponses-empty').classList.add('hidden');
+                document.getElementById('reponses-count-n').textContent = lastCount;
+                document.getElementById('reponses-count-s').textContent = lastCount > 1 ? 's' : '';
+            })
+            .catch(function () {});
+    }
+
+    setInterval(poll, 5000);
+})();
+</script>

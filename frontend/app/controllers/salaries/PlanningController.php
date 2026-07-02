@@ -29,14 +29,16 @@ class PlanningController
             return view('salaries.planning.index', [
                 'items'         => $result['data'] ?? [],
                 'page_title'    => 'Planning global',
-                'page_subtitle' => 'Gérez les événements, formations et ateliers'
+                'page_subtitle' => 'Gérez les événements, formations et ateliers',
+                'token'         => $_SESSION['user']['token'] ?? '',
             ]);
         } catch (\Exception $e) {
             return view('salaries.planning.index', [
                 'error'         => $e->getMessage(),
                 'items'         => [],
                 'page_title'    => 'Planning global',
-                'page_subtitle' => 'Gérez les événements, formations et ateliers'
+                'page_subtitle' => 'Gérez les événements, formations et ateliers',
+                'token'         => $_SESSION['user']['token'] ?? '',
             ]);
         }
     }
@@ -66,11 +68,13 @@ class PlanningController
     {
         try {
             $this->api->post('/salaries/planning/formation/create', [
-                'titre'       => $_POST['titre'] ?? '',
-                'description' => $_POST['description'] ?? '',
-                'prix'        => (float)($_POST['prix'] ?? 0),
-                'duree'       => (int)($_POST['duree'] ?? 0),
-                'id_salaries' => $_SESSION['user']['id'] ?? 0
+                'titre'         => $_POST['titre'] ?? '',
+                'description'   => $_POST['description'] ?? '',
+                'prix'          => (float)($_POST['prix'] ?? 0),
+                'duree'         => (int)($_POST['duree'] ?? 0),
+                'date_formation'=> $_POST['date_debut'] ?? '',
+                'date_fin'      => $_POST['date_fin'] ?? '',
+                'id_salaries'   => $_SESSION['user']['id'] ?? 0
             ]);
 
             $_SESSION['success'] = t('sal_flash_formation_added', 'Formation ajoutée avec succès.');

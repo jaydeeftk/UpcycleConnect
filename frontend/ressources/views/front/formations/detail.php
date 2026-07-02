@@ -26,7 +26,7 @@ $estPasse      = $tsFormation !== false && $tsFormation < time();
             <div class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-3 mb-8">
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('fordet_date', 'Date') ?></span>
-                    <span class="text-base-content/70"><?= formatDate($formation['date'] ?? '') ?></span>
+                    <span class="text-base-content/70"><?= formatPeriode($formation['date'] ?? '', $formation['date_fin'] ?? '') ?></span>
                 </div>
                 <div class="flex justify-between">
                     <span class="font-medium"><?= t('fordet_lieu', 'Lieu') ?></span>

@@ -13,6 +13,7 @@ import (
 	"github.com/stripe/stripe-go/v76/webhook"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
+	"upcycleconnect/internal/services"
 )
 
 func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
@@ -146,6 +147,31 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if s.PaymentStatus == stripe.CheckoutSessionPaymentStatusPaid {
+			if proAction := s.Metadata["pro_action"]; proAction != "" {
+				idPro, _ := strconv.Atoi(s.Metadata["id_pro"])
+				if idPro == 0 {
+					httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})
+					return
+				}
+				var err error
+				switch proAction {
+				case "abonnement_premium":
+					err = facturationSvc.CompleterAbonnementProStripe(idPro, s.ID)
+				case "publicite":
+					prix, _ := strconv.ParseFloat(s.Metadata["pub_prix"], 64)
+					err = publiciteSvc.CompleterPourProStripe(idPro, services.PubliciteInput{
+						Type: s.Metadata["pub_type"], Prix: prix,
+						DateDebut: s.Metadata["pub_date_debut"], DateFin: s.Metadata["pub_date_fin"],
+						Description: s.Metadata["pub_description"],
+					}, s.ID)
+				}
+				if err != nil {
+					httpx.JSONServerError(w, err)
+					return
+				}
+				httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})
+				return
+			}
 			typ := s.Metadata["type"]
 			itemID, _ := strconv.Atoi(s.Metadata["item_id"])
 			userID, _ := strconv.Atoi(s.Metadata["user_id"])

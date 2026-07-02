@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS Abonnement(
    Date_Debut DATE,
    Date_Fin DATE,
    Statut VARCHAR(50),
+   Id_Professionnels INT NULL,
+   Reference_Stripe VARCHAR(255) NULL UNIQUE,
    PRIMARY KEY(Id_Abonnement)
 );
 
@@ -142,6 +144,7 @@ CREATE TABLE IF NOT EXISTS Evenements(
    Categorie VARCHAR(50) DEFAULT 'atelier',
    Duree INT DEFAULT 2,
    Id_Salaries INT NULL,
+   Id_Salarie_Animateur INT NULL,
    PRIMARY KEY(Id_Evenements),
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
 );
@@ -154,11 +157,13 @@ CREATE TABLE IF NOT EXISTS Formations(
    Duree INT,
    Statut VARCHAR(50),
    Date_formation DATETIME,
+   Date_fin DATE NULL,
    Places_total INT DEFAULT 20,
    Places_dispo INT DEFAULT 20,
    Localisation VARCHAR(200),
    Categorie VARCHAR(100),
    Id_Salaries INT,
+   Id_Salarie_Animateur INT NULL,
    PRIMARY KEY(Id_Formations),
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
 );
@@ -349,6 +354,7 @@ CREATE TABLE IF NOT EXISTS Publicites(
    Description VARCHAR(255),
    Illustration VARCHAR(255),
    Id_Professionnels INT NOT NULL,
+   Reference_Stripe VARCHAR(255) NULL UNIQUE,
    PRIMARY KEY(Id_Publicites),
    FOREIGN KEY(Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels)
 );
@@ -372,6 +378,7 @@ CREATE TABLE IF NOT EXISTS Atelier(
    Lieu VARCHAR(100),
    Statut VARCHAR(50),
    Id_Salaries INT NOT NULL,
+   Id_Salarie_Animateur INT NULL,
    PRIMARY KEY(Id_Atelier),
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
 );

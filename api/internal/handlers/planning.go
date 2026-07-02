@@ -46,7 +46,7 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 
 	fRows, err := database.DB.Query(
 		`SELECT f.Id_Formations, f.Titre, COALESCE(DATE_FORMAT(f.Date_formation, '%Y-%m-%dT%H:%i:%s'),''),
-			COALESCE(f.Localisation, ''), f.Statut, COALESCE(f.Duree, 0)
+			COALESCE(f.Localisation, ''), f.Statut, COALESCE(f.Duree, 0), COALESCE(DATE_FORMAT(f.Date_fin, '%Y-%m-%d'),'')
 		FROM Formations f
 		JOIN Reserver_formation rf ON rf.Id_Formations = f.Id_Formations
 		JOIN Particuliers p ON p.Id_Particuliers = rf.Id_Particuliers
@@ -59,11 +59,11 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 		defer fRows.Close()
 		for fRows.Next() {
 			var id, duree int
-			var titre, lieu, statut string
+			var titre, lieu, statut, dateFin string
 			var date *string
-			fRows.Scan(&id, &titre, &date, &lieu, &statut, &duree)
+			fRows.Scan(&id, &titre, &date, &lieu, &statut, &duree, &dateFin)
 			formations = append(formations, map[string]interface{}{
-				"id": id, "titre": titre, "date": date,
+				"id": id, "titre": titre, "date": date, "date_fin": dateFin,
 				"lieu": lieu, "statut": statut, "duree": duree, "type": "formation",
 			})
 		}

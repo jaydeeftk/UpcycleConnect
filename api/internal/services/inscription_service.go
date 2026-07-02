@@ -287,6 +287,7 @@ type FicheFormationDTO struct {
 	Duree             int      `json:"duree"`
 	Statut            string   `json:"statut"`
 	Date              string   `json:"date"`
+	DateFin           string   `json:"date_fin"`
 	PlacesTotal       int      `json:"places_total"`
 	PlacesDispo       int      `json:"places_dispo"`
 	Localisation      string   `json:"localisation"`
@@ -316,7 +317,7 @@ func (s *InscriptionService) FicheFormation(idUtilisateur, idFormation int) (Fic
 	}
 	dto = FicheFormationDTO{
 		ID: f.ID, Titre: f.Titre, Description: f.Description, Prix: f.Prix,
-		Duree: f.Duree, Statut: f.Statut, Date: formatDate(f.Date),
+		Duree: f.Duree, Statut: f.Statut, Date: formatDate(f.Date), DateFin: formatDate(f.DateFin),
 		PlacesTotal: f.PlacesTotal, PlacesDispo: f.PlacesDispo,
 		Localisation: f.Localisation, Categorie: f.Categorie, EstInscrit: dejaInscrit,
 		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit, aPaye),

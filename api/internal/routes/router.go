@@ -245,6 +245,13 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/professionnels/contrats/", middleware.ProfessionnelOnly(handlers.ProfessionnelContratAction))
 	mux.HandleFunc("/api/professionnels/facturation", middleware.ProfessionnelOnly(handlers.ProfessionnelGetFacturation))
 	mux.HandleFunc("/api/professionnels/impact", middleware.ProfessionnelOnly(handlers.ProfessionnelImpact))
+
+	mux.HandleFunc("/api/professionnels/abonnement", middleware.ProfessionnelOnly(handlers.ProfessionnelAbonnementHandler))
+	mux.HandleFunc("/api/professionnels/abonnement/resilier", middleware.ProfessionnelOnly(handlers.ProfessionnelAbonnementResilier))
+	mux.HandleFunc("/api/professionnels/abonnement/checkout", middleware.ProfessionnelOnly(handlers.ProfessionnelAbonnementCheckout))
+	mux.HandleFunc("/api/professionnels/publicites", middleware.ProfessionnelOnly(handlers.ProfessionnelPublicitesHandler))
+	mux.HandleFunc("/api/professionnels/publicites/", middleware.ProfessionnelOnly(handlers.ProfessionnelPubliciteAction))
+	mux.HandleFunc("/api/professionnels/publicites/checkout", middleware.ProfessionnelOnly(handlers.ProfessionnelPubliciteCheckout))
 	mux.HandleFunc("/api/professionnels/impact/pdf", middleware.ProfessionnelOnly(handlers.ProfessionnelImpactPDF))
 
 	mux.HandleFunc("/api/professionnels/objets", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetsHandler))
@@ -257,7 +264,10 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/salaries/ateliers", middleware.SalarieOnly(handlers.GetAteliers))
 	mux.HandleFunc("/api/salaries/ateliers/", middleware.SalarieOnly(handlers.AtelierAction))
 
-	mux.HandleFunc("/api/salaries/planning", middleware.SalarieOnly(handlers.GetEvenementsSalarie))
+	mux.HandleFunc("/api/salaries/deleguer/", middleware.SalarieOnly(handlers.SalarieDeleguer))
+	mux.HandleFunc("/api/salaries/liste", middleware.SalarieOnly(handlers.GetSalariesListe))
+
+	mux.HandleFunc("/api/salaries/planning", middleware.SalarieOnly(handlers.GetPlanningGlobalSalarie))
 
 	mux.HandleFunc("/api/salaries/planning/evenement/", middleware.SalarieOnly(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, "/api/salaries/planning/evenement/")

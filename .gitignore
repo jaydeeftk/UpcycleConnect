@@ -5,3 +5,5 @@ frontend/.env
 # Artefacts de build Go (Air) et fichiers temporaires
 api/tmp/
 *.dtmp
+frontend/public/uploads/*
+!frontend/public/uploads/.gitkeep

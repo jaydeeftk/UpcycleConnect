@@ -117,6 +117,7 @@ const ITEMS = <?= json_encode(array_merge(
         'id'    => $f['id'] ?? 0,
         'titre' => $f['titre'] ?? '',
         'date'  => $f['date'] ?? '',
+        'date_fin' => $f['date_fin'] ?? '',
         'lieu'  => $f['lieu'] ?? '',
         'duree' => $f['duree'] ?? 0,
         'type'  => 'formation',
@@ -150,6 +151,12 @@ const MOIS_FR = ['Janvier','FÃ©vrier','Mars','Avril','Mai','Juin','Juillet','AoÃ
 const JOURS_COURTS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const JOURS_LONGS  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 
+// Plage horaire affichee dans la vue "Semaine" (grille avec heures, comme un vrai
+// calendrier) : un creneau de 14h a 17h occupe visuellement 3 lignes de la grille.
+const SEMAINE_HEURE_DEBUT = 9;
+const SEMAINE_HEURE_FIN   = 19;
+const SEMAINE_ROW_H       = 48;
+
 function itemDate(item) {
     if (!item.date) return null;
     const m = String(item.date).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
@@ -161,6 +168,20 @@ function sameDay(a, b) {
     return a.getFullYear() === b.getFullYear() &&
            a.getMonth() === b.getMonth() &&
            a.getDate() === b.getDate();
+}
+
+// Un item avec date_fin (formation sur plusieurs jours) doit apparaitre sur
+// chaque jour de la grille compris entre sa date de debut et sa date de fin.
+function itemCouvreJour(item, jour) {
+    const debut = itemDate(item);
+    if (!debut) return false;
+    if (!item.date_fin) return sameDay(debut, jour);
+    const m = String(item.date_fin).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return sameDay(debut, jour);
+    const fin       = new Date(+m[1], +m[2] - 1, +m[3]);
+    const jourSeul  = new Date(jour.getFullYear(), jour.getMonth(), jour.getDate());
+    const debutSeul = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate());
+    return jourSeul >= debutSeul && jourSeul <= fin;
 }
 
 function formatDate(d) {
@@ -206,6 +227,22 @@ function cardHtml(item) {
     </a>`;
 }
 
+// Bloc positionne en absolu dans la grille horaire de la vue "Semaine" : le top
+// et la hauteur sont calcules a partir de l'heure de debut et de la duree, pour
+// qu'un creneau de 14h a 17h occupe visuellement l'espace entre ces deux heures.
+function carteSemainePositionnee(item) {
+    const d = itemDate(item);
+    const debutH = d ? Math.max(SEMAINE_HEURE_DEBUT, Math.min(d.getHours() + d.getMinutes() / 60, SEMAINE_HEURE_FIN)) : SEMAINE_HEURE_DEBUT;
+    const dureeH = item.duree && item.duree > 0 ? item.duree : 1;
+    const top    = (debutH - SEMAINE_HEURE_DEBUT) * SEMAINE_ROW_H;
+    const height = Math.max(dureeH * SEMAINE_ROW_H, 22);
+    const heure  = formatPlageHoraire(item);
+    return `<a href="${item.url}" class="${colorClass(item.type)} border rounded-lg p-1 text-xs cursor-pointer hover:opacity-80 transition absolute left-1 right-1 overflow-hidden" style="top:${top}px;height:${height}px;">
+        <div class="font-semibold leading-tight">${heure}</div>
+        <div class="leading-tight">${item.titre}</div>
+    </a>`;
+}
+
 function setVue(v) {
     vue = v;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active'));
@@ -231,7 +268,7 @@ function renderJour() {
     const label = JOURS_LONGS[dateRef.getDay()] + ' ' + dateRef.getDate() + ' ' + MOIS_FR[dateRef.getMonth()] + ' ' + dateRef.getFullYear();
     document.getElementById('periode-label').textContent = label;
 
-    const itemsDuJour = ITEMS.filter(i => { const d = itemDate(i); return d && sameDay(d, dateRef); });
+    const itemsDuJour = ITEMS.filter(i => itemCouvreJour(i, dateRef));
     const heures = Array.from({length: 16}, (_, i) => i + 6);
 
     const sansHeure = itemsDuJour.filter(i => { const d = itemDate(i); return d && d.getHours() < 6; });
@@ -278,19 +315,34 @@ function renderSemaine() {
         '<?= t('planning_week_of', 'Semaine du') ?> ' + lundi.getDate() + ' <?= t('planning_week_to', 'au') ?> ' + dimanche.getDate() + ' ' + MOIS_FR[dimanche.getMonth()] + ' ' + dimanche.getFullYear();
 
     const today = new Date(); today.setHours(0,0,0,0);
+    const heuresAxe = Array.from({length: SEMAINE_HEURE_FIN - SEMAINE_HEURE_DEBUT}, (_, i) => SEMAINE_HEURE_DEBUT + i);
+    const hauteurTotale = heuresAxe.length * SEMAINE_ROW_H;
 
     let html = '<div class="bg-base-100 rounded-2xl shadow-sm overflow-hidden">';
-    html += '<div class="grid grid-cols-7 border-b border-base-300">';
+    html += '<div class="grid" style="grid-template-columns: 48px repeat(7, 1fr);">';
+    html += '<div class="border-b border-base-300"></div>';
     for (const d of jours) {
         const isToday = sameDay(d, today);
-        html += `<div class="p-3 text-center text-sm ${isToday ? 'bg-primary/10 font-bold text-primary' : 'text-base-content/50'}">
+        html += `<div class="p-3 text-center text-sm border-b border-l border-base-300 ${isToday ? 'bg-primary/10 font-bold text-primary' : 'text-base-content/50'}">
             ${JOURS_COURTS[d.getDay()]} ${d.getDate()}
         </div>`;
     }
-    html += '</div><div class="grid grid-cols-7 min-h-64 divide-x divide-base-300">';
+    html += '</div>';
+
+    html += '<div class="grid" style="grid-template-columns: 48px repeat(7, 1fr);">';
+    html += `<div style="height:${hauteurTotale}px;">`;
+    for (const h of heuresAxe) {
+        html += `<div class="text-xs text-base-content/40 text-right pr-1" style="height:${SEMAINE_ROW_H}px;">${String(h).padStart(2,'0')}h</div>`;
+    }
+    html += '</div>';
     for (const d of jours) {
-        const items = ITEMS.filter(i => { const id = itemDate(i); return id && sameDay(id, d); });
-        html += `<div class="p-2 min-h-32">${trierParHeure(items).map(cardHtml).join('')}</div>`;
+        const items = ITEMS.filter(i => itemCouvreJour(i, d));
+        html += `<div class="relative border-l border-base-300" style="height:${hauteurTotale}px;">`;
+        for (let i = 0; i < heuresAxe.length; i++) {
+            html += `<div class="absolute left-0 right-0 border-t border-base-200" style="top:${i * SEMAINE_ROW_H}px;"></div>`;
+        }
+        html += items.map(carteSemainePositionnee).join('');
+        html += '</div>';
     }
     html += '</div></div>';
     document.getElementById('vue-container').innerHTML = html;
@@ -319,7 +371,7 @@ function renderMois() {
     for (let d = 1; d <= dernier.getDate(); d++) {
         const cur = new Date(annee, mois, d);
         const isToday = sameDay(cur, today);
-        const items = ITEMS.filter(i => { const id = itemDate(i); return id && sameDay(id, cur); });
+        const items = ITEMS.filter(i => itemCouvreJour(i, cur));
         html += `<div class="p-2 min-h-20 ${isToday ? 'bg-primary/5' : ''}">
             <span class="text-sm ${isToday ? 'font-bold text-primary' : 'text-base-content/60'}">${d}</span>
             ${trierParHeure(items).map(i => `<a href="${i.url}" class="${colorClass(i.type)} rounded text-xs p-1 mt-1 leading-tight block hover:opacity-80 transition">${formatPlageHoraire(i)} ${i.titre}</a>`).join('')}

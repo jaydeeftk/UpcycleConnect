@@ -66,6 +66,27 @@ func CreateForumSujet(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Sujet créé avec succès"})
 }
 
+// GetForumReponses renvoie juste les reponses d'un sujet (sans incrementer les vues).
+// Utilise par le JS de la page sujet pour le polling temps reel.
+func GetForumReponses(w http.ResponseWriter, r *http.Request) {
+	segs := segmentsApres(r.URL.Path, "/api/forum/sujets/")
+	if len(segs) < 1 {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	idSujet, err := strconv.Atoi(segs[0])
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	reponses, err := forumSvc.ListerReponses(idSujet)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, reponses)
+}
+
 func CreateForumReponse(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -163,6 +184,8 @@ func ForumSujetDispatch(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case len(parts) == 4:
 		GetForumSujet(w, r)
+	case len(parts) == 5 && parts[4] == "reponses" && r.Method == http.MethodGet:
+		GetForumReponses(w, r)
 	case len(parts) == 5 && parts[4] == "reponses":
 		CreateForumReponse(w, r)
 	case len(parts) == 7 && parts[4] == "reponses" && parts[6] == "solution":

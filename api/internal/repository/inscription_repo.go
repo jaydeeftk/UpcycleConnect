@@ -100,6 +100,7 @@ type FormationFiche struct {
 	Duree        int
 	Statut       string
 	Date         sql.NullTime
+	DateFin      sql.NullTime
 	PlacesTotal  int
 	PlacesDispo  int
 	Localisation string
@@ -110,11 +111,11 @@ func (InscriptionRepo) FicheFormation(q Querier, idFormation int) (FormationFich
 	var f FormationFiche
 	err := q.QueryRow(
 		`SELECT Id_Formations, Titre, Description, COALESCE(Prix,0), COALESCE(Duree,0), Statut,
-		        Date_formation, COALESCE(Places_total,0), COALESCE(Places_dispo,0),
+		        Date_formation, Date_fin, COALESCE(Places_total,0), COALESCE(Places_dispo,0),
 		        COALESCE(Localisation,''), COALESCE(Categorie,'')
 		 FROM Formations WHERE Id_Formations = ? AND Statut_validation = 'valide'`,
 		idFormation,
-	).Scan(&f.ID, &f.Titre, &f.Description, &f.Prix, &f.Duree, &f.Statut, &f.Date,
+	).Scan(&f.ID, &f.Titre, &f.Description, &f.Prix, &f.Duree, &f.Statut, &f.Date, &f.DateFin,
 		&f.PlacesTotal, &f.PlacesDispo, &f.Localisation, &f.Categorie)
 	return f, err
 }

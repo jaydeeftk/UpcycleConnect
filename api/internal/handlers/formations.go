@@ -15,7 +15,7 @@ func GetFormations(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT Id_Formations, Titre, Description, Prix, Duree, Statut, 
 			  COALESCE(DATE_FORMAT(Date_formation, '%Y-%m-%dT%H:%i:%s'),''), COALESCE(Places_total, 0),
 			  COALESCE(Places_dispo, 0), COALESCE(Localisation, ''), 
-			  COALESCE(Categorie, '') 
+			  COALESCE(Categorie, ''), COALESCE(DATE_FORMAT(Date_fin, '%Y-%m-%d'),'')
 			  FROM Formations WHERE Statut_validation = 'valide'`
 
 	rows, err := database.DB.Query(query)
@@ -28,9 +28,9 @@ func GetFormations(w http.ResponseWriter, r *http.Request) {
 	var formations []map[string]interface{}
 	for rows.Next() {
 		var id, duree, pTotal, pDispo int
-		var titre, desc, statut, date, loc, cat string
+		var titre, desc, statut, date, loc, cat, dateFin string
 		var prix float64
-		rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &pTotal, &pDispo, &loc, &cat)
+		rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &pTotal, &pDispo, &loc, &cat, &dateFin)
 
 		formations = append(formations, map[string]interface{}{
 			"id":           id,
@@ -40,6 +40,7 @@ func GetFormations(w http.ResponseWriter, r *http.Request) {
 			"duree":        duree,
 			"statut":       statut,
 			"date":         date,
+			"date_fin":     dateFin,
 			"places_total": pTotal,
 			"places_dispo": pDispo,
 			"localisation": loc,
@@ -124,7 +125,7 @@ func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
 		`SELECT f.Id_Formations, COALESCE(f.Titre,''), COALESCE(f.Description,''),
 			COALESCE(f.Prix,0), COALESCE(f.Duree,0), COALESCE(f.Statut,'en_attente'),
 			COALESCE(DATE_FORMAT(f.Date_formation, '%Y-%m-%dT%H:%i:%s'),''), COALESCE(f.Places_total,0), COALESCE(f.Places_dispo,0),
-			COALESCE(f.Localisation,''), COALESCE(u.Nom,''), COALESCE(u.Prenom,'')
+			COALESCE(f.Localisation,''), COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(DATE_FORMAT(f.Date_fin, '%Y-%m-%d'),'')
 		FROM Formations f
 		LEFT JOIN Salaries s ON s.Id_Salaries = f.Id_Salaries
 		LEFT JOIN Utilisateurs u ON u.Id_Utilisateurs = s.Id_Utilisateurs
@@ -139,12 +140,12 @@ func AdminGetFormations(w http.ResponseWriter, r *http.Request) {
 	var formations []map[string]interface{}
 	for rows.Next() {
 		var id, duree, pTotal, pDispo int
-		var titre, desc, statut, date, loc, nom, prenom string
+		var titre, desc, statut, date, loc, nom, prenom, dateFin string
 		var prix float64
-		rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &pTotal, &pDispo, &loc, &nom, &prenom)
+		rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &pTotal, &pDispo, &loc, &nom, &prenom, &dateFin)
 		formations = append(formations, map[string]interface{}{
 			"id": id, "titre": titre, "description": desc, "prix": prix,
-			"duree": duree, "statut": statut, "date_formation": date,
+			"duree": duree, "statut": statut, "date_formation": date, "date_fin": dateFin,
 			"places_total": pTotal, "places_dispo": pDispo, "localisation": loc,
 			"nom_salarie": nom, "prenom_salarie": prenom,
 		})
@@ -187,6 +188,7 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 			Duree         int     `json:"duree"`
 			Statut        string  `json:"statut"`
 			DateFormation string  `json:"date_formation"`
+			DateFin       string  `json:"date_fin"`
 			PlacesTotal   int     `json:"places_total"`
 			Localisation  string  `json:"localisation"`
 			IdSalaries    int     `json:"id_salaries"`
@@ -199,10 +201,10 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 			body.Statut = "en_attente"
 		}
 		result, err := database.DB.Exec(
-			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Date_formation, Places_total, Places_dispo, Localisation, Id_Salaries)
-			VALUES (?,?,?,?,?,?,?,?,?,?)`,
+			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Date_formation, Date_fin, Places_total, Places_dispo, Localisation, Id_Salaries)
+			VALUES (?,?,?,?,?,?,NULLIF(?, ''),?,?,?,?)`,
 			body.Titre, body.Description, body.Prix, body.Duree, body.Statut,
-			body.DateFormation, body.PlacesTotal, body.PlacesTotal, body.Localisation, body.IdSalaries,
+			body.DateFormation, body.DateFin, body.PlacesTotal, body.PlacesTotal, body.Localisation, body.IdSalaries,
 		)
 		if err != nil {
 			httpx.JSONServerError(w, err)
@@ -213,16 +215,18 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodPut:
 		var body struct {
-			Titre       string  `json:"titre"`
-			Description string  `json:"description"`
-			Prix        float64 `json:"prix"`
-			Duree       int     `json:"duree"`
-			Statut      string  `json:"statut"`
+			Titre         string  `json:"titre"`
+			Description   string  `json:"description"`
+			Prix          float64 `json:"prix"`
+			Duree         int     `json:"duree"`
+			Statut        string  `json:"statut"`
+			DateFormation string  `json:"date_formation"`
+			DateFin       string  `json:"date_fin"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
 		database.DB.Exec(
-			"UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Statut=? WHERE Id_Formations=?",
-			body.Titre, body.Description, body.Prix, body.Duree, body.Statut, id,
+			"UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Statut=?, Date_formation=IFNULL(NULLIF(?, ''), Date_formation), Date_fin=NULLIF(?, '') WHERE Id_Formations=?",
+			body.Titre, body.Description, body.Prix, body.Duree, body.Statut, body.DateFormation, body.DateFin, id,
 		)
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation mise à jour"})
 

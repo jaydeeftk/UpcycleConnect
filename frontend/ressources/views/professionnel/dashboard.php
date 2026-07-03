@@ -43,6 +43,16 @@
                         <i class="fas fa-tools w-5"></i><span><?= t('pro_nav_services', 'Services') ?></span>
                     </a>
                 </li>
+                <li>
+                    <a href="/professionnel/abonnement" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-crown w-5"></i><span><?= t('pro_nav_abonnement', 'Abonnement Premium') ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/professionnel/publicites" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-ad w-5"></i><span><?= t('pro_nav_publicites', 'Campagnes publicitaires') ?></span>
+                    </a>
+                </li>
             </ul>
         </nav>
         <div class="p-4 border-t border-gray-700">

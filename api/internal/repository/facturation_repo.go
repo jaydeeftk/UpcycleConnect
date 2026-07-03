@@ -116,13 +116,23 @@ func (FacturationRepo) FacturationDuProfessionnel(q Querier, idProfessionnel int
 		`SELECT
 			COALESCE(SUM(CASE WHEN Statut='actif' THEN 1 ELSE 0 END), 0),
 			COALESCE(SUM(CASE WHEN Statut='resilie' THEN 1 ELSE 0 END), 0),
-			COALESCE(SUM(CASE WHEN Statut='actif' THEN Montant ELSE 0 END), 0),
-			COALESCE(SUM(CASE WHEN Statut='actif' AND Frequence='mensuel' THEN Montant ELSE 0 END), 0),
-			COALESCE(SUM(CASE WHEN Statut='actif' AND Frequence='campagne' THEN Montant ELSE 0 END), 0)
+			COALESCE(SUM(CASE WHEN Statut='actif' THEN Montant ELSE 0 END), 0)
 		FROM Contrats WHERE Id_Professionnels = ?`,
 		idProfessionnel,
-	).Scan(&a.NbContratsActifs, &a.NbContratsResilie, &a.TotalContratsActifs, &a.TotalAbonnements, &a.TotalCampagnes)
+	).Scan(&a.NbContratsActifs, &a.NbContratsResilie, &a.TotalContratsActifs)
 	if err != nil {
+		return a, err
+	}
+	if err := q.QueryRow(
+		`SELECT COALESCE(SUM(Prix), 0) FROM Abonnement WHERE Id_Professionnels = ? AND Statut = 'actif'`,
+		idProfessionnel,
+	).Scan(&a.TotalAbonnements); err != nil {
+		return a, err
+	}
+	if err := q.QueryRow(
+		`SELECT COALESCE(SUM(Prix), 0) FROM Publicites WHERE Id_Professionnels = ? AND Statut = 'active'`,
+		idProfessionnel,
+	).Scan(&a.TotalCampagnes); err != nil {
 		return a, err
 	}
 	if err := q.QueryRow(
@@ -136,7 +146,7 @@ func (FacturationRepo) FacturationDuProfessionnel(q Querier, idProfessionnel int
 	).Scan(&a.TotalCommissions); err != nil {
 		return a, err
 	}
-	a.TotalGeneral = a.TotalContratsActifs + a.TotalCommissions
+	a.TotalGeneral = a.TotalAbonnements + a.TotalCampagnes + a.TotalContratsActifs + a.TotalCommissions
 	return a, nil
 }
 
@@ -677,27 +687,30 @@ func (FacturationRepo) UtilisateurAPayeEvenement(q Querier, idUtilisateur, idEve
 }
 
 type AbonnementLigne struct {
-	ID        string
-	Type      string
-	Statut    string
-	Prix      float64
-	DateDebut string
-	DateFin   string
+	ID               string
+	Type             string
+	Statut           string
+	Prix             float64
+	DateDebut        string
+	DateFin          string
+	IdProfessionnels int
 }
 
 type AbonnementCreation struct {
-	ID        string
-	Type      string
-	Prix      float64
-	DateDebut string
-	DateFin   string
-	Statut    string
+	ID               string
+	Type             string
+	Prix             float64
+	DateDebut        string
+	DateFin          string
+	Statut           string
+	IdProfessionnels int
+	ReferenceStripe  string
 }
 
 func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, error) {
 	rows, err := q.Query(
 		`SELECT Id_Abonnement, COALESCE(Type,''), COALESCE(Statut,''),
-			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,'')
+			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,''), COALESCE(Id_Professionnels,0)
 		FROM Abonnement ORDER BY Id_Abonnement`,
 	)
 	if err != nil {
@@ -707,7 +720,29 @@ func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, err
 	out := []AbonnementLigne{}
 	for rows.Next() {
 		var a AbonnementLigne
-		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin); err != nil {
+		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin, &a.IdProfessionnels); err != nil {
+			return nil, err
+		}
+		out = append(out, a)
+	}
+	return out, rows.Err()
+}
+
+func (FacturationRepo) AbonnementsDuPro(q Querier, idPro int) ([]AbonnementLigne, error) {
+	rows, err := q.Query(
+		`SELECT Id_Abonnement, COALESCE(Type,''), COALESCE(Statut,''),
+			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,''), COALESCE(Id_Professionnels,0)
+		FROM Abonnement WHERE Id_Professionnels = ? ORDER BY Date_Debut DESC, Id_Abonnement DESC`,
+		idPro,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []AbonnementLigne{}
+	for rows.Next() {
+		var a AbonnementLigne
+		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin, &a.IdProfessionnels); err != nil {
 			return nil, err
 		}
 		out = append(out, a)
@@ -717,9 +752,9 @@ func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, err
 
 func (FacturationRepo) CreerAbonnement(q Querier, a AbonnementCreation) error {
 	_, err := q.Exec(
-		`INSERT INTO Abonnement (Id_Abonnement, Type, Prix, Date_Debut, Date_Fin, Statut)
-		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?)`,
-		a.ID, a.Type, a.Prix, a.DateDebut, a.DateFin, a.Statut,
+		`INSERT INTO Abonnement (Id_Abonnement, Type, Prix, Date_Debut, Date_Fin, Statut, Id_Professionnels, Reference_Stripe)
+		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, NULLIF(?,0), NULLIF(?,''))`,
+		a.ID, a.Type, a.Prix, a.DateDebut, a.DateFin, a.Statut, a.IdProfessionnels, a.ReferenceStripe,
 	)
 	return err
 }

@@ -133,6 +133,24 @@ func (s *ForumService) ConsulterSujet(idUtilisateur int, estAdmin bool, idSujet 
 	return dto, nil
 }
 
+// ListerReponses renvoie juste les reponses d'un sujet, sans incrementer les vues.
+// Utilise par le polling temps reel du forum (evite de fausser le compteur de vues).
+func (s *ForumService) ListerReponses(idSujet int) ([]ReponseDTO, error) {
+	reps, err := s.repo.ReponsesDuSujet(database.DB, idSujet)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ReponseDTO, 0, len(reps))
+	for _, r := range reps {
+		out = append(out, ReponseDTO{
+			ID: r.ID, Contenu: r.Contenu, Date: formatDate(r.Date), EstSolution: r.EstSolution,
+			AuteurID: r.IdAuteur, Auteur: nomComplet(r.AuteurNom, r.AuteurPrenom),
+			AuteurStatut: r.AuteurStatut,
+		})
+	}
+	return out, nil
+}
+
 func (s *ForumService) AdminListerSujets() ([]SujetAdminDTO, error) {
 	lignes, err := s.repo.ListerSujets(database.DB, "")
 	if err != nil {

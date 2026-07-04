@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS Abonnement(
    Statut VARCHAR(50),
    Id_Professionnels INT NULL,
    Reference_Stripe VARCHAR(255) NULL UNIQUE,
+   Annonces_Gratuites_Incluses INT NOT NULL DEFAULT 0,
+   Annonces_Gratuites_Utilisees INT NOT NULL DEFAULT 0,
    PRIMARY KEY(Id_Abonnement)
 );
 

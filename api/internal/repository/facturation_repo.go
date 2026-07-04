@@ -687,30 +687,34 @@ func (FacturationRepo) UtilisateurAPayeEvenement(q Querier, idUtilisateur, idEve
 }
 
 type AbonnementLigne struct {
-	ID               string
-	Type             string
-	Statut           string
-	Prix             float64
-	DateDebut        string
-	DateFin          string
-	IdProfessionnels int
+	ID                         string
+	Type                       string
+	Statut                     string
+	Prix                       float64
+	DateDebut                  string
+	DateFin                    string
+	IdProfessionnels           int
+	AnnoncesGratuitesIncluses  int
+	AnnoncesGratuitesUtilisees int
 }
 
 type AbonnementCreation struct {
-	ID               string
-	Type             string
-	Prix             float64
-	DateDebut        string
-	DateFin          string
-	Statut           string
-	IdProfessionnels int
-	ReferenceStripe  string
+	ID                        string
+	Type                      string
+	Prix                      float64
+	DateDebut                 string
+	DateFin                   string
+	Statut                    string
+	IdProfessionnels          int
+	ReferenceStripe           string
+	AnnoncesGratuitesIncluses int
 }
 
 func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, error) {
 	rows, err := q.Query(
 		`SELECT Id_Abonnement, COALESCE(Type,''), COALESCE(Statut,''),
-			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,''), COALESCE(Id_Professionnels,0)
+			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,''), COALESCE(Id_Professionnels,0),
+			COALESCE(Annonces_Gratuites_Incluses,0), COALESCE(Annonces_Gratuites_Utilisees,0)
 		FROM Abonnement ORDER BY Id_Abonnement`,
 	)
 	if err != nil {
@@ -720,7 +724,8 @@ func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, err
 	out := []AbonnementLigne{}
 	for rows.Next() {
 		var a AbonnementLigne
-		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin, &a.IdProfessionnels); err != nil {
+		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin, &a.IdProfessionnels,
+			&a.AnnoncesGratuitesIncluses, &a.AnnoncesGratuitesUtilisees); err != nil {
 			return nil, err
 		}
 		out = append(out, a)
@@ -731,7 +736,8 @@ func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, err
 func (FacturationRepo) AbonnementsDuPro(q Querier, idPro int) ([]AbonnementLigne, error) {
 	rows, err := q.Query(
 		`SELECT Id_Abonnement, COALESCE(Type,''), COALESCE(Statut,''),
-			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,''), COALESCE(Id_Professionnels,0)
+			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,''), COALESCE(Id_Professionnels,0),
+			COALESCE(Annonces_Gratuites_Incluses,0), COALESCE(Annonces_Gratuites_Utilisees,0)
 		FROM Abonnement WHERE Id_Professionnels = ? ORDER BY Date_Debut DESC, Id_Abonnement DESC`,
 		idPro,
 	)
@@ -742,7 +748,8 @@ func (FacturationRepo) AbonnementsDuPro(q Querier, idPro int) ([]AbonnementLigne
 	out := []AbonnementLigne{}
 	for rows.Next() {
 		var a AbonnementLigne
-		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin, &a.IdProfessionnels); err != nil {
+		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin, &a.IdProfessionnels,
+			&a.AnnoncesGratuitesIncluses, &a.AnnoncesGratuitesUtilisees); err != nil {
 			return nil, err
 		}
 		out = append(out, a)
@@ -752,11 +759,29 @@ func (FacturationRepo) AbonnementsDuPro(q Querier, idPro int) ([]AbonnementLigne
 
 func (FacturationRepo) CreerAbonnement(q Querier, a AbonnementCreation) error {
 	_, err := q.Exec(
-		`INSERT INTO Abonnement (Id_Abonnement, Type, Prix, Date_Debut, Date_Fin, Statut, Id_Professionnels, Reference_Stripe)
-		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, NULLIF(?,0), NULLIF(?,''))`,
-		a.ID, a.Type, a.Prix, a.DateDebut, a.DateFin, a.Statut, a.IdProfessionnels, a.ReferenceStripe,
+		`INSERT INTO Abonnement (Id_Abonnement, Type, Prix, Date_Debut, Date_Fin, Statut, Id_Professionnels, Reference_Stripe, Annonces_Gratuites_Incluses)
+		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, NULLIF(?,0), NULLIF(?,''), ?)`,
+		a.ID, a.Type, a.Prix, a.DateDebut, a.DateFin, a.Statut, a.IdProfessionnels, a.ReferenceStripe, a.AnnoncesGratuitesIncluses,
 	)
 	return err
+}
+
+// ConsommerAnnonceGratuite decremente le quota d'annonces gratuites de
+// l'abonnement premium actif du professionnel, si disponible. Renvoie true
+// si un credit gratuit a ete utilise.
+func (FacturationRepo) ConsommerAnnonceGratuite(q Querier, idPro int) bool {
+	var idAbonnement string
+	err := q.QueryRow(
+		`SELECT Id_Abonnement FROM Abonnement
+		 WHERE Id_Professionnels = ? AND Statut = 'actif' AND Annonces_Gratuites_Utilisees < Annonces_Gratuites_Incluses
+		 ORDER BY Date_Debut DESC LIMIT 1`,
+		idPro,
+	).Scan(&idAbonnement)
+	if err != nil {
+		return false
+	}
+	_, err = q.Exec("UPDATE Abonnement SET Annonces_Gratuites_Utilisees = Annonces_Gratuites_Utilisees + 1 WHERE Id_Abonnement = ?", idAbonnement)
+	return err == nil
 }
 
 func (FacturationRepo) AbonnementStatutPourMAJ(q Querier, id string) (string, error) {

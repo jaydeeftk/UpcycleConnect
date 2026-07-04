@@ -64,7 +64,7 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 		rows, err := database.DB.Query(
 			`SELECT Id_Formations, Titre, Description, Prix, Duree, COALESCE(Statut,'en_attente'),
 				COALESCE(Date_formation,''), COALESCE(DATE_FORMAT(Date_fin, '%Y-%m-%d'),''), COALESCE(Places_total,0), COALESCE(Places_dispo,0),
-				COALESCE(Localisation,''), COALESCE(Categorie,'')
+				COALESCE(Localisation,''), COALESCE(Categorie,''), COALESCE(Statut_validation,'en_attente'), COALESCE(Motif_refus,'')
 			FROM Formations WHERE Id_Salaries=? ORDER BY Id_Formations DESC`, salarieID,
 		)
 		if err != nil {
@@ -75,14 +75,15 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 		formations := []map[string]interface{}{}
 		for rows.Next() {
 			var id, duree, pTotal, pDispo int
-			var titre, desc, statut, date, dateFin, loc, cat string
+			var titre, desc, statut, date, dateFin, loc, cat, statutValidation, motifRefus string
 			var prix float64
-			rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &dateFin, &pTotal, &pDispo, &loc, &cat)
+			rows.Scan(&id, &titre, &desc, &prix, &duree, &statut, &date, &dateFin, &pTotal, &pDispo, &loc, &cat, &statutValidation, &motifRefus)
 			formations = append(formations, map[string]interface{}{
 				"id": id, "titre": titre, "description": desc, "prix": prix,
 				"duree": duree, "statut": statut, "date": date, "date_fin": dateFin,
 				"places_total": pTotal, "places_dispo": pDispo,
 				"localisation": loc, "categorie": cat,
+				"statut_validation": statutValidation, "motif_refus": motifRefus,
 			})
 		}
 		httpx.JSONOK(w, http.StatusOK, formations)
@@ -130,6 +131,16 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SalarieFormationAction(w http.ResponseWriter, r *http.Request) {
+	segs := segmentsApres(r.URL.Path, "/api/salaries/formations/")
+	if len(segs) >= 2 && segs[1] == "etapes" {
+		if len(segs) >= 3 {
+			SalarieFormationEtapeAction(w, r)
+		} else {
+			SalarieFormationEtapesHandler(w, r)
+		}
+		return
+	}
+
 	_, salarieID, ok := getSalarieFromContext(r)
 	if !ok {
 		httpx.JSONError(w, http.StatusForbidden, "Profil salarié introuvable")
@@ -162,6 +173,7 @@ func SalarieFormationAction(w http.ResponseWriter, r *http.Request) {
 		)
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation mise à jour"})
 	case http.MethodDelete:
+		database.DB.Exec("DELETE FROM Formation_Etapes WHERE Id_Formations=?", id)
 		database.DB.Exec("DELETE FROM Formations WHERE Id_Formations=? AND Id_Salaries=?", id, salarieID)
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation supprimée"})
 	default:

@@ -107,6 +107,34 @@ type FormationFiche struct {
 	Categorie    string
 }
 
+type EtapeFormation struct {
+	ID          int
+	Titre       string
+	Description string
+	Ordre       int
+}
+
+func (InscriptionRepo) EtapesFormation(q Querier, idFormation int) ([]EtapeFormation, error) {
+	rows, err := q.Query(
+		`SELECT Id_Etapes, Titre, COALESCE(Description,''), Ordre
+		 FROM Formation_Etapes WHERE Id_Formations = ? ORDER BY Ordre, Id_Etapes`,
+		idFormation,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	etapes := []EtapeFormation{}
+	for rows.Next() {
+		var e EtapeFormation
+		if err := rows.Scan(&e.ID, &e.Titre, &e.Description, &e.Ordre); err != nil {
+			return nil, err
+		}
+		etapes = append(etapes, e)
+	}
+	return etapes, rows.Err()
+}
+
 func (InscriptionRepo) FicheFormation(q Querier, idFormation int) (FormationFiche, error) {
 	var f FormationFiche
 	err := q.QueryRow(

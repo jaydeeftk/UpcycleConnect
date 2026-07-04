@@ -279,21 +279,29 @@ func (s *InscriptionService) DesinscrireFormation(idUtilisateur, idFormation int
 	})
 }
 
+type EtapeFormationDTO struct {
+	ID          int    `json:"id"`
+	Titre       string `json:"titre"`
+	Description string `json:"description"`
+	Ordre       int    `json:"ordre"`
+}
+
 type FicheFormationDTO struct {
-	ID                int      `json:"id"`
-	Titre             string   `json:"titre"`
-	Description       string   `json:"description"`
-	Prix              float64  `json:"prix"`
-	Duree             int      `json:"duree"`
-	Statut            string   `json:"statut"`
-	Date              string   `json:"date"`
-	DateFin           string   `json:"date_fin"`
-	PlacesTotal       int      `json:"places_total"`
-	PlacesDispo       int      `json:"places_dispo"`
-	Localisation      string   `json:"localisation"`
-	Categorie         string   `json:"categorie"`
-	EstInscrit        bool     `json:"est_inscrit"`
-	ActionsAutorisees []string `json:"allowed_actions"`
+	ID                int                 `json:"id"`
+	Titre             string              `json:"titre"`
+	Description       string              `json:"description"`
+	Prix              float64             `json:"prix"`
+	Duree             int                 `json:"duree"`
+	Statut            string              `json:"statut"`
+	Date              string              `json:"date"`
+	DateFin           string              `json:"date_fin"`
+	PlacesTotal       int                 `json:"places_total"`
+	PlacesDispo       int                 `json:"places_dispo"`
+	Localisation      string              `json:"localisation"`
+	Categorie         string              `json:"categorie"`
+	Etapes            []EtapeFormationDTO `json:"etapes"`
+	EstInscrit        bool                `json:"est_inscrit"`
+	ActionsAutorisees []string            `json:"allowed_actions"`
 }
 
 func (s *InscriptionService) FicheFormation(idUtilisateur, idFormation int) (FicheFormationDTO, error) {
@@ -315,11 +323,17 @@ func (s *InscriptionService) FicheFormation(idUtilisateur, idFormation int) (Fic
 		PlacesTotal: f.PlacesTotal,
 		Prix:        f.Prix,
 	}
+	etapesRepo, _ := s.repo.EtapesFormation(database.DB, idFormation)
+	etapes := make([]EtapeFormationDTO, 0, len(etapesRepo))
+	for _, e := range etapesRepo {
+		etapes = append(etapes, EtapeFormationDTO{ID: e.ID, Titre: e.Titre, Description: e.Description, Ordre: e.Ordre})
+	}
+
 	dto = FicheFormationDTO{
 		ID: f.ID, Titre: f.Titre, Description: f.Description, Prix: f.Prix,
 		Duree: f.Duree, Statut: f.Statut, Date: formatDate(f.Date), DateFin: formatDate(f.DateFin),
 		PlacesTotal: f.PlacesTotal, PlacesDispo: f.PlacesDispo,
-		Localisation: f.Localisation, Categorie: f.Categorie, EstInscrit: dejaInscrit,
+		Localisation: f.Localisation, Categorie: f.Categorie, Etapes: etapes, EstInscrit: dejaInscrit,
 		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit, aPaye),
 	}
 	return dto, nil

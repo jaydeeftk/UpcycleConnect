@@ -72,6 +72,8 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_prix', 'Prix') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_duree', 'Durée (h)') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_statut', 'Statut') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_categorie', 'Catégorie') ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_places', 'Places') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_auteur', 'Auteur') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_actions', 'Actions') ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('sal_col_date', 'Date') ?></th>
@@ -81,7 +83,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         <tbody class="divide-y divide-gray-200">
             <?php if (empty($formations)): ?>
             <tr>
-                <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                <td colspan="9" class="px-6 py-10 text-center text-gray-500">
                     <i class="fas fa-graduation-cap text-4xl mb-3 text-gray-300"></i>
                     <p><?= t('sal_formations_empty', 'Aucune formation pour le moment.') ?></p>
                 </td>
@@ -116,12 +118,25 @@ unset($_SESSION['success'], $_SESSION['error']);
         <span class="px-2 py-1 rounded-full text-xs font-medium <?= $color ?>">
             <?= formatStatut($statut) ?>
         </span>
+        <?php if ($statut === 'annule' && !empty($formation['motif_refus'])): ?>
+            <p class="text-xs text-red-500 mt-1"><?= htmlspecialchars($formation['motif_refus']) ?></p>
+        <?php endif; ?>
+    </td>
+    <td class="px-6 py-4 text-sm text-gray-600">
+        <?= htmlspecialchars($formation['categorie'] ?? '') ?: '—' ?>
+    </td>
+    <td class="px-6 py-4 text-sm text-gray-600">
+        <?= (int)($formation['places_dispo'] ?? 0) ?> / <?= (int)($formation['places_total'] ?? 0) ?>
     </td>
     <td class="px-6 py-4 text-sm text-gray-600">
         <?= htmlspecialchars($formation['auteur'] ?? 'Inconnu') ?>
     </td>
     <td class="px-6 py-4">
         <div class="flex gap-2">
+            <a href="/salaries/formations/<?= (int)($formation['id'] ?? 0) ?>/etapes"
+               class="text-purple-600 hover:text-purple-800" title="<?= t('sal_etapes_title', 'Étapes de la formation') ?>">
+                <i class="fas fa-list-ol"></i>
+            </a>
             <button onclick="openEditModal(
                     <?= (int)($formation['id'] ?? 0) ?>,
                     <?= json_encode((string)($formation['titre'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
@@ -129,7 +144,10 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <?= (float)($formation['prix'] ?? 0) ?>,
                     <?= (int)($formation['duree'] ?? 0) ?>,
                     <?= json_encode((string)($formation['date'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
-                    <?= json_encode((string)($formation['localisation'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>
+                    <?= json_encode((string)($formation['localisation'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                    <?= json_encode((string)($formation['date_fin'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>,
+                    <?= (int)($formation['places_total'] ?? 0) ?>,
+                    <?= json_encode((string)($formation['categorie'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>
                 )"
                 class="text-blue-600 hover:text-blue-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                 <i class="fas fa-edit"></i>
@@ -181,10 +199,23 @@ unset($_SESSION['success'], $_SESSION['error']);
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
     </div>
     <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date_fin', 'Date de fin') ?></label>
+        <input type="date" name="date_fin"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+    </div>
+</div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+    <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_lieu', 'Lieu') ?></label>
         <input type="text" name="lieu"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                placeholder="<?= t('sal_ph_formation_lieu', 'Lieu de la formation') ?>">
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_categorie', 'Catégorie') ?></label>
+        <input type="text" name="categorie"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+               placeholder="<?= t('sal_ph_formation_categorie', 'Ex: Menuiserie') ?>">
     </div>
 </div>
             <div class="mb-4">
@@ -193,7 +224,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                           placeholder="<?= t('sal_ph_formation_description', 'Description de la formation...') ?>"></textarea>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_prix', 'Prix (€)') ?></label>
                     <input type="number" name="prix" min="0" step="0.01"
@@ -205,6 +236,12 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <input type="number" name="duree" min="1"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                            placeholder="<?= t('sal_ph_duree', 'Ex: 60') ?>">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_places', 'Places') ?></label>
+                    <input type="number" name="places_total" min="1"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                           placeholder="20">
                 </div>
             </div>
             <div class="flex justify-end gap-3">
@@ -251,13 +288,25 @@ unset($_SESSION['success'], $_SESSION['error']);
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
     </div>
     <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date_fin', 'Date de fin') ?></label>
+        <input type="date" name="date_fin" id="edit-date-fin"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+    </div>
+</div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+    <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_lieu', 'Lieu') ?></label>
         <input type="text" name="lieu" id="edit-lieu"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                placeholder="<?= t('sal_ph_formation_lieu', 'Lieu de la formation') ?>">
     </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_categorie', 'Catégorie') ?></label>
+        <input type="text" name="categorie" id="edit-categorie"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+    </div>
 </div>
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_prix', 'Prix (€)') ?></label>
                     <input type="number" name="prix" id="edit-prix" min="0" step="0.01"
@@ -266,6 +315,11 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_duree', 'Durée (h)') ?></label>
                     <input type="number" name="duree" id="edit-duree" min="1"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_places', 'Places') ?></label>
+                    <input type="number" name="places_total" id="edit-places-total" min="1"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
             </div>
@@ -285,13 +339,16 @@ unset($_SESSION['success'], $_SESSION['error']);
 </div>
 
 <script>
-function openEditModal(id, titre, description, prix, duree, date, lieu) {
+function openEditModal(id, titre, description, prix, duree, date, lieu, dateFin, placesTotal, categorie) {
     document.getElementById('edit-titre').value = titre;
     document.getElementById('edit-description').value = description;
     document.getElementById('edit-prix').value = prix;
     document.getElementById('edit-duree').value = duree;
     document.getElementById('edit-date').value = date ?? '';
     document.getElementById('edit-lieu').value = lieu ?? '';
+    document.getElementById('edit-date-fin').value = dateFin ?? '';
+    document.getElementById('edit-places-total').value = placesTotal ?? '';
+    document.getElementById('edit-categorie').value = categorie ?? '';
     document.getElementById('form-edit').action =
         ' /salaries/formations/' + id + '/update';
     document.getElementById('modal-edit').classList.remove('hidden');

@@ -220,6 +220,9 @@ $router->group(['prefix' => 'salaries'], function($router) {
     $router->get('/formations/{id}/edit', 'salaries\FormationController@edit');
     $router->post('/formations/{id}/update', 'salaries\FormationController@update');
     $router->post('/formations/{id}/delete', 'salaries\FormationController@delete');
+    $router->get('/formations/{id}/etapes', 'salaries\FormationController@etapes');
+    $router->post('/formations/{id}/etapes/store', 'salaries\FormationController@etapesStore');
+    $router->post('/formations/{id}/etapes/{etapeId}/delete', 'salaries\FormationController@etapesDelete');
 
     
     $router->get('/evenements', 'salaries\EvenementController@index');

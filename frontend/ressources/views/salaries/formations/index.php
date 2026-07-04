@@ -220,9 +220,9 @@ unset($_SESSION['success'], $_SESSION['error']);
 </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_description', 'Description') ?></label>
-                <textarea name="description" rows="3"
+                <textarea name="description" rows="6"
                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                          placeholder="<?= t('sal_ph_formation_description', 'Description de la formation...') ?>"></textarea>
+                          placeholder="<?= t('sal_ph_formation_description', 'Expliquez ce qui va se dérouler pendant la formation : objectifs, public visé, prérequis...') ?>"></textarea>
             </div>
             <div class="grid grid-cols-3 gap-4 mb-4">
                 <div>
@@ -278,7 +278,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_description', 'Description') ?></label>
-                <textarea name="description" id="edit-description" rows="3"
+                <textarea name="description" id="edit-description" rows="6"
                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">

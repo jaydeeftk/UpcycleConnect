@@ -20,7 +20,7 @@ $estPasse      = $tsFormation !== false && $tsFormation < time();
 
             <h1 class="text-4xl font-bold mb-4"><?= htmlspecialchars($formation['titre'] ?? 'Formation') ?></h1>
             <p class="text-base-content/70 text-lg leading-relaxed mb-8">
-                <?= htmlspecialchars($formation['description'] ?? '') ?>
+                <?= nl2br(htmlspecialchars($formation['description'] ?? '')) ?>
             </p>
 
             <div class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-3 mb-8">

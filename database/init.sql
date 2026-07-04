@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS Evenements(
 CREATE TABLE IF NOT EXISTS Formations(
    Id_Formations INT AUTO_INCREMENT,
    Titre VARCHAR(100),
-   Description VARCHAR(255),
+   Description TEXT,
    Prix DECIMAL(15,2),
    Duree INT,
    Statut VARCHAR(50),

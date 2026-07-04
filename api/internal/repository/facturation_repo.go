@@ -768,20 +768,20 @@ func (FacturationRepo) CreerAbonnement(q Querier, a AbonnementCreation) error {
 
 // ConsommerAnnonceGratuite decremente le quota d'annonces gratuites de
 // l'abonnement premium actif du professionnel, si disponible. Renvoie true
-// si un credit gratuit a ete utilise.
+// si un credit gratuit a ete utilise. La mise a jour est atomique (une seule
+// requete) pour eviter toute sur-consommation en cas de creations simultanees.
 func (FacturationRepo) ConsommerAnnonceGratuite(q Querier, idPro int) bool {
-	var idAbonnement string
-	err := q.QueryRow(
-		`SELECT Id_Abonnement FROM Abonnement
+	res, err := q.Exec(
+		`UPDATE Abonnement SET Annonces_Gratuites_Utilisees = Annonces_Gratuites_Utilisees + 1
 		 WHERE Id_Professionnels = ? AND Statut = 'actif' AND Annonces_Gratuites_Utilisees < Annonces_Gratuites_Incluses
 		 ORDER BY Date_Debut DESC LIMIT 1`,
 		idPro,
-	).Scan(&idAbonnement)
+	)
 	if err != nil {
 		return false
 	}
-	_, err = q.Exec("UPDATE Abonnement SET Annonces_Gratuites_Utilisees = Annonces_Gratuites_Utilisees + 1 WHERE Id_Abonnement = ?", idAbonnement)
-	return err == nil
+	n, err := res.RowsAffected()
+	return err == nil && n > 0
 }
 
 func (FacturationRepo) AbonnementStatutPourMAJ(q Querier, id string) (string, error) {

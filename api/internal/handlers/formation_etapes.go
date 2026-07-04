@@ -118,7 +118,10 @@ func SalarieFormationEtapeAction(w http.ResponseWriter, r *http.Request) {
 			Description string `json:"description"`
 			Ordre       int    `json:"ordre"`
 		}
-		json.NewDecoder(r.Body).Decode(&body)
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || strings.TrimSpace(body.Titre) == "" {
+			httpx.JSONError(w, http.StatusBadRequest, "Le titre de l'étape est obligatoire")
+			return
+		}
 		database.DB.Exec(
 			"UPDATE Formation_Etapes SET Titre=?, Description=?, Ordre=? WHERE Id_Etapes=? AND Id_Formations=?",
 			body.Titre, body.Description, body.Ordre, idEtape, idFormation,

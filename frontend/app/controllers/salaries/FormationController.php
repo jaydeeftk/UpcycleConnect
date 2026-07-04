@@ -125,6 +125,13 @@ class FormationController
         try {
             $formation = $this->api->get('/salaries/formations')['data'] ?? [];
             $formation = array_values(array_filter($formation, fn($f) => (int)($f['id'] ?? 0) === (int)$id))[0] ?? null;
+
+            if (!$formation) {
+                $_SESSION['error'] = t('sal_flash_formation_not_found', 'Formation introuvable.');
+                redirect('/salaries/formations');
+                return;
+            }
+
             $etapes = $this->api->get('/salaries/formations/' . $id . '/etapes')['data'] ?? [];
 
             return view('salaries.formations.etapes', [

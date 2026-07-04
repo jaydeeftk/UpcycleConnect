@@ -112,13 +112,14 @@ unset($_SESSION['success'], $_SESSION['error']);
             'en_attente' => 'bg-yellow-100 text-yellow-800',
             'valide'     => 'bg-green-100 text-green-800',
             'annule'     => 'bg-red-100 text-red-800',
+            'rejete'     => 'bg-red-100 text-red-800',
         ];
         $color = $colors[$statut] ?? 'bg-gray-100 text-gray-800';
         ?>
         <span class="px-2 py-1 rounded-full text-xs font-medium <?= $color ?>">
             <?= formatStatut($statut) ?>
         </span>
-        <?php if ($statut === 'annule' && !empty($formation['motif_refus'])): ?>
+        <?php if ($statut === 'rejete' && !empty($formation['motif_refus'])): ?>
             <p class="text-xs text-red-500 mt-1"><?= htmlspecialchars($formation['motif_refus']) ?></p>
         <?php endif; ?>
     </td>

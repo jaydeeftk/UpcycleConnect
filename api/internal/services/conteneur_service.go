@@ -289,13 +289,16 @@ func (s *ConteneurService) ListerConteneursDisponibles() ([]ConteneurPublicDTO, 
 }
 
 type ConteneurAdminDTO struct {
-	ID           int    `json:"id"`
-	Localisation string `json:"localisation"`
-	Capacite     int    `json:"capacite"`
-	Statut       string `json:"statut"`
-	NbDemandes   int    `json:"nb_demandes"`
-	Occupation   int    `json:"occupation"`
-	FillRate     int    `json:"fill_rate"`
+	ID           int     `json:"id"`
+	Localisation string  `json:"localisation"`
+	Capacite     int     `json:"capacite"`
+	Statut       string  `json:"statut"`
+	NbDemandes   int     `json:"nb_demandes"`
+	Occupation   int     `json:"occupation"`
+	FillRate     int     `json:"fill_rate"`
+	Hauteur      float64 `json:"hauteur"`
+	Largeur      float64 `json:"largeur"`
+	Longueur     float64 `json:"longueur"`
 }
 
 func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) {
@@ -309,6 +312,7 @@ func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) 
 			ID: c.ID, Localisation: c.Localisation, Capacite: c.Capacite, Statut: c.Statut,
 			NbDemandes: c.NbDemandes, Occupation: c.Occupation,
 			FillRate: domain.TauxRemplissage(c.Occupation, c.CapaciteBox),
+			Hauteur:  c.Hauteur.Float64, Largeur: c.Largeur.Float64, Longueur: c.Longueur.Float64,
 		})
 	}
 	return out, nil
@@ -318,6 +322,9 @@ type ConteneurInput struct {
 	Localisation string
 	Capacite     int
 	Statut       string
+	Hauteur      float64
+	Largeur      float64
+	Longueur     float64
 }
 
 func (s *ConteneurService) CreerConteneur(idUtilisateur int, in ConteneurInput) (int64, error) {
@@ -339,7 +346,7 @@ func (s *ConteneurService) CreerConteneur(idUtilisateur int, in ConteneurInput) 
 		if err != nil {
 			return err
 		}
-		id, err := s.repo.CreerConteneur(tx, localisation, in.Capacite, statut, idAdmin)
+		id, err := s.repo.CreerConteneur(tx, localisation, in.Capacite, statut, in.Hauteur, in.Largeur, in.Longueur, idAdmin)
 		if err != nil {
 			return err
 		}
@@ -362,7 +369,7 @@ func (s *ConteneurService) ModifierConteneur(idConteneur int, in ConteneurInput)
 		statut = domain.StatutConteneurDisponible
 	}
 	return withTx(func(tx *sql.Tx) error {
-		n, err := s.repo.ModifierConteneur(tx, idConteneur, in.Localisation, in.Capacite, statut)
+		n, err := s.repo.ModifierConteneur(tx, idConteneur, in.Localisation, in.Capacite, statut, in.Hauteur, in.Largeur, in.Longueur)
 		if err != nil {
 			return err
 		}

@@ -38,6 +38,14 @@
                     <div class="bg-blue-500 h-2.5 rounded-full" style="width: <?= $fillRate ?>%"></div>
                 </div>
                 <p class="text-xs text-slate-400 mt-1 text-right"><?= t('adm_conteneurs_max_capacity_kg', 'Capacité max :') ?> <?= htmlspecialchars($box['capacite']) ?> kg</p>
+                <?php if (!empty($box['hauteur']) || !empty($box['largeur']) || !empty($box['longueur'])): ?>
+                    <p class="text-xs text-slate-400 mt-1 text-right">
+                        <?= t('adm_conteneurs_dimensions', 'Dimensions') ?> :
+                        <?= htmlspecialchars((string)($box['hauteur'] ?? 0)) ?> ×
+                        <?= htmlspecialchars((string)($box['largeur'] ?? 0)) ?> ×
+                        <?= htmlspecialchars((string)($box['longueur'] ?? 0)) ?> cm
+                    </p>
+                <?php endif; ?>
             </div>
 
             <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
@@ -87,6 +95,14 @@
                         <option value="plein"><?= t('adm_conteneurs_status_plein', 'Plein') ?></option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_dimensions', 'Dimensions (cm)') ?></label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="number" name="hauteur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_hauteur', 'Hauteur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                        <input type="number" name="largeur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_largeur', 'Largeur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                        <input type="number" name="longueur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_longueur', 'Longueur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg"><?= t('adm_btn_cancel', 'Annuler') ?></button>
@@ -121,6 +137,14 @@
                         <option value="plein"><?= t('adm_conteneurs_status_plein', 'Plein') ?></option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_dimensions', 'Dimensions (cm)') ?></label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="number" name="hauteur" id="edit-hauteur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_hauteur', 'Hauteur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                        <input type="number" name="largeur" id="edit-largeur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_largeur', 'Largeur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                        <input type="number" name="longueur" id="edit-longueur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_longueur', 'Longueur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg"><?= t('adm_btn_cancel', 'Annuler') ?></button>
@@ -136,6 +160,9 @@ function openEditBox(box) {
     document.getElementById('edit-localisation').value = box.localisation || '';
     document.getElementById('edit-capacite').value = box.capacite || '';
     document.getElementById('edit-statut').value = box.statut || 'disponible';
+    document.getElementById('edit-hauteur').value = box.hauteur || '';
+    document.getElementById('edit-largeur').value = box.largeur || '';
+    document.getElementById('edit-longueur').value = box.longueur || '';
     document.getElementById('editModal').classList.remove('hidden');
 }
 </script>

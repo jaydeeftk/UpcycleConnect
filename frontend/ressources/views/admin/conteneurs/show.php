@@ -8,7 +8,7 @@
     </a>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <p class="text-xs uppercase font-bold text-slate-400 mb-2"><?= t('adm_col_status', 'Statut') ?></p>
         <?php $sc = statutCouleur($conteneur['statut'] ?? ''); ?>
@@ -17,6 +17,13 @@
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <p class="text-xs uppercase font-bold text-slate-400 mb-2"><?= t('adm_conteneurs_max_capacity', 'Capacité max') ?></p>
         <p class="text-2xl font-bold text-slate-800"><?= htmlspecialchars($conteneur['capacite'] ?? 0) ?> <span class="text-sm font-normal text-slate-400">kg</span></p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <p class="text-xs uppercase font-bold text-slate-400 mb-2"><?= t('adm_conteneurs_dimensions', 'Dimensions') ?></p>
+        <p class="text-2xl font-bold text-slate-800">
+            <?= htmlspecialchars((string)($conteneur['hauteur'] ?? 0)) ?> × <?= htmlspecialchars((string)($conteneur['largeur'] ?? 0)) ?> × <?= htmlspecialchars((string)($conteneur['longueur'] ?? 0)) ?>
+            <span class="text-sm font-normal text-slate-400">cm</span>
+        </p>
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <?php $fr = (int)($conteneur['fill_rate'] ?? 0); $bar = $fr >= 90 ? '#ef4444' : ($fr >= 70 ? '#f59e0b' : '#22c55e'); ?>

@@ -129,6 +129,9 @@ CREATE TABLE IF NOT EXISTS Conteneurs(
    Localisation VARCHAR(100),
    Capacite VARCHAR(50),
    Statut VARCHAR(50),
+   Hauteur DECIMAL(6,2) NULL,
+   Largeur DECIMAL(6,2) NULL,
+   Longueur DECIMAL(6,2) NULL,
    Id_Administrateurs INT NOT NULL,
    PRIMARY KEY(Id_Conteneurs),
    FOREIGN KEY(Id_Administrateurs) REFERENCES Administrateurs(Id_Administrateurs)

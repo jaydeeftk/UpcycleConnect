@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
 
 	"github.com/go-sql-driver/mysql"
@@ -315,6 +316,9 @@ type ConteneurAdmin struct {
 	NbDemandes   int
 	Occupation   int
 	CapaciteBox  int
+	Hauteur      sql.NullFloat64
+	Largeur      sql.NullFloat64
+	Longueur     sql.NullFloat64
 }
 
 func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) {
@@ -326,7 +330,8 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 		        COALESCE((SELECT COUNT(*) FROM Objets o
 		           JOIN Box b2 ON b2.Id_Box = o.Id_Box
 		           WHERE b2.Id_Conteneurs = c.Id_Conteneurs AND o.Statut IN ('en_stock','reserve_pro')),0) AS occupation,
-		        COALESCE((SELECT SUM(b.Capacite) FROM Box b WHERE b.Id_Conteneurs = c.Id_Conteneurs),0) AS capacite_box
+		        COALESCE((SELECT SUM(b.Capacite) FROM Box b WHERE b.Id_Conteneurs = c.Id_Conteneurs),0) AS capacite_box,
+		        c.Hauteur, c.Largeur, c.Longueur
 		 FROM Conteneurs c
 		 ORDER BY c.Id_Conteneurs DESC`,
 	)
@@ -339,7 +344,7 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 	for rows.Next() {
 		var c ConteneurAdmin
 		if err := rows.Scan(&c.ID, &c.Localisation, &c.Capacite, &c.Statut,
-			&c.NbDemandes, &c.Occupation, &c.CapaciteBox); err != nil {
+			&c.NbDemandes, &c.Occupation, &c.CapaciteBox, &c.Hauteur, &c.Largeur, &c.Longueur); err != nil {
 			return nil, err
 		}
 		liste = append(liste, c)
@@ -347,10 +352,10 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 	return liste, rows.Err()
 }
 
-func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int, statut string, idAdmin int) (int64, error) {
+func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int, statut string, hauteur, largeur, longueur float64, idAdmin int) (int64, error) {
 	res, err := q.Exec(
-		"INSERT INTO Conteneurs (Localisation, Capacite, Statut, Id_Administrateurs) VALUES (?, ?, ?, ?)",
-		localisation, capacite, statut, idAdmin,
+		"INSERT INTO Conteneurs (Localisation, Capacite, Statut, Hauteur, Largeur, Longueur, Id_Administrateurs) VALUES (?, ?, ?, NULLIF(?,0), NULLIF(?,0), NULLIF(?,0), ?)",
+		localisation, capacite, statut, hauteur, largeur, longueur, idAdmin,
 	)
 	if err != nil {
 		return 0, err
@@ -366,10 +371,10 @@ func (ConteneurRepo) CreerBox(q Querier, reference string, capacite, idConteneur
 	return err
 }
 
-func (ConteneurRepo) ModifierConteneur(q Querier, idConteneur int, localisation string, capacite int, statut string) (int64, error) {
+func (ConteneurRepo) ModifierConteneur(q Querier, idConteneur int, localisation string, capacite int, statut string, hauteur, largeur, longueur float64) (int64, error) {
 	res, err := q.Exec(
-		"UPDATE Conteneurs SET Localisation=?, Capacite=?, Statut=? WHERE Id_Conteneurs=?",
-		localisation, capacite, statut, idConteneur,
+		"UPDATE Conteneurs SET Localisation=?, Capacite=?, Statut=?, Hauteur=NULLIF(?,0), Largeur=NULLIF(?,0), Longueur=NULLIF(?,0) WHERE Id_Conteneurs=?",
+		localisation, capacite, statut, hauteur, largeur, longueur, idConteneur,
 	)
 	if err != nil {
 		return 0, err

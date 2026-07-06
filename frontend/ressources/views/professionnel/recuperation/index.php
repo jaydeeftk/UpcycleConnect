@@ -90,9 +90,16 @@
                             <div class="border border-gray-200 rounded-lg p-4">
                                 <div class="flex justify-between items-start mb-2">
                                     <div>
-                                        <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($objet['type'] ?? 'Objet') ?></h4>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($objet['titre'] ?: ($objet['type'] ?? 'Objet')) ?></h4>
+                                            <?php if (($objet['type_annonce'] ?? '') === 'vente'): ?>
+                                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold uppercase"><?= t('pro_recup_badge_purchase', 'Achat') ?></span>
+                                            <?php elseif (($objet['type_annonce'] ?? '') === 'don'): ?>
+                                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold uppercase"><?= t('pro_recup_badge_donation', 'Don') ?></span>
+                                            <?php endif; ?>
+                                        </div>
                                         <p class="text-xs text-gray-500 mt-1">
-                                            <?= htmlspecialchars($objet['poids'] ?? '') ?> · <?= htmlspecialchars($objet['conteneur'] ?? '') ?>
+                                            <?= htmlspecialchars($objet['type'] ?? '') ?> · <?= htmlspecialchars($objet['poids'] ?? '') ?> · <?= htmlspecialchars($objet['conteneur'] ?? '') ?>
                                         </p>
                                     </div>
                                     <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600"><?= formatStatut($objet['statut'] ?? '') ?></span>
@@ -132,9 +139,16 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <?php foreach ($catalogue as $objet): ?>
                             <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($objet['type'] ?? 'Objet') ?></h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($objet['titre'] ?: ($objet['type'] ?? 'Objet')) ?></h4>
+                                    <?php if (($objet['type_annonce'] ?? '') === 'vente'): ?>
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold uppercase"><?= t('pro_recup_badge_purchase', 'Achat') ?></span>
+                                    <?php elseif (($objet['type_annonce'] ?? '') === 'don'): ?>
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold uppercase"><?= t('pro_recup_badge_donation', 'Don') ?></span>
+                                    <?php endif; ?>
+                                </div>
                                 <p class="text-xs text-gray-500 mt-1 mb-3">
-                                    <?= htmlspecialchars($objet['poids'] ?? '') ?> · <?= htmlspecialchars($objet['conteneur'] ?? '') ?>
+                                    <?= htmlspecialchars($objet['type'] ?? '') ?> · <?= htmlspecialchars($objet['poids'] ?? '') ?> · <?= htmlspecialchars($objet['conteneur'] ?? '') ?>
                                 </p>
                                 <div class="flex flex-wrap gap-2">
                                     <?php

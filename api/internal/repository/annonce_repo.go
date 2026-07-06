@@ -4,8 +4,6 @@ import "upcycleconnect/internal/domain"
 
 type AnnonceRepo struct{}
 
-// ─── Résolution du propriétaire ──────────────────────────────────────────────
-
 func (AnnonceRepo) IdParticulier(q Querier, idUtilisateur int) (int, error) {
 	var id int
 	err := q.QueryRow(
@@ -24,8 +22,6 @@ func (AnnonceRepo) IdProfessionnel(q Querier, idUtilisateur int) (int, error) {
 	return id, err
 }
 
-// ─── Création ────────────────────────────────────────────────────────────────
-
 type AnnonceCreation struct {
 	Titre           string
 	Description     string
@@ -35,8 +31,8 @@ type AnnonceCreation struct {
 	Prix            float64
 	Ville           string
 	CodePostal      string
-	IdParticulier   int // 0 si l'annonce appartient à un professionnel
-	IdProfessionnel int // 0 si l'annonce appartient à un particulier
+	IdParticulier   int
+	IdProfessionnel int
 }
 
 func (AnnonceRepo) Creer(q Querier, a AnnonceCreation) (int64, error) {
@@ -61,27 +57,22 @@ func (AnnonceRepo) Creer(q Querier, a AnnonceCreation) (int64, error) {
 	return res.LastInsertId()
 }
 
-// ─── Fiche détail ─────────────────────────────────────────────────────────────
-// La colonne Proprietaire contient Id_Particuliers OU Id_Professionnels selon
-// qui est le propriétaire. On unifie via un CASE pour que le service puisse
-// comparer avec la valeur renvoyée par resoudreProprietaire.
-
 type AnnonceFiche struct {
-	ID              int
-	Titre           string
-	Description     string
-	Categorie       string
-	Etat            string
-	Type            string
-	Prix            float64
-	Ville           string
-	CodePostal      string
-	Statut          string
-	Date            string
-	Auteur          string
-	Email           string
-	Proprietaire    int  // Id_Particuliers ou Id_Professionnels selon EstPro
-	EstPro          bool // true si appartient à un professionnel
+	ID           int
+	Titre        string
+	Description  string
+	Categorie    string
+	Etat         string
+	Type         string
+	Prix         float64
+	Ville        string
+	CodePostal   string
+	Statut       string
+	Date         string
+	Auteur       string
+	Email        string
+	Proprietaire int
+	EstPro       bool
 }
 
 func (AnnonceRepo) Fiche(q Querier, idAnnonce int) (AnnonceFiche, error) {
@@ -112,8 +103,6 @@ func (AnnonceRepo) Fiche(q Querier, idAnnonce int) (AnnonceFiche, error) {
 	return f, err
 }
 
-// ─── Lecture pour mise à jour (avec verrou) ───────────────────────────────────
-
 func (AnnonceRepo) PourMAJ(q Querier, idAnnonce int) (domain.AnnonceSnapshot, error) {
 	var s domain.AnnonceSnapshot
 	var estPro bool
@@ -132,14 +121,18 @@ func (AnnonceRepo) PourMAJ(q Querier, idAnnonce int) (domain.AnnonceSnapshot, er
 	return s, nil
 }
 
-// ─── Mise à jour du statut ────────────────────────────────────────────────────
-
 func (AnnonceRepo) MettreStatut(q Querier, idAnnonce int, statut string) error {
 	_, err := q.Exec("UPDATE Annonces SET Statut = ? WHERE Id_Annonces = ?", statut, idAnnonce)
 	return err
 }
 
-// ─── Suppression (admin) ──────────────────────────────────────────────────────
+func (AnnonceRepo) ReserverDon(q Querier, idAnnonce, idUtilisateurDestinataire int) error {
+	_, err := q.Exec(
+		"UPDATE Annonces SET Statut = 'reservee', Id_Acheteur_Utilisateur = ? WHERE Id_Annonces = ?",
+		idUtilisateurDestinataire, idAnnonce,
+	)
+	return err
+}
 
 func (AnnonceRepo) Supprimer(q Querier, idAnnonce int) (int64, error) {
 	res, err := q.Exec("DELETE FROM Annonces WHERE Id_Annonces = ?", idAnnonce)
@@ -148,8 +141,6 @@ func (AnnonceRepo) Supprimer(q Querier, idAnnonce int) (int64, error) {
 	}
 	return res.RowsAffected()
 }
-
-// ─── Liste ────────────────────────────────────────────────────────────────────
 
 type AnnonceListe struct {
 	ID          int
@@ -198,8 +189,6 @@ func (AnnonceRepo) ListerPubliees(q Querier) ([]AnnonceListe, error) {
 	return liste, rows.Err()
 }
 
-// ListerParUtilisateur retourne toutes les annonces d'un utilisateur,
-// qu'il soit particulier ou professionnel.
 func (AnnonceRepo) ListerParUtilisateur(q Querier, idUtilisateur int) ([]AnnonceListe, error) {
 	rows, err := q.Query(
 		`SELECT a.Id_Annonces,
@@ -231,8 +220,6 @@ func (AnnonceRepo) ListerParUtilisateur(q Querier, idUtilisateur int) ([]Annonce
 	return liste, rows.Err()
 }
 
-// ListerAdmin retourne toutes les annonces pour la vue admin (LEFT JOIN pour
-// inclure aussi les annonces de professionnels).
 func (AnnonceRepo) ListerAdmin(q Querier) ([]map[string]interface{}, error) {
 	rows, err := q.Query(
 		`SELECT a.Id_Annonces, COALESCE(a.Titre,''), COALESCE(a.Statut,'en_attente'),
@@ -266,4 +253,3 @@ func (AnnonceRepo) ListerAdmin(q Querier) ([]map[string]interface{}, error) {
 	}
 	return annonces, rows.Err()
 }
-

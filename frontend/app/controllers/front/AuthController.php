@@ -115,7 +115,6 @@ class AuthController
         }
     }
 
-    // Lien reçu par email : active le compte puis renvoie vers la connexion.
     public function verifyEmail()
     {
         $token = $_GET['token'] ?? '';
@@ -136,7 +135,6 @@ class AuthController
         }
     }
 
-    // Étape 1 : formulaire « mot de passe oublié » (saisie de l'email).
     public function showForgotPassword()
     {
         return view('front.auth.forgot', [
@@ -146,15 +144,12 @@ class AuthController
         ]);
     }
 
-    // Étape 1 (POST) : déclenche l'envoi de l'email. Réponse volontairement neutre
-    // (anti-énumération : on ne dit jamais si l'email existe).
     public function forgotPassword()
     {
         $email = $_POST['email'] ?? '';
         try {
             $this->api->post('/auth/mot-de-passe-oublie', ['email' => $email]);
         } catch (\Exception $e) {
-            // silencieux : on n'expose rien
         }
         return view('front.auth.forgot', [
             'title'   => 'Mot de passe oublié - UpcycleConnect',
@@ -163,7 +158,6 @@ class AuthController
         ]);
     }
 
-    // Étape 2 : page de saisie du nouveau mot de passe (lien reçu par email).
     public function showResetPassword()
     {
         return view('front.auth.reset', [
@@ -173,7 +167,6 @@ class AuthController
         ]);
     }
 
-    // Étape 2 (POST) : consomme le jeton et fixe le nouveau mot de passe.
     public function resetPassword()
     {
         $token    = $_POST['token'] ?? '';
@@ -195,8 +188,6 @@ class AuthController
         }
     }
 
-    // Proxy public : le formulaire d'inscription vérifie le SIRET via l'API Go
-    // (qui interroge recherche-entreprises.api.gouv.fr).
     public function verifySiret($siret)
     {
         header('Content-Type: application/json');

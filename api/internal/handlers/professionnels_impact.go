@@ -14,9 +14,6 @@ import (
 	"github.com/jung-kurt/gofpdf"
 )
 
-// co2FacteurParKg : estimation indicative du CO2 evite par kg de matiere
-// reemployee plutot que jetee. Valeur transparente et ajustable ; l'impact reel
-// depend du materiau. Toujours presentee comme une estimation, jamais une mesure.
 const co2FacteurParKg = 1.8
 
 type impactMateriau struct {
@@ -35,8 +32,6 @@ type impactPro struct {
 	Materiaux       []impactMateriau `json:"materiaux"`
 }
 
-// parsePoidsKg extrait la valeur numerique d'un poids stocke en texte
-// ("12 kg", "12,5kg", "8") ; retourne 0 si rien d'exploitable.
 func parsePoidsKg(s string) float64 {
 	s = strings.TrimSpace(strings.ReplaceAll(s, ",", "."))
 	var b strings.Builder
@@ -112,8 +107,6 @@ func calculerImpactPro(profID int) (impactPro, error) {
 	return imp, nil
 }
 
-// ProfessionnelImpact expose le bilan d'impact ecologique (PR7) et la
-// repartition par materiau (PR8) du professionnel connecte, en JSON.
 func ProfessionnelImpact(w http.ResponseWriter, r *http.Request) {
 	_, profID, ok := getProfessionnelFromContext(r)
 	if !ok {
@@ -128,7 +121,6 @@ func ProfessionnelImpact(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, imp)
 }
 
-// ProfessionnelImpactPDF genere le bilan d'impact ecologique en PDF (PR7).
 func ProfessionnelImpactPDF(w http.ResponseWriter, r *http.Request) {
 	userID, profID, ok := getProfessionnelFromContext(r)
 	if !ok {

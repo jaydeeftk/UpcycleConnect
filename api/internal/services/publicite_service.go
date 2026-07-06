@@ -87,8 +87,6 @@ func (s *PubliciteService) CreerPourPro(idPro int, in PubliciteInput, referenceS
 	return id, nil
 }
 
-// CompleterPourProStripe cree la campagne apres paiement Stripe confirme.
-// Idempotent via la contrainte UNIQUE sur Reference_Stripe.
 func (s *PubliciteService) CompleterPourProStripe(idPro int, in PubliciteInput, referenceStripe string) error {
 	_, err := s.CreerPourPro(idPro, in, referenceStripe)
 	if err != nil && (repository.FacturationRepo{}).EstViolationUnicite(err) {

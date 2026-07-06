@@ -97,21 +97,44 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	depotRows, err := database.DB.Query(
+		`SELECT dc.Id_Demandes_conteneurs, COALESCE(dc.Type_objet,''),
+			COALESCE(DATE_FORMAT(dc.Date_depot, '%Y-%m-%dT%H:%i:%s'),''),
+			COALESCE(c.Localisation,''), dc.Statut
+		FROM Demandes_conteneurs dc
+		JOIN Particuliers p ON p.Id_Particuliers = dc.Id_Particuliers
+		LEFT JOIN Conteneurs c ON c.Id_Conteneurs = dc.Id_Conteneurs
+		WHERE p.Id_Utilisateurs = ? AND dc.Date_depot IS NOT NULL
+		ORDER BY dc.Date_depot ASC`, idUtilisateur,
+	)
+	depots := []map[string]interface{}{}
+	if err == nil {
+		defer depotRows.Close()
+		for depotRows.Next() {
+			var id int
+			var typeObjet, date, lieu, statut string
+			depotRows.Scan(&id, &typeObjet, &date, &lieu, &statut)
+			depots = append(depots, map[string]interface{}{
+				"id": id, "titre": "Dépôt : " + typeObjet, "date": date,
+				"lieu": lieu, "statut": statut, "duree": 0, "type": "depot",
+			})
+		}
+	}
+
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
 		"evenements": evenements,
 		"formations": formations,
 		"libres":     libres,
+		"depots":     depots,
 		"stats": map[string]int{
 			"evenements": len(evenements),
 			"formations": len(formations),
 			"libres":     len(libres),
+			"depots":     len(depots),
 		},
 	})
 }
 
-// dureeEnHeures retourne la difference en heures entre Date_debut et Date_fin
-// (chaines naives ISO Europe/Paris emises par DATE_FORMAT). Le format planning
-// JS attend des heures pour faire fin.setHours(+duree).
 func dureeEnHeures(debut, fin string) int {
 	if debut == "" || fin == "" {
 		return 0
@@ -132,9 +155,6 @@ func dureeEnHeures(debut, fin string) int {
 	return h
 }
 
-// AjouterEntreePlanning : POST /api/planning/personnel — un particulier ajoute
-// manuellement une entree dans son planning personnel (creneau libre, rendez-vous
-// artisan, etc.).
 func AjouterEntreePlanning(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -184,8 +204,6 @@ func AjouterEntreePlanning(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Entrée ajoutée au planning"})
 }
 
-// SupprimerEntreePlanning : DELETE /api/planning/personnel/{id} — controle
-// d'ownership inline (le particulier ne supprime que ses propres entrees).
 func SupprimerEntreePlanning(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

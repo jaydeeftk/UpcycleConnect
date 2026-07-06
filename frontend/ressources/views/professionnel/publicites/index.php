@@ -39,6 +39,21 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/professionnel/services" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-store w-5"></i><span><?= t('pro_nav_services', 'Mes prestations créées') ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/professionnel/prestations" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-tools w-5"></i><span><?= t('pro_nav_prestations', 'Demandes reçues') ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/professionnel/commissions" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-hand-holding-usd w-5"></i><span><?= t('pro_nav_commissions', 'Mes commissions') ?></span>
+                    </a>
+                </li>
+                <li>
                     <a href="/catalogue/services" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-tools w-5"></i><span><?= t('pro_nav_services', 'Services') ?></span>
                     </a>
@@ -51,6 +66,11 @@
                 <li>
                     <a href="/professionnel/publicites" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-gray-700 text-white">
                         <i class="fas fa-ad w-5"></i><span><?= t('pro_nav_publicites', 'Campagnes publicitaires') ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/messagerie" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-comment-dots w-5"></i><span><?= t('pro_nav_messagerie', 'Messagerie') ?></span>
                     </a>
                 </li>
             </ul>

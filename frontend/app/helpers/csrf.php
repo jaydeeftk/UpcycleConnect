@@ -1,15 +1,4 @@
 <?php
-/**
- * Protection CSRF (Cross-Site Request Forgery) pour les requetes mutantes (POST).
- *
- * - csrf_token()  : jeton stable par session (cree a la volee).
- * - csrf_field()  : champ cache a inserer dans chaque <form method="POST">.
- * - csrf_verify() : valide le jeton recu (corps POST OU en-tete X-CSRF-Token pour le JS).
- *
- * La validation est appliquee dans le routeur (public/index.php) sur toute requete POST.
- * Les requetes JS (fetch/XHR) sont couvertes par un patch global dans les layouts qui
- * ajoute automatiquement l'en-tete X-CSRF-Token aux requetes mutantes same-origin.
- */
 
 if (!function_exists('csrf_token')) {
 

@@ -67,6 +67,7 @@ type DemandeSnapshot struct {
 	Proprietaire int
 	IdConteneur  int
 	Type         string
+	IdAnnonce    int
 }
 
 func (d DemandeSnapshot) PeutValider() error {
@@ -118,10 +119,6 @@ func (b BoxSnapshot) PeutAccueillir() bool {
 	return b.Statut == StatutBoxDisponible && b.Occupation < b.Capacite
 }
 
-// TailleObjetRequise associe un Type_objet a la taille minimale d'UpcycleBox
-// requise (l'audit cible 'encombrant' / 'standard'). Toute chose contenant les
-// mots-cles 'meuble', 'gros', 'electromenager'... va en encombrant ; le reste
-// en standard.
 func TailleObjetRequise(typeObjet string) string {
 	t := strings.ToLower(strings.TrimSpace(typeObjet))
 	for _, kw := range []string{"meuble", "gros", "encombrant", "electromenager", "matelas", "canape", "table"} {
@@ -132,10 +129,6 @@ func TailleObjetRequise(typeObjet string) string {
 	return TailleBoxStandard
 }
 
-// ChoisirBox prend l'UpcycleBox disponible le plus adapte a la taille requise.
-// On essaie d'abord la taille exacte ; si rien ne convient et que la taille
-// requise est 'standard', on accepte un 'encombrant' (un objet standard tient
-// dans un grand tiroir, l'inverse non).
 func ChoisirBox(boxes []BoxSnapshot, tailleRequise string) (int, bool) {
 	for _, b := range boxes {
 		if b.PeutAccueillir() && b.Taille == tailleRequise {

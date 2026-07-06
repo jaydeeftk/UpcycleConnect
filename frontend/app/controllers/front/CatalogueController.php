@@ -88,7 +88,6 @@ class CatalogueController
             $services = [];
         }
 
-        // Filtres côté PHP (les champs disponibles en BDD : id, titre, description, prix, duree, categorie)
         $categorie = $_GET['categorie'] ?? '';
         $prixMax   = $_GET['prix_max'] ?? '';
         $tri       = $_GET['tri'] ?? 'pertinence';
@@ -109,7 +108,6 @@ class CatalogueController
                 usort($services, fn($a, $b) => (float)($b['prix'] ?? 0) <=> (float)($a['prix'] ?? 0));
                 break;
             default:
-                // Pertinence : ordre naturel de l'API
                 break;
         }
 
@@ -131,7 +129,6 @@ class CatalogueController
 
         $categories = array_values(array_unique(array_filter(array_column($formations, 'categorie'))));
 
-        // Filtres
         $categorie = $_GET['categorie'] ?? '';
         $prixMax   = $_GET['prix_max'] ?? '';
         $date      = $_GET['date'] ?? '';

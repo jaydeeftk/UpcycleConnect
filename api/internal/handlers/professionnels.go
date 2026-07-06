@@ -119,8 +119,6 @@ func ProfessionnelGetContrats(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, contrats)
 }
 
-// ProfessionnelGetFacturation : agregat de facturation cumule (descriptif 3.1)
-// — abonnements, campagnes pub, commissions prelevees.
 func ProfessionnelGetFacturation(w http.ResponseWriter, r *http.Request) {
 	agg, err := facturationSvc.FacturationDuProfessionnel(middleware.GetUserID(r))
 	if err != nil {
@@ -130,8 +128,6 @@ func ProfessionnelGetFacturation(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, agg)
 }
 
-// ProfessionnelContratAction traite les actions du professionnel sur SES contrats.
-// Route : /api/professionnels/contrats/{id}/{action}. Seule "resilier" est exposée.
 func ProfessionnelContratAction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut && r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

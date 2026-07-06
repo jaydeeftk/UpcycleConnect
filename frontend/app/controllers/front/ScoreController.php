@@ -37,4 +37,21 @@ class ScoreController
             'page_title'          => 'Mon Score Écologique',
         ]);
     }
+
+    public function classement()
+    {
+        $data = [];
+        try {
+            $result = $this->api->get('/score/classement');
+            $data = isset($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+        } catch (\Exception $e) {}
+
+        return view('front.score.classement', [
+            'top'        => $data['top']       ?? [],
+            'mon_rang'   => $data['mon_rang']   ?? 0,
+            'mon_score'  => $data['mon_score']  ?? 0,
+            'total'      => $data['total']      ?? 0,
+            'page_title' => 'Classement Upcycling Score',
+        ]);
+    }
 }

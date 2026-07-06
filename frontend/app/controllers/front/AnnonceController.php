@@ -20,6 +20,20 @@ class AnnonceController
         redirect('/mes-annonces');
     }
 
+    public function reserver($id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        try {
+            $this->api->post('/annonces/' . $id . '/reserver', []);
+            $_SESSION['success'] = 'Don réservé avec succès. Une conversation a été ouverte avec le déposant.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/annonces/' . $id);
+    }
+
     public function mesAnnonces()
     {
         if (!isset($_SESSION['user'])) {

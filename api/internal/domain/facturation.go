@@ -17,15 +17,6 @@ const (
 	StatutContratExpire    = "expire"
 )
 
-func StatutContratValide(s string) bool {
-	switch s {
-	case StatutContratBrouillon, StatutContratActif, StatutContratSuspendu,
-		StatutContratResilie, StatutContratExpire:
-		return true
-	}
-	return false
-}
-
 func TransitionContrat(statut, action string) (string, error) {
 	switch action {
 	case "activer":
@@ -90,15 +81,6 @@ const (
 	StatutAbonnementResilie  = "resilie"
 	StatutAbonnementExpire   = "expire"
 )
-
-func StatutAbonnementValide(s string) bool {
-	switch s {
-	case StatutAbonnementActif, StatutAbonnementSuspendu,
-		StatutAbonnementResilie, StatutAbonnementExpire:
-		return true
-	}
-	return false
-}
 
 func ValiderAbonnement(typ string, prix float64) error {
 	if strings.TrimSpace(typ) == "" {
@@ -175,19 +157,8 @@ func TauxCommission() float64 {
 }
 
 const (
-	StatutFactureBrouillon = "brouillon"
-	StatutFactureEmise     = "emise"
-	StatutFacturePayee     = "payee"
-	StatutFactureAnnulee   = "annulee"
+	StatutFacturePayee = "payee"
 )
-
-func StatutFactureValide(s string) bool {
-	switch s {
-	case StatutFactureBrouillon, StatutFactureEmise, StatutFacturePayee, StatutFactureAnnulee:
-		return true
-	}
-	return false
-}
 
 func Round2(x float64) float64 { return math.Round(x*100) / 100 }
 
@@ -228,9 +199,7 @@ func ValiderCommission(taux, base, montant float64) error {
 }
 
 const (
-	StatutPaiementEnAttente            = "en_attente"
 	StatutPaiementPaye                 = "paye"
-	StatutPaiementEchoue               = "echoue"
 	StatutPaiementRembourse            = "rembourse"
 	StatutPaiementRemboursementEnCours = "remboursement_en_cours"
 )
@@ -244,10 +213,7 @@ const (
 )
 
 const (
-	MethodePaiementCarte    = "carte"
-	MethodePaiementVirement = "virement"
-	MethodePaiementEspeces  = "especes"
-	MethodePaiementCheque   = "cheque"
+	MethodePaiementCarte = "carte"
 )
 
 func ExigePaiement(prix float64, aPaye bool) error {

@@ -12,11 +12,6 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
-// OuvrirUpcycleBox : POST /api/box/{idBox}/ouvrir avec un code (Code_acces
-// d'une demande). CONTRÔLE STRICT (item 18) : le code n'ouvre QUE le tiroir
-// auquel il est lié. Un code valide pour un autre tiroir est rejeté en 403.
-// Ne mute pas l'etat du Box (l'ouverture physique reste hors-perimetre M1) ;
-// retourne 200 sur succes pour preuve operationnelle.
 func OuvrirUpcycleBox(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

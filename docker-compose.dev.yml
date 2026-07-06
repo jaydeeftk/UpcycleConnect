@@ -26,6 +26,9 @@ services:
     environment:
       DB_DSN: ${DB_DSN}
       JWT_SECRET: dev_secret_local
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      APP_URL: http://localhost
     volumes:
       - ./api:/app
     depends_on:

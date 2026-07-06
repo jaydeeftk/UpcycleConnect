@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"math"
+	"sort"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/domain"
@@ -60,6 +61,67 @@ func (s *ScoreService) ScoreDuParticulier(idUtilisateur int) (ScoreDTO, error) {
 
 	score, lignes := domain.CalculerScore(activite)
 	return s.assembler(score, lignes), nil
+}
+
+type ClassementEntreeDTO struct {
+	Rang       int    `json:"rang"`
+	Nom        string `json:"nom"`
+	Score      int    `json:"score"`
+	BadgeLabel string `json:"badge_label"`
+	BadgeIcon  string `json:"badge_icon"`
+	MoiMeme    bool   `json:"moi_meme"`
+}
+
+type ClassementDTO struct {
+	Top      []ClassementEntreeDTO `json:"top"`
+	MonRang  int                   `json:"mon_rang"`
+	MonScore int                   `json:"mon_score"`
+	Total    int                   `json:"total"`
+}
+
+func (s *ScoreService) Classement(idUtilisateurCourant int) (ClassementDTO, error) {
+	particuliers, err := s.repo.ListerParticuliers(database.DB)
+	if err != nil {
+		return ClassementDTO{}, err
+	}
+
+	type calcule struct {
+		idUtilisateur int
+		nom           string
+		score         int
+	}
+	calcules := make([]calcule, 0, len(particuliers))
+	for _, p := range particuliers {
+		activite, err := s.repo.Activite(database.DB, p.IdParticulier, p.IdUtilisateur)
+		if err != nil {
+			continue
+		}
+		score, _ := domain.CalculerScore(activite)
+		calcules = append(calcules, calcule{idUtilisateur: p.IdUtilisateur, nom: p.Nom, score: score})
+	}
+	sort.Slice(calcules, func(i, j int) bool { return calcules[i].score > calcules[j].score })
+
+	dto := ClassementDTO{Total: len(calcules)}
+	const tailleTop = 20
+	for i, c := range calcules {
+		if i >= tailleTop {
+			break
+		}
+		badge, _, _ := domain.BadgesPour(c.score)
+		dto.Top = append(dto.Top, ClassementEntreeDTO{
+			Rang: i + 1, Nom: c.nom, Score: c.score,
+			BadgeLabel: badge.Label, BadgeIcon: badge.Icone,
+			MoiMeme: c.idUtilisateur == idUtilisateurCourant,
+		})
+	}
+	for i, c := range calcules {
+		if c.idUtilisateur == idUtilisateurCourant {
+			dto.MonRang = i + 1
+			dto.MonScore = c.score
+			break
+		}
+	}
+	return dto, nil
 }
 
 func (s *ScoreService) assembler(score int, lignes []domain.LigneHistorique) ScoreDTO {

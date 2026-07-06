@@ -35,6 +35,7 @@ class UserController
     public function mesPrestations()
     {
         $prestations = [];
+        $commandesCatalogue = [];
         if (isset($_SESSION['user'])) {
             try {
                 $r = $this->api->get('/prestations/demandes');
@@ -42,11 +43,44 @@ class UserController
             } catch (\Exception $e) {
                 $prestations = [];
             }
+            foreach ($prestations as &$p) {
+                $p['devis'] = [];
+                if (($p['statut'] ?? '') === 'ouverte') {
+                    try {
+                        $rd = $this->api->get('/prestations/demandes/' . ($p['id'] ?? 0) . '/devis');
+                        $p['devis'] = $rd['data'] ?? (is_array($rd) && !isset($rd['success']) ? $rd : []);
+                    } catch (\Exception $e) {}
+                }
+            }
+            unset($p);
+
+            try {
+                $r = $this->api->get('/services/mes-commandes');
+                $commandesCatalogue = $r['data'] ?? (is_array($r) && !isset($r['success']) ? $r : []);
+            } catch (\Exception $e) {
+                $commandesCatalogue = [];
+            }
         }
         return view('front.mes-prestations.index', [
-            'title'       => 'Mes prestations - UpcycleConnect',
-            'prestations' => $prestations,
+            'title'              => 'Mes prestations réservées - UpcycleConnect',
+            'prestations'        => $prestations,
+            'commandes_catalogue'=> $commandesCatalogue,
+            'token'              => $_SESSION['user']['token'] ?? '',
         ]);
+    }
+
+    public function annulerDemandePrestation($id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        try {
+            $this->api->post('/prestations/demandes/' . $id . '/annuler', []);
+            $_SESSION['success'] = 'Demande annulée.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/mes-prestations');
     }
     public function paiements()
     {

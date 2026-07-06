@@ -12,14 +12,6 @@ const (
 	StatutSujetFerme  = "ferme"
 )
 
-func StatutSujetValide(s string) bool {
-	switch s {
-	case StatutSujetOuvert, StatutSujetResolu, StatutSujetFerme:
-		return true
-	}
-	return false
-}
-
 const (
 	SujetTitreMax     = 100
 	SujetCategorieMax = 100

@@ -175,9 +175,29 @@ CREATE TABLE IF NOT EXISTS Services(
    Prix DECIMAL(15,2),
    Duree INT,
    Categorie VARCHAR(50),
-   Id_Salaries INT NOT NULL,
+   Id_Salaries INT NULL,
+   Id_Professionnels INT NULL,
    PRIMARY KEY(Id_Services),
-   FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
+   FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries),
+   FOREIGN KEY(Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels)
+);
+
+CREATE TABLE IF NOT EXISTS Commandes_Services(
+   Id_Commandes_Services INT AUTO_INCREMENT,
+   Id_Services INT NOT NULL,
+   Id_Utilisateurs INT NOT NULL,
+   Nom_Objet VARCHAR(150) NOT NULL,
+   Categorie_Objet VARCHAR(50),
+   Description_Objet TEXT,
+   Photo_Url VARCHAR(255) NULL,
+   Prix DECIMAL(15,2) NOT NULL,
+   Statut VARCHAR(20) NOT NULL DEFAULT 'en_attente_paiement',
+   Date_creation DATETIME,
+   Reference_Stripe VARCHAR(255) NULL UNIQUE,
+   PRIMARY KEY(Id_Commandes_Services),
+   CONSTRAINT chk_commande_service_statut CHECK (Statut IN ('en_attente_paiement','payee','en_cours','terminee')),
+   FOREIGN KEY(Id_Services) REFERENCES Services(Id_Services),
+   FOREIGN KEY(Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs)
 );
 
 CREATE TABLE IF NOT EXISTS Annonces(
@@ -197,8 +217,11 @@ CREATE TABLE IF NOT EXISTS Projets(
    Date_Debut DATETIME,
    Statut VARCHAR(50),
    Id_Professionnels INT NOT NULL,
+   Id_Demandes_prestations INT NULL,
+   Id_Commandes_Services INT NULL,
    PRIMARY KEY(Id_Projets),
-   FOREIGN KEY(Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels)
+   FOREIGN KEY(Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels),
+   FOREIGN KEY(Id_Commandes_Services) REFERENCES Commandes_Services(Id_Commandes_Services)
 );
 
 CREATE TABLE IF NOT EXISTS Conseils(
@@ -302,6 +325,61 @@ CREATE TABLE IF NOT EXISTS Messages(
    PRIMARY KEY(Id_Messages),
    FOREIGN KEY(Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels),
    FOREIGN KEY(Id_Particuliers) REFERENCES Particuliers(Id_Particuliers)
+);
+
+CREATE TABLE IF NOT EXISTS Conversations(
+   Id_Conversations INT AUTO_INCREMENT,
+   Id_Annonces INT NULL,
+   Id_Demandes_prestations INT NULL,
+   Id_Commandes_Services INT NULL,
+   Id_Acheteur INT NOT NULL,
+   Id_Vendeur INT NOT NULL,
+   Date_creation DATETIME,
+   PRIMARY KEY(Id_Conversations),
+   UNIQUE KEY uniq_conversation_annonce_acheteur (Id_Annonces, Id_Acheteur),
+   UNIQUE KEY uniq_conversation_prestation_acheteur (Id_Demandes_prestations, Id_Acheteur),
+   UNIQUE KEY uniq_conversation_commande_acheteur (Id_Commandes_Services, Id_Acheteur),
+   FOREIGN KEY(Id_Annonces) REFERENCES Annonces(Id_Annonces),
+   FOREIGN KEY(Id_Commandes_Services) REFERENCES Commandes_Services(Id_Commandes_Services),
+   FOREIGN KEY(Id_Acheteur) REFERENCES Utilisateurs(Id_Utilisateurs),
+   FOREIGN KEY(Id_Vendeur) REFERENCES Utilisateurs(Id_Utilisateurs)
+);
+
+CREATE TABLE IF NOT EXISTS Messages_Conversation(
+   Id_Messages_Conversation INT AUTO_INCREMENT,
+   Id_Conversations INT NOT NULL,
+   Id_Expediteur INT NOT NULL,
+   Contenu VARCHAR(1000) NOT NULL,
+   Date_envoi DATETIME,
+   Lu TINYINT(1) DEFAULT 0,
+   Est_Automatique TINYINT(1) DEFAULT 0,
+   Type_Evenement VARCHAR(30) NULL,
+   PRIMARY KEY(Id_Messages_Conversation),
+   FOREIGN KEY(Id_Conversations) REFERENCES Conversations(Id_Conversations),
+   FOREIGN KEY(Id_Expediteur) REFERENCES Utilisateurs(Id_Utilisateurs)
+);
+
+CREATE TABLE IF NOT EXISTS Tickets(
+   Id_Tickets INT AUTO_INCREMENT,
+   Id_Particulier INT NOT NULL,
+   Id_Admin_Assigne INT NULL,
+   Statut VARCHAR(20) NOT NULL DEFAULT 'en_attente',
+   Date_creation DATETIME,
+   Date_cloture DATETIME NULL,
+   PRIMARY KEY(Id_Tickets),
+   FOREIGN KEY(Id_Particulier) REFERENCES Utilisateurs(Id_Utilisateurs),
+   FOREIGN KEY(Id_Admin_Assigne) REFERENCES Utilisateurs(Id_Utilisateurs)
+);
+
+CREATE TABLE IF NOT EXISTS Messages_Ticket(
+   Id_Messages_Ticket INT AUTO_INCREMENT,
+   Id_Tickets INT NOT NULL,
+   Id_Expediteur INT NOT NULL,
+   Contenu VARCHAR(1000) NOT NULL,
+   Date_envoi DATETIME,
+   PRIMARY KEY(Id_Messages_Ticket),
+   FOREIGN KEY(Id_Tickets) REFERENCES Tickets(Id_Tickets),
+   FOREIGN KEY(Id_Expediteur) REFERENCES Utilisateurs(Id_Utilisateurs)
 );
 
 CREATE TABLE IF NOT EXISTS Historique(
@@ -430,12 +508,16 @@ CREATE TABLE IF NOT EXISTS Paiements(
 CREATE TABLE IF NOT EXISTS Commissions(
    Id_Commission INT AUTO_INCREMENT,
    Taux DECIMAL(5,2) NOT NULL,
+   taux_applique DECIMAL(5,4) NULL,
    Montant DECIMAL(15,2) NOT NULL,
    Date_ DATETIME NOT NULL,
-   Id_Annonces INT NOT NULL,
+   Id_Annonces INT NULL,
+   Id_Devis INT NULL,
+   Id_Commandes_Services INT NULL,
    Id_Facture INT NOT NULL,
    PRIMARY KEY(Id_Commission),
    FOREIGN KEY(Id_Annonces) REFERENCES Annonces(Id_Annonces),
+   FOREIGN KEY(Id_Commandes_Services) REFERENCES Commandes_Services(Id_Commandes_Services),
    FOREIGN KEY(Id_Facture) REFERENCES Factures(Id_Facture)
 );
 
@@ -738,7 +820,9 @@ CREATE TABLE IF NOT EXISTS Demandes_conteneurs (
   Code_acces VARCHAR(20),
   Date_demande DATETIME,
   Id_Particuliers INT NOT NULL,
-  FOREIGN KEY (Id_Particuliers) REFERENCES Particuliers(Id_Particuliers)
+  Id_Annonces INT NULL,
+  FOREIGN KEY (Id_Particuliers) REFERENCES Particuliers(Id_Particuliers),
+  FOREIGN KEY (Id_Annonces) REFERENCES Annonces(Id_Annonces)
 );
 
 
@@ -750,6 +834,8 @@ ALTER TABLE Annonces ADD COLUMN Type_annonce VARCHAR(50);
 ALTER TABLE Annonces ADD COLUMN Prix DECIMAL(10,2) DEFAULT 0;
 ALTER TABLE Annonces ADD COLUMN Ville VARCHAR(100);
 ALTER TABLE Annonces ADD COLUMN Code_postal VARCHAR(10);
+ALTER TABLE Annonces ADD COLUMN Id_Acheteur_Utilisateur INT NULL;
+ALTER TABLE Annonces ADD CONSTRAINT fk_annonce_acheteur FOREIGN KEY (Id_Acheteur_Utilisateur) REFERENCES Utilisateurs(Id_Utilisateurs);
 ALTER TABLE Annonces ADD COLUMN Id_Professionnels INT NULL;
 ALTER TABLE Annonces ADD CONSTRAINT fk_annonces_professionnel FOREIGN KEY (Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels);
 ALTER TABLE Annonces ADD CONSTRAINT chk_annonces_proprietaire CHECK ((Id_Particuliers IS NOT NULL AND Id_Professionnels IS NULL) OR (Id_Particuliers IS NULL AND Id_Professionnels IS NOT NULL));
@@ -867,7 +953,7 @@ ALTER TABLE Codes_Barres ADD UNIQUE KEY uq_codebarres_code (Code);
 
 -- 003 — vocabulaires de statut bornés (CHECK)
 ALTER TABLE Contrats ADD COLUMN Statut VARCHAR(50) NOT NULL DEFAULT 'actif';
-ALTER TABLE Annonces            ADD CONSTRAINT chk_annonces_statut   CHECK (Statut IN ('en_attente','validee','refusee','retiree','vendue'));
+ALTER TABLE Annonces            ADD CONSTRAINT chk_annonces_statut   CHECK (Statut IN ('en_attente','validee','refusee','retiree','vendue','reservee'));
 ALTER TABLE Evenements          ADD CONSTRAINT chk_evenements_statut CHECK (Statut IN ('brouillon','a_venir','en_cours','termine','annule'));
 ALTER TABLE Evenements          ADD CONSTRAINT chk_evenements_categorie CHECK (Categorie IN ('atelier','marche','conference','exposition','communautaire'));
 ALTER TABLE Formations          ADD CONSTRAINT chk_formations_statut CHECK (Statut IN ('en_attente','actif','rejete','cloturee'));
@@ -989,6 +1075,25 @@ CREATE TABLE IF NOT EXISTS Demandes_prestations (
   CONSTRAINT chk_dempresta_statut CHECK (Statut IN ('ouverte','en_cours','traitee','annulee')),
   FOREIGN KEY (Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS Devis(
+   Id_Devis INT AUTO_INCREMENT,
+   Id_Demandes_prestations INT NOT NULL,
+   Id_Professionnels INT NOT NULL,
+   Prix DECIMAL(15,2) NOT NULL,
+   Message VARCHAR(500),
+   Statut VARCHAR(20) NOT NULL DEFAULT 'propose',
+   Date_creation DATETIME,
+   Reference_Stripe VARCHAR(255) NULL UNIQUE,
+   PRIMARY KEY(Id_Devis),
+   UNIQUE KEY uniq_devis_demande_pro (Id_Demandes_prestations, Id_Professionnels),
+   FOREIGN KEY(Id_Demandes_prestations) REFERENCES Demandes_prestations(Id_Demandes_prestations),
+   FOREIGN KEY(Id_Professionnels) REFERENCES Professionnels_artisans(Id_Professionnels)
+);
+
+ALTER TABLE Projets ADD CONSTRAINT fk_projet_demande_prestation FOREIGN KEY (Id_Demandes_prestations) REFERENCES Demandes_prestations(Id_Demandes_prestations);
+ALTER TABLE Conversations ADD CONSTRAINT fk_conv_demande_prestation FOREIGN KEY (Id_Demandes_prestations) REFERENCES Demandes_prestations(Id_Demandes_prestations);
+ALTER TABLE Commissions ADD CONSTRAINT fk_commission_devis FOREIGN KEY (Id_Devis) REFERENCES Devis(Id_Devis);
 
 INSERT INTO Demandes_prestations (Nom_objet, Categorie, Type_objet, Etat, Description, Localisation, Budget, Statut, Date_creation, Id_Utilisateurs)
 SELECT 'Velo de ville', 'Reparation', 'Velo', 'Endommage', 'Freins a regler et chambre a air a changer.', 'Paris 11e', '40 EUR', 'ouverte', NOW(), Id_Utilisateurs

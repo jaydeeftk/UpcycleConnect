@@ -124,8 +124,6 @@ func (s *FacturationService) ContratsDuProfessionnel(idUtilisateur int) ([]Contr
 	return out, nil
 }
 
-// FacturationDuProfessionnel : agregat (descriptif 3.1) — abonnements,
-// campagnes pub, commissions prelevees. Resoud le pro depuis l'utilisateur.
 func (s *FacturationService) FacturationDuProfessionnel(idUtilisateur int) (FacturationProDTO, error) {
 	idPro, err := s.repo.IdProfessionnel(database.DB, idUtilisateur)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -226,9 +224,6 @@ func (s *FacturationService) TransitionContrat(idContrat int, action string) err
 	})
 }
 
-// ResilierContratPro permet à un professionnel de résilier l'un de SES contrats.
-// L'appartenance est vérifiée avant toute modification : un professionnel ne peut
-// pas agir sur le contrat d'un autre.
 func (s *FacturationService) ResilierContratPro(idUtilisateur, idContrat int) error {
 	idPro, err := s.repo.IdProfessionnel(database.DB, idUtilisateur)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -361,6 +356,26 @@ type CheckoutData struct {
 	Titre   string
 }
 
+func (s *FacturationService) appliquerReductionParticulier(q repository.Querier, idUtilisateur int, typ string, prix float64) float64 {
+	if typ != "formation" && typ != "evenement" {
+		return prix
+	}
+	idParticulier, err := s.repo.IdParticulier(q, idUtilisateur)
+	if err != nil {
+		return prix
+	}
+	activite, err := (repository.ScoreRepo{}).Activite(q, idParticulier, idUtilisateur)
+	if err != nil {
+		return prix
+	}
+	score, _ := domain.CalculerScore(activite)
+	reduction := domain.ReductionFormationEvenementPourScore(score)
+	if reduction <= 0 {
+		return prix
+	}
+	return domain.Round2(prix * (1 - reduction))
+}
+
 func (s *FacturationService) resoudrePrixItem(q repository.Querier, typ string, idItem int) (float64, string, error) {
 	var (
 		prix  float64
@@ -388,7 +403,7 @@ func (s *FacturationService) resoudrePrixItem(q repository.Querier, typ string, 
 	return prix, titre, nil
 }
 
-func (s *FacturationService) PreparerCheckout(typ string, idItem int) (CheckoutData, error) {
+func (s *FacturationService) PreparerCheckout(idUtilisateur int, typ string, idItem int) (CheckoutData, error) {
 	if typ == "annonce" {
 		a, err := s.repo.AnnoncePourAchat(database.DB, idItem)
 		if errors.Is(err, sql.ErrNoRows) {
@@ -409,6 +424,7 @@ func (s *FacturationService) PreparerCheckout(typ string, idItem int) (CheckoutD
 	if prix <= 0 {
 		return CheckoutData{}, domain.Invalide("Cet article n'est pas payable en ligne")
 	}
+	prix = s.appliquerReductionParticulier(database.DB, idUtilisateur, typ, prix)
 	return CheckoutData{Montant: domain.Round2(prix), Titre: titre}, nil
 }
 
@@ -430,6 +446,7 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 		if prix <= 0 {
 			return domain.Invalide("Article non payable")
 		}
+		prix = s.appliquerReductionParticulier(tx, idUtilisateur, typ, prix)
 
 		ttc := domain.Round2(prix)
 		ht := domain.Round2(ttc / (1 + domain.TVAParDefaut/100))
@@ -467,10 +484,25 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 		}
 
 		if typ == "annonce" {
-			if err := s.repo.MarquerAnnonceVendue(tx, idItem); err != nil {
+			idVendeur, errVendeur := (repository.ConversationRepo{}).VendeurDeAnnonce(tx, idItem)
+			if err := s.repo.MarquerAnnonceVendue(tx, idItem, idUtilisateur); err != nil {
 				return err
 			}
+			if errVendeur == nil && idVendeur > 0 {
+				_ = s.repo.NotifierUtilisateur(tx, idVendeur,
+					"Votre annonce a été vendue ! Rendez-vous dans \"Mes annonces\" pour choisir un conteneur et y déposer l'objet.")
+				_ = NewConversationService().DemarrerAvecMessageAutomatique(tx, idItem, idUtilisateur, idVendeur,
+					"Achat confirmé pour \""+titre+"\".", "achat")
+			}
 			taux := domain.TauxCommission()
+			if idVendeur > 0 {
+				if idParticulierVendeur, errPart := (repository.ScoreRepo{}).ResoudreParticulier(tx, idVendeur); errPart == nil {
+					if activite, errAct := (repository.ScoreRepo{}).Activite(tx, idParticulierVendeur, idVendeur); errAct == nil {
+						score, _ := domain.CalculerScore(activite)
+						taux = domain.TauxCommissionPourScore(score)
+					}
+				}
+			}
 			return s.repo.CreerCommission(tx, repository.CommissionCreation{
 				Taux: domain.Round2(taux * 100), TauxApplique: taux,
 				Montant: domain.Round2(taux * prix), IdAnnonce: idItem, IdFacture: idFacture,
@@ -505,10 +537,6 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 	return nil
 }
 
-// inscrireDansTx inscrit le particulier à l'item payé, dans la transaction du
-// paiement (verrou FOR UPDATE sur la formation/événement). Retourne false sans
-// erreur si l'item est complet : le paiement est conservé et l'appelant marque
-// un surbooking à régulariser. Le ré-incrément/annulation relève de l'item 12.
 func (s *FacturationService) inscrireDansTx(tx *sql.Tx, idParticulier int, typ string, idItem int) (bool, error) {
 	switch typ {
 	case "formation":
@@ -581,6 +609,47 @@ type AbonnementDTO struct {
 	ActionsAutorisees []string `json:"allowed_actions"`
 }
 
+type CommissionDetailDTO struct {
+	ID                int     `json:"id"`
+	Date              string  `json:"date"`
+	Type              string  `json:"type"`
+	Description       string  `json:"description"`
+	PrixTotal         float64 `json:"prix_total"`
+	Taux              float64 `json:"taux"`
+	MontantCommission float64 `json:"montant_commission"`
+	MontantVendeur    float64 `json:"montant_vendeur"`
+	NomVendeur        string  `json:"nom_vendeur,omitempty"`
+}
+
+func versCommissionDetailDTO(lignes []repository.CommissionDetailLigne) []CommissionDetailDTO {
+	out := make([]CommissionDetailDTO, 0, len(lignes))
+	for _, l := range lignes {
+		out = append(out, CommissionDetailDTO{
+			ID: l.ID, Date: l.Date, Type: l.Type, Description: l.Description,
+			PrixTotal: l.PrixTotal, Taux: l.Taux, MontantCommission: l.MontantCommission,
+			MontantVendeur: domain.Round2(l.PrixTotal - l.MontantCommission),
+			NomVendeur:     l.NomVendeur,
+		})
+	}
+	return out
+}
+
+func (s *FacturationService) ListerCommissionsAdmin() ([]CommissionDetailDTO, error) {
+	lignes, err := s.repo.ListerCommissionsPourAdmin(database.DB)
+	if err != nil {
+		return nil, err
+	}
+	return versCommissionDetailDTO(lignes), nil
+}
+
+func (s *FacturationService) ListerCommissionsPro(idPro int) ([]CommissionDetailDTO, error) {
+	lignes, err := s.repo.ListerCommissionsPourPro(database.DB, idPro)
+	if err != nil {
+		return nil, err
+	}
+	return versCommissionDetailDTO(lignes), nil
+}
+
 func (s *FacturationService) ListerAbonnements() ([]AbonnementDTO, error) {
 	lignes, err := s.repo.AdminListerAbonnements(database.DB)
 	if err != nil {
@@ -638,9 +707,6 @@ func (s *FacturationService) ProSouscrireAbonnement(idPro int, referenceStripe s
 	return id, nil
 }
 
-// CompleterAbonnementProStripe cree l'abonnement apres paiement Stripe confirme.
-// Idempotent via la contrainte UNIQUE sur Reference_Stripe : si le webhook est
-// livre plusieurs fois, la 2e tentative echoue silencieusement (deja traite).
 func (s *FacturationService) CompleterAbonnementProStripe(idPro int, referenceStripe string) error {
 	_, err := s.ProSouscrireAbonnement(idPro, referenceStripe)
 	if err != nil && s.repo.EstViolationUnicite(err) {
@@ -714,8 +780,6 @@ func (s *FacturationService) Finances() (repository.FinancesAgregat, error) {
 	return s.repo.AgregatFinances(database.DB)
 }
 
-// --- Remboursements (item 16) ---
-
 type DemandeRembDTO struct {
 	ID         int     `json:"id"`
 	IdPaiement int     `json:"id_paiement"`
@@ -742,8 +806,6 @@ func (s *FacturationService) ListerDemandesRemboursement() ([]DemandeRembDTO, er
 	return out, nil
 }
 
-// CreerDemandeRemboursement : un particulier demande le remboursement de SON
-// paiement (statut 'paye', pas déjà demandé). Verrou FOR UPDATE sur le paiement.
 func (s *FacturationService) CreerDemandeRemboursement(idUtilisateur, idPaiement int, motif string) (int64, error) {
 	var idDemande int64
 	err := withTx(func(tx *sql.Tx) error {
@@ -798,9 +860,6 @@ func (s *FacturationService) RefuserDemandeRemboursement(idDemande int) error {
 	})
 }
 
-// RefundDirect : un salarié/admin rembourse sans demande préalable. Crée quand
-// même une Demandes_remboursement (audit trail homogène) puis passe par le MÊME
-// seam d'exécution que l'approbation d'une demande.
 func (s *FacturationService) RefundDirect(idPaiement int, motif string) error {
 	var idDemande int64
 	err := withTx(func(tx *sql.Tx) error {
@@ -843,13 +902,6 @@ type infoRemboursement struct {
 	motif         string
 }
 
-// ExecuterRemboursement orchestre la séquence NON transactionnelle et ré-entrante :
-// phase 1 (tx courte) verrouille le paiement et le marque 'remboursement_en_cours' ;
-// phase 2 appelle le refund Stripe avec une clé d'idempotence = id de la demande
-// (un retry rend le MÊME refund, jamais 2×) ; phase 3 (tx) finalise la DB (statut
-// 'rembourse' + libération du siège via le seam de l'item 12 + Historique + notif).
-// Un crash entre 2 et 3 laisse le paiement en 'remboursement_en_cours' : au retry,
-// la clé d'idempotence évite un 2e mouvement d'argent et la DB se complète.
 func (s *FacturationService) ExecuterRemboursement(idDemande int) error {
 	info, action, err := s.preparerRemboursement(idDemande)
 	if err != nil {
@@ -941,7 +993,6 @@ func (s *FacturationService) finaliserRemboursement(idDemande int, info infoRemb
 			return err
 		}
 		if p.Statut == domain.StatutPaiementRembourse {
-			// Déjà finalisé (ré-entrance/concurrence) : on clôt juste la demande.
 			return s.repo.MajDemandeRembStatut(tx, idDemande, domain.StatutDemandeRembRemboursee)
 		}
 		if err := s.repo.FinaliserRemboursementPaiement(tx, info.idPaiement, refundID, info.motif); err != nil {

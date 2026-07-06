@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group">
+    <a href="/admin/commissions" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group hover:shadow-md transition block">
         <div class="absolute right-0 top-0 w-24 h-24 bg-purple-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
         <div class="relative z-10">
             <div class="flex items-center justify-between mb-4">
@@ -36,8 +36,9 @@
                 <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center"><i class="fas fa-hand-holding-usd text-lg"></i></div>
             </div>
             <p class="text-3xl font-bold text-slate-800"><?= number_format($finances['total_commissions'] ?? 0, 2, ',', ' ') ?> €</p>
+            <p class="text-xs text-purple-600 mt-2"><?= t('adm_finances_commissions_link', 'Voir le détail') ?> <i class="fas fa-arrow-right ml-1"></i></p>
         </div>
-    </div>
+    </a>
 
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group">
         <div class="absolute right-0 top-0 w-24 h-24 bg-amber-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>

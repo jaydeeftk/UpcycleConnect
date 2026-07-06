@@ -80,6 +80,15 @@ function navActive(string $path, string $current): string {
                             </div>
                         </a>
                     </li>
+                    <li>
+                        <a href="/mes-prestations" class="flex items-center gap-3 <?= str_starts_with($currentPath, '/mes-prestations') ? 'bg-base-200' : '' ?>">
+                            <i class="fas fa-tools text-orange-500"></i>
+                            <div>
+                                <div class="font-medium"><?= t('nav_dd_prestations','Mes prestations réservées') ?></div>
+                                <div class="text-xs text-base-content/60"><?= t('nav_dd_prestations_desc','Faire réparer ou transformer un objet') ?></div>
+                            </div>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -198,11 +207,17 @@ function navActive(string $path, string $current): string {
                             <a href="/mes-demandes" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/mes-demandes') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-clipboard-list w-4 text-center"></i> <?= t('navdd_my_requests', 'Mes demandes') ?>
                             </a>
+                            <a href="/mes-prestations" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/mes-prestations') ? 'text-primary' : '' ?>">
+                                <i class="fas fa-tools text-orange-500 w-4 text-center"></i> <?= t('navdd_my_prestations', 'Mes prestations réservées') ?>
+                            </a>
                             <a href="/planning" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/planning') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-calendar-alt text-blue-500 w-4 text-center"></i> <?= t('navdd_my_planning', 'Mon Planning') ?>
                             </a>
                             <a href="/messages" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/messages') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-envelope text-blue-500 w-4 text-center"></i> <?= t('navdd_my_messages', 'Mes messages') ?>
+                            </a>
+                            <a href="/messagerie" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/messagerie') ? 'text-primary' : '' ?>">
+                                <i class="fas fa-comment-dots text-green-500 w-4 text-center"></i> <?= t('navdd_marketplace_messages', 'Messagerie annonces') ?>
                             </a>
                             <a href="/notifications" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/notifications') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-bell text-amber-500 w-4 text-center"></i> <?= t('navdd_notifications', 'Notifications') ?>

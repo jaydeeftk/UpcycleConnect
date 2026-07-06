@@ -92,7 +92,6 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Statut = cycle de vie (a_venir = futur), Statut_validation = moderation.
 	result, err := database.DB.Exec(`
 		INSERT INTO Evenements (Titre, Description, Lieu, Date_, Capacite, Statut, Statut_validation, Id_Salaries)
 		VALUES (?, ?, ?, ?, ?, 'a_venir', 'en_attente', ?)

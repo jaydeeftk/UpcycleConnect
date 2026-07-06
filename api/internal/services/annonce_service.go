@@ -15,16 +15,12 @@ type AnnonceService struct {
 
 func NewAnnonceService() *AnnonceService { return &AnnonceService{} }
 
-// proprietaireInfo identifie le type de compte et l'ID fonctionnel du propriétaire.
 type proprietaireInfo struct {
-	idParticulier   int // 0 si professionnel
-	idProfessionnel int // 0 si particulier
+	idParticulier   int
+	idProfessionnel int
 	estPro          bool
 }
 
-// resoudreProprietaire résout l'identité fonctionnelle d'un utilisateur :
-// particulier en priorité, sinon professionnel. Renvoie une erreur 403
-// uniquement si l'utilisateur n'existe dans aucune des deux tables.
 func (s *AnnonceService) resoudreProprietaire(q repository.Querier, idUtilisateur int) (proprietaireInfo, error) {
 	if idPart, err := s.repo.IdParticulier(q, idUtilisateur); err == nil {
 		return proprietaireInfo{idParticulier: idPart}, nil
@@ -41,15 +37,12 @@ func (s *AnnonceService) resoudreProprietaire(q repository.Querier, idUtilisateu
 	return proprietaireInfo{}, domain.Forbidden("Compte non reconnu comme particulier ou professionnel")
 }
 
-// idFonctionnel retourne l'identifiant à comparer avec AnnonceSnapshot.Proprietaire.
 func (p proprietaireInfo) idFonctionnel() int {
 	if p.estPro {
 		return p.idProfessionnel
 	}
 	return p.idParticulier
 }
-
-// ─── Création ────────────────────────────────────────────────────────────────
 
 type CreationAnnonceInput struct {
 	Titre       string
@@ -78,7 +71,7 @@ func (s *AnnonceService) CreerAnnonce(idUtilisateur int, in CreationAnnonceInput
 		id, err := s.repo.Creer(tx, repository.AnnonceCreation{
 			Titre: in.Titre, Description: in.Description, Categorie: in.Categorie,
 			Etat: in.Etat, Type: in.Type, Prix: in.Prix, Ville: in.Ville,
-			CodePostal: in.CodePostal,
+			CodePostal:      in.CodePostal,
 			IdParticulier:   prop.idParticulier,
 			IdProfessionnel: prop.idProfessionnel,
 		})
@@ -91,11 +84,36 @@ func (s *AnnonceService) CreerAnnonce(idUtilisateur int, in CreationAnnonceInput
 	return newID, err
 }
 
-// ─── Retrait (propriétaire) ───────────────────────────────────────────────────
-
 func (s *AnnonceService) RetirerAnnonce(idUtilisateur, idAnnonce int) error {
 	return s.transitionProprietaire(idUtilisateur, idAnnonce,
 		domain.AnnonceSnapshot.PeutRetirer, domain.StatutAnnRetiree)
+}
+
+func (s *AnnonceService) ReserverDon(idUtilisateur, idAnnonce int) error {
+	return withTx(func(tx *sql.Tx) error {
+		snap, err := s.repo.PourMAJ(tx, idAnnonce)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Annonce introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		idVendeur, err := (repository.ConversationRepo{}).VendeurDeAnnonce(tx, idAnnonce)
+		if err != nil {
+			return err
+		}
+		if idVendeur == idUtilisateur {
+			return domain.Invalide("Vous ne pouvez pas réserver votre propre annonce")
+		}
+		if err := domain.ValiderReservationDon(snap.Statut, snap.Type); err != nil {
+			return err
+		}
+		if err := s.repo.ReserverDon(tx, idAnnonce, idUtilisateur); err != nil {
+			return err
+		}
+		return NewConversationService().DemarrerAvecMessageAutomatique(tx, idAnnonce, idUtilisateur, idVendeur,
+			"Don réservé.", "reservation_don")
+	})
 }
 
 func (s *AnnonceService) transitionProprietaire(
@@ -115,7 +133,6 @@ func (s *AnnonceService) transitionProprietaire(
 		if err != nil {
 			return err
 		}
-		// Vérification ownership : même type de compte ET même ID fonctionnel.
 		if snap.EstPro != prop.estPro || snap.Proprietaire != prop.idFonctionnel() {
 			return domain.Forbidden("Cette annonce ne vous appartient pas")
 		}
@@ -125,8 +142,6 @@ func (s *AnnonceService) transitionProprietaire(
 		return s.repo.MettreStatut(tx, idAnnonce, cible)
 	})
 }
-
-// ─── Transitions admin ────────────────────────────────────────────────────────
 
 func (s *AnnonceService) ValiderAnnonce(idAnnonce int) error {
 	return s.transitionAdmin(idAnnonce,
@@ -168,8 +183,6 @@ func (s *AnnonceService) SupprimerAnnonce(idAnnonce int) error {
 	}
 	return nil
 }
-
-// ─── Lecture ─────────────────────────────────────────────────────────────────
 
 type FicheAnnonceDTO struct {
 	ID                int      `json:"id"`

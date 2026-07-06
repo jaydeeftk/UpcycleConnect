@@ -136,7 +136,6 @@ func ProfessionnelEtapeAction(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
-		// Forme photo: /projets/{idProjet}/etapes/{idEtape}/photos -> 4 segments.
 		if len(segs) == 4 && segs[1] == "etapes" && segs[3] == "photos" {
 			idEtape, err := strconv.Atoi(segs[2])
 			if err != nil {

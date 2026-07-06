@@ -9,7 +9,6 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
-// luhnValide vérifie la clé de contrôle Luhn (le SIRET en est porteur).
 func luhnValide(num string) bool {
 	sum := 0
 	alt := false
@@ -31,7 +30,6 @@ func luhnValide(num string) bool {
 	return sum%10 == 0
 }
 
-// chiffresSeulement ne garde que les chiffres d'une chaîne (tolère espaces/points).
 func chiffresSeulement(s string) string {
 	var b strings.Builder
 	for _, c := range s {
@@ -42,9 +40,6 @@ func chiffresSeulement(s string) string {
 	return b.String()
 }
 
-// ValiderSiret valide le format (14 chiffres) + la clé Luhn, puis vérifie
-// l'existence via l'API publique recherche-entreprises.api.gouv.fr (sans clé).
-// Retourne le nom de l'entreprise si trouvée.
 func ValiderSiret(siret string) (nomEntreprise string, err error) {
 	siret = chiffresSeulement(siret)
 	if len(siret) != 14 {
@@ -80,14 +75,11 @@ func ValiderSiret(siret string) (nomEntreprise string, err error) {
 	return nom, nil
 }
 
-// errInvalide : petite erreur lisible.
 type erreurValidation struct{ msg string }
 
 func (e erreurValidation) Error() string { return e.msg }
 func errInvalide(m string) error         { return erreurValidation{m} }
 
-// SiretVerify : endpoint public pour le formulaire d'inscription.
-// GET /api/siret/{siret} -> { valid, nom_entreprise, message }
 func SiretVerify(w http.ResponseWriter, r *http.Request) {
 	siret := strings.TrimPrefix(r.URL.Path, "/api/siret/")
 	nom, err := ValiderSiret(siret)

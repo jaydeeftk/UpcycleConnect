@@ -29,7 +29,7 @@
                 <?php foreach ($annonces as $a):
                     $status = trim($a['statut'] ?? 'en attente');
                     $badgeStyle = match($status) {
-                        'validee' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                        'validee', 'vendue' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
                         'rejetee', 'refusee' => 'bg-rose-100 text-rose-700 border-rose-200',
                         default => 'bg-amber-100 text-amber-700 border-amber-200'
                     };
@@ -62,7 +62,7 @@
                                 class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors" title="<?= t('adm_btn_view_detail', 'Voir détail') ?>">
                                 <i class="fas fa-eye text-xs"></i>
                             </button>
-                            <?php if ($status !== 'validee'): ?>
+                            <?php if (!in_array($status, ['validee', 'vendue'], true)): ?>
                                 <form method="POST" action="/admin/annonces/<?= $a['id'] ?>/valider">
                                 <?= csrf_field() ?>
                                     <button type="submit" class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors" title="<?= t('adm_btn_validate', 'Valider') ?>">

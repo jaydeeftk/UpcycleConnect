@@ -39,6 +39,21 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/professionnel/services" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-store w-5"></i><span><?= t('pro_nav_services', 'Mes prestations créées') ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/professionnel/prestations" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-tools w-5"></i><span><?= t('pro_nav_prestations', 'Demandes reçues') ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/professionnel/commissions" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-hand-holding-usd w-5"></i><span><?= t('pro_nav_commissions', 'Mes commissions') ?></span>
+                    </a>
+                </li>
+                <li>
                     <a href="/catalogue/services" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-tools w-5"></i><span><?= t('pro_nav_services', 'Services') ?></span>
                     </a>
@@ -51,6 +66,11 @@
                 <li>
                     <a href="/professionnel/publicites" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-ad w-5"></i><span><?= t('pro_nav_publicites', 'Campagnes publicitaires') ?></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/messagerie" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-comment-dots w-5"></i><span><?= t('pro_nav_messagerie', 'Messagerie') ?></span>
                     </a>
                 </li>
             </ul>
@@ -177,11 +197,19 @@
 
             <!-- Projets -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
                     <h3 class="text-lg font-bold"><?= t('pro_projects_title', 'Mes projets upcycling') ?></h3>
-                    <a href="/professionnel/projets/create" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
-                        <i class="fas fa-plus mr-2"></i><?= t('pro_nav_new_project', 'Nouveau projet') ?>
-                    </a>
+                    <div class="flex items-center gap-2">
+                        <select id="filtre-origine-projet" class="select select-bordered select-sm">
+                            <option value="toutes"><?= t('pro_projects_filter_all', 'Toutes origines') ?></option>
+                            <option value="manuel"><?= t('pro_projects_filter_manual', 'Créés manuellement') ?></option>
+                            <option value="devis"><?= t('pro_projects_filter_devis', 'Issus d\'un devis') ?></option>
+                            <option value="catalogue"><?= t('pro_projects_filter_catalog', 'Prestations catalogue') ?></option>
+                        </select>
+                        <a href="/professionnel/projets/create" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                            <i class="fas fa-plus mr-2"></i><?= t('pro_nav_new_project', 'Nouveau projet') ?>
+                        </a>
+                    </div>
                 </div>
                 <?php if (empty($projets)): ?>
                     <div class="text-center py-8 text-gray-400">
@@ -190,14 +218,27 @@
                         <a href="/professionnel/projets/create" class="text-blue-500 hover:underline text-sm mt-2 inline-block"><?= t('pro_projects_empty_cta', 'Créer votre premier projet') ?></a>
                     </div>
                 <?php else: ?>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="grille-projets" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <?php foreach ($projets as $projet): ?>
-                            <?php $aa = $projet['allowed_actions'] ?? []; ?>
-                            <div class="border border-gray-200 rounded-lg p-4">
+                            <?php
+                            $aa = $projet['allowed_actions'] ?? [];
+                            $origine = $projet['origine'] ?? 'manuel';
+                            $origineUI = [
+                                'manuel'    => ['bg-gray-100 text-gray-600', 'fa-pen', t('pro_projects_badge_manual', 'Manuel')],
+                                'devis'     => ['bg-purple-100 text-purple-700', 'fa-file-signature', t('pro_projects_badge_devis', 'Devis')],
+                                'catalogue' => ['bg-orange-100 text-orange-700', 'fa-store', t('pro_projects_badge_catalog', 'Prestation catalogue')],
+                            ][$origine] ?? ['bg-gray-100 text-gray-600', 'fa-pen', $origine];
+                            ?>
+                            <div class="border border-gray-200 rounded-lg p-4" data-origine="<?= htmlspecialchars($origine) ?>">
                                 <div>
-                                    <h4 class="font-semibold text-gray-800">
-                                        <a href="/professionnel/projets/<?= (int)($projet['id'] ?? 0) ?>" class="hover:underline"><?= htmlspecialchars($projet['titre'] ?? '') ?></a>
-                                    </h4>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h4 class="font-semibold text-gray-800">
+                                            <a href="/professionnel/projets/<?= (int)($projet['id'] ?? 0) ?>" class="hover:underline"><?= htmlspecialchars($projet['titre'] ?? '') ?></a>
+                                        </h4>
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full <?= $origineUI[0] ?> font-medium whitespace-nowrap">
+                                            <i class="fas <?= $origineUI[1] ?> mr-1"></i><?= $origineUI[2] ?>
+                                        </span>
+                                    </div>
                                     <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars(substr($projet['description'] ?? '', 0, 80)) ?><?= strlen($projet['description'] ?? '') > 80 ? '...' : '' ?></p>
                                     <div class="flex items-center gap-2 mt-2">
                                         <?php
@@ -316,10 +357,11 @@
                         <div class="text-xs text-gray-500 uppercase tracking-wide mb-1"><?= t('pro_billing_ads', 'Campagnes pub') ?></div>
                         <div class="text-xl font-bold text-purple-600"><?= htmlspecialchars(formatPrix($fact['total_campagnes'] ?? 0)) ?></div>
                     </div>
-                    <div class="bg-orange-50 rounded-xl p-4">
+                    <a href="/professionnel/commissions" class="bg-orange-50 rounded-xl p-4 block hover:shadow-md transition">
                         <div class="text-xs text-gray-500 uppercase tracking-wide mb-1"><?= t('pro_billing_commissions', 'Commissions') ?></div>
                         <div class="text-xl font-bold text-orange-600"><?= htmlspecialchars(formatPrix($fact['total_commissions'] ?? 0)) ?></div>
-                    </div>
+                        <div class="text-[10px] text-orange-500 mt-1"><?= t('pro_billing_commissions_link', 'Voir le détail') ?> <i class="fas fa-arrow-right ml-1"></i></div>
+                    </a>
                     <div class="bg-emerald-50 rounded-xl p-4 border-2 border-emerald-200">
                         <div class="text-xs text-gray-500 uppercase tracking-wide mb-1"><?= t('pro_billing_total', 'Total cumulé') ?></div>
                         <div class="text-xl font-bold text-emerald-700"><?= htmlspecialchars(formatPrix($fact['total_general'] ?? 0)) ?></div>
@@ -365,6 +407,9 @@
                                         <td class="py-3"><?= formatDate($contrat['date_debut'] ?? '') ?></td>
                                         <td class="py-3"><?= formatDate($contrat['date_fin'] ?? '') ?></td>
                                         <td class="py-3 text-right">
+                                            <a href="/professionnel/contrats/<?= $contrat['id'] ?? '' ?>/pdf" target="_blank" class="text-xs font-semibold text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-200 rounded-lg px-3 py-1.5 transition-colors mr-2 inline-block">
+                                                <i class="fas fa-file-pdf mr-1"></i><?= t('pro_contract_pdf', 'PDF') ?>
+                                            </a>
                                             <?php if (in_array($cStatut, ['actif', 'suspendu'])): ?>
                                                 <form method="POST" action="/professionnel/contrats/<?= $contrat['id'] ?? '' ?>/resilier" class="inline" onsubmit="return ucConfirm(this, '<?= htmlspecialchars(t('pro_contract_resilier_confirm', 'Résilier ce contrat ? Cette action est définitive.'), ENT_QUOTES) ?>');">
                                                 <?= csrf_field() ?>
@@ -390,6 +435,16 @@
     <script>
     function confirmer(m,c){var d=document.documentElement.classList.contains('dark');var s=d?'#1e293b':'#fff',t=d?'#f1f5f9':'#0f172a',b=d?'#334155':'#e2e8f0',u=d?'#94a3b8':'#64748b';var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center';o.innerHTML='<div style="background:'+s+';border:1px solid '+b+';border-radius:12px;padding:24px;max-width:360px;width:90%;text-align:center;font-family:inherit"><p style="color:'+t+';margin:0 0 20px;font-size:15px">'+m+'</p><button type="button" id="uc-c" style="margin-right:8px;padding:8px 20px;border:1px solid '+b+';border-radius:8px;background:transparent;color:'+u+';cursor:pointer"><?= htmlspecialchars(t('pro_modal_cancel', 'Annuler'), ENT_QUOTES) ?></button><button type="button" id="uc-o" style="padding:8px 20px;border:none;border-radius:8px;background:#ef4444;color:#fff;cursor:pointer"><?= htmlspecialchars(t('pro_modal_confirm', 'Confirmer'), ENT_QUOTES) ?></button></div>';document.body.appendChild(o);o.querySelector('#uc-c').onclick=function(){o.remove()};o.querySelector('#uc-o').onclick=function(){o.remove();c()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
     function ucConfirm(el,m){confirmer(m,function(){if(el.tagName==='A'){window.location.href=el.href}else{var f=el.closest?el.closest('form'):null;if(f)f.submit()}});return false}
+
+    var selectOrigine = document.getElementById('filtre-origine-projet');
+    if (selectOrigine) {
+        selectOrigine.addEventListener('change', function () {
+            var val = selectOrigine.value;
+            document.querySelectorAll('#grille-projets > [data-origine]').forEach(function (card) {
+                card.style.display = (val === 'toutes' || card.getAttribute('data-origine') === val) ? '' : 'none';
+            });
+        });
+    }
     </script>
 </body>
 </html>

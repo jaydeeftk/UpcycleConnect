@@ -47,8 +47,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <?php foreach ([
                         ['icon' => 'fa-box-open',    'color' => 'text-blue-500',    'bg' => 'bg-blue-50',    'label' => t('score_action_give_label', 'Donner ou vendre'),  'desc' => t('score_action_give_desc', '+30 pts par objet déposé')],
+                        ['icon' => 'fa-recycle',     'color' => 'text-teal-500',    'bg' => 'bg-teal-50',    'label' => t('score_action_deposit_label', 'Déposer en conteneur'), 'desc' => t('score_action_deposit_desc', '+50 pts par dépôt validé')],
+                        ['icon' => 'fa-hand-holding-heart', 'color' => 'text-pink-500', 'bg' => 'bg-pink-50', 'label' => t('score_action_receive_label', 'Récupérer un don'), 'desc' => t('score_action_receive_desc', '+15 pts par don récupéré')],
+                        ['icon' => 'fa-store',       'color' => 'text-indigo-500',  'bg' => 'bg-indigo-50',  'label' => t('score_action_buy_label', 'Acheter une prestation'), 'desc' => t('score_action_buy_desc', '+20 pts par prestation')],
+                        ['icon' => 'fa-file-signature', 'color' => 'text-amber-500', 'bg' => 'bg-amber-50', 'label' => t('score_action_custom_label', 'Demande sur mesure'), 'desc' => t('score_action_custom_desc', '+25 pts si un devis est accepté')],
                         ['icon' => 'fa-calendar-alt','color' => 'text-purple-500',  'bg' => 'bg-purple-50',  'label' => t('score_action_participate_label', 'Participer'),        'desc' => t('score_action_participate_desc', '+20 pts par événement')],
-                        ['icon' => 'fa-comments',    'color' => 'text-orange-500',  'bg' => 'bg-orange-50',  'label' => t('score_action_tip_label', 'Partager un conseil'),'desc' => t('score_action_tip_desc', '+10 pts par conseil')],
                     ] as $action): ?>
                         <div class="<?= $action['bg'] ?> rounded-xl p-4 text-center">
                             <i class="fas <?= $action['icon'] ?> <?= $action['color'] ?> text-2xl mb-2 block"></i>
@@ -83,21 +86,23 @@
             <?php endif; ?>
 
             <div class="mt-6 w-full border-t border-base-300 pt-4 text-left">
-                <p class="text-xs font-semibold text-base-content/50 mb-2"><?= t('score_advantages_title', 'Vos avantages :') ?></p>
+                <?php
+                $paliers = [0 => ['commission' => 10, 'reduction' => 0], 100 => ['commission' => 9, 'reduction' => 3], 300 => ['commission' => 8, 'reduction' => 7], 600 => ['commission' => 6, 'reduction' => 10]];
+                $palierActuel = 0;
+                foreach ($paliers as $min => $v) { if ($score >= $min) $palierActuel = $min; }
+                $bonus = $paliers[$palierActuel];
+                ?>
+                <p class="text-xs font-semibold text-base-content/50 mb-2"><?= t('score_advantages_title', 'Vos avantages actuels :') ?></p>
                 <ul class="text-xs text-base-content/60 space-y-1">
-                    <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_events', 'Accès aux événements de base') ?></li>
-                    <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_publish', 'Publication d\'annonces') ?></li>
-                    <?php if ($score >= 100): ?>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_discount', 'Réduction 5% sur les formations') ?></li>
-                    <?php endif; ?>
-                    <?php if ($score >= 300): ?>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_priority', 'Accès prioritaire aux annonces') ?></li>
-                    <?php endif; ?>
-                    <?php if ($score >= 600): ?>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_featured', 'Profil mis en avant') ?></li>
-                        <li><i class="fas fa-check text-emerald-500 mr-1"></i> <?= t('score_advantage_partners', 'Offres partenaires exclusives') ?></li>
-                    <?php endif; ?>
+                    <li><i class="fas fa-percent text-emerald-500 mr-1"></i> <?= t('score_advantage_commission', 'Commission sur vos ventes d\'annonces :') ?> <span class="font-semibold text-base-content"><?= $bonus['commission'] ?>%</span></li>
+                    <li><i class="fas fa-tags text-emerald-500 mr-1"></i> <?= t('score_advantage_discount2', 'Réduction sur formations et événements :') ?> <span class="font-semibold text-base-content"><?= $bonus['reduction'] ?>%</span></li>
                 </ul>
+                <?php if ($badgeSuivant): ?>
+                    <p class="text-[11px] text-base-content/40 mt-3"><?= t('score_advantage_next_hint', 'Progressez pour réduire encore votre commission et augmenter votre réduction.') ?></p>
+                <?php endif; ?>
+                <a href="/score/classement" class="mt-4 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline">
+                    <i class="fas fa-trophy"></i> <?= t('score_view_ranking', 'Voir le classement de la communauté') ?>
+                </a>
             </div>
         </div>
     </div>

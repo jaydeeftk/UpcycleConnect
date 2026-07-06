@@ -40,6 +40,9 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/ws", handlers.ServeWS)
 
 	mux.HandleFunc("/api/services", handlers.GetServices)
+	mux.HandleFunc("/api/services/commander", middleware.JWTAuth(handlers.CommanderService))
+	mux.HandleFunc("/api/services/mes-commandes", middleware.JWTAuth(handlers.GetMesCommandesServices))
+	mux.HandleFunc("/api/services/commandes/", middleware.JWTAuth(handlers.CommandeServiceAction))
 	mux.HandleFunc("/api/services/", handlers.GetService)
 	mux.HandleFunc("/api/formations", handlers.GetFormations)
 	mux.HandleFunc("/api/formations/", handlers.GetFormation)
@@ -55,8 +58,23 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/box/", handlers.OuvrirUpcycleBox)
 	mux.HandleFunc("/api/messages", middleware.JWTAuth(handlers.CreateUserMessage))
 	mux.HandleFunc("/api/messages/upload", middleware.JWTAuth(handlers.UploadMessageAttachment))
+
+	mux.HandleFunc("/api/conversations", middleware.JWTAuth(handlers.ConversationsHandler))
+	mux.HandleFunc("/api/conversations/", middleware.JWTAuth(handlers.ConversationMessagesHandler))
+
+	mux.HandleFunc("/api/tickets/mon-ticket", middleware.JWTAuth(handlers.TicketMonTicketHandler))
+	mux.HandleFunc("/api/tickets/historique", middleware.JWTAuth(handlers.TicketHistoriqueHandler))
+	mux.HandleFunc("/api/tickets/messages", middleware.JWTAuth(handlers.TicketMessagesEnvoyerHandler))
+	mux.HandleFunc("/api/tickets/", middleware.JWTAuth(handlers.TicketDispatch))
+	mux.HandleFunc("/api/admin/tickets", middleware.AdminOnly(handlers.AdminTicketsHandler))
+	mux.HandleFunc("/api/admin/tickets/", middleware.AdminOnly(handlers.AdminTicketAccepterHandler))
 	mux.HandleFunc("/api/conteneurs/demandes", middleware.JWTAuth(handlers.CreateDemandeConteneur))
+	mux.HandleFunc("/api/conteneurs/annonces-eligibles", middleware.JWTAuth(handlers.GetAnnoncesEligiblesDepot))
 	mux.HandleFunc("/api/prestations/demandes", middleware.JWTAuth(handlers.PrestationsDemandes))
+	mux.HandleFunc("/api/prestations/demandes/ouvertes", middleware.ProfessionnelOnly(handlers.GetDemandesPrestationsOuvertes))
+	mux.HandleFunc("/api/prestations/demandes/", middleware.JWTAuth(handlers.DemandesPrestationsAction))
+	mux.HandleFunc("/api/prestations/devis", middleware.ProfessionnelOnly(handlers.DevisHandler))
+	mux.HandleFunc("/api/prestations/devis/", middleware.JWTAuth(handlers.DevisAction))
 	mux.HandleFunc("/api/conteneurs/user/", middleware.OwnerFromPath(handlers.GetDemandesConteneurUser))
 
 	mux.HandleFunc("/api/conseils", handlers.GetConseils)
@@ -66,6 +84,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/forum/sujets/", middleware.OptionalJWT(handlers.ForumSujetDispatch))
 	mux.HandleFunc("/api/forum/reponses/", middleware.JWTAuth(handlers.DeleteForumReponse))
 
+	mux.HandleFunc("/api/score/classement", middleware.JWTAuth(handlers.GetClassementScore))
 	mux.HandleFunc("/api/score/", middleware.OwnerFromPath(handlers.GetScore))
 	mux.HandleFunc("/api/planning/personnel", middleware.JWTAuth(handlers.AjouterEntreePlanning))
 	mux.HandleFunc("/api/planning/personnel/", middleware.JWTAuth(handlers.SupprimerEntreePlanning))
@@ -87,6 +106,8 @@ func NewRouter() http.Handler {
 			handlers.ServeFacturePDF(w, r)
 		}
 	}))
+
+	mux.HandleFunc("/api/contrats/", middleware.JWTAuth(handlers.ServeContratPDF))
 
 	mux.HandleFunc("/api/admin/dashboard", middleware.AdminOnly(handlers.AdminDashboard))
 	mux.HandleFunc("/api/admin/utilisateurs", middleware.AdminOnly(handlers.AdminGetUtilisateurs))
@@ -195,6 +216,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/demandes/", middleware.AdminOnly(handlers.AdminDemandeAction))
 
 	mux.HandleFunc("/api/admin/finances", middleware.AdminOnly(handlers.AdminGetFinances))
+	mux.HandleFunc("/api/admin/commissions", middleware.AdminOnly(handlers.AdminGetCommissions))
 
 	mux.HandleFunc("/api/admin/services", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
@@ -247,6 +269,10 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/professionnels/impact", middleware.ProfessionnelOnly(handlers.ProfessionnelImpact))
 
 	mux.HandleFunc("/api/professionnels/abonnement", middleware.ProfessionnelOnly(handlers.ProfessionnelAbonnementHandler))
+	mux.HandleFunc("/api/professionnels/commissions", middleware.ProfessionnelOnly(handlers.ProfessionnelCommissionsHandler))
+	mux.HandleFunc("/api/professionnels/services", middleware.ProfessionnelOnly(handlers.ServicesProHandler))
+	mux.HandleFunc("/api/professionnels/services/", middleware.ProfessionnelOnly(handlers.ServiceProAction))
+	mux.HandleFunc("/api/professionnels/commandes-services", middleware.ProfessionnelOnly(handlers.GetCommandesServicesPro))
 	mux.HandleFunc("/api/professionnels/abonnement/resilier", middleware.ProfessionnelOnly(handlers.ProfessionnelAbonnementResilier))
 	mux.HandleFunc("/api/professionnels/abonnement/checkout", middleware.ProfessionnelOnly(handlers.ProfessionnelAbonnementCheckout))
 	mux.HandleFunc("/api/professionnels/publicites", middleware.ProfessionnelOnly(handlers.ProfessionnelPublicitesHandler))

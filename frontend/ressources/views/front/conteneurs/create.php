@@ -9,24 +9,8 @@
         </div>
         <h1 class="text-3xl font-bold"><?= t('contcre_title', 'Déposer un objet dans un conteneur') ?></h1>
         <p class="text-base-content/60 mt-2">
-            <?= t('contcre_subtitle', 'Remplissez ce formulaire pour soumettre une demande de dépôt. Notre équipe vérifiera votre objet et vous enverra un code d\'accès au conteneur.') ?>
+            <?= t('contcre_subtitle_v2', 'Un dépôt concerne toujours une annonce déjà vendue ou un don déjà réservé — notre équipe vérifie l\'objet et vous envoie un code d\'accès.') ?>
         </p>
-    </div>
-
-    <div class="grid grid-cols-3 gap-4 mb-10">
-        <?php foreach ([
-            ['1', t('contcre_step1_title', 'Votre demande'), t('contcre_step1_desc', 'Décrivez votre objet'), 'text-blue-600 bg-blue-100'],
-            ['2', t('contcre_step2_title', 'Vérification'), t('contcre_step2_desc', 'Notre équipe valide'), 'text-base-content/40 bg-base-200'],
-            ['3', t('contcre_step3_title', 'Code d\'accès'), t('contcre_step3_desc', 'Déposez votre objet'), 'text-base-content/40 bg-base-200'],
-        ] as [$num, $title, $desc, $style]): ?>
-            <div class="text-center">
-                <div class="w-10 h-10 rounded-full <?= $style ?> flex items-center justify-center font-bold text-lg mx-auto mb-2">
-                    <?= $num ?>
-                </div>
-                <div class="text-sm font-medium"><?= $title ?></div>
-                <div class="text-xs text-base-content/50"><?= $desc ?></div>
-            </div>
-        <?php endforeach; ?>
     </div>
 
     <?php if (isset($error)): ?>
@@ -43,43 +27,58 @@
         </div>
     <?php endif; ?>
 
-    <div class="bg-base-100 rounded-2xl shadow-sm p-8 space-y-8">
+    <?php if (empty($id_annonce) || empty($annonce_choisie)): ?>
 
-        <form method="POST" action="/conteneurs/store">
-        <?= csrf_field() ?>
+        <?php if (empty($annonces_eligibles)): ?>
+            <div class="bg-base-100 rounded-2xl shadow-sm p-10 text-center text-base-content/40">
+                <i class="fas fa-box-open text-4xl mb-3 block"></i>
+                <p><?= t('contcre_no_eligible', "Aucune annonce prête à être déposée pour l'instant.") ?></p>
+                <p class="text-sm mt-2"><?= t('contcre_no_eligible_hint', 'Une annonce devient déposable une fois vendue, ou un don une fois réservé par quelqu\'un.') ?></p>
+                <a href="/mes-annonces" class="link link-primary mt-3 inline-block"><?= t('contcre_go_my_ads', 'Voir mes annonces') ?></a>
+            </div>
+        <?php else: ?>
+            <p class="text-sm text-base-content/60 mb-4"><?= t('contcre_choose_ad', 'Choisissez quelle annonce vous voulez déposer :') ?></p>
+            <div class="space-y-3">
+                <?php foreach ($annonces_eligibles as $a): ?>
+                    <a href="/conteneurs/create?id_annonce=<?= (int)($a['id'] ?? 0) ?>"
+                       class="flex items-center justify-between bg-base-100 rounded-2xl shadow-sm p-5 hover:shadow-md transition">
+                        <div>
+                            <div class="font-semibold"><?= htmlspecialchars($a['titre'] ?? '') ?></div>
+                            <div class="text-sm text-base-content/50">
+                                <?php if (($a['type_annonce'] ?? '') === 'vente'): ?>
+                                    <i class="fas fa-tag text-blue-500 mr-1"></i><?= t('contcre_badge_sold', 'Vendue') ?> — <?= htmlspecialchars(formatPrix($a['prix'] ?? 0)) ?>
+                                <?php else: ?>
+                                    <i class="fas fa-heart text-green-500 mr-1"></i><?= t('contcre_badge_reserved', 'Don réservé') ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-base-content/30"></i>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
-            <div class="mb-8">
-                <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
-                    <?= t('contcre_section_object', 'Informations sur l\'objet') ?>
-                </h2>
+    <?php else: ?>
+
+        <div class="bg-base-100 rounded-2xl shadow-sm p-8 space-y-8">
+
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p class="text-xs text-blue-500 uppercase font-semibold mb-1"><?= t('contcre_selected_ad', 'Annonce concernée') ?></p>
+                <p class="font-semibold text-blue-900"><?= htmlspecialchars($annonce_choisie['titre'] ?? '') ?></p>
+                <p class="text-sm text-blue-700">
+                    <?php if (($annonce_choisie['type_annonce'] ?? '') === 'vente'): ?>
+                        <i class="fas fa-tag mr-1"></i><?= t('contcre_badge_sold', 'Vendue') ?> — <?= htmlspecialchars(formatPrix($annonce_choisie['prix'] ?? 0)) ?>
+                    <?php else: ?>
+                        <i class="fas fa-heart mr-1"></i><?= t('contcre_badge_reserved', 'Don réservé') ?>
+                    <?php endif; ?>
+                </p>
+            </div>
+
+            <form method="POST" action="/conteneurs/store">
+            <?= csrf_field() ?>
+            <input type="hidden" name="id_annonce" value="<?= (int)$id_annonce ?>">
 
                 <div class="space-y-5">
-
-                    <div>
-                        <label class="block text-sm font-medium mb-2"><?= t('contcre_label_type', 'Type d\'objet') ?> <span class="text-red-500">*</span></label>
-                        <select name="type_objet" class="select select-bordered w-full" required>
-                            <option value="" disabled selected><?= t('contcre_type_placeholder', 'Sélectionnez un type') ?></option>
-                            <option value="mobilier"><?= t('contcre_type_mobilier', 'Mobilier') ?></option>
-                            <option value="electromenager"><?= t('contcre_type_electromenager', 'Électroménager') ?></option>
-                            <option value="vetements"><?= t('contcre_type_vetements', 'Vêtements & Textiles') ?></option>
-                            <option value="electronique"><?= t('contcre_type_electronique', 'Électronique') ?></option>
-                            <option value="livres"><?= t('contcre_type_livres', 'Livres & Médias') ?></option>
-                            <option value="jouets"><?= t('contcre_type_jouets', 'Jouets') ?></option>
-                            <option value="materiaux"><?= t('contcre_type_materiaux', 'Matériaux de construction') ?></option>
-                            <option value="autre"><?= t('contcre_type_autre', 'Autre') ?></option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-2"><?= t('contcre_label_description', 'Description de l\'objet') ?> <span class="text-red-500">*</span></label>
-                        <textarea
-                            name="description"
-                            rows="4"
-                            placeholder="<?= t('contcre_description_placeholder', 'Décrivez l\'objet : matière, dimensions, état général, raison du dépôt...') ?>"
-                            class="textarea textarea-bordered w-full resize-none"
-                            required
-                        ><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
-                    </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2"><?= t('contcre_label_photo', 'Photo de l\'objet') ?></label>
@@ -112,16 +111,6 @@
                             <?php endforeach; ?>
                         </div>
                     </div>
-
-                </div>
-            </div>
-
-            <div class="mb-8">
-                <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
-                    <?= t('contcre_section_container', 'Choix du conteneur') ?>
-                </h2>
-
-                <div class="space-y-5">
 
                     <div>
                         <label class="block text-sm font-medium mb-2"><?= t('contcre_label_localisation', 'Localisation souhaitée') ?> <span class="text-red-500">*</span></label>
@@ -160,77 +149,32 @@
                     </div>
 
                 </div>
-            </div>
 
-            <div class="mb-8">
-                <h2 class="text-lg font-semibold mb-5 pb-3 border-b border-base-300">
-                    <?= t('contcre_section_destination', 'Destination souhaitée') ?>
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label class="cursor-pointer">
-                        <input type="radio" name="destination" value="don" class="hidden peer" checked>
-                        <div class="peer-checked:border-primary peer-checked:bg-primary/5 border-2 border-base-300 rounded-xl p-5 transition hover:border-primary/50">
-                            <div class="flex items-center gap-3 mb-2">
-                                <i class="fas fa-heart text-green-500 text-xl"></i>
-                                <span class="font-semibold"><?= t('contcre_dest_don', 'Don') ?></span>
-                            </div>
-                            <p class="text-sm text-base-content/60"><?= t('contcre_dest_don_desc', 'L\'objet sera mis à disposition gratuitement pour un artisan ou professionnel.') ?></p>
-                        </div>
-                    </label>
-
-                    <label class="cursor-pointer">
-                        <input type="radio" name="destination" value="vente" class="hidden peer">
-                        <div class="peer-checked:border-primary peer-checked:bg-primary/5 border-2 border-base-300 rounded-xl p-5 transition hover:border-primary/50">
-                            <div class="flex items-center gap-3 mb-2">
-                                <i class="fas fa-tag text-blue-500 text-xl"></i>
-                                <span class="font-semibold"><?= t('contcre_dest_vente', 'Vente') ?></span>
-                            </div>
-                            <p class="text-sm text-base-content/60"><?= t('contcre_dest_vente_desc', 'L\'objet sera mis en vente. Indiquez votre prix souhaité ci-dessous.') ?></p>
-                        </div>
-                    </label>
-                </div>
-
-                <div id="prix-vente-container" class="mt-4 hidden">
-                    <label class="block text-sm font-medium mb-2"><?= t('contcre_label_prix', 'Prix de vente souhaité') ?> (€)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50">€</span>
-                        <input type="number" name="prix_vente" min="0" step="0.01" placeholder="0.00" class="input input-bordered w-full pl-8">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3 my-8">
+                    <i class="fas fa-info-circle text-blue-500 mt-0.5 flex-shrink-0"></i>
+                    <div class="text-sm text-blue-800">
+                        <p class="font-medium mb-1"><?= t('contcre_how_title', 'Comment ça marche ?') ?></p>
+                        <ul class="space-y-1 text-blue-700">
+                            <li>• <?= t('contcre_how_1', 'Votre demande sera examinée par notre équipe sous 24 à 48h.') ?></li>
+                            <li>• <?= t('contcre_how_2', 'Si validée, vous recevrez un code d\'accès par email pour ouvrir le conteneur.') ?></li>
+                            <li>• <?= t('contcre_how_3', 'Un code-barres sera généré et l\'autre partie sera automatiquement prévenue.') ?></li>
+                        </ul>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3 mb-8">
-                <i class="fas fa-info-circle text-blue-500 mt-0.5 flex-shrink-0"></i>
-                <div class="text-sm text-blue-800">
-                    <p class="font-medium mb-1"><?= t('contcre_how_title', 'Comment ça marche ?') ?></p>
-                    <ul class="space-y-1 text-blue-700">
-                        <li>• <?= t('contcre_how_1', 'Votre demande sera examinée par notre équipe sous 24 à 48h.') ?></li>
-                        <li>• <?= t('contcre_how_2', 'Si validée, vous recevrez un code d\'accès par email pour ouvrir le conteneur.') ?></li>
-                        <li>• <?= t('contcre_how_3', 'Un code-barres sera généré pour permettre aux professionnels de récupérer l\'objet.') ?></li>
-                    </ul>
+                <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-base-300">
+                    <button type="submit" class="btn btn-neutral flex-1" <?= $conteneursVides ? 'disabled' : '' ?>>
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        <?= t('contcre_submit', 'Soumettre la demande') ?>
+                    </button>
+                    <a href="/conteneurs/create" class="btn btn-ghost flex-1">
+                        <?= t('contcre_cancel', 'Annuler') ?>
+                    </a>
                 </div>
-            </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-base-300">
-                <button type="submit" class="btn btn-neutral flex-1" <?= $conteneursVides ? 'disabled' : '' ?>>
-                    <i class="fas fa-paper-plane mr-2"></i>
-                    <?= t('contcre_submit', 'Soumettre la demande') ?>
-                </button>
-                <a href="/" class="btn btn-ghost flex-1">
-                    <?= t('contcre_cancel', 'Annuler') ?>
-                </a>
-            </div>
+            </form>
+        </div>
 
-        </form>
-    </div>
+    <?php endif; ?>
+
 </section>
-
-<script>
-    document.querySelectorAll('input[name="destination"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const container = document.getElementById('prix-vente-container');
-            container.classList.toggle('hidden', this.value !== 'vente');
-        });
-    });
-</script>

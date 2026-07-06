@@ -7,16 +7,6 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
-// GetPlanningGlobalSalarie agrege evenements, formations et ateliers dans un seul
-// planning (vue equipe partagee), avec des cles communes (id, titre, date, duree,
-// lieu, animateur, statut, type) pour que le front puisse les afficher dans une
-// grille commune, comme le planning particulier. DateFin n'est renseigne que pour
-// les formations qui s'etalent sur plusieurs jours.
-//
-// "animateur" reflete la delegation : c'est l'animateur assigne (Id_Salarie_Animateur)
-// s'il existe, sinon le createur. peut_gerer indique si l'utilisateur courant peut
-// gerer le programme (etapes) de l'item ; peut_deleguer indique s'il peut reassigner
-// l'animateur (reserve au createur).
 func GetPlanningGlobalSalarie(w http.ResponseWriter, r *http.Request) {
 	_, salarieID, _ := getSalarieFromContext(r)
 	items := []map[string]interface{}{}

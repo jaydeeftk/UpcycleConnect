@@ -55,9 +55,6 @@ func ProfessionnelPubliciteAction(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Campagne annulée"})
 }
 
-// ProfessionnelPubliciteCheckout cree une session Stripe pour une campagne
-// publicitaire (prix libre saisi par le pro). La campagne n'est reellement
-// creee qu'a la confirmation du paiement, via le webhook Stripe.
 func ProfessionnelPubliciteCheckout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

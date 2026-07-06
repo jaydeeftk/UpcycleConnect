@@ -66,8 +66,6 @@ func CreateForumSujet(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Sujet créé avec succès"})
 }
 
-// GetForumReponses renvoie juste les reponses d'un sujet (sans incrementer les vues).
-// Utilise par le JS de la page sujet pour le polling temps reel.
 func GetForumReponses(w http.ResponseWriter, r *http.Request) {
 	segs := segmentsApres(r.URL.Path, "/api/forum/sujets/")
 	if len(segs) < 1 {

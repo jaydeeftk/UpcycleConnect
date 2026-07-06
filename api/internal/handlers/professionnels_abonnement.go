@@ -30,6 +30,24 @@ func ProfessionnelAbonnementHandler(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, dto)
 }
 
+func ProfessionnelCommissionsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	_, idPro, ok := getProfessionnelFromContext(r)
+	if !ok {
+		httpx.JSONError(w, http.StatusForbidden, "Profil professionnel introuvable")
+		return
+	}
+	liste, err := facturationSvc.ListerCommissionsPro(idPro)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, liste)
+}
+
 func ProfessionnelAbonnementResilier(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -47,9 +65,6 @@ func ProfessionnelAbonnementResilier(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Abonnement résilié"})
 }
 
-// ProfessionnelAbonnementCheckout cree une session Stripe pour l'abonnement
-// Premium (prix fixe). L'abonnement n'est reellement cree qu'a la confirmation
-// du paiement, via le webhook Stripe (voir StripeWebhook).
 func ProfessionnelAbonnementCheckout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

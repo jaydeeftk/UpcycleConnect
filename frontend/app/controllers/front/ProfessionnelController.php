@@ -118,8 +118,6 @@ class ProfessionnelController
         exit;
     }
 
-    // Detail projet : carte avec form edition + form ajout etape (multipart)
-    // + liste des etapes existantes avec photos avant/apres.
     public function showProjet($id)
     {
         if (!isset($_SESSION['user'])) { redirect('/login'); }
@@ -164,9 +162,6 @@ class ProfessionnelController
         redirect('/professionnel/projets/' . (int)$id);
     }
 
-    // Ajout d'une etape avec photos multipart avant/apres. Le PHP ecrit les
-    // fichiers dans public/uploads/projets/{idProjet}/{idEtape}/ puis POSTe
-    // les URLs resolues a l'API qui INSERE les Medias avec ownership check.
     public function ajouterEtape($id)
     {
         if (!isset($_SESSION['user'])) { redirect('/login'); }
@@ -239,6 +234,23 @@ class ProfessionnelController
         exit;
     }
 
+    public function contratPdf($id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $this->api->setToken($_SESSION['user']['token'] ?? '');
+        $res = $this->api->getRaw('/contrats/' . (int)$id . '/pdf');
+        if (($res['code'] ?? 0) >= 400 || empty($res['body'])) {
+            http_response_code(($res['code'] ?? 0) ?: 502);
+            echo 'Contrat indisponible';
+            return;
+        }
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="contrat-' . (int)$id . '.pdf"');
+        echo $res['body'];
+    }
+
     public function resilierContrat($id)
     {
         try { $this->api->post('/professionnels/contrats/' . $id . '/resilier', []); } catch (\Exception $e) {}
@@ -246,7 +258,6 @@ class ProfessionnelController
         exit;
     }
 
-    // ─── Annonces pro ────────────────────────────────────────────────────────
 
     public function annonces()
     {
@@ -433,5 +444,111 @@ class ProfessionnelController
             $_SESSION['error'] = $e->getMessage();
         }
         redirect('/professionnel/publicites');
+    }
+
+    public function commissions()
+    {
+        $commissions = [];
+        try {
+            $r = $this->api->get('/professionnels/commissions');
+            $commissions = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        return view('professionnel.commissions.index', [
+            'commissions' => $commissions,
+            'page_title'  => 'Mes commissions',
+            'layout'      => 'raw',
+        ]);
+    }
+
+    public function services()
+    {
+        $services = [];
+        $commandes = [];
+        try {
+            $r = $this->api->get('/professionnels/services');
+            $services = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+        try {
+            $r = $this->api->get('/professionnels/commandes-services');
+            $commandes = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        return view('professionnel.services.index', [
+            'services'   => $services,
+            'commandes'  => $commandes,
+            'page_title' => 'Mes prestations créées',
+            'layout'     => 'raw',
+        ]);
+    }
+
+    public function creerService()
+    {
+        try {
+            $this->api->post('/professionnels/services', [
+                'titre'       => $_POST['titre'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'prix'        => (float)($_POST['prix'] ?? 0),
+                'duree'       => (int)($_POST['duree'] ?? 0),
+                'categorie'   => $_POST['categorie'] ?? '',
+            ]);
+            $_SESSION['success'] = 'Prestation créée.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/services');
+    }
+
+    public function supprimerService($id)
+    {
+        try {
+            $this->api->delete('/professionnels/services/' . $id);
+            $_SESSION['success'] = 'Prestation supprimée.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/services');
+    }
+
+    public function prestations()
+    {
+        $demandes = [];
+        try {
+            $r = $this->api->get('/prestations/demandes/ouvertes');
+            $demandes = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
+        return view('professionnel.prestations.index', [
+            'demandes'   => $demandes,
+            'page_title' => 'Demandes de prestation',
+            'layout'     => 'raw',
+            'token'      => $_SESSION['user']['token'] ?? '',
+        ]);
+    }
+
+    public function proposerDevis()
+    {
+        try {
+            $this->api->post('/prestations/devis', [
+                'id_demande' => (int)($_POST['id_demande'] ?? 0),
+                'prix'       => (float)($_POST['prix'] ?? 0),
+                'message'    => $_POST['message'] ?? '',
+            ]);
+            $_SESSION['success'] = 'Votre devis a bien été envoyé.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/prestations');
+    }
+
+    public function retirerDevis($id)
+    {
+        try {
+            $this->api->post('/prestations/devis/' . $id . '/retirer', []);
+            $_SESSION['success'] = 'Devis retiré.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/professionnel/prestations');
     }
 }

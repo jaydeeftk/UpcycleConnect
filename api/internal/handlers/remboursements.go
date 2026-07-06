@@ -10,7 +10,6 @@ import (
 	"upcycleconnect/internal/middleware"
 )
 
-// CreerDemandeRemboursement : un particulier demande le remboursement de SON paiement.
 func CreerDemandeRemboursement(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -32,7 +31,6 @@ func CreerDemandeRemboursement(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Demande de remboursement enregistrée"})
 }
 
-// ListerDemandesRemboursement : salarié/admin — liste des demandes de remboursement.
 func ListerDemandesRemboursement(w http.ResponseWriter, r *http.Request) {
 	liste, err := facturationSvc.ListerDemandesRemboursement()
 	if err != nil {
@@ -42,8 +40,6 @@ func ListerDemandesRemboursement(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// RemboursementAction : salarié/admin — approuve/refuse une demande, ou rembourse
-// directement (/direct). Approbation et refund direct passent par le même seam.
 func RemboursementAction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

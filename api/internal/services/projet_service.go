@@ -43,6 +43,7 @@ type ProjetDTO struct {
 	Statut         string   `json:"statut"`
 	DateDebut      string   `json:"date_debut"`
 	NbEtapes       int      `json:"nb_etapes"`
+	Origine        string   `json:"origine"`
 	AllowedActions []string `json:"allowed_actions"`
 }
 
@@ -79,6 +80,7 @@ func (s *ProjetService) ListerProjets(idPro int) ([]ProjetDTO, error) {
 			Statut:         l.Statut,
 			DateDebut:      l.DateDebut,
 			NbEtapes:       l.NbEtapes,
+			Origine:        l.Origine,
 			AllowedActions: domain.ActionsProjetPro(l.Statut),
 		})
 	}
@@ -167,7 +169,24 @@ func (s *ProjetService) appliquerTransition(idPro, idProjet int, garde func(doma
 		if err := garde(snap); err != nil {
 			return err
 		}
-		return s.repo.MettreAJourStatut(tx, idProjet, statutCible)
+		if err := s.repo.MettreAJourStatut(tx, idProjet, statutCible); err != nil {
+			return err
+		}
+		if statutCible == domain.StatutProjetTermine {
+			idDemande, err := s.repo.IdDemandePrestationDuProjet(tx, idProjet)
+			if err == nil && idDemande > 0 {
+				if err := (repository.DevisRepo{}).MarquerDemandeTraitee(tx, idDemande); err != nil {
+					return err
+				}
+			}
+			idCommande, err := s.repo.IdCommandeServiceDuProjet(tx, idProjet)
+			if err == nil && idCommande > 0 {
+				if err := (repository.ServiceCatalogueRepo{}).MarquerCommandeTerminee(tx, idCommande); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	})
 }
 
@@ -224,9 +243,62 @@ func (s *ProjetService) ListerEtapes(idPro, idProjet int) ([]EtapeDTO, error) {
 	return out, nil
 }
 
-// AjouterPhotoEtape : ajoute un media a une etape (item 3). L'URL est deja
-// resolue cote PHP (stockage public/uploads). Verifie l'ownership pro -> projet
-// -> etape avant l'INSERT.
+func (s *ProjetService) ListerEtapesPourParticulier(idUtilisateur, idDemande int) ([]EtapeDTO, error) {
+	appartient, err := (repository.DevisRepo{}).DemandeAppartientA(database.DB, idDemande, idUtilisateur)
+	if err != nil {
+		return nil, err
+	}
+	if !appartient {
+		return nil, domain.Forbidden("Cette demande ne vous appartient pas")
+	}
+	idProjet, err := s.repo.ProjetDeLaDemandePrestation(database.DB, idDemande)
+	if errors.Is(err, sql.ErrNoRows) || idProjet == 0 {
+		return []EtapeDTO{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return s.etapesDuProjet(idProjet)
+}
+
+func (s *ProjetService) ListerEtapesPourParticulierCommandeService(idUtilisateur, idCommande int) ([]EtapeDTO, error) {
+	_, idUtilisateurCommande, _, _, err := (repository.ServiceCatalogueRepo{}).CommandePourMAJ(database.DB, idCommande)
+	if err != nil {
+		return nil, err
+	}
+	if idUtilisateurCommande != idUtilisateur {
+		return nil, domain.Forbidden("Cette commande ne vous appartient pas")
+	}
+	idProjet, err := s.repo.ProjetDeLaCommandeService(database.DB, idCommande)
+	if errors.Is(err, sql.ErrNoRows) || idProjet == 0 {
+		return []EtapeDTO{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return s.etapesDuProjet(idProjet)
+}
+
+func (s *ProjetService) etapesDuProjet(idProjet int) ([]EtapeDTO, error) {
+	lignes, err := s.repo.ListerEtapes(database.DB, idProjet)
+	if err != nil {
+		return nil, err
+	}
+	photos, err := s.repo.PhotosDesEtapes(database.DB, idProjet)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]EtapeDTO, 0, len(lignes))
+	for _, l := range lignes {
+		etPhotos := make([]PhotoDTO, 0)
+		for _, p := range photos[l.ID] {
+			etPhotos = append(etPhotos, PhotoDTO{ID: p.ID, URL: p.URL, TypePhoto: p.TypePhoto})
+		}
+		out = append(out, EtapeDTO{ID: l.ID, Nom: l.Nom, Description: l.Description, Visuel: l.Visuel, Photos: etPhotos})
+	}
+	return out, nil
+}
+
 func (s *ProjetService) AjouterPhotoEtape(idPro, idEtape int, in PhotoEtapeInput) (int, error) {
 	if idPro <= 0 {
 		return 0, domain.Forbidden("Action réservée aux professionnels")

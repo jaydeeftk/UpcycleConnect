@@ -27,6 +27,7 @@ $router->post('/conseils/forum/reponses/{id}/supprimer', 'Front\ConseilControlle
 $router->get('/conseils/{id}', 'Front\ConseilController@showConseil');
 
 $router->get('/score', 'Front\ScoreController@index');
+$router->get('/score/classement', 'Front\ScoreController@classement');
 $router->get('/planning', 'Front\PlanningController@index');
 $router->post('/planning/ajouter', 'Front\PlanningController@ajouter');
 $router->post('/planning/{id}/supprimer', 'Front\PlanningController@supprimer');
@@ -37,6 +38,7 @@ $router->post('/annonces/store', 'Front\AnnonceController@store');
 $router->get('/mes-annonces', 'Front\AnnonceController@mesAnnonces');
 $router->get('/annonces/{id}', 'Front\AnnonceController@show');
 $router->post('/annonces/{id}/annuler', 'Front\AnnonceController@annuler');
+$router->post('/annonces/{id}/reserver', 'Front\AnnonceController@reserver');
 
 $router->get('/conteneurs/create', 'Front\ConteneurController@create');
 $router->post('/conteneurs/store', 'Front\ConteneurController@store');
@@ -69,10 +71,17 @@ $router->get('/logout', 'Front\AuthController@logout');
 $router->get('/tutoriel/done', 'Front\UserController@tutorielDone');
 
 $router->get('/messages', 'Front\MessageController@index');
+$router->get('/messages/historique', 'Front\MessageController@historique');
+$router->get('/messages/historique/{id}', 'Front\MessageController@historiqueDetail');
+
+$router->get('/messagerie', 'Front\MessagerieController@index');
+$router->post('/messagerie/demarrer', 'Front\MessagerieController@demarrer');
+$router->get('/messagerie/{id}', 'Front\MessagerieController@show');
 $router->get('/notifications', 'Front\UserController@notifications');
 $router->post('/notifications/{id}/lu', 'Front\UserController@notificationLue');
 $router->get('/mes-demandes', 'Front\UserController@mesDemandes');
 $router->get('/mes-prestations', 'Front\UserController@mesPrestations');
+$router->post('/mes-prestations/{id}/annuler', 'Front\UserController@annulerDemandePrestation');
 $router->get('/paiements', 'Front\UserController@paiements');
 $router->get('/payer', 'Front\UserController@payer');
 $router->get('/paiement/success', 'Front\UserController@paiementSuccess');
@@ -97,6 +106,7 @@ $router->post('/professionnel/objets/scanner', 'Front\ProfessionnelController@sc
 $router->post('/professionnel/objets/{id}/reserver', 'Front\ProfessionnelController@reserverObjet');
 $router->post('/professionnel/objets/{id}/recuperer', 'Front\ProfessionnelController@recupererObjet');
 $router->post('/professionnel/objets/{id}/annuler', 'Front\ProfessionnelController@annulerObjet');
+$router->get('/professionnel/contrats/{id}/pdf', 'Front\ProfessionnelController@contratPdf');
 $router->post('/professionnel/contrats/{id}/resilier', 'Front\ProfessionnelController@resilierContrat');
 $router->post('/professionnel/notifications/{id}/lu', 'Front\ProfessionnelController@notificationLue');
 $router->get('/professionnel/impact/pdf', 'Front\ProfessionnelController@impactPdf');
@@ -111,6 +121,14 @@ $router->post('/professionnel/abonnement/resilier', 'Front\ProfessionnelControll
 
 $router->get('/professionnel/publicites', 'Front\ProfessionnelController@publicites');
 $router->post('/professionnel/publicites/{id}/annuler', 'Front\ProfessionnelController@annulerPublicite');
+$router->get('/professionnel/commissions', 'Front\ProfessionnelController@commissions');
+$router->get('/professionnel/services', 'Front\ProfessionnelController@services');
+$router->post('/professionnel/services', 'Front\ProfessionnelController@creerService');
+$router->post('/professionnel/services/{id}/supprimer', 'Front\ProfessionnelController@supprimerService');
+
+$router->get('/professionnel/prestations', 'Front\ProfessionnelController@prestations');
+$router->post('/professionnel/prestations/devis', 'Front\ProfessionnelController@proposerDevis');
+$router->post('/professionnel/prestations/devis/{id}/retirer', 'Front\ProfessionnelController@retirerDevis');
 
 $router->get('/admin-portal-access', 'Front\AuthController@showAdminGate');
 $router->post('/admin-portal-access', 'Front\AuthController@adminLogin');
@@ -142,7 +160,6 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/evenements/{id}/delete', 'Admin\EvenementController@delete');
 
     $router->get('/formations', 'Admin\FormationController@index');
-    $router->get('/formations/create', 'Admin\FormationController@create');
     $router->post('/formations/store', 'Admin\FormationController@store');
     $router->post('/formations/{id}/valider', 'Admin\FormationController@valider');
     $router->post('/formations/{id}/rejeter', 'Admin\FormationController@rejeter');
@@ -169,7 +186,9 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/notifications', 'Admin\NotificationController@index');
     $router->post('/notifications/store', 'Admin\NotificationController@store');
     $router->post('/notifications/{id}/delete', 'Admin\NotificationController@delete');
-    $router->get('/messages', 'Admin\MessageController@index');
+    $router->get('/tickets', 'Admin\TicketController@index');
+    $router->post('/tickets/{id}/accepter', 'Admin\TicketController@accepter');
+    $router->get('/tickets/{id}', 'Admin\TicketController@show');
 
     $router->get('/parametres', 'Admin\ParametreController@index');
     $router->post('/parametres/update', 'Admin\ParametreController@update');
@@ -180,6 +199,7 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/demandes/refuser/{id}', 'Admin\DemandeController@refuser');
 
     $router->get('/finances', 'Admin\FinancesController@index');
+    $router->get('/commissions', 'Admin\FinancesController@commissions');
     $router->get('/forum', 'Admin\ForumController@index');
 
     $router->get('/conseils', 'Admin\ConseilController@index');

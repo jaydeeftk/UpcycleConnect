@@ -7,33 +7,18 @@ import (
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/services"
 )
 
+var serviceCatalogueSvc = services.NewServiceCatalogueService()
+
 func GetServices(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query("SELECT Id_Services, Titre, Description, Prix, Duree, Categorie FROM Services")
+	liste, err := serviceCatalogueSvc.ListerCatalogue()
 	if err != nil {
 		httpx.JSONServerError(w, err)
 		return
 	}
-	defer rows.Close()
-
-	var services []map[string]interface{}
-	for rows.Next() {
-		var id, duree int
-		var titre, description, categorie string
-		var prix float64
-		if err := rows.Scan(&id, &titre, &description, &prix, &duree, &categorie); err != nil {
-			continue
-		}
-		services = append(services, map[string]interface{}{
-			"id": id, "titre": titre, "description": description,
-			"prix": prix, "duree": duree, "categorie": categorie,
-		})
-	}
-	if services == nil {
-		services = []map[string]interface{}{}
-	}
-	httpx.JSONOK(w, http.StatusOK, services)
+	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
 func GetService(w http.ResponseWriter, r *http.Request) {
@@ -41,14 +26,22 @@ func GetService(w http.ResponseWriter, r *http.Request) {
 	id := parts[len(parts)-1]
 
 	row := database.DB.QueryRow(
-		"SELECT Id_Services, Titre, Description, Prix, Duree, Categorie FROM Services WHERE Id_Services = ?", id,
+		`SELECT s.Id_Services, COALESCE(s.Titre,''), COALESCE(s.Description,''), COALESCE(s.Prix,0),
+			COALESCE(s.Duree,0), COALESCE(s.Categorie,''), COALESCE(s.Id_Professionnels,0),
+			TRIM(CONCAT(COALESCE(u.Prenom,''),' ',COALESCE(u.Nom,''))),
+			CASE WHEN s.Id_Professionnels IS NOT NULL THEN 'pro' ELSE 'salarie' END
+		 FROM Services s
+		 LEFT JOIN Professionnels_artisans pa ON pa.Id_Professionnels = s.Id_Professionnels
+		 LEFT JOIN Salaries sa ON sa.Id_Salaries = s.Id_Salaries
+		 LEFT JOIN Utilisateurs u ON u.Id_Utilisateurs = COALESCE(pa.Id_Utilisateurs, sa.Id_Utilisateurs)
+		 WHERE s.Id_Services = ?`, id,
 	)
 
-	var sid, duree int
-	var titre, description, categorie string
+	var sid, duree, idPro int
+	var titre, description, categorie, nomAuteur, typeAuteur string
 	var prix float64
 
-	if err := row.Scan(&sid, &titre, &description, &prix, &duree, &categorie); err != nil {
+	if err := row.Scan(&sid, &titre, &description, &prix, &duree, &categorie, &idPro, &nomAuteur, &typeAuteur); err != nil {
 		httpx.JSONError(w, http.StatusNotFound, "Service introuvable")
 		return
 	}
@@ -56,6 +49,7 @@ func GetService(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
 		"id": sid, "titre": titre, "description": description,
 		"prix": prix, "duree": duree, "categorie": categorie,
+		"id_professionnel": idPro, "nom_auteur": nomAuteur, "type_auteur": typeAuteur,
 	})
 }
 
@@ -66,18 +60,18 @@ func AdminGetServices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	services := []map[string]interface{}{}
+	svcs := []map[string]interface{}{}
 	for rows.Next() {
 		var id, duree int
 		var titre, description, categorie string
 		var prix float64
 		rows.Scan(&id, &titre, &description, &prix, &duree, &categorie)
-		services = append(services, map[string]interface{}{
+		svcs = append(svcs, map[string]interface{}{
 			"id": id, "titre": titre, "description": description,
 			"prix": prix, "duree": duree, "categorie": categorie,
 		})
 	}
-	httpx.JSONOK(w, http.StatusOK, services)
+	httpx.JSONOK(w, http.StatusOK, svcs)
 }
 
 func AdminCreateService(w http.ResponseWriter, r *http.Request) {

@@ -37,6 +37,10 @@ func GetAnnonceDispatch(w http.ResponseWriter, r *http.Request) {
 		middleware.JWTAuth(AnnulerAnnonce)(w, r)
 		return
 	}
+	if len(parts) >= 2 && parts[1] == "reserver" {
+		middleware.JWTAuth(ReserverDonAnnonce)(w, r)
+		return
+	}
 	middleware.OptionalJWT(ficheAnnonce)(w, r)
 }
 
@@ -112,6 +116,23 @@ func AnnulerAnnonce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Annonce retirée"})
+}
+
+func ReserverDonAnnonce(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	id, err := idDepuisChemin(r.URL.Path, "/api/annonces/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "ID annonce manquant")
+		return
+	}
+	if err := annonceSvc.ReserverDon(middleware.GetUserID(r), id); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]string{"message": "Don réservé"})
 }
 
 func AdminGetAnnonces(w http.ResponseWriter, r *http.Request) {

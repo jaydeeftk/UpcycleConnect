@@ -37,9 +37,6 @@ func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 	return nil, nil
 }
 
-// sendMail envoie un email HTML via le SMTP configure (OVH Zimbra : STARTTLS 587).
-// Fail-safe : si SMTP_HOST n'est pas defini, renvoie une erreur (l'appelant decide).
-// En-tetes RFC completes (From/To/Date/Message-ID) pour la delivrabilite.
 func sendMail(targetEmail, subject, htmlBody string) error {
 	from := os.Getenv("SMTP_USER")
 	password := os.Getenv("SMTP_PASS")
@@ -48,7 +45,6 @@ func sendMail(targetEmail, subject, htmlBody string) error {
 	if smtpHost == "" {
 		return errors.New("SMTP non configure")
 	}
-	// Anti-injection d'en-tete : un sujet ne doit jamais contenir de saut de ligne.
 	subject = strings.ReplaceAll(strings.ReplaceAll(subject, "\r", " "), "\n", " ")
 
 	domain := "upcycleconnect.tech"
@@ -95,7 +91,6 @@ func sendMail(targetEmail, subject, htmlBody string) error {
 	return w.Close()
 }
 
-// SendVerificationEmail envoie le lien d'activation a l'inscription.
 func SendVerificationEmail(targetEmail string, token string) error {
 	verifyLink := fmt.Sprintf("%s/verify?token=%s", os.Getenv("APP_URL"), token)
 	body := fmt.Sprintf(`
@@ -110,7 +105,6 @@ func SendVerificationEmail(targetEmail string, token string) error {
 	return sendMail(targetEmail, "Activez votre compte UpcycleConnect", body)
 }
 
-// SendPasswordResetEmail envoie le lien de reinitialisation du mot de passe.
 func SendPasswordResetEmail(targetEmail string, token string) error {
 	resetLink := fmt.Sprintf("%s/reset-password?token=%s", os.Getenv("APP_URL"), token)
 	body := fmt.Sprintf(`
@@ -126,8 +120,6 @@ func SendPasswordResetEmail(targetEmail string, token string) error {
 	return sendMail(targetEmail, "Reinitialisation de votre mot de passe UpcycleConnect", body)
 }
 
-// SendGenericEmail envoie un message libre (titre + contenu) dans le gabarit UpcycleConnect.
-// Utilise pour les notifications envoyees depuis l'espace admin. Le contenu est echappe.
 func SendGenericEmail(targetEmail string, subject string, message string) error {
 	body := fmt.Sprintf(`
 		<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 520px;">
@@ -139,7 +131,6 @@ func SendGenericEmail(targetEmail string, subject string, message string) error 
 	return sendMail(targetEmail, subject, body)
 }
 
-// SendWelcomeEmail confirme l'activation du compte (envoye apres clic sur le lien).
 func SendWelcomeEmail(targetEmail string, prenom string) error {
 	appURL := os.Getenv("APP_URL")
 	body := fmt.Sprintf(`

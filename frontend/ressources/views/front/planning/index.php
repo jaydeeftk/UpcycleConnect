@@ -54,6 +54,11 @@
                         <div class="flex-1 text-sm"><?= t('planning_libres', 'Entrées personnelles') ?></div>
                         <span class="font-bold text-emerald-500"><?= count($libres ?? []) ?></span>
                     </div>
+                    <div class="flex items-center gap-3 p-3 bg-orange-50 rounded-xl">
+                        <i class="fas fa-box text-orange-500"></i>
+                        <div class="flex-1 text-sm"><?= t('planning_depots', 'Dépôts en conteneur') ?></div>
+                        <span class="font-bold text-orange-500"><?= count($depots ?? []) ?></span>
+                    </div>
                 </div>
             </div>
 
@@ -140,7 +145,16 @@ const ITEMS = <?= json_encode(array_merge(
         'duree' => $l['duree'] ?? 0,
         'type'  => 'libre',
         'url'   => '#',
-    ], $libres ?? [])
+    ], $libres ?? []),
+    array_map(fn($d) => [
+        'id'    => $d['id'] ?? 0,
+        'titre' => $d['titre'] ?? '',
+        'date'  => $d['date'] ?? '',
+        'lieu'  => $d['lieu'] ?? '',
+        'duree' => $d['duree'] ?? 0,
+        'type'  => 'depot',
+        'url'   => '/mes-demandes',
+    ], $depots ?? [])
 )) ?>;
 
 let vue = 'semaine';
@@ -203,6 +217,7 @@ function trierParHeure(items) {
 function colorClass(type) {
     if (type === 'formation') return 'bg-purple-100 text-purple-700 border-purple-300';
     if (type === 'libre')     return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+    if (type === 'depot')     return 'bg-orange-100 text-orange-700 border-orange-300';
     return 'bg-blue-100 text-blue-700 border-blue-300';
 }
 
@@ -396,9 +411,11 @@ function renderProchain() {
     const p = futurs[0];
     const badgeLabel = p.type === 'formation'
         ? '<?= t('planning_type_formation', 'Formation') ?>'
-        : (p.type === 'libre' ? '<?= t('planning_type_libre', 'Entrée personnelle') ?>' : '<?= t('planning_type_evenement', 'Événement') ?>');
+        : (p.type === 'libre' ? '<?= t('planning_type_libre', 'Entrée personnelle') ?>'
+        : (p.type === 'depot' ? '<?= t('planning_type_depot', 'Dépôt conteneur') ?>' : '<?= t('planning_type_evenement', 'Événement') ?>'));
     const badgeCls = p.type === 'formation' ? 'bg-purple-100 text-purple-700'
-        : (p.type === 'libre' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700');
+        : (p.type === 'libre' ? 'bg-emerald-100 text-emerald-700'
+        : (p.type === 'depot' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'));
     const titreHtml = p.url && p.url !== '#'
         ? `<a href="${p.url}" class="font-semibold text-sm hover:underline block mb-1">${p.titre}</a>`
         : `<div class="font-semibold text-sm mb-1">${p.titre}</div>`;

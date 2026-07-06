@@ -76,8 +76,6 @@ function formatPrix($prix): string
     return $p == 0.0 ? 'Gratuit' : number_format($p, 2, ',', ' ') . ' €';
 }
 
-// Affiche "Du DD/MM au DD/MM/AAAA" quand une date de fin distincte est fournie
-// (formation sur plusieurs jours), sinon se comporte comme formatDate().
 function formatPeriode(?string $dateDebut, ?string $dateFin, bool $withTime = false): string
 {
     if (empty($dateFin) || substr((string)$dateFin, 0, 10) === substr((string)$dateDebut, 0, 10)) {

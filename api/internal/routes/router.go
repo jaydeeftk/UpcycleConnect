@@ -130,6 +130,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/admin/conteneurs", middleware.AdminOnly(handlers.AdminGetConteneurs))
 	mux.HandleFunc("/api/admin/conteneurs/demandes/", middleware.AdminOnly(handlers.AdminDemandeConteneurAction))
 	mux.HandleFunc("/api/admin/conteneurs/", middleware.AdminOnly(handlers.AdminConteneurAction))
+	mux.HandleFunc("/api/admin/box/", middleware.AdminOnly(handlers.AdminBoxDimensions))
 
 	mux.HandleFunc("/api/admin/categories", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {

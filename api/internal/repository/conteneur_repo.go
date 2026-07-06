@@ -316,9 +316,17 @@ type ConteneurAdmin struct {
 	NbDemandes   int
 	Occupation   int
 	CapaciteBox  int
-	Hauteur      sql.NullFloat64
-	Largeur      sql.NullFloat64
-	Longueur     sql.NullFloat64
+	Boxes        []BoxAdmin
+}
+
+type BoxAdmin struct {
+	ID         int
+	Reference  string
+	Taille     string
+	Statut     string
+	HauteurCm  *float64
+	LargeurCm  *float64
+	LongueurCm *float64
 }
 
 func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) {
@@ -349,7 +357,51 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 		}
 		liste = append(liste, c)
 	}
-	return liste, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Charger les box de chaque conteneur
+	for i, c := range liste {
+		boxes, err := listerBoxesConteneur(q, c.ID)
+		if err != nil {
+			return nil, err
+		}
+		liste[i].Boxes = boxes
+	}
+	return liste, nil
+}
+
+func listerBoxesConteneur(q Querier, idConteneur int) ([]BoxAdmin, error) {
+	rows, err := q.Query(
+		`SELECT Id_Box, COALESCE(Reference,''), COALESCE(Taille,'standard'), COALESCE(Statut,'disponible'),
+		        Hauteur_cm, Largeur_cm, Longueur_cm
+		 FROM Box WHERE Id_Conteneurs = ? ORDER BY Id_Box`,
+		idConteneur,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	boxes := []BoxAdmin{}
+	for rows.Next() {
+		var b BoxAdmin
+		if err := rows.Scan(&b.ID, &b.Reference, &b.Taille, &b.Statut,
+			&b.HauteurCm, &b.LargeurCm, &b.LongueurCm); err != nil {
+			return nil, err
+		}
+		boxes = append(boxes, b)
+	}
+	return boxes, rows.Err()
+}
+
+func (ConteneurRepo) MettreAJourBoxDimensions(q Querier, idBox int, hauteur, largeur, longueur *float64) error {
+	_, err := q.Exec(
+		`UPDATE Box SET Hauteur_cm = ?, Largeur_cm = ?, Longueur_cm = ? WHERE Id_Box = ?`,
+		hauteur, largeur, longueur, idBox,
+	)
+	return err
 }
 
 func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int, statut string, hauteur, largeur, longueur float64, idAdmin int) (int64, error) {

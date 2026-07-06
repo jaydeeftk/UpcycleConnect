@@ -111,4 +111,18 @@ class ConteneurController
         header('Location: /admin/conteneurs');
         exit;
     }
-}
+
+    public function updateBoxDimensions($id)
+    {
+        $data = [];
+        foreach (['hauteur_cm', 'largeur_cm', 'longueur_cm'] as $dim) {
+            $val = $_POST[$dim] ?? '';
+            $data[$dim] = ($val !== '' && is_numeric($val)) ? (float)$val : null;
+        }
+        try {
+            $this->api->patch('/admin/box/' . $id, $data);
+        } catch (\Exception $e) {}
+        $idConteneur = (int)($_POST['id_conteneur'] ?? 0);
+        header('Location: /admin/conteneurs/' . $idConteneur);
+        exit;
+    }

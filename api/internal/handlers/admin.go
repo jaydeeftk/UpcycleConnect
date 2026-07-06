@@ -498,6 +498,32 @@ func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func AdminBoxDimensions(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch && r.Method != http.MethodPut {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	idBox, err := idDepuisChemin(r.URL.Path, "/api/admin/box/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	var body struct {
+		HauteurCm  *float64 `json:"hauteur_cm"`
+		LargeurCm  *float64 `json:"largeur_cm"`
+		LongueurCm *float64 `json:"longueur_cm"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	if err := conteneurSvc.MettreAJourBoxDimensions(idBox, body.HauteurCm, body.LargeurCm, body.LongueurCm); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Dimensions mises à jour"})
+}
+
 func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {
 	liste, err := conteneurSvc.AdminListerDemandes()
 	if err != nil {

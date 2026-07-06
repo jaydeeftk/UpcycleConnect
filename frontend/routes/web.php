@@ -156,6 +156,7 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/conteneurs/{id}/refuse', 'Admin\ConteneurController@refuse');
     $router->post('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
 
+    $router->post('/box/{id}/dimensions', 'Admin\ConteneurController@updateBoxDimensions');
     $router->get('/categories', 'Admin\CategorieController@index');
     $router->post('/categories/store', 'Admin\CategorieController@store');
     $router->post('/categories/{id}/delete', 'Admin\CategorieController@delete');

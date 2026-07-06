@@ -288,17 +288,25 @@ func (s *ConteneurService) ListerConteneursDisponibles() ([]ConteneurPublicDTO, 
 	return out, nil
 }
 
+type BoxAdminDTO struct {
+	ID         int      `json:"id"`
+	Reference  string   `json:"reference"`
+	Taille     string   `json:"taille"`
+	Statut     string   `json:"statut"`
+	HauteurCm  *float64 `json:"hauteur_cm"`
+	LargeurCm  *float64 `json:"largeur_cm"`
+	LongueurCm *float64 `json:"longueur_cm"`
+}
+
 type ConteneurAdminDTO struct {
-	ID           int     `json:"id"`
-	Localisation string  `json:"localisation"`
-	Capacite     int     `json:"capacite"`
-	Statut       string  `json:"statut"`
-	NbDemandes   int     `json:"nb_demandes"`
-	Occupation   int     `json:"occupation"`
-	FillRate     int     `json:"fill_rate"`
-	Hauteur      float64 `json:"hauteur"`
-	Largeur      float64 `json:"largeur"`
-	Longueur     float64 `json:"longueur"`
+	ID           int           `json:"id"`
+	Localisation string        `json:"localisation"`
+	Capacite     int           `json:"capacite"`
+	Statut       string        `json:"statut"`
+	NbDemandes   int           `json:"nb_demandes"`
+	Occupation   int           `json:"occupation"`
+	FillRate     int           `json:"fill_rate"`
+	Boxes        []BoxAdminDTO `json:"boxes"`
 }
 
 func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) {
@@ -308,14 +316,25 @@ func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) 
 	}
 	out := make([]ConteneurAdminDTO, 0, len(rows))
 	for _, c := range rows {
+		boxes := make([]BoxAdminDTO, 0, len(c.Boxes))
+		for _, b := range c.Boxes {
+			boxes = append(boxes, BoxAdminDTO{
+				ID: b.ID, Reference: b.Reference, Taille: b.Taille, Statut: b.Statut,
+				HauteurCm: b.HauteurCm, LargeurCm: b.LargeurCm, LongueurCm: b.LongueurCm,
+			})
+		}
 		out = append(out, ConteneurAdminDTO{
 			ID: c.ID, Localisation: c.Localisation, Capacite: c.Capacite, Statut: c.Statut,
 			NbDemandes: c.NbDemandes, Occupation: c.Occupation,
 			FillRate: domain.TauxRemplissage(c.Occupation, c.CapaciteBox),
-			Hauteur:  c.Hauteur.Float64, Largeur: c.Largeur.Float64, Longueur: c.Longueur.Float64,
+			Boxes:    boxes,
 		})
 	}
 	return out, nil
+}
+
+func (s *ConteneurService) MettreAJourBoxDimensions(idBox int, hauteur, largeur, longueur *float64) error {
+	return s.repo.MettreAJourBoxDimensions(database.DB, idBox, hauteur, largeur, longueur)
 }
 
 type ConteneurInput struct {

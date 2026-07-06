@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
 
 	"github.com/go-sql-driver/mysql"
@@ -345,6 +346,17 @@ type ConteneurAdmin struct {
 	NbDemandes   int
 	Occupation   int
 	CapaciteBox  int
+	Boxes        []BoxAdmin
+}
+
+type BoxAdmin struct {
+	ID         int
+	Reference  string
+	Taille     string
+	Statut     string
+	HauteurCm  *float64
+	LargeurCm  *float64
+	LongueurCm *float64
 }
 
 func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) {
@@ -356,7 +368,8 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 		        COALESCE((SELECT COUNT(*) FROM Objets o
 		           JOIN Box b2 ON b2.Id_Box = o.Id_Box
 		           WHERE b2.Id_Conteneurs = c.Id_Conteneurs AND o.Statut IN ('en_stock','reserve_pro')),0) AS occupation,
-		        COALESCE((SELECT SUM(b.Capacite) FROM Box b WHERE b.Id_Conteneurs = c.Id_Conteneurs),0) AS capacite_box
+		        COALESCE((SELECT SUM(b.Capacite) FROM Box b WHERE b.Id_Conteneurs = c.Id_Conteneurs),0) AS capacite_box,
+		        c.Hauteur, c.Largeur, c.Longueur
 		 FROM Conteneurs c
 		 ORDER BY c.Id_Conteneurs DESC`,
 	)
@@ -369,18 +382,62 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 	for rows.Next() {
 		var c ConteneurAdmin
 		if err := rows.Scan(&c.ID, &c.Localisation, &c.Capacite, &c.Statut,
-			&c.NbDemandes, &c.Occupation, &c.CapaciteBox); err != nil {
+			&c.NbDemandes, &c.Occupation, &c.CapaciteBox, &c.Hauteur, &c.Largeur, &c.Longueur); err != nil {
 			return nil, err
 		}
 		liste = append(liste, c)
 	}
-	return liste, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Charger les box de chaque conteneur
+	for i, c := range liste {
+		boxes, err := listerBoxesConteneur(q, c.ID)
+		if err != nil {
+			return nil, err
+		}
+		liste[i].Boxes = boxes
+	}
+	return liste, nil
 }
 
-func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int, statut string, idAdmin int) (int64, error) {
+func listerBoxesConteneur(q Querier, idConteneur int) ([]BoxAdmin, error) {
+	rows, err := q.Query(
+		`SELECT Id_Box, COALESCE(Reference,''), COALESCE(Taille,'standard'), COALESCE(Statut,'disponible'),
+		        Hauteur_cm, Largeur_cm, Longueur_cm
+		 FROM Box WHERE Id_Conteneurs = ? ORDER BY Id_Box`,
+		idConteneur,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	boxes := []BoxAdmin{}
+	for rows.Next() {
+		var b BoxAdmin
+		if err := rows.Scan(&b.ID, &b.Reference, &b.Taille, &b.Statut,
+			&b.HauteurCm, &b.LargeurCm, &b.LongueurCm); err != nil {
+			return nil, err
+		}
+		boxes = append(boxes, b)
+	}
+	return boxes, rows.Err()
+}
+
+func (ConteneurRepo) MettreAJourBoxDimensions(q Querier, idBox int, hauteur, largeur, longueur *float64) error {
+	_, err := q.Exec(
+		`UPDATE Box SET Hauteur_cm = ?, Largeur_cm = ?, Longueur_cm = ? WHERE Id_Box = ?`,
+		hauteur, largeur, longueur, idBox,
+	)
+	return err
+}
+
+func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int, statut string, hauteur, largeur, longueur float64, idAdmin int) (int64, error) {
 	res, err := q.Exec(
-		"INSERT INTO Conteneurs (Localisation, Capacite, Statut, Id_Administrateurs) VALUES (?, ?, ?, ?)",
-		localisation, capacite, statut, idAdmin,
+		"INSERT INTO Conteneurs (Localisation, Capacite, Statut, Hauteur, Largeur, Longueur, Id_Administrateurs) VALUES (?, ?, ?, NULLIF(?,0), NULLIF(?,0), NULLIF(?,0), ?)",
+		localisation, capacite, statut, hauteur, largeur, longueur, idAdmin,
 	)
 	if err != nil {
 		return 0, err
@@ -396,10 +453,10 @@ func (ConteneurRepo) CreerBox(q Querier, reference string, capacite, idConteneur
 	return err
 }
 
-func (ConteneurRepo) ModifierConteneur(q Querier, idConteneur int, localisation string, capacite int, statut string) (int64, error) {
+func (ConteneurRepo) ModifierConteneur(q Querier, idConteneur int, localisation string, capacite int, statut string, hauteur, largeur, longueur float64) (int64, error) {
 	res, err := q.Exec(
-		"UPDATE Conteneurs SET Localisation=?, Capacite=?, Statut=? WHERE Id_Conteneurs=?",
-		localisation, capacite, statut, idConteneur,
+		"UPDATE Conteneurs SET Localisation=?, Capacite=?, Statut=?, Hauteur=NULLIF(?,0), Largeur=NULLIF(?,0), Longueur=NULLIF(?,0) WHERE Id_Conteneurs=?",
+		localisation, capacite, statut, hauteur, largeur, longueur, idConteneur,
 	)
 	if err != nil {
 		return 0, err

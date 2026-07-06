@@ -173,6 +173,7 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/conteneurs/{id}/refuse', 'Admin\ConteneurController@refuse');
     $router->post('/conteneurs/{id}/delete', 'Admin\ConteneurController@delete');
 
+    $router->post('/box/{id}/dimensions', 'Admin\ConteneurController@updateBoxDimensions');
     $router->get('/categories', 'Admin\CategorieController@index');
     $router->post('/categories/store', 'Admin\CategorieController@store');
     $router->post('/categories/{id}/delete', 'Admin\CategorieController@delete');
@@ -240,6 +241,9 @@ $router->group(['prefix' => 'salaries'], function($router) {
     $router->get('/formations/{id}/edit', 'salaries\FormationController@edit');
     $router->post('/formations/{id}/update', 'salaries\FormationController@update');
     $router->post('/formations/{id}/delete', 'salaries\FormationController@delete');
+    $router->get('/formations/{id}/etapes', 'salaries\FormationController@etapes');
+    $router->post('/formations/{id}/etapes/store', 'salaries\FormationController@etapesStore');
+    $router->post('/formations/{id}/etapes/{etapeId}/delete', 'salaries\FormationController@etapesDelete');
 
     
     $router->get('/evenements', 'salaries\EvenementController@index');

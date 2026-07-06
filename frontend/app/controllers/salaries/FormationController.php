@@ -50,6 +50,7 @@ class FormationController
     'prix'           => (float)($_POST['prix'] ?? 0),
     'duree'          => (int)($_POST['duree'] ?? 0),
     'date_formation' => $_POST['date'] ?? '',
+    'date_fin'       => $_POST['date_fin'] ?? '',
     'places_total'   => (int)($_POST['places_total'] ?? 0),
     'localisation'   => $_POST['lieu'] ?? '',
     'categorie'      => $_POST['categorie'] ?? '',
@@ -88,10 +89,15 @@ class FormationController
     {
         try {
             $this->api->put('/salaries/formations/' . $id, [
-                'titre'       => $_POST['titre'] ?? '',
-                'description' => $_POST['description'] ?? '',
-                'prix'        => (float)($_POST['prix'] ?? 0),
-                'duree'       => (int)($_POST['duree'] ?? 0),
+                'titre'          => $_POST['titre'] ?? '',
+                'description'    => $_POST['description'] ?? '',
+                'prix'           => (float)($_POST['prix'] ?? 0),
+                'duree'          => (int)($_POST['duree'] ?? 0),
+                'date_formation' => $_POST['date'] ?? '',
+                'date_fin'       => $_POST['date_fin'] ?? '',
+                'places_total'   => (int)($_POST['places_total'] ?? 0),
+                'localisation'   => $_POST['lieu'] ?? '',
+                'categorie'      => $_POST['categorie'] ?? '',
             ]);
 
             $_SESSION['success'] = t('sal_flash_formation_updated', 'Formation modifiée avec succès.');
@@ -112,5 +118,59 @@ class FormationController
         }
 
         redirect('/salaries/formations');
+    }
+
+    public function etapes($id)
+    {
+        try {
+            $formation = $this->api->get('/salaries/formations')['data'] ?? [];
+            $formation = array_values(array_filter($formation, fn($f) => (int)($f['id'] ?? 0) === (int)$id))[0] ?? null;
+
+            if (!$formation) {
+                $_SESSION['error'] = t('sal_flash_formation_not_found', 'Formation introuvable.');
+                redirect('/salaries/formations');
+                return;
+            }
+
+            $etapes = $this->api->get('/salaries/formations/' . $id . '/etapes')['data'] ?? [];
+
+            return view('salaries.formations.etapes', [
+                'formation'     => $formation,
+                'etapes'        => $etapes,
+                'page_title'    => 'Étapes de la formation',
+                'page_subtitle' => 'Construisez le programme pédagogique',
+            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            redirect('/salaries/formations');
+        }
+    }
+
+    public function etapesStore($id)
+    {
+        try {
+            $this->api->post('/salaries/formations/' . $id . '/etapes', [
+                'titre'       => $_POST['titre'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'ordre'       => (int)($_POST['ordre'] ?? 0),
+            ]);
+            $_SESSION['success'] = t('sal_flash_etape_added', 'Étape ajoutée avec succès.');
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+
+        redirect('/salaries/formations/' . $id . '/etapes');
+    }
+
+    public function etapesDelete($id, $etapeId)
+    {
+        try {
+            $this->api->delete('/salaries/formations/' . $id . '/etapes/' . $etapeId);
+            $_SESSION['success'] = t('sal_flash_etape_deleted', 'Étape supprimée avec succès.');
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+
+        redirect('/salaries/formations/' . $id . '/etapes');
     }
 }

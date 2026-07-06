@@ -72,9 +72,13 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, err)
 		return
 	}
+	message := "Annonce soumise avec succès, en attente de validation"
+	if facturationSvc.ConsommerAnnonceGratuitePro(middleware.GetUserID(r)) {
+		message = "Annonce soumise avec succès (annonce gratuite incluse dans votre abonnement Premium)"
+	}
 	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
 		"id":      id,
-		"message": "Annonce soumise avec succès, en attente de validation",
+		"message": message,
 	})
 }
 

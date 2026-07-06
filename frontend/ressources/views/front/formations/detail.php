@@ -20,7 +20,7 @@ $estPasse      = $tsFormation !== false && $tsFormation < time();
 
             <h1 class="text-4xl font-bold mb-4"><?= htmlspecialchars($formation['titre'] ?? 'Formation') ?></h1>
             <p class="text-base-content/70 text-lg leading-relaxed mb-8">
-                <?= htmlspecialchars($formation['description'] ?? '') ?>
+                <?= nl2br(htmlspecialchars($formation['description'] ?? '')) ?>
             </p>
 
             <div class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-3 mb-8">
@@ -111,4 +111,25 @@ $estPasse      = $tsFormation !== false && $tsFormation < time();
         </div>
 
     </div>
+
+    <?php if (!empty($formation['etapes'])): ?>
+        <div class="mt-14 max-w-3xl">
+            <h2 class="text-2xl font-bold mb-6"><?= t('fordet_programme', 'Programme de la formation') ?></h2>
+            <ol class="space-y-4">
+                <?php foreach ($formation['etapes'] as $i => $etape): ?>
+                    <li class="flex gap-4 bg-base-100 rounded-2xl border border-base-300 p-5">
+                        <span class="w-9 h-9 shrink-0 rounded-full bg-black text-white flex items-center justify-center font-bold">
+                            <?= $i + 1 ?>
+                        </span>
+                        <div>
+                            <p class="font-semibold"><?= htmlspecialchars($etape['titre'] ?? '') ?></p>
+                            <?php if (!empty($etape['description'])): ?>
+                                <p class="text-base-content/70 text-sm mt-1"><?= htmlspecialchars($etape['description']) ?></p>
+                            <?php endif; ?>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        </div>
+    <?php endif; ?>
 </section>

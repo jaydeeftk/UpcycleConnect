@@ -231,6 +231,7 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation mise à jour"})
 
 	case http.MethodDelete:
+		database.DB.Exec("DELETE FROM Formation_Etapes WHERE Id_Formations=?", id)
 		database.DB.Exec("DELETE FROM Formations WHERE Id_Formations=?", id)
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation supprimée"})
 

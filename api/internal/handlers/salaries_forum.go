@@ -6,8 +6,6 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
-// SalarieGetForumSujets liste tous les sujets du forum pour la modération salarié.
-// Réutilise la logique de listing admin (opération de lecture identique).
 func SalarieGetForumSujets(w http.ResponseWriter, r *http.Request) {
 	liste, err := forumSvc.AdminListerSujets()
 	if err != nil {
@@ -17,7 +15,6 @@ func SalarieGetForumSujets(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, liste)
 }
 
-// SalarieForumSujetAction supprime un sujet signalé/inapproprié (modération salarié).
 func SalarieForumSujetAction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -35,7 +32,6 @@ func SalarieForumSujetAction(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Sujet supprimé"})
 }
 
-// SalarieForumReponseAction supprime une réponse inappropriée (modération salarié).
 func SalarieForumReponseAction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

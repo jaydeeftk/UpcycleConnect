@@ -103,12 +103,6 @@ func (s *InscriptionService) DesinscrireEvenement(idUtilisateur, idEvenement int
 	})
 }
 
-// LibererPlaceTx retire l'inscription d'un particulier et rend le siège, dans la
-// transaction de l'appelant. Verrou FOR UPDATE sur la formation ; le ré-incrément
-// (clampé à Places_total) n'a lieu QUE si une ligne a réellement été retirée
-// (garde rows-affected : double-désinscription = un seul retour). Les événements
-// ont une capacité computée (Capacite − COUNT) : pas de compteur à ré-incrémenter.
-// Seam partagé : désinscription user, annulation admin, et refund (item 16).
 func (s *InscriptionService) LibererPlaceTx(tx *sql.Tx, idPart int, typ string, idItem int) (bool, error) {
 	switch typ {
 	case "formation":
@@ -136,9 +130,6 @@ func (s *InscriptionService) LibererPlaceTx(tx *sql.Tx, idPart int, typ string, 
 	return false, domain.Invalide("Type d'inscription invalide")
 }
 
-// AnnulerInscription retire l'inscription d'un particulier (annulation admin, ou
-// refund via l'item 16) en passant par le même seam in-tx que la désinscription
-// user, sans contrôle de date ni blocage payant. No-op propre si déjà annulé.
 func (s *InscriptionService) AnnulerInscription(idUtilisateur int, typ string, idItem int) error {
 	return withTx(func(tx *sql.Tx) error {
 		idPart, err := s.resoudreParticulier(tx, idUtilisateur)

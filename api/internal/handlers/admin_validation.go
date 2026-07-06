@@ -8,10 +8,6 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
-// notifierSalarieX deposent une notification individuelle pour le salarie
-// proprietaire de l'item, en resolvant son Id_Utilisateurs. Best-effort
-// (les echecs sont silencieux pour ne pas bloquer la validation).
-
 func notifierSalarieFormation(idFormation string, contenu string) {
 	notifierProprietaire(`SELECT s.Id_Utilisateurs FROM Formations f
 		JOIN Salaries s ON s.Id_Salaries = f.Id_Salaries WHERE f.Id_Formations = ?`, idFormation, contenu)
@@ -39,9 +35,6 @@ func notifierProprietaire(queryUtilisateur string, id string, contenu string) {
 	)
 }
 
-// AdminEvenementAction : valider / rejeter un evenement. Le dispatch
-// CREATE/PUT/DELETE existant reste dans AdminCreateEvenement (le routeur
-// envoie ici sur action explicite).
 func AdminEvenementAction(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/admin/evenements/")
 	parts := strings.Split(strings.Trim(path, "/"), "/")
@@ -69,7 +62,6 @@ func AdminEvenementAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminGetAteliers : liste des ateliers cote admin (tous statuts).
 func AdminGetAteliers(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(`
 		SELECT a.Id_Atelier, COALESCE(a.Theme,''), COALESCE(DATE_FORMAT(a.Date_atelier,'%Y-%m-%dT%H:%i:%s'),''),
@@ -99,7 +91,6 @@ func AdminGetAteliers(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, ateliers)
 }
 
-// AdminAtelierAction : valider / rejeter / supprimer un atelier.
 func AdminAtelierAction(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/admin/ateliers/")
 	parts := strings.Split(strings.Trim(path, "/"), "/")

@@ -2,14 +2,7 @@ package domain
 
 import "strings"
 
-// Constantes du circuit de validation (item 15) — distinctes des Statut de cycle
-// de vie : la moderation (en_attente/valide/refuse) n'est pas le cycle de vie
-// (brouillon/a_venir/en_cours/...).
-const (
-	StatutValidationEnAttente = "en_attente"
-	StatutValidationValide    = "valide"
-	StatutValidationRefuse    = "refuse"
-)
+const ()
 
 func ValiderCreationEvenement(titre, date, lieu string, capacite int, prix float64) error {
 	if strings.TrimSpace(titre) == "" {

@@ -19,7 +19,14 @@
 
         <div>
             <div class="text-sm text-base-content/60 mb-2"><?= htmlspecialchars($prestation['categorie'] ?? t('prestdet_breadcrumb_fallback', 'Prestation')) ?></div>
-            <h1 class="text-4xl md:text-5xl font-bold mb-6"><?= htmlspecialchars($prestation['titre']) ?></h1>
+            <h1 class="text-4xl md:text-5xl font-bold mb-3"><?= htmlspecialchars($prestation['titre']) ?></h1>
+            <?php if (($prestation['type_auteur'] ?? '') === 'pro' && !empty($prestation['nom_auteur'])): ?>
+                <p class="text-sm text-base-content/50 mb-6">
+                    <i class="fas fa-user-tie mr-1"></i><?= t('prestdet_by', 'Proposé par') ?> <span class="font-medium"><?= htmlspecialchars($prestation['nom_auteur']) ?></span>
+                </p>
+            <?php else: ?>
+                <div class="mb-6"></div>
+            <?php endif; ?>
             <?php if (!empty($prestation['description'])): ?>
             <p class="text-base-content/70 text-lg leading-relaxed mb-8 whitespace-pre-line">
                 <?= htmlspecialchars($prestation['description']) ?>
@@ -45,6 +52,87 @@
                 </div>
             </div>
 
+            <?php if (($prestation['type_auteur'] ?? '') === 'pro'): ?>
+                <div id="commande-erreur" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-4 text-sm"></div>
+                <form id="form-commande-service" class="bg-base-100 rounded-2xl border border-base-300 p-6 space-y-4 mb-4">
+                    <h3 class="font-semibold"><?= t('prestdet_order_title', "Précisez l'objet concerné") ?></h3>
+                    <div>
+                        <label class="block text-sm font-medium mb-1"><?= t('prestdet_order_object', "Nom de l'objet") ?> <span class="text-red-500">*</span></label>
+                        <input type="text" name="nom_objet" required class="input input-bordered w-full" placeholder="<?= t('prestdet_order_object_ph', 'Ex : Vélo de ville, commode en bois...') ?>">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1"><?= t('prestdet_order_photo', "Photo de l'objet") ?></label>
+                        <input type="url" name="photo_url" class="input input-bordered w-full" placeholder="<?= t('prestdet_order_photo_ph', 'https://... (lien vers une photo)') ?>">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1"><?= t('prestdet_order_desc', 'Précisions') ?></label>
+                        <textarea name="description_objet" rows="3" class="textarea textarea-bordered w-full" placeholder="<?= t('prestdet_order_desc_ph', "Décrivez l'état de l'objet et ce que vous attendez.") ?>"></textarea>
+                    </div>
+                    <button type="submit" id="btn-commande-service" class="w-full bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition">
+                        <?= t('prestdet_order_pay', 'Payer et commander —') ?> <?= formatPrix($prestation['prix'] ?? 0) ?>
+                    </button>
+                </form>
+                <a href="/prestations" class="block text-center bg-base-200 border border-base-300 px-8 py-3 rounded-xl font-medium hover:bg-base-300 transition">
+                    <?= t('prestdet_cta_back', 'Retour aux prestations') ?>
+                </a>
+                <script>
+                (function () {
+                    const form = document.getElementById('form-commande-service');
+                    const btn = document.getElementById('btn-commande-service');
+                    const errBox = document.getElementById('commande-erreur');
+                    const TOKEN = <?= json_encode($_SESSION['user']['token'] ?? '') ?>;
+                    const IS_LOGGED_IN = <?= json_encode(isset($_SESSION['user'])) ?>;
+                    const ID_SERVICE = <?= (int)($prestation['id'] ?? 0) ?>;
+
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        if (!IS_LOGGED_IN) {
+                            window.location.href = '/login';
+                            return;
+                        }
+                        errBox.classList.add('hidden');
+                        btn.disabled = true;
+                        const original = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        fetch('/api/services/commander', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+                            body: JSON.stringify({
+                                id_service: ID_SERVICE,
+                                nom_objet: form.nom_objet.value,
+                                photo_url: form.photo_url.value,
+                                description_objet: form.description_objet.value,
+                            })
+                        })
+                            .then(function (r) { return r.json(); })
+                            .then(function (json) {
+                                if (!json.success || !json.data || !json.data.id_commande) {
+                                    throw new Error((json && json.error) || 'Erreur');
+                                }
+                                return fetch('/api/services/commandes/' + json.data.id_commande + '/checkout', {
+                                    method: 'POST',
+                                    headers: { 'Authorization': 'Bearer ' + TOKEN }
+                                });
+                            })
+                            .then(function (r) { return r.json(); })
+                            .then(function (json) {
+                                if (json.success && json.data && json.data.checkout_url) {
+                                    window.location.href = json.data.checkout_url;
+                                    return;
+                                }
+                                throw new Error((json && json.error) || 'Erreur lors de la création du paiement');
+                            })
+                            .catch(function (e) {
+                                errBox.textContent = e.message || 'Une erreur est survenue.';
+                                errBox.classList.remove('hidden');
+                                btn.disabled = false;
+                                btn.innerHTML = original;
+                            });
+                    });
+                })();
+                </script>
+            <?php else: ?>
             <div class="flex flex-col sm:flex-row gap-4">
                 <a href="/demande-prestation"
                     class="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-neutral-800 transition text-center">
@@ -55,6 +143,7 @@
                     <?= t('prestdet_cta_back', 'Retour aux prestations') ?>
                 </a>
             </div>
+            <?php endif; ?>
         </div>
 
     </div>

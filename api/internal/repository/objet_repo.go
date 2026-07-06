@@ -9,14 +9,16 @@ import (
 type ObjetRepo struct{}
 
 type ObjetLigne struct {
-	ID          int
-	Type        string
-	Poids       string
-	Statut      string
-	IdPro       sql.NullInt64
-	IdConteneur int
-	Conteneur   string
-	CodeBarre   string
+	ID           int
+	Type         string
+	Poids        string
+	Statut       string
+	IdPro        sql.NullInt64
+	IdConteneur  int
+	Conteneur    string
+	CodeBarre    string
+	TitreAnnonce string
+	TypeAnnonce  string
 }
 
 func (ObjetRepo) ListerDisponibles(q Querier, idConteneur int) ([]ObjetLigne, error) {
@@ -25,9 +27,12 @@ func (ObjetRepo) ListerDisponibles(q Querier, idConteneur int) ([]ObjetLigne, er
 	                o.Id_Conteneurs, COALESCE(c.Localisation,''),
 	                COALESCE((SELECT cb.Code FROM Codes_Barres cb
 	                          WHERE cb.Id_Objets = o.Id_Objets AND cb.Statut = 'active'
-	                          ORDER BY cb.Id_Codes_Barres DESC LIMIT 1),'')
+	                          ORDER BY cb.Id_Codes_Barres DESC LIMIT 1),''),
+	                COALESCE(a.Titre,''), COALESCE(a.Type_annonce,'')
 	         FROM Objets o
 	         JOIN Conteneurs c ON c.Id_Conteneurs = o.Id_Conteneurs
+	         LEFT JOIN Demandes_conteneurs d ON d.Id_Demandes_conteneurs = o.Id_Demandes_conteneurs
+	         LEFT JOIN Annonces a ON a.Id_Annonces = d.Id_Annonces
 	         WHERE o.Statut = 'en_stock'`
 	args := []interface{}{}
 	if idConteneur > 0 {
@@ -44,9 +49,12 @@ func (ObjetRepo) ListerParPro(q Querier, idPro int) ([]ObjetLigne, error) {
 	                     o.Id_Conteneurs, COALESCE(c.Localisation,''),
 	                     COALESCE((SELECT cb.Code FROM Codes_Barres cb
 	                               WHERE cb.Id_Objets = o.Id_Objets AND cb.Statut = 'active'
-	                               ORDER BY cb.Id_Codes_Barres DESC LIMIT 1),'')
+	                               ORDER BY cb.Id_Codes_Barres DESC LIMIT 1),''),
+	                     COALESCE(a.Titre,''), COALESCE(a.Type_annonce,'')
 	              FROM Objets o
 	              JOIN Conteneurs c ON c.Id_Conteneurs = o.Id_Conteneurs
+	              LEFT JOIN Demandes_conteneurs d ON d.Id_Demandes_conteneurs = o.Id_Demandes_conteneurs
+	              LEFT JOIN Annonces a ON a.Id_Annonces = d.Id_Annonces
 	              WHERE o.Id_Professionnels = ? AND o.Statut IN ('reserve_pro','recupere')
 	              ORDER BY o.Id_Objets DESC`
 	return scanObjets(q, base, idPro)
@@ -61,7 +69,7 @@ func scanObjets(q Querier, query string, args ...interface{}) ([]ObjetLigne, err
 	liste := []ObjetLigne{}
 	for rows.Next() {
 		var o ObjetLigne
-		if err := rows.Scan(&o.ID, &o.Type, &o.Poids, &o.Statut, &o.IdPro, &o.IdConteneur, &o.Conteneur, &o.CodeBarre); err != nil {
+		if err := rows.Scan(&o.ID, &o.Type, &o.Poids, &o.Statut, &o.IdPro, &o.IdConteneur, &o.Conteneur, &o.CodeBarre, &o.TitreAnnonce, &o.TypeAnnonce); err != nil {
 			return nil, err
 		}
 		liste = append(liste, o)

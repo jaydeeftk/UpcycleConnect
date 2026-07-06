@@ -13,6 +13,16 @@
         <p class="text-base-content/60 mt-2"><?= t('catsvc_subtitle', 'Trouvez un professionnel pour réparer, transformer ou recycler vos objets.') ?></p>
     </div>
 
+    <div class="bg-black text-white rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-semibold"><?= t('catsvc_custom_title', 'Aucune prestation ne correspond à votre besoin ?') ?></h2>
+            <p class="text-white/70 text-sm"><?= t('catsvc_custom_text', "Décrivez votre projet sur mesure et recevez des devis de professionnels.") ?></p>
+        </div>
+        <a href="/demande-prestation" class="bg-white text-black px-6 py-3 rounded-xl font-medium hover:bg-gray-100 transition whitespace-nowrap">
+            <i class="fas fa-plus mr-2"></i><?= t('catsvc_custom_cta', 'Faire une demande sur mesure') ?>
+        </a>
+    </div>
+
     <div class="bg-base-100 rounded-2xl shadow-sm p-6 mb-8">
         <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>

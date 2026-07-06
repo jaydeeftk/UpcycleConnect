@@ -48,7 +48,7 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	checkout, err := facturationSvc.PreparerCheckout(body.Type, body.IdItem)
+	checkout, err := facturationSvc.PreparerCheckout(userID, body.Type, body.IdItem)
 	if err != nil {
 		httpx.WriteError(w, err)
 		return
@@ -98,9 +98,6 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"checkout_url": s.URL})
 }
 
-// PaiementSuccess est purement cosmétique : la page de retour Stripe LIT la
-// commande déjà persistée par le webhook (source de vérité). Elle ne déclenche
-// aucune écriture — si le client ferme l'onglet, le webhook persiste quand même.
 func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.URL.Query().Get("session_id")
 	if sessionID == "" {
@@ -115,10 +112,6 @@ func PaiementSuccess(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, commande)
 }
 
-// StripeWebhook est l'unique source de vérité de la persistance d'un paiement.
-// Stripe appelle cet endpoint sur checkout.session.completed : la signature est
-// vérifiée, puis la commande est enregistrée de façon idempotente et atomique
-// (Facture + Ligne_Facture + Paiement + Historique dans une seule transaction).
 func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -147,6 +140,33 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if s.PaymentStatus == stripe.CheckoutSessionPaymentStatusPaid {
+			if proAction := s.Metadata["pro_action"]; proAction == "achat_service" {
+				idCommande, _ := strconv.Atoi(s.Metadata["id_commande_service"])
+				if idCommande == 0 {
+					httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})
+					return
+				}
+				if err := serviceCatalogueSvc.FinaliserPaiement(idCommande, s.ID); err != nil {
+					httpx.JSONServerError(w, err)
+					return
+				}
+				httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})
+				return
+			}
+			if proAction := s.Metadata["pro_action"]; proAction == "devis_presta" {
+				idDevis, _ := strconv.Atoi(s.Metadata["id_devis"])
+				idUtilisateur, _ := strconv.Atoi(s.Metadata["id_utilisateur"])
+				if idDevis == 0 || idUtilisateur == 0 {
+					httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})
+					return
+				}
+				if err := devisSvc.FinaliserAcceptation(idUtilisateur, idDevis, s.ID); err != nil {
+					httpx.JSONServerError(w, err)
+					return
+				}
+				httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})
+				return
+			}
 			if proAction := s.Metadata["pro_action"]; proAction != "" {
 				idPro, _ := strconv.Atoi(s.Metadata["id_pro"])
 				if idPro == 0 {

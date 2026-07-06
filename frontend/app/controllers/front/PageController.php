@@ -11,13 +11,6 @@ class PageController
         ]);
     }
 
-    public function contact()
-    {
-        return view('front.contact.index', [
-            'title' => 'Contact - UpcycleConnect'
-        ]);
-    }
-
     public function mentionsLegales()
     {
         return view('front.legal.mentions', [

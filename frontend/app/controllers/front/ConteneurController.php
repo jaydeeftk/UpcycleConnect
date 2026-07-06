@@ -19,9 +19,33 @@ class ConteneurController
         } catch (\Exception $e) {
             $conteneurs = [];
         }
+
+        $idAnnonce = (int)($_GET['id_annonce'] ?? 0);
+        $annonceChoisie = null;
+        $annoncesEligibles = [];
+
+        if ($idAnnonce > 0) {
+            try {
+                $res = $this->api->get('/annonces/' . $idAnnonce);
+                $annonceChoisie = $res['data'] ?? $res;
+            } catch (\Exception $e) {
+                $annonceChoisie = null;
+            }
+        } else {
+            try {
+                $res = $this->api->get('/conteneurs/annonces-eligibles');
+                $annoncesEligibles = $res['data'] ?? (is_array($res) ? $res : []);
+            } catch (\Exception $e) {
+                $annoncesEligibles = [];
+            }
+        }
+
         return view('front.conteneurs.create', [
-            'title'      => 'Déposer un objet - UpcycleConnect',
-            'conteneurs' => $conteneurs,
+            'title'             => 'Déposer un objet - UpcycleConnect',
+            'conteneurs'        => $conteneurs,
+            'id_annonce'        => $idAnnonce,
+            'annonce_choisie'   => $annonceChoisie,
+            'annonces_eligibles'=> $annoncesEligibles,
         ]);
     }
     public function store()
@@ -30,14 +54,11 @@ class ConteneurController
             redirect('/login');
         }
         $data = [
-            'type_objet'   => $_POST['type_objet'] ?? '',
-            'description'  => $_POST['description'] ?? '',
             'etat_usure'   => $_POST['etat_usure'] ?? '',
             'conteneur_id' => (int)($_POST['conteneur_id'] ?? 0),
             'date_depot'   => $_POST['date_depot'] ?? '',
-            'destination'  => $_POST['destination'] ?? 'don',
-            'prix_vente'   => $_POST['destination'] === 'vente' ? (float)($_POST['prix_vente'] ?? 0) : 0,
-            'user_id'      => $_SESSION['user']['id'] ?? 0,
+            'photo_url'    => $_POST['photo_url'] ?? '',
+            'id_annonce'   => (int)($_POST['id_annonce'] ?? 0),
         ];
         try {
             $this->api->post('/conteneurs/demandes', $data);
@@ -58,7 +79,7 @@ class ConteneurController
             return view('front.conteneurs.create', [
                 'title'      => 'Déposer un objet - UpcycleConnect',
                 'conteneurs' => $conteneurs,
-                'error'      => 'Une erreur est survenue lors de l\'envoi de votre demande. Veuillez réessayer.',
+                'error'      => $e->getMessage(),
             ]);
         }
     }

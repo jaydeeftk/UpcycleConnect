@@ -508,6 +508,15 @@ func AdminGetFinances(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, agg)
 }
 
+func AdminGetCommissions(w http.ResponseWriter, r *http.Request) {
+	liste, err := facturationSvc.ListerCommissionsAdmin()
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, liste)
+}
+
 func AdminForumSujetAction(w http.ResponseWriter, r *http.Request) {
 	id, err := idDepuisChemin(r.URL.Path, "/api/admin/forum/sujets/")
 	if err != nil {
@@ -768,8 +777,6 @@ func AdminPlanningAction(w http.ResponseWriter, r *http.Request) {
 	}
 	uidInt, _ := strconv.Atoi(uid)
 	itemIdInt, _ := strconv.Atoi(itemId)
-	// Même seam in-tx que la désinscription user (DELETE réel + ré-incrément
-	// formation), au lieu de l'ancien DELETE sur la table orpheline Participer.
 	if err := inscriptionSvc.AnnulerInscription(uidInt, planType, itemIdInt); err != nil {
 		httpx.WriteError(w, err)
 		return

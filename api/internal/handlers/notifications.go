@@ -13,8 +13,6 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// MesNotifications retourne les notifications de l'utilisateur connecté
-// (toutes catégories de rôles), de la plus récente à la plus ancienne.
 func MesNotifications(w http.ResponseWriter, r *http.Request) {
 	uid := middleware.GetUserID(r)
 	if uid == 0 {
@@ -55,8 +53,6 @@ func MesNotifications(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// MarquerNotificationLue marque comme lue une notification appartenant à
-// l'utilisateur connecté. Route : /api/notifications/{id}/lu.
 func MarquerNotificationLue(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodPatch {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
@@ -134,7 +130,6 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Destinataires : tous (id 0) ou un seul. On recupere id + email.
 		type cible struct {
 			id    int
 			email string
@@ -158,7 +153,6 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 			cibles = append(cibles, c)
 		}
 
-		// Notification interne (toujours envoyee) + collecte ids/emails.
 		ids := make([]int, 0, len(cibles))
 		emails := make([]string, 0, len(cibles))
 		for _, c := range cibles {
@@ -172,7 +166,6 @@ func AdminNotificationAction(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// Canaux optionnels choisis par l'admin.
 		if body.EnvoyerPush {
 			go notifier.SendPush(ids, body.Contenu)
 		}

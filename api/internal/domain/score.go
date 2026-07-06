@@ -5,11 +5,14 @@ import "strconv"
 const ScoreMax = 1000
 
 type ActiviteParticulier struct {
-	Annonces   int
-	Evenements int
-	Sujets     int
-	Depots     int
-	Formations int
+	Annonces            int
+	Evenements          int
+	Sujets              int
+	Depots              int
+	Formations          int
+	DonsReserves        int
+	PrestationsAchetees int
+	DevisAcceptes       int
 }
 
 type LigneHistorique struct {
@@ -34,6 +37,9 @@ func CalculerScore(a ActiviteParticulier) (int, []LigneHistorique) {
 		{a.Sujets, 10, "Sujets créés dans le forum", "sujet(s)", "fa-comments", "text-orange-500"},
 		{a.Depots, 50, "Dépôts en conteneur validés", "dépôt(s)", "fa-recycle", "text-teal-500"},
 		{a.Formations, 15, "Formations réservées", "formation(s)", "fa-graduation-cap", "text-blue-500"},
+		{a.DonsReserves, 15, "Dons récupérés", "don(s)", "fa-hand-holding-heart", "text-pink-500"},
+		{a.PrestationsAchetees, 20, "Prestations catalogue achetées", "prestation(s)", "fa-store", "text-indigo-500"},
+		{a.DevisAcceptes, 25, "Demandes sur mesure abouties", "demande(s)", "fa-file-signature", "text-amber-500"},
 	}
 	total := 0
 	hist := []LigneHistorique{}
@@ -91,4 +97,30 @@ func BadgesPour(score int) (PalierBadge, *PalierBadge, []BadgeEtat) {
 		suivant = &s
 	}
 	return paliersBadge[actuel], suivant, tous
+}
+
+func TauxCommissionPourScore(score int) float64 {
+	switch {
+	case score >= 600:
+		return 0.06
+	case score >= 300:
+		return 0.08
+	case score >= 100:
+		return 0.09
+	default:
+		return 0.10
+	}
+}
+
+func ReductionFormationEvenementPourScore(score int) float64 {
+	switch {
+	case score >= 600:
+		return 0.10
+	case score >= 300:
+		return 0.07
+	case score >= 100:
+		return 0.03
+	default:
+		return 0
+	}
 }

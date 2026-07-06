@@ -27,6 +27,8 @@ type ObjetDTO struct {
 	IdConteneur    int      `json:"id_conteneur"`
 	Conteneur      string   `json:"conteneur"`
 	CodeBarre      string   `json:"code_barre"`
+	Titre          string   `json:"titre"`
+	TypeAnnonce    string   `json:"type_annonce"`
 	AllowedActions []string `json:"allowed_actions"`
 }
 
@@ -61,6 +63,8 @@ func (s *RecuperationService) versDTO(lignes []repository.ObjetLigne, idPro int)
 			IdConteneur:    l.IdConteneur,
 			Conteneur:      l.Conteneur,
 			CodeBarre:      l.CodeBarre,
+			Titre:          l.TitreAnnonce,
+			TypeAnnonce:    l.TypeAnnonce,
 			AllowedActions: domain.ActionsObjetPro(l.Statut, proprio, idPro),
 		})
 	}

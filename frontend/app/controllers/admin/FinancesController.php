@@ -36,4 +36,21 @@ class FinancesController
             'page_subtitle'   => 'Suivi du chiffre d\'affaires et des commissions'
         ]);
     }
+
+    public function commissions()
+    {
+        $commissions = [];
+        try {
+            $result = $this->api->get('/admin/commissions');
+            $commissions = isset($result['data']) && is_array($result['data']) ? $result['data'] : (is_array($result) && !isset($result['success']) ? $result : []);
+        } catch (\Exception $e) {
+            $commissions = [];
+        }
+
+        return view('admin.finances.commissions', [
+            'commissions'   => $commissions,
+            'page_title'    => 'Détail des commissions',
+            'page_subtitle' => 'Répartition entre UpcycleConnect et les vendeurs/prestataires',
+        ]);
+    }
 }

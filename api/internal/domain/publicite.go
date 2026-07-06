@@ -6,18 +6,9 @@ import (
 )
 
 const (
-	StatutPubliciteActive   = "active"
-	StatutPubliciteTerminee = "terminee"
-	StatutPubliciteAnnulee  = "annulee"
+	StatutPubliciteActive  = "active"
+	StatutPubliciteAnnulee = "annulee"
 )
-
-func StatutPubliciteValide(s string) bool {
-	switch s {
-	case StatutPubliciteActive, StatutPubliciteTerminee, StatutPubliciteAnnulee:
-		return true
-	}
-	return false
-}
 
 func ValiderPublicite(typ string, prix float64, dateDebut, dateFin time.Time) error {
 	if strings.TrimSpace(typ) == "" {

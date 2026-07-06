@@ -1,4 +1,3 @@
-// Package notifier encapsule l'envoi de notifications push via OneSignal.
 package notifier
 
 import (
@@ -11,13 +10,6 @@ import (
 	"time"
 )
 
-// SendPush envoie une notification push aux utilisateurs cibles, identifiés par
-// leur External ID (= Id_Utilisateurs, défini côté navigateur via OneSignal.login).
-//
-// No-op silencieux si ONESIGNAL_APP_ID ou ONESIGNAL_API_KEY ne sont pas
-// configurés : l'application fonctionne normalement sans push (la notification
-// in-app reste enregistrée en base par l'appelant). À appeler en goroutine :
-// l'envoi ne doit jamais bloquer ni faire échouer le flux métier.
 func SendPush(userIDs []int, contenu string) {
 	appID := os.Getenv("ONESIGNAL_APP_ID")
 	apiKey := os.Getenv("ONESIGNAL_API_KEY")
@@ -51,7 +43,6 @@ func SendPush(userIDs []int, contenu string) {
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	// Clé nouveau format (os_v2_...) -> "Key" ; clé legacy -> "Basic".
 	if strings.HasPrefix(apiKey, "os_v2_") {
 		req.Header.Set("Authorization", "Key "+apiKey)
 	} else {

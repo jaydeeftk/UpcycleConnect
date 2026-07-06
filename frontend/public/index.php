@@ -119,7 +119,33 @@ class Router
 $router = new Router();
 require __DIR__ . '/../routes/web.php';
 
-$maintenanceMiddleware = new \App\Middleware\MaintenanceMiddleware();
-$maintenanceMiddleware->handle(getCleanPath(), function() use ($router) {
-    $router->dispatch();
+function afficherErreur500($e = null)
+{
+    if ($e) {
+        error_log('Erreur 500 : ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    }
+    if (!headers_sent()) {
+        http_response_code(500);
+    }
+    view('errors.500');
+}
+
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        error_log('Erreur fatale : ' . $err['message'] . ' in ' . $err['file'] . ':' . $err['line']);
+        if (!headers_sent()) {
+            http_response_code(500);
+            view('errors.500');
+        }
+    }
 });
+
+try {
+    $maintenanceMiddleware = new \App\Middleware\MaintenanceMiddleware();
+    $maintenanceMiddleware->handle(getCleanPath(), function () use ($router) {
+        $router->dispatch();
+    });
+} catch (\Throwable $e) {
+    afficherErreur500($e);
+}

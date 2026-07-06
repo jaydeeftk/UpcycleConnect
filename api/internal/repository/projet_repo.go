@@ -15,6 +15,7 @@ type ProjetLigne struct {
 	Statut      string
 	DateDebut   string
 	NbEtapes    int
+	Origine     string
 }
 
 type ProjetCreation struct {
@@ -41,7 +42,12 @@ type EtapeCreation struct {
 func (ProjetRepo) ListerParPro(q Querier, idPro int) ([]ProjetLigne, error) {
 	rows, err := q.Query(
 		`SELECT p.Id_Projets, COALESCE(p.Titre,''), COALESCE(p.Description,''),
-			COALESCE(p.Statut,'en_cours'), COALESCE(p.Date_Debut,''), COUNT(e.Id_Etapes)
+			COALESCE(p.Statut,'en_cours'), COALESCE(p.Date_Debut,''), COUNT(e.Id_Etapes),
+			CASE
+				WHEN p.Id_Demandes_prestations IS NOT NULL THEN 'devis'
+				WHEN p.Id_Commandes_Services IS NOT NULL THEN 'catalogue'
+				ELSE 'manuel'
+			END
 		 FROM Projets p
 		 LEFT JOIN Etapes e ON e.Id_Projets = p.Id_Projets
 		 WHERE p.Id_Professionnels = ?
@@ -56,7 +62,7 @@ func (ProjetRepo) ListerParPro(q Querier, idPro int) ([]ProjetLigne, error) {
 	liste := []ProjetLigne{}
 	for rows.Next() {
 		var p ProjetLigne
-		if err := rows.Scan(&p.ID, &p.Titre, &p.Description, &p.Statut, &p.DateDebut, &p.NbEtapes); err != nil {
+		if err := rows.Scan(&p.ID, &p.Titre, &p.Description, &p.Statut, &p.DateDebut, &p.NbEtapes, &p.Origine); err != nil {
 			return nil, err
 		}
 		liste = append(liste, p)
@@ -72,6 +78,32 @@ func (ProjetRepo) Creer(q Querier, in ProjetCreation) (int, error) {
 	res, err := q.Exec(
 		"INSERT INTO Projets (Titre, Description, Date_Debut, Statut, Id_Professionnels) VALUES (?,?,?,?,?)",
 		in.Titre, in.Description, dateArg, in.Statut, in.IdPro,
+	)
+	if err != nil {
+		return 0, err
+	}
+	id, err := res.LastInsertId()
+	return int(id), err
+}
+
+func (ProjetRepo) CreerPourPrestation(q Querier, titre string, idPro, idDemandePresta int) (int, error) {
+	res, err := q.Exec(
+		`INSERT INTO Projets (Titre, Description, Date_Debut, Statut, Id_Professionnels, Id_Demandes_prestations)
+		 VALUES (?, '', NOW(), 'en_cours', ?, ?)`,
+		titre, idPro, idDemandePresta,
+	)
+	if err != nil {
+		return 0, err
+	}
+	id, err := res.LastInsertId()
+	return int(id), err
+}
+
+func (ProjetRepo) CreerPourCommandeService(q Querier, titre string, idPro, idCommandeService int) (int, error) {
+	res, err := q.Exec(
+		`INSERT INTO Projets (Titre, Description, Date_Debut, Statut, Id_Professionnels, Id_Commandes_Services)
+		 VALUES (?, '', NOW(), 'en_cours', ?, ?)`,
+		titre, idPro, idCommandeService,
 	)
 	if err != nil {
 		return 0, err
@@ -101,6 +133,34 @@ func (ProjetRepo) ProjetPourMAJ(q Querier, idProjet int) (domain.ProjetSnapshot,
 func (ProjetRepo) MettreAJourStatut(q Querier, idProjet int, statut string) error {
 	_, err := q.Exec("UPDATE Projets SET Statut = ? WHERE Id_Projets = ?", statut, idProjet)
 	return err
+}
+
+func (ProjetRepo) IdDemandePrestationDuProjet(q Querier, idProjet int) (int, error) {
+	var id int
+	err := q.QueryRow(
+		"SELECT COALESCE(Id_Demandes_prestations,0) FROM Projets WHERE Id_Projets = ?", idProjet,
+	).Scan(&id)
+	return id, err
+}
+
+func (ProjetRepo) IdCommandeServiceDuProjet(q Querier, idProjet int) (int, error) {
+	var id int
+	err := q.QueryRow(
+		"SELECT COALESCE(Id_Commandes_Services,0) FROM Projets WHERE Id_Projets = ?", idProjet,
+	).Scan(&id)
+	return id, err
+}
+
+func (ProjetRepo) ProjetDeLaDemandePrestation(q Querier, idDemande int) (int, error) {
+	var id int
+	err := q.QueryRow("SELECT Id_Projets FROM Projets WHERE Id_Demandes_prestations = ?", idDemande).Scan(&id)
+	return id, err
+}
+
+func (ProjetRepo) ProjetDeLaCommandeService(q Querier, idCommande int) (int, error) {
+	var id int
+	err := q.QueryRow("SELECT Id_Projets FROM Projets WHERE Id_Commandes_Services = ?", idCommande).Scan(&id)
+	return id, err
 }
 
 func (ProjetRepo) MettreAJourContenu(q Querier, idProjet int, titre, description string) error {

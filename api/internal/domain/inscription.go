@@ -3,18 +3,11 @@ package domain
 import "time"
 
 const (
-	StatutEvtBrouillon = "brouillon"
-	StatutEvtAVenir    = "a_venir"
-	StatutEvtEnCours   = "en_cours"
-	StatutEvtTermine   = "termine"
-	StatutEvtAnnule    = "annule"
+	StatutEvtAVenir = "a_venir"
 )
 
 const (
-	StatutFormEnAttente = "en_attente"
-	StatutFormActif     = "actif"
-	StatutFormRejete    = "rejete"
-	StatutFormCloturee  = "cloturee"
+	StatutFormActif = "actif"
 )
 
 type EvenementSnapshot struct {

@@ -133,8 +133,6 @@ func (s *ForumService) ConsulterSujet(idUtilisateur int, estAdmin bool, idSujet 
 	return dto, nil
 }
 
-// ListerReponses renvoie juste les reponses d'un sujet, sans incrementer les vues.
-// Utilise par le polling temps reel du forum (evite de fausser le compteur de vues).
 func (s *ForumService) ListerReponses(idSujet int) ([]ReponseDTO, error) {
 	reps, err := s.repo.ReponsesDuSujet(database.DB, idSujet)
 	if err != nil {
@@ -283,7 +281,6 @@ func (s *ForumService) SupprimerReponse(idReponse int) error {
 	return nil
 }
 
-// SupprimerReponseUtilisateur permet a un particulier de supprimer sa propre reponse.
 func (s *ForumService) SupprimerReponseUtilisateur(idUtilisateur, idReponse int) error {
 	auteur, err := s.repo.AuteurReponse(database.DB, idReponse)
 	if errors.Is(err, sql.ErrNoRows) {

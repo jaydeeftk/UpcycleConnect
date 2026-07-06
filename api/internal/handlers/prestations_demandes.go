@@ -11,10 +11,6 @@ import (
 	"upcycleconnect/internal/services"
 )
 
-// PrestationsDemandes gere les demandes de prestation du particulier connecte.
-//   POST /api/prestations/demandes  -> creer une demande
-//   GET  /api/prestations/demandes  -> lister MES demandes
-// L'identite vient toujours du JWT (jamais du corps ni de l'URL).
 func PrestationsDemandes(w http.ResponseWriter, r *http.Request) {
 	uid := middleware.GetUserID(r)
 	if uid == 0 {
@@ -63,7 +59,6 @@ func creerDemandePrestation(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 	id, _ := res.LastInsertId()
 
-	// Email de confirmation au demandeur (fail-safe : ignore si SMTP non configure).
 	go func(userID int, objet string) {
 		var email, prenom string
 		if e := database.DB.QueryRow("SELECT Email, COALESCE(Prenom,'') FROM Utilisateurs WHERE Id_Utilisateurs = ?", userID).Scan(&email, &prenom); e == nil && email != "" {

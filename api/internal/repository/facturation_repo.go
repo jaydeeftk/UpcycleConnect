@@ -107,9 +107,6 @@ func (FacturationRepo) ContratsDuProfessionnel(q Querier, idProfessionnel int) (
 	return out, rows.Err()
 }
 
-// FacturationDuProfessionnel calcule l'agregat de facturation d'un pro :
-// somme des Contrats actifs (ventiles par frequence/type), somme des
-// commissions prelevees sur les factures liees au pro (descriptif 3.1).
 func (FacturationRepo) FacturationDuProfessionnel(q Querier, idProfessionnel int) (FacturationProAgregat, error) {
 	var a FacturationProAgregat
 	err := q.QueryRow(
@@ -214,9 +211,6 @@ func (FacturationRepo) MajStatutContrat(q Querier, idContrat int, statut string)
 	return err
 }
 
-// ContratOwnerEtStatut retourne le professionnel propriétaire et le statut d'un
-// contrat (verrouillé pour mise à jour), afin de vérifier l'appartenance avant
-// une action initiée par le professionnel lui-même.
 func (FacturationRepo) ContratOwnerEtStatut(q Querier, idContrat int) (int, string, error) {
 	var idPro int
 	var statut string
@@ -364,24 +358,110 @@ func (FacturationRepo) AnnoncePourAchat(q Querier, idAnnonce int) (AnnonceAchat,
 	return a, err
 }
 
-func (FacturationRepo) MarquerAnnonceVendue(q Querier, idAnnonce int) error {
-	_, err := q.Exec("UPDATE Annonces SET Statut = 'vendue' WHERE Id_Annonces = ?", idAnnonce)
+func (FacturationRepo) MarquerAnnonceVendue(q Querier, idAnnonce, idAcheteur int) error {
+	_, err := q.Exec(
+		"UPDATE Annonces SET Statut = 'vendue', Id_Acheteur_Utilisateur = ? WHERE Id_Annonces = ?",
+		idAcheteur, idAnnonce,
+	)
 	return err
 }
 
 type CommissionCreation struct {
-	Taux         float64
-	TauxApplique float64
-	Montant      float64
-	IdAnnonce    int
-	IdFacture    int64
+	Taux                float64
+	TauxApplique        float64
+	Montant             float64
+	IdAnnonce           int
+	IdDevis             int
+	IdCommandesServices int
+	IdFacture           int64
+}
+
+type CommissionDetailLigne struct {
+	ID                int
+	Date              string
+	Type              string
+	Description       string
+	PrixTotal         float64
+	Taux              float64
+	MontantCommission float64
+	NomVendeur        string
+}
+
+func (FacturationRepo) ListerCommissionsPourAdmin(q Querier) ([]CommissionDetailLigne, error) {
+	rows, err := q.Query(
+		`SELECT c.Id_Commission, COALESCE(DATE_FORMAT(c.Date_,'%d/%m/%Y %H:%i'),''), 'annonce',
+			COALESCE(a.Titre,''), COALESCE(a.Prix,0), c.Taux, c.Montant,
+			TRIM(CONCAT(COALESCE(uv.Prenom,''),' ',COALESCE(uv.Nom,'')))
+		 FROM Commissions c
+		 JOIN Annonces a ON a.Id_Annonces = c.Id_Annonces
+		 LEFT JOIN Particuliers pv ON pv.Id_Particuliers = a.Id_Particuliers
+		 LEFT JOIN Professionnels_artisans pav ON pav.Id_Professionnels = a.Id_Professionnels
+		 LEFT JOIN Utilisateurs uv ON uv.Id_Utilisateurs = COALESCE(pv.Id_Utilisateurs, pav.Id_Utilisateurs)
+		 WHERE c.Id_Annonces IS NOT NULL
+		 UNION ALL
+		 SELECT c.Id_Commission, COALESCE(DATE_FORMAT(c.Date_,'%d/%m/%Y %H:%i'),''), 'devis',
+			COALESCE(dp.Nom_objet,''), COALESCE(d.Prix,0), c.Taux, c.Montant,
+			TRIM(CONCAT(COALESCE(uv.Prenom,''),' ',COALESCE(uv.Nom,'')))
+		 FROM Commissions c
+		 JOIN Devis d ON d.Id_Devis = c.Id_Devis
+		 JOIN Demandes_prestations dp ON dp.Id_Demandes_prestations = d.Id_Demandes_prestations
+		 JOIN Professionnels_artisans pav ON pav.Id_Professionnels = d.Id_Professionnels
+		 JOIN Utilisateurs uv ON uv.Id_Utilisateurs = pav.Id_Utilisateurs
+		 WHERE c.Id_Devis IS NOT NULL
+		 ORDER BY 2 DESC`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []CommissionDetailLigne{}
+	for rows.Next() {
+		var l CommissionDetailLigne
+		if err := rows.Scan(&l.ID, &l.Date, &l.Type, &l.Description, &l.PrixTotal, &l.Taux, &l.MontantCommission, &l.NomVendeur); err != nil {
+			return nil, err
+		}
+		out = append(out, l)
+	}
+	return out, rows.Err()
+}
+
+func (FacturationRepo) ListerCommissionsPourPro(q Querier, idPro int) ([]CommissionDetailLigne, error) {
+	rows, err := q.Query(
+		`SELECT c.Id_Commission, COALESCE(DATE_FORMAT(c.Date_,'%d/%m/%Y %H:%i'),''), 'annonce',
+			COALESCE(a.Titre,''), COALESCE(a.Prix,0), c.Taux, c.Montant, ''
+		 FROM Commissions c
+		 JOIN Annonces a ON a.Id_Annonces = c.Id_Annonces
+		 WHERE c.Id_Annonces IS NOT NULL AND a.Id_Professionnels = ?
+		 UNION ALL
+		 SELECT c.Id_Commission, COALESCE(DATE_FORMAT(c.Date_,'%d/%m/%Y %H:%i'),''), 'devis',
+			COALESCE(dp.Nom_objet,''), COALESCE(d.Prix,0), c.Taux, c.Montant, ''
+		 FROM Commissions c
+		 JOIN Devis d ON d.Id_Devis = c.Id_Devis
+		 JOIN Demandes_prestations dp ON dp.Id_Demandes_prestations = d.Id_Demandes_prestations
+		 WHERE c.Id_Devis IS NOT NULL AND d.Id_Professionnels = ?
+		 ORDER BY 2 DESC`,
+		idPro, idPro,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []CommissionDetailLigne{}
+	for rows.Next() {
+		var l CommissionDetailLigne
+		if err := rows.Scan(&l.ID, &l.Date, &l.Type, &l.Description, &l.PrixTotal, &l.Taux, &l.MontantCommission, &l.NomVendeur); err != nil {
+			return nil, err
+		}
+		out = append(out, l)
+	}
+	return out, rows.Err()
 }
 
 func (FacturationRepo) CreerCommission(q Querier, c CommissionCreation) error {
 	_, err := q.Exec(
-		`INSERT INTO Commissions (Taux, taux_applique, Montant, Date_, Id_Annonces, Id_Facture)
-		 VALUES (?, ?, ?, NOW(), ?, ?)`,
-		c.Taux, c.TauxApplique, c.Montant, c.IdAnnonce, c.IdFacture,
+		`INSERT INTO Commissions (Taux, taux_applique, Montant, Date_, Id_Annonces, Id_Devis, Id_Commandes_Services, Id_Facture)
+		 VALUES (?, ?, ?, NOW(), NULLIF(?,0), NULLIF(?,0), NULLIF(?,0), ?)`,
+		c.Taux, c.TauxApplique, c.Montant, c.IdAnnonce, c.IdDevis, c.IdCommandesServices, c.IdFacture,
 	)
 	return err
 }
@@ -467,6 +547,14 @@ func (FacturationRepo) IdParticulier(q Querier, idUtilisateur int) (int, error) 
 	return id, err
 }
 
+func (FacturationRepo) IdUtilisateurDuPro(q Querier, idPro int) (int, error) {
+	var id int
+	err := q.QueryRow(
+		"SELECT Id_Utilisateurs FROM Professionnels_artisans WHERE Id_Professionnels = ?", idPro,
+	).Scan(&id)
+	return id, err
+}
+
 func (FacturationRepo) CreerHistorique(q Querier, idParticulier int, statut, observations string) error {
 	_, err := q.Exec(
 		"INSERT INTO Historique (Date_Depot, Statut_depot, Observations, Id_Particuliers) VALUES (NOW(), ?, ?, ?)",
@@ -475,8 +563,6 @@ func (FacturationRepo) CreerHistorique(q Querier, idParticulier int, statut, obs
 	return err
 }
 
-// NotifierAdmins dépose une notification dans le centre de notifications de
-// chaque administrateur (best-effort, hors transaction de paiement).
 func (FacturationRepo) NotifierAdmins(q Querier, contenu string) error {
 	_, err := q.Exec(
 		`INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs)
@@ -497,8 +583,6 @@ func (FacturationRepo) CreerPaiement(q Querier, p PaiementCreation) (int64, erro
 	}
 	return res.LastInsertId()
 }
-
-// --- Remboursements (item 16) ---
 
 type DemandeRembLigne struct {
 	ID            int

@@ -158,3 +158,106 @@ func ServeFacturePDF(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "inline; filename=facture-"+f.numero+".pdf")
 	http.ServeFile(w, r, path)
 }
+
+type contratDoc struct {
+	id            int
+	dateSignature string
+	dateDebut     string
+	dateFin       string
+	typ           string
+	idPro         int
+	idUtilisateur int
+	nom           string
+	prenom        string
+	nomEntreprise string
+}
+
+func chargerContrat(id int) (contratDoc, error) {
+	var c contratDoc
+	err := database.DB.QueryRow(
+		`SELECT c.Id_Contrats, COALESCE(DATE_FORMAT(c.Date_signature,'%d/%m/%Y'),''),
+			COALESCE(DATE_FORMAT(c.Date_debut,'%d/%m/%Y'),''), COALESCE(DATE_FORMAT(c.Date_fin,'%d/%m/%Y'),''),
+			COALESCE(c.Type,''), c.Id_Professionnels, pa.Id_Utilisateurs,
+			COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(pa.Nom_Entreprise,'')
+		FROM Contrats c
+		JOIN Professionnels_artisans pa ON pa.Id_Professionnels = c.Id_Professionnels
+		JOIN Utilisateurs u ON u.Id_Utilisateurs = pa.Id_Utilisateurs
+		WHERE c.Id_Contrats = ?`, id,
+	).Scan(&c.id, &c.dateSignature, &c.dateDebut, &c.dateFin, &c.typ, &c.idPro, &c.idUtilisateur, &c.nom, &c.prenom, &c.nomEntreprise)
+	return c, err
+}
+
+func contratAccessible(r *http.Request, c contratDoc) bool {
+	return middleware.GetRole(r) == "admin" || c.idUtilisateur == middleware.GetUserID(r)
+}
+
+func cheminContratPDF(id int) string {
+	return filepath.Join("storage", "contrats", strconv.Itoa(id)+".pdf")
+}
+
+func ecrireContratPDF(c contratDoc) error {
+	path := cheminContratPDF(c.id)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	tr := pdf.UnicodeTranslatorFromDescriptor("")
+	pdf.AddPage()
+
+	pdf.SetFont("Arial", "B", 20)
+	pdf.Cell(0, 12, "UpcycleConnect")
+	pdf.Ln(14)
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(0, 10, tr("Contrat n\u00b0"+strconv.Itoa(c.id)))
+	pdf.Ln(12)
+
+	pdf.SetFont("Arial", "", 11)
+	entreprise := c.nomEntreprise
+	if entreprise == "" {
+		entreprise = c.prenom + " " + c.nom
+	}
+	pdf.Cell(0, 8, tr("Professionnel : "+entreprise))
+	pdf.Ln(7)
+	pdf.Cell(0, 8, tr("Type de contrat : "+c.typ))
+	pdf.Ln(7)
+	pdf.Cell(0, 8, tr("Date de signature : "+c.dateSignature))
+	pdf.Ln(7)
+	pdf.Cell(0, 8, tr("Date de debut : "+c.dateDebut))
+	pdf.Ln(7)
+	pdf.Cell(0, 8, tr("Date de fin : "+c.dateFin))
+	pdf.Ln(16)
+
+	pdf.SetFont("Arial", "I", 9)
+	pdf.Cell(0, 6, tr("Document genere le "+time.Now().Format("02/01/2006")))
+	return pdf.OutputFileAndClose(path)
+}
+
+func ServeContratPDF(w http.ResponseWriter, r *http.Request) {
+	id, err := idDepuisChemin(r.URL.Path, "/api/contrats/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	c, err := chargerContrat(id)
+	if errors.Is(err, sql.ErrNoRows) {
+		httpx.JSONError(w, http.StatusNotFound, "Contrat introuvable")
+		return
+	} else if err != nil {
+		httpx.JSONServerError(w, err)
+		return
+	}
+	if !contratAccessible(r, c) {
+		httpx.JSONError(w, http.StatusForbidden, "Accès refusé")
+		return
+	}
+	path := cheminContratPDF(id)
+	if _, statErr := os.Stat(path); statErr != nil {
+		if err := ecrireContratPDF(c); err != nil {
+			httpx.JSONServerError(w, err)
+			return
+		}
+	}
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Disposition", "inline; filename=contrat-"+strconv.Itoa(c.id)+".pdf")
+	http.ServeFile(w, r, path)
+}

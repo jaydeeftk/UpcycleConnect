@@ -23,7 +23,7 @@ $sections = [
         ['url' => '/admin/factures',   'icon' => 'fas fa-file-invoice-dollar', 'label' => t('adm_nav_factures', 'Factures')],
     ],
     'COMMUNICATION' => [
-        ['url' => '/admin/messages',      'icon' => 'fas fa-envelope-open-text', 'label' => t('adm_nav_messages', 'Messages')],
+        ['url' => '/admin/tickets',       'icon' => 'fas fa-headset',            'label' => t('adm_nav_tickets', 'Tickets support')],
         ['url' => '/admin/notifications', 'icon' => 'fas fa-bell',               'label' => t('adm_nav_notifications', 'Notifications')],
         ['url' => '/admin/forum',         'icon' => 'fas fa-comments',           'label' => t('adm_nav_forum', 'Forum')],
     ],

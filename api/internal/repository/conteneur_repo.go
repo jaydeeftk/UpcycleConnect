@@ -63,16 +63,68 @@ type DemandeCreation struct {
 	PrixVente     float64
 	PhotoUrl      string
 	IdParticulier int
+	IdAnnonce     int
+}
+
+func (ConteneurRepo) AnnoncePourDepot(q Querier, idAnnonce, idUtilisateur int) (titre, description, categorie, typeAnnonce, statut string, prix float64, err error) {
+	err = q.QueryRow(
+		`SELECT COALESCE(a.Titre,''), COALESCE(a.Description,''), COALESCE(a.Categorie,''),
+			COALESCE(a.Type_annonce,''), COALESCE(a.Statut,''), COALESCE(a.Prix,0)
+		 FROM Annonces a
+		 JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
+		 WHERE a.Id_Annonces = ? AND p.Id_Utilisateurs = ?`,
+		idAnnonce, idUtilisateur,
+	).Scan(&titre, &description, &categorie, &typeAnnonce, &statut, &prix)
+	return
+}
+
+func (ConteneurRepo) AnnonceDejaEnDepot(q Querier, idAnnonce int) (bool, error) {
+	var n int
+	err := q.QueryRow("SELECT COUNT(*) FROM Demandes_conteneurs WHERE Id_Annonces = ?", idAnnonce).Scan(&n)
+	return n > 0, err
+}
+
+type AnnonceEligibleDepot struct {
+	ID      int
+	Titre   string
+	TypeAnn string
+	Statut  string
+	Prix    float64
+}
+
+func (ConteneurRepo) ListerAnnoncesEligiblesPourDepot(q Querier, idUtilisateur int) ([]AnnonceEligibleDepot, error) {
+	rows, err := q.Query(
+		`SELECT a.Id_Annonces, COALESCE(a.Titre,''), COALESCE(a.Type_annonce,''), COALESCE(a.Statut,''), COALESCE(a.Prix,0)
+		 FROM Annonces a
+		 JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
+		 WHERE p.Id_Utilisateurs = ? AND a.Statut IN ('vendue','reservee')
+		   AND NOT EXISTS (SELECT 1 FROM Demandes_conteneurs d WHERE d.Id_Annonces = a.Id_Annonces)
+		 ORDER BY a.Id_Annonces DESC`,
+		idUtilisateur,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []AnnonceEligibleDepot{}
+	for rows.Next() {
+		var a AnnonceEligibleDepot
+		if err := rows.Scan(&a.ID, &a.Titre, &a.TypeAnn, &a.Statut, &a.Prix); err != nil {
+			return nil, err
+		}
+		out = append(out, a)
+	}
+	return out, rows.Err()
 }
 
 func (ConteneurRepo) CreerDemande(q Querier, d DemandeCreation) (int64, error) {
 	res, err := q.Exec(
 		`INSERT INTO Demandes_conteneurs
 		   (Type_objet, Description, Etat_usure, Id_Conteneurs, Date_depot, Destination,
-		    Prix_vente, Photo_url, Statut, Date_demande, Id_Particuliers)
-		 VALUES (?, ?, ?, ?, NULLIF(?, ''), ?, ?, NULLIF(?, ''), 'en_attente', NOW(), ?)`,
+		    Prix_vente, Photo_url, Statut, Date_demande, Id_Particuliers, Id_Annonces)
+		 VALUES (?, ?, ?, ?, NULLIF(?, ''), ?, ?, NULLIF(?, ''), 'en_attente', NOW(), ?, NULLIF(?, 0))`,
 		d.TypeObjet, d.Description, d.EtatUsure, d.IdConteneur, d.DateDepot,
-		d.Destination, d.PrixVente, d.PhotoUrl, d.IdParticulier,
+		d.Destination, d.PrixVente, d.PhotoUrl, d.IdParticulier, d.IdAnnonce,
 	)
 	if err != nil {
 		return 0, err
@@ -80,13 +132,23 @@ func (ConteneurRepo) CreerDemande(q Querier, d DemandeCreation) (int64, error) {
 	return res.LastInsertId()
 }
 
+func (ConteneurRepo) AcheteurDeAnnonce(q Querier, idAnnonce int) (idUtilisateur int, nom, email string, err error) {
+	err = q.QueryRow(
+		`SELECT u.Id_Utilisateurs, TRIM(CONCAT(COALESCE(u.Prenom,''),' ',COALESCE(u.Nom,''))), COALESCE(u.Email,'')
+		 FROM Annonces a JOIN Utilisateurs u ON u.Id_Utilisateurs = a.Id_Acheteur_Utilisateur
+		 WHERE a.Id_Annonces = ?`,
+		idAnnonce,
+	).Scan(&idUtilisateur, &nom, &email)
+	return
+}
+
 func (ConteneurRepo) DemandePourMAJ(q Querier, idDemande int) (domain.DemandeSnapshot, error) {
 	var s domain.DemandeSnapshot
 	err := q.QueryRow(
-		`SELECT COALESCE(Statut,''), Id_Particuliers, COALESCE(Id_Conteneurs,0), COALESCE(Type_objet,'')
+		`SELECT COALESCE(Statut,''), Id_Particuliers, COALESCE(Id_Conteneurs,0), COALESCE(Type_objet,''), COALESCE(Id_Annonces,0)
 		 FROM Demandes_conteneurs WHERE Id_Demandes_conteneurs = ? FOR UPDATE`,
 		idDemande,
-	).Scan(&s.Statut, &s.Proprietaire, &s.IdConteneur, &s.Type)
+	).Scan(&s.Statut, &s.Proprietaire, &s.IdConteneur, &s.Type, &s.IdAnnonce)
 	return s, err
 }
 
@@ -122,38 +184,6 @@ func (ConteneurRepo) AssignerCodeEtValider(q Querier, idDemande int, code string
 		code, idBox, idDemande,
 	)
 	return err
-}
-
-// DemandeAccesBox : retourne (idBox lie, statut). Sert au controle strict de
-// l'endpoint d'ouverture : un code n'ouvre QUE le tiroir lie a sa demande.
-func (ConteneurRepo) DemandeAccesBox(q Querier, codeAcces string) (int, string, error) {
-	var idBox int
-	var statut string
-	err := q.QueryRow(
-		`SELECT COALESCE(Id_Box, 0), COALESCE(Statut, '')
-		 FROM Demandes_conteneurs WHERE Code_acces = ?`,
-		codeAcces,
-	).Scan(&idBox, &statut)
-	return idBox, statut, err
-}
-
-// BoxInfo : details d'un UpcycleBox pour l'affichage (admin / particulier).
-type BoxInfo struct {
-	ID          int
-	Reference   string
-	Taille      string
-	Statut      string
-	IdConteneur int
-}
-
-func (ConteneurRepo) BoxParID(q Querier, idBox int) (BoxInfo, error) {
-	var b BoxInfo
-	err := q.QueryRow(
-		`SELECT Id_Box, COALESCE(Reference,''), COALESCE(Taille,'standard'),
-		        COALESCE(Statut,''), Id_Conteneurs
-		 FROM Box WHERE Id_Box = ?`, idBox,
-	).Scan(&b.ID, &b.Reference, &b.Taille, &b.Statut, &b.IdConteneur)
-	return b, err
 }
 
 func (ConteneurRepo) MajStatutDemande(q Querier, idDemande int, statut string) error {

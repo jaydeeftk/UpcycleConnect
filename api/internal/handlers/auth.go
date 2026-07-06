@@ -23,7 +23,6 @@ import (
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 
-// motDePasseRobuste : 8 caractères minimum, au moins une lettre et un chiffre.
 func motDePasseRobuste(p string) bool {
 	if len(p) < 8 {
 		return false
@@ -40,8 +39,6 @@ func motDePasseRobuste(p string) bool {
 	return hasLetter && hasDigit
 }
 
-// domaineEmailAccepteCourrier vérifie que le domaine de l'email existe et peut
-// recevoir du courrier (enregistrements MX, ou à défaut A/AAAA).
 func domaineEmailAccepteCourrier(email string) bool {
 	at := strings.LastIndex(email, "@")
 	if at < 0 {
@@ -144,7 +141,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// --- Validation stricte côté serveur (le formulaire est contournable) ---
 	body.Nom = strings.TrimSpace(body.Nom)
 	body.Prenom = strings.TrimSpace(body.Prenom)
 	body.Email = strings.ToLower(strings.TrimSpace(body.Email))
@@ -180,7 +176,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 		siret = chiffresSeulement(body.Siret)
 		if nomVerifie != "" {
-			body.NomEntreprise = nomVerifie // nom officiel issu du registre SIRENE
+			body.NomEntreprise = nomVerifie
 		}
 		if body.NomEntreprise == "" {
 			httpx.JSONError(w, http.StatusBadRequest, "Le nom de l'entreprise est requis.")
@@ -197,8 +193,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 
-	// Confirmation par email : activée seulement si le SMTP est configuré. Sinon le
-	// compte est créé actif (secours qui n'empêche jamais l'inscription).
 	confirmationRequise := os.Getenv("SMTP_HOST") != ""
 	statutInitial := "actif"
 	tokenConfirmation := ""
@@ -246,7 +240,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// genererTokenConfirmation produit un jeton aléatoire (hex) pour l'activation du compte.
 func genererTokenConfirmation() string {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -255,8 +248,6 @@ func genererTokenConfirmation() string {
 	return hex.EncodeToString(b)
 }
 
-// ConfirmerCompte active un compte via son jeton (lien reçu par email).
-// GET /api/auth/confirmer?token=...
 func ConfirmerCompte(w http.ResponseWriter, r *http.Request) {
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
@@ -283,8 +274,6 @@ func ConfirmerCompte(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Compte activé"})
 }
 
-// DemanderReset envoie un email de reinitialisation. Anti-enumeration : repond
-// toujours 200 (ne revele jamais si l'email existe). POST /api/auth/mot-de-passe-oublie
 func DemanderReset(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Email string `json:"email"`
@@ -315,8 +304,6 @@ func DemanderReset(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, reponse)
 }
 
-// ReinitialiserMotDePasse consomme un jeton valide et fixe un nouveau mot de passe.
-// POST /api/auth/reinitialiser  {token, mot_de_passe}
 func ReinitialiserMotDePasse(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Token    string `json:"token"`

@@ -8,6 +8,7 @@ const (
 	StatutAnnRefusee   = "refusee"
 	StatutAnnRetiree   = "retiree"
 	StatutAnnVendue    = "vendue"
+	StatutAnnReservee  = "reservee"
 )
 
 const (
@@ -60,12 +61,26 @@ func ValiderAchatAnnonce(statut, typeAnnonce string, prix float64) error {
 	return nil
 }
 
+func ValiderReservationDon(statut, typeAnnonce string) error {
+	if typeAnnonce != TypeAnnDon {
+		return EtatInvalide("Cette annonce n'est pas un don")
+	}
+	if statut != StatutAnnValidee {
+		return EtatInvalide("Ce don n'est plus disponible")
+	}
+	return nil
+}
+
+func AnnonceEligiblePourDepot(statut string) bool {
+	return statut == StatutAnnVendue || statut == StatutAnnReservee
+}
+
 type AnnonceSnapshot struct {
 	Statut       string
 	Type         string
 	Prix         float64
-	Proprietaire int  // Id_Particuliers ou Id_Professionnels selon EstPro
-	EstPro       bool // true si le propriétaire est un professionnel
+	Proprietaire int
+	EstPro       bool
 }
 
 func (a AnnonceSnapshot) PeutValider() error {
@@ -93,7 +108,7 @@ func AnnonceVisible(statut string, estProprietaire, estAdmin bool) bool {
 	if estProprietaire || estAdmin {
 		return true
 	}
-	return statut == StatutAnnValidee || statut == StatutAnnVendue
+	return statut == StatutAnnValidee || statut == StatutAnnVendue || statut == StatutAnnReservee
 }
 
 func (a AnnonceSnapshot) ActionsAnnonce(estProprietaire, estAdmin bool) []string {

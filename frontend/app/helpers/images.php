@@ -54,7 +54,6 @@ if (!function_exists('uc_image')) {
                 'photo-1595407753234-0882f1e77954',
                 'photo-1584820927498-cfe5211fd8bf',
             ],
-            // Conseils & forum : illustrations eco / upcycling / DIY
             'conseil' => [
                 'photo-1532996122724-e3c354a0b15b',
                 'photo-1595407753234-0882f1e77954',
@@ -64,7 +63,6 @@ if (!function_exists('uc_image')) {
                 'photo-1581578731548-c64695cc6952',
                 'photo-1524178232363-1fb2b075b655',
             ],
-            // Objets / annonces (marketplace) : meubles, textile, electronique, deco…
             'objet' => [
                 'photo-1581578731548-c64695cc6952',
                 'photo-1504148455328-c376907d081c',
@@ -78,14 +76,7 @@ if (!function_exists('uc_image')) {
         ];
     }
 
-    /**
-     * URL d'image stable et variee pour un item.
-     *
-     * @param string $theme evenement|formation|service|prestation|conseil|objet
-     * @param mixed  $seed  identifiant stable de l'item (id numerique, sinon titre)
-     * @param int    $w     largeur CDN souhaitee
-     */
-    function uc_image(string $theme, $seed = '', int $w = 900): string
+        function uc_image(string $theme, $seed = '', int $w = 900): string
     {
         $pools = uc_image_pools();
         $pool  = $pools[$theme] ?? $pools['formation'];

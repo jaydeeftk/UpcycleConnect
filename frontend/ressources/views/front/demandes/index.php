@@ -80,13 +80,14 @@
                         <?php foreach ($annoncesFiltered as $annonce): ?>
                             <?php
                             $statutColor = match($annonce['statut'] ?? 'en_attente') {
-                                'validee' => 'badge-success',
-                                'rejetee' => 'badge-error',
+                                'validee', 'vendue' => 'badge-success',
+                                'rejetee', 'refusee' => 'badge-error',
                                 default   => 'badge-warning',
                             };
                             $statutLabel = match($annonce['statut'] ?? 'en_attente') {
                                 'validee' => t('demidx_status_validated_f', 'Validée'),
-                                'rejetee' => t('demidx_status_rejected_f', 'Rejetée'),
+                                'vendue'  => t('demidx_status_sold', 'Vendue'),
+                                'rejetee', 'refusee' => t('demidx_status_rejected_f', 'Rejetée'),
                                 default   => t('demidx_status_pending', 'En attente'),
                             };
                             ?>

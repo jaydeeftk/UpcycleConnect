@@ -43,19 +43,16 @@ func (s *ConteneurService) resoudreAdministrateur(q repository.Querier, idUtilis
 }
 
 type CreationDepotInput struct {
-	TypeObjet   string
-	Description string
 	EtatUsure   string
 	IdConteneur int
 	DateDepot   string
-	Destination string
-	PrixVente   float64
 	PhotoUrl    string
+	IdAnnonce   int
 }
 
 func (s *ConteneurService) CreerDemande(idUtilisateur int, in CreationDepotInput) (int64, error) {
-	if err := domain.ValiderCreationDepot(in.TypeObjet, in.Destination, in.PrixVente, in.DateDepot); err != nil {
-		return 0, err
+	if in.IdAnnonce <= 0 {
+		return 0, domain.Invalide("Un dépôt doit être rattaché à une annonce")
 	}
 	if in.IdConteneur <= 0 {
 		return 0, domain.Invalide("Un conteneur de dépôt doit être choisi")
@@ -67,6 +64,29 @@ func (s *ConteneurService) CreerDemande(idUtilisateur int, in CreationDepotInput
 		if err != nil {
 			return err
 		}
+
+		titre, description, categorie, typeAnnonce, statutAnnonce, prix, err := s.repo.AnnoncePourDepot(tx, in.IdAnnonce, idUtilisateur)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Cette annonce ne vous appartient pas ou est introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if !domain.AnnonceEligiblePourDepot(statutAnnonce) {
+			return domain.EtatInvalide("Cette annonce n'est pas prête à être déposée (vente non finalisée ou don non réservé)")
+		}
+		dejaDepose, err := s.repo.AnnonceDejaEnDepot(tx, in.IdAnnonce)
+		if err != nil {
+			return err
+		}
+		if dejaDepose {
+			return domain.Conflit("Un dépôt existe déjà pour cette annonce")
+		}
+
+		if err := domain.ValiderCreationDepot(categorie, typeAnnonce, prix, in.DateDepot); err != nil {
+			return err
+		}
+
 		statut, err := s.repo.ConteneurStatut(tx, in.IdConteneur)
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Introuvable("Conteneur introuvable")
@@ -78,9 +98,9 @@ func (s *ConteneurService) CreerDemande(idUtilisateur int, in CreationDepotInput
 			return domain.Conflit("Ce conteneur n'accepte pas de nouvelles demandes")
 		}
 		id, err := s.repo.CreerDemande(tx, repository.DemandeCreation{
-			TypeObjet: in.TypeObjet, Description: in.Description, EtatUsure: in.EtatUsure,
-			IdConteneur: in.IdConteneur, DateDepot: in.DateDepot, Destination: in.Destination,
-			PrixVente: in.PrixVente, PhotoUrl: in.PhotoUrl, IdParticulier: idPart,
+			TypeObjet: categorie, Description: titre + " — " + description, EtatUsure: in.EtatUsure,
+			IdConteneur: in.IdConteneur, DateDepot: in.DateDepot, Destination: typeAnnonce,
+			PrixVente: prix, PhotoUrl: in.PhotoUrl, IdParticulier: idPart, IdAnnonce: in.IdAnnonce,
 		})
 		if err != nil {
 			return err
@@ -89,6 +109,26 @@ func (s *ConteneurService) CreerDemande(idUtilisateur int, in CreationDepotInput
 		return nil
 	})
 	return newID, err
+}
+
+type AnnonceEligibleDepotDTO struct {
+	ID      int     `json:"id"`
+	Titre   string  `json:"titre"`
+	TypeAnn string  `json:"type_annonce"`
+	Statut  string  `json:"statut"`
+	Prix    float64 `json:"prix"`
+}
+
+func (s *ConteneurService) ListerAnnoncesEligiblesPourDepot(idUtilisateur int) ([]AnnonceEligibleDepotDTO, error) {
+	lignes, err := s.repo.ListerAnnoncesEligiblesPourDepot(database.DB, idUtilisateur)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]AnnonceEligibleDepotDTO, 0, len(lignes))
+	for _, a := range lignes {
+		out = append(out, AnnonceEligibleDepotDTO{ID: a.ID, Titre: a.Titre, TypeAnn: a.TypeAnn, Statut: a.Statut, Prix: a.Prix})
+	}
+	return out, nil
 }
 
 func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
@@ -135,6 +175,20 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	if idDemande > 0 {
+		if snap, errSnap := s.repo.DemandePourMAJ(database.DB, idDemande); errSnap == nil && snap.IdAnnonce > 0 {
+			if idAcheteur, nom, email, errA := s.repo.AcheteurDeAnnonce(database.DB, snap.IdAnnonce); errA == nil && idAcheteur > 0 {
+				_ = (repository.FacturationRepo{}).NotifierUtilisateur(database.DB, idAcheteur,
+					"Votre objet a été déposé et validé. Vous pouvez venir le récupérer !")
+				if email != "" {
+					_ = SendGenericEmail(email, "Votre objet est prêt à être récupéré",
+						"Bonjour "+nom+",\n\nL'objet que vous avez acheté a bien été déposé et validé par notre équipe. Vous pouvez venir le récupérer avec le code fourni au professionnel.\n\nL'équipe UpcycleConnect")
+				}
+			}
+		}
+	}
+
 	return code, nil
 }
 

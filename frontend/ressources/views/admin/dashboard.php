@@ -63,11 +63,11 @@
         <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
             <h3 class="font-bold text-lg mb-6"><?= t('adm_dash_quick_actions', 'Actions Rapides') ?></h3>
             <div class="grid grid-cols-2 gap-4">
-                <button class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group">
+                <button onclick="window.location.href='/admin/utilisateurs/create'" class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group">
                     <i class="fas fa-user-plus mb-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
                     <p class="font-bold text-sm"><?= t('adm_dash_add_user', 'Ajouter Utilisateur') ?></p>
                 </button>
-                <button class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all text-left group">
+                <button onclick="window.location.href='/admin/evenements/create'" class="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all text-left group">
                     <i class="fas fa-calendar-plus mb-3 text-blue-500 group-hover:scale-110 transition-transform"></i>
                     <p class="font-bold text-sm"><?= t('adm_dash_create_event', 'Créer Événement') ?></p>
                 </button>

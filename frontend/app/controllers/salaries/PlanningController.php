@@ -90,10 +90,10 @@ class PlanningController
     {
         try {
             $this->api->post('/salaries/planning/atelier/create', [
-                'theme'       => $_POST['theme'] ?? '',
-                'lieu'        => $_POST['lieu'] ?? '',
-                'date'        => $_POST['date'] ?? '',
-                'id_salaries' => $_SESSION['user']['id'] ?? 0
+                'theme'        => $_POST['theme'] ?? '',
+                'lieu'         => $_POST['lieu'] ?? '',
+                'date_atelier' => $_POST['date'] ?? '',
+                'id_salaries'  => $_SESSION['user']['id'] ?? 0
             ]);
 
             $_SESSION['success'] = t('sal_flash_atelier_added', 'Atelier ajouté avec succès.');

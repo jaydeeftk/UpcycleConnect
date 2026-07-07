@@ -971,6 +971,7 @@ return [
     'adm_nav_evenements' => 'Événements',
     'adm_nav_utilisateurs' => 'Utilisateurs',
     'adm_nav_contrats' => 'Contrats Pro',
+    'adm_nav_abonnements' => 'Abonnements Pro',
     'adm_nav_factures' => 'Factures',
     'adm_nav_messages' => 'Messages',
     'adm_nav_notifications' => 'Notifications',
@@ -1221,6 +1222,20 @@ return [
     'adm_contrats_empty' => 'Aucun contrat',
     'adm_contrats_confirm_delete' => 'Supprimer ce contrat ?',
 
+    // Abonnements
+    'adm_abo_title' => 'Abonnements Pro',
+    'adm_abo_subtitle' => 'Abonnements Premium souscrits par les professionnels',
+    'adm_abo_col_pro' => 'Professionnel',
+    'adm_abo_col_company' => 'Entreprise',
+    'adm_abo_col_type' => 'Type',
+    'adm_abo_col_price' => 'Prix',
+    'adm_abo_col_start' => 'Début',
+    'adm_abo_col_end' => 'Fin',
+    'adm_abo_col_ads' => 'Annonces gratuites',
+    'adm_abo_col_status' => 'Statut',
+    'adm_abo_empty' => 'Aucun abonnement',
+
+
     // Factures
     'adm_factures_title' => 'Factures',
     'adm_factures_subtitle' => 'Suivi financier de la plateforme',
@@ -1374,6 +1389,16 @@ return [
     'adm_planning_title' => 'Planning Global',
     'adm_planning_subtitle' => 'Vue d\'ensemble des événements et formations',
     'adm_planning_js_status' => 'Statut: ',
+    'adm_planning_type_evenement' => 'Événement',
+    'adm_planning_type_formation' => 'Formation',
+    'adm_planning_type_atelier' => 'Atelier',
+    'adm_planning_statut_a_venir' => 'À venir',
+    'adm_planning_statut_en_attente' => 'En attente',
+    'adm_planning_statut_validee' => 'Validée',
+    'adm_planning_statut_refusee' => 'Refusée',
+    'adm_planning_statut_en_cours' => 'En cours',
+    'adm_planning_statut_termine' => 'Terminé',
+    'adm_planning_statut_actif' => 'Actif',
 
     // Portail haute sécurité
     'adm_portal_title' => 'Portail Haute Sécurité',

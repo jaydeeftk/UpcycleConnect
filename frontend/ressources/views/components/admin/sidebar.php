@@ -20,6 +20,7 @@ $sections = [
     'GESTION' => [
         ['url' => '/admin/utilisateurs','icon' => 'fas fa-users',              'label' => t('adm_nav_utilisateurs', 'Utilisateurs')],
         ['url' => '/admin/contrats',   'icon' => 'fas fa-file-contract',       'label' => t('adm_nav_contrats', 'Contrats Pro')],
+        ['url' => '/admin/abonnements','icon' => 'fas fa-id-card',             'label' => t('adm_nav_abonnements', 'Abonnements Pro')],
         ['url' => '/admin/factures',   'icon' => 'fas fa-file-invoice-dollar', 'label' => t('adm_nav_factures', 'Factures')],
     ],
     'COMMUNICATION' => [

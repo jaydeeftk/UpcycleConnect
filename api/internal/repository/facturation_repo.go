@@ -391,7 +391,7 @@ func (FacturationRepo) ListerCommissionsPourAdmin(q Querier) ([]CommissionDetail
 	rows, err := q.Query(
 		`SELECT c.Id_Commission, COALESCE(DATE_FORMAT(c.Date_,'%d/%m/%Y %H:%i'),''), 'annonce',
 			COALESCE(a.Titre,''), COALESCE(a.Prix,0), c.Taux, c.Montant,
-			TRIM(CONCAT(COALESCE(uv.Prenom,''),' ',COALESCE(uv.Nom,'')))
+			TRIM(CONCAT(COALESCE(uv.Prenom,''),' ',COALESCE(uv.Nom,''))), c.Date_
 		 FROM Commissions c
 		 JOIN Annonces a ON a.Id_Annonces = c.Id_Annonces
 		 LEFT JOIN Particuliers pv ON pv.Id_Particuliers = a.Id_Particuliers
@@ -401,14 +401,14 @@ func (FacturationRepo) ListerCommissionsPourAdmin(q Querier) ([]CommissionDetail
 		 UNION ALL
 		 SELECT c.Id_Commission, COALESCE(DATE_FORMAT(c.Date_,'%d/%m/%Y %H:%i'),''), 'devis',
 			COALESCE(dp.Nom_objet,''), COALESCE(d.Prix,0), c.Taux, c.Montant,
-			TRIM(CONCAT(COALESCE(uv.Prenom,''),' ',COALESCE(uv.Nom,'')))
+			TRIM(CONCAT(COALESCE(uv.Prenom,''),' ',COALESCE(uv.Nom,''))), c.Date_
 		 FROM Commissions c
 		 JOIN Devis d ON d.Id_Devis = c.Id_Devis
 		 JOIN Demandes_prestations dp ON dp.Id_Demandes_prestations = d.Id_Demandes_prestations
 		 JOIN Professionnels_artisans pav ON pav.Id_Professionnels = d.Id_Professionnels
 		 JOIN Utilisateurs uv ON uv.Id_Utilisateurs = pav.Id_Utilisateurs
 		 WHERE c.Id_Devis IS NOT NULL
-		 ORDER BY 2 DESC`,
+		 ORDER BY 9 DESC`,
 	)
 	if err != nil {
 		return nil, err
@@ -417,7 +417,8 @@ func (FacturationRepo) ListerCommissionsPourAdmin(q Querier) ([]CommissionDetail
 	out := []CommissionDetailLigne{}
 	for rows.Next() {
 		var l CommissionDetailLigne
-		if err := rows.Scan(&l.ID, &l.Date, &l.Type, &l.Description, &l.PrixTotal, &l.Taux, &l.MontantCommission, &l.NomVendeur); err != nil {
+		var dateTri sql.NullTime
+		if err := rows.Scan(&l.ID, &l.Date, &l.Type, &l.Description, &l.PrixTotal, &l.Taux, &l.MontantCommission, &l.NomVendeur, &dateTri); err != nil {
 			return nil, err
 		}
 		out = append(out, l)
@@ -780,6 +781,9 @@ type AbonnementLigne struct {
 	IdProfessionnels           int
 	AnnoncesGratuitesIncluses  int
 	AnnoncesGratuitesUtilisees int
+	Nom                        string
+	Prenom                     string
+	Entreprise                 string
 }
 
 type AbonnementCreation struct {
@@ -796,10 +800,14 @@ type AbonnementCreation struct {
 
 func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, error) {
 	rows, err := q.Query(
-		`SELECT Id_Abonnement, COALESCE(Type,''), COALESCE(Statut,''),
-			COALESCE(Prix,0), COALESCE(Date_Debut,''), COALESCE(Date_Fin,''), COALESCE(Id_Professionnels,0),
-			COALESCE(Annonces_Gratuites_Incluses,0), COALESCE(Annonces_Gratuites_Utilisees,0)
-		FROM Abonnement ORDER BY Id_Abonnement`,
+		`SELECT ab.Id_Abonnement, COALESCE(ab.Type,''), COALESCE(ab.Statut,''),
+			COALESCE(ab.Prix,0), COALESCE(ab.Date_Debut,''), COALESCE(ab.Date_Fin,''), COALESCE(ab.Id_Professionnels,0),
+			COALESCE(ab.Annonces_Gratuites_Incluses,0), COALESCE(ab.Annonces_Gratuites_Utilisees,0),
+			COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(p.Nom_Entreprise,'')
+		FROM Abonnement ab
+		LEFT JOIN Professionnels_artisans p ON p.Id_Professionnels = ab.Id_Professionnels
+		LEFT JOIN Utilisateurs u ON u.Id_Utilisateurs = p.Id_Utilisateurs
+		ORDER BY ab.Date_Debut DESC, ab.Id_Abonnement DESC`,
 	)
 	if err != nil {
 		return nil, err
@@ -809,7 +817,7 @@ func (FacturationRepo) AdminListerAbonnements(q Querier) ([]AbonnementLigne, err
 	for rows.Next() {
 		var a AbonnementLigne
 		if err := rows.Scan(&a.ID, &a.Type, &a.Statut, &a.Prix, &a.DateDebut, &a.DateFin, &a.IdProfessionnels,
-			&a.AnnoncesGratuitesIncluses, &a.AnnoncesGratuitesUtilisees); err != nil {
+			&a.AnnoncesGratuitesIncluses, &a.AnnoncesGratuitesUtilisees, &a.Nom, &a.Prenom, &a.Entreprise); err != nil {
 			return nil, err
 		}
 		out = append(out, a)

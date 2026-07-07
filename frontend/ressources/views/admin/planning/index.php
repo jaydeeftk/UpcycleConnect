@@ -10,13 +10,26 @@
 </div>
 
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js'></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var rawData = <?= json_encode($planning ?? []) ?>;
 
-        var TYPE_LBL = {evenement:'Événement', formation:'Formation', atelier:'Atelier'};
-        var STATUT_LBL = {a_venir:'À venir', en_attente:'En attente', validee:'Validée', refusee:'Refusée', en_cours:'En cours', termine:'Terminé', actif:'Actif'};
+        var TYPE_LBL = {
+            evenement: <?= json_encode(t('adm_planning_type_evenement', 'Événement')) ?>,
+            formation: <?= json_encode(t('adm_planning_type_formation', 'Formation')) ?>,
+            atelier: <?= json_encode(t('adm_planning_type_atelier', 'Atelier')) ?>
+        };
+        var STATUT_LBL = {
+            a_venir: <?= json_encode(t('adm_planning_statut_a_venir', 'À venir')) ?>,
+            en_attente: <?= json_encode(t('adm_planning_statut_en_attente', 'En attente')) ?>,
+            validee: <?= json_encode(t('adm_planning_statut_validee', 'Validée')) ?>,
+            refusee: <?= json_encode(t('adm_planning_statut_refusee', 'Refusée')) ?>,
+            en_cours: <?= json_encode(t('adm_planning_statut_en_cours', 'En cours')) ?>,
+            termine: <?= json_encode(t('adm_planning_statut_termine', 'Terminé')) ?>,
+            actif: <?= json_encode(t('adm_planning_statut_actif', 'Actif')) ?>
+        };
 
         var eventsData = rawData.map(function(item) {
             var color = item.type === 'formation' ? '#3b82f6' : '#10b981';
@@ -35,7 +48,7 @@
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            locale: 'fr',
+            locale: <?= json_encode(currentLang()) ?>,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',

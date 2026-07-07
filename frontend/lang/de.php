@@ -967,6 +967,7 @@ return [
     'adm_nav_evenements' => 'Veranstaltungen',
     'adm_nav_utilisateurs' => 'Benutzer',
     'adm_nav_contrats' => 'Pro-Verträge',
+    'adm_nav_abonnements' => 'Pro-Abonnements',
     'adm_nav_factures' => 'Rechnungen',
     'adm_nav_messages' => 'Nachrichten',
     'adm_nav_notifications' => 'Benachrichtigungen',
@@ -1216,6 +1217,20 @@ return [
     'adm_contrats_empty' => 'Kein Vertrag',
     'adm_contrats_confirm_delete' => 'Diesen Vertrag löschen?',
 
+    // Abonnements
+    'adm_abo_title' => 'Pro-Abonnements',
+    'adm_abo_subtitle' => 'Premium-Abonnements der Fachbetriebe',
+    'adm_abo_col_pro' => 'Fachbetrieb',
+    'adm_abo_col_company' => 'Unternehmen',
+    'adm_abo_col_type' => 'Typ',
+    'adm_abo_col_price' => 'Preis',
+    'adm_abo_col_start' => 'Beginn',
+    'adm_abo_col_end' => 'Ende',
+    'adm_abo_col_ads' => 'Kostenlose Anzeigen',
+    'adm_abo_col_status' => 'Status',
+    'adm_abo_empty' => 'Keine Abonnements',
+
+
   
     'adm_factures_title' => 'Rechnungen',
     'adm_factures_subtitle' => 'Finanzielle Nachverfolgung der Plattform',
@@ -1369,6 +1384,16 @@ return [
     'adm_planning_title' => 'Globaler Kalender',
     'adm_planning_subtitle' => 'Überblick über Veranstaltungen und Schulungen',
     'adm_planning_js_status' => 'Status: ',
+    'adm_planning_type_evenement' => 'Veranstaltung',
+    'adm_planning_type_formation' => 'Schulung',
+    'adm_planning_type_atelier' => 'Workshop',
+    'adm_planning_statut_a_venir' => 'Bevorstehend',
+    'adm_planning_statut_en_attente' => 'Ausstehend',
+    'adm_planning_statut_validee' => 'Genehmigt',
+    'adm_planning_statut_refusee' => 'Abgelehnt',
+    'adm_planning_statut_en_cours' => 'Laufend',
+    'adm_planning_statut_termine' => 'Beendet',
+    'adm_planning_statut_actif' => 'Aktiv',
 
     'adm_portal_title' => 'Hochsicherheitsportal',
     'adm_portal_subtitle' => 'Zugang nur für UpcycleConnect-Administratoren',

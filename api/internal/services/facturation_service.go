@@ -610,6 +610,9 @@ type AbonnementDTO struct {
 	AnnoncesGratuitesIncluses  int      `json:"annonces_gratuites_incluses"`
 	AnnoncesGratuitesRestantes int      `json:"annonces_gratuites_restantes"`
 	ActionsAutorisees          []string `json:"allowed_actions"`
+	Nom                        string   `json:"nom"`
+	Prenom                     string   `json:"prenom"`
+	Entreprise                 string   `json:"nom_entreprise"`
 }
 
 type CommissionDetailDTO struct {
@@ -666,6 +669,9 @@ func (s *FacturationService) ListerAbonnements() ([]AbonnementDTO, error) {
 			AnnoncesGratuitesIncluses:  a.AnnoncesGratuitesIncluses,
 			AnnoncesGratuitesRestantes: a.AnnoncesGratuitesIncluses - a.AnnoncesGratuitesUtilisees,
 			ActionsAutorisees:          domain.ActionsAbonnementAdmin(a.Statut),
+			Nom:                        a.Nom,
+			Prenom:                     a.Prenom,
+			Entreprise:                 a.Entreprise,
 		})
 	}
 	return out, nil

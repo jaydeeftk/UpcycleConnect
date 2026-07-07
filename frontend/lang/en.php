@@ -969,6 +969,7 @@ return [
     'adm_nav_evenements' => 'Events',
     'adm_nav_utilisateurs' => 'Users',
     'adm_nav_contrats' => 'Pro Contracts',
+    'adm_nav_abonnements' => 'Pro Subscriptions',
     'adm_nav_factures' => 'Invoices',
     'adm_nav_messages' => 'Messages',
     'adm_nav_notifications' => 'Notifications',
@@ -1217,6 +1218,20 @@ return [
     'adm_contrats_empty' => 'No contracts',
     'adm_contrats_confirm_delete' => 'Delete this contract?',
 
+    // Subscriptions
+    'adm_abo_title' => 'Pro Subscriptions',
+    'adm_abo_subtitle' => 'Premium subscriptions taken out by professionals',
+    'adm_abo_col_pro' => 'Professional',
+    'adm_abo_col_company' => 'Company',
+    'adm_abo_col_type' => 'Type',
+    'adm_abo_col_price' => 'Price',
+    'adm_abo_col_start' => 'Start',
+    'adm_abo_col_end' => 'End',
+    'adm_abo_col_ads' => 'Free listings',
+    'adm_abo_col_status' => 'Status',
+    'adm_abo_empty' => 'No subscriptions',
+
+
     
     'adm_factures_title' => 'Invoices',
     'adm_factures_subtitle' => 'Financial tracking of the platform',
@@ -1370,6 +1385,16 @@ return [
     'adm_planning_title' => 'Global Schedule',
     'adm_planning_subtitle' => 'Overview of events and courses',
     'adm_planning_js_status' => 'Status: ',
+    'adm_planning_type_evenement' => 'Event',
+    'adm_planning_type_formation' => 'Course',
+    'adm_planning_type_atelier' => 'Workshop',
+    'adm_planning_statut_a_venir' => 'Upcoming',
+    'adm_planning_statut_en_attente' => 'Pending',
+    'adm_planning_statut_validee' => 'Approved',
+    'adm_planning_statut_refusee' => 'Rejected',
+    'adm_planning_statut_en_cours' => 'Ongoing',
+    'adm_planning_statut_termine' => 'Finished',
+    'adm_planning_statut_actif' => 'Active',
 
     
     'adm_portal_title' => 'High Security Portal',

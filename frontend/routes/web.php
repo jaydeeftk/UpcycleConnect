@@ -182,6 +182,8 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/contrats/store', 'Admin\ContratController@store');
     $router->post('/contrats/{id}/supprimer', 'Admin\ContratController@delete');
 
+    $router->get('/abonnements', 'Admin\AbonnementController@index');
+
     $router->get('/factures', 'Admin\FactureController@index');
     $router->get('/factures/{id}/pdf', 'Admin\FactureController@pdf');
     $router->get('/notifications', 'Admin\NotificationController@index');

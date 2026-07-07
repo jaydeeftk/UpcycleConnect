@@ -4,14 +4,6 @@
             <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white"><?= t('adm_dash_welcome', 'Bienvenue, Admin') ?></h1>
             <p class="text-slate-500 dark:text-slate-400 font-medium"><?= t('adm_dash_subtitle', 'Voici l\'état de votre plateforme aujourd\'hui.') ?></p>
         </div>
-        <div class="flex gap-3">
-            <button class="btn btn-ghost bg-white dark:bg-slate-800 shadow-sm border-slate-200 dark:border-slate-700 hover:scale-105 active:scale-95 transition-all">
-                <i class="fas fa-download mr-2"></i> <?= t('adm_dash_export', 'Exporter') ?>
-            </button>
-            <button class="btn btn-primary shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all">
-                <i class="fas fa-plus mr-2"></i> <?= t('adm_dash_new_action', 'Nouvelle action') ?>
-            </button>
-        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

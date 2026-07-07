@@ -150,12 +150,12 @@
         .dark .modal-box { background-color: #0f172a !important; }
     </style>
 </head>
-<body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-500/30">
+<body class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-500/30">
 
     <?php include __DIR__ . '/../components/front/navbar.php'; ?>
     <?php include __DIR__ . '/../components/front/toast.php'; ?>
 
-    <main class="reveal">
+    <main class="reveal flex-1">
         <?php echo $content; ?>
     </main>
 

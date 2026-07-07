@@ -11,46 +11,7 @@
 <body class="bg-gray-100 min-h-screen">
 
 <div class="flex h-screen overflow-hidden">
-    <aside class="w-64 bg-gray-800 text-white flex flex-col flex-shrink-0">
-        <div class="p-6 border-b border-gray-700">
-            <h1 class="text-xl font-bold text-green-400">UpcycleConnect</h1>
-            <p class="text-xs text-gray-400 mt-1"><?= t('pro_space', 'Espace Professionnel') ?></p>
-        </div>
-        <nav class="flex-1 p-4">
-            <ul class="space-y-1">
-                <li>
-                    <a href="/professionnel" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-tachometer-alt w-5"></i><span><?= t('pro_nav_dashboard', 'Tableau de bord') ?></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/professionnel/recuperation" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-recycle w-5"></i><span><?= t('pro_nav_recuperation', 'Récupération') ?></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/professionnel/projets/create" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-project-diagram w-5"></i><span><?= t('pro_nav_new_project', 'Nouveau projet') ?></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/professionnel/annonces" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-gray-700 text-white">
-                        <i class="fas fa-bullhorn w-5"></i><span><?= t('pro_nav_annonces', 'Annonces') ?></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/catalogue/services" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-tools w-5"></i><span><?= t('pro_nav_services', 'Services') ?></span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="p-4 border-t border-gray-700">
-            <a href="/logout" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition text-red-400 hover:text-white">
-                <i class="fas fa-sign-out-alt w-5"></i><span><?= t('pro_nav_logout', 'Déconnexion') ?></span>
-            </a>
-        </div>
-    </aside>
+    <?php include __DIR__ . '/../../components/pro/sidebar.php'; ?>
 
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">

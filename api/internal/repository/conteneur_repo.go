@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"database/sql"
 	"errors"
 
 	"github.com/go-sql-driver/mysql"
@@ -346,6 +345,9 @@ type ConteneurAdmin struct {
 	NbDemandes   int
 	Occupation   int
 	CapaciteBox  int
+	Hauteur      *float64
+	Largeur      *float64
+	Longueur     *float64
 	Boxes        []BoxAdmin
 }
 

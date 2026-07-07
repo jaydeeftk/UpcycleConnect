@@ -858,7 +858,10 @@ func (s *FacturationService) CreerDemandeRemboursement(idUtilisateur, idPaiement
 			return domain.Deja("Une demande de remboursement est déjà en cours sur ce paiement")
 		}
 		idDemande, err = s.repo.CreerDemandeRemboursement(tx, idPaiement, idPart, motif)
-		return err
+		if err != nil {
+			return err
+		}
+		return s.repo.MajPaiementStatut(tx, idPaiement, domain.StatutPaiementEnAttenteRemboursement)
 	})
 	return idDemande, err
 }
@@ -878,7 +881,12 @@ func (s *FacturationService) RefuserDemandeRemboursement(idDemande int) error {
 		if err := s.repo.MajDemandeRembStatut(tx, idDemande, domain.StatutDemandeRembRefusee); err != nil {
 			return err
 		}
-		idUser, _, _ := s.repo.PaiementOwnerStatutPourMAJ(tx, d.IdPaiement)
+		idUser, statutPaiement, _ := s.repo.PaiementOwnerStatutPourMAJ(tx, d.IdPaiement)
+		if statutPaiement == domain.StatutPaiementEnAttenteRemboursement {
+			if err := s.repo.MajPaiementStatut(tx, d.IdPaiement, domain.StatutPaiementPaye); err != nil {
+				return err
+			}
+		}
 		_ = s.repo.NotifierUtilisateur(tx, idUser, "Votre demande de remboursement a été refusée.")
 		return nil
 	})
@@ -979,7 +987,7 @@ func (s *FacturationService) preparerRemboursement(idDemande int) (infoRembourse
 			action = "noop"
 			return nil
 		}
-		if p.Statut != domain.StatutPaiementPaye && p.Statut != domain.StatutPaiementRemboursementEnCours {
+		if p.Statut != domain.StatutPaiementPaye && p.Statut != domain.StatutPaiementRemboursementEnCours && p.Statut != domain.StatutPaiementEnAttenteRemboursement {
 			return domain.EtatInvalide("Le paiement n'est pas dans un état remboursable")
 		}
 		if p.PaymentIntent == "" {
@@ -990,7 +998,7 @@ func (s *FacturationService) preparerRemboursement(idDemande int) (infoRembourse
 			return err
 		}
 
-		if p.Statut == domain.StatutPaiementPaye {
+		if p.Statut == domain.StatutPaiementPaye || p.Statut == domain.StatutPaiementEnAttenteRemboursement {
 			if err := s.repo.MajPaiementStatut(tx, d.IdPaiement, domain.StatutPaiementRemboursementEnCours); err != nil {
 				return err
 			}

@@ -214,10 +214,10 @@ function navActive(string $path, string $current): string {
                                 <i class="fas fa-calendar-alt text-blue-500 w-4 text-center"></i> <?= t('navdd_my_planning', 'Mon Planning') ?>
                             </a>
                             <a href="/messages" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/messages') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-envelope text-blue-500 w-4 text-center"></i> <?= t('navdd_my_messages', 'Mes messages') ?>
+                                <i class="fas fa-envelope text-blue-500 w-4 text-center"></i> <?= t('navdd_my_messages', 'Tickets') ?>
                             </a>
                             <a href="/messagerie" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/messagerie') ? 'text-primary' : '' ?>">
-                                <i class="fas fa-comment-dots text-green-500 w-4 text-center"></i> <?= t('navdd_marketplace_messages', 'Messagerie annonces') ?>
+                                <i class="fas fa-comment-dots text-green-500 w-4 text-center"></i> <?= t('navdd_marketplace_messages', 'Messagerie') ?>
                             </a>
                             <a href="/notifications" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/notifications') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-bell text-amber-500 w-4 text-center"></i> <?= t('navdd_notifications', 'Notifications') ?>

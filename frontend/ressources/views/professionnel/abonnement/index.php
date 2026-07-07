@@ -58,6 +58,10 @@
                         <div class="mb-6 text-sm text-gray-500">
                             <?= t('pro_abo_ref', 'Référence') ?> : <span class="font-mono"><?= htmlspecialchars($abonnement['id'] ?? '') ?></span>
                         </div>
+                        <div class="mb-6 bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-center justify-between">
+                            <span class="text-sm text-gray-700"><i class="fas fa-bullhorn text-blue-500 mr-2"></i><?= t('pro_abo_annonces_gratuites', 'Annonces gratuites restantes') ?></span>
+                            <span class="font-bold text-blue-700"><?= (int)($abonnement['annonces_gratuites_restantes'] ?? 0) ?> / <?= (int)($abonnement['annonces_gratuites_incluses'] ?? 0) ?></span>
+                        </div>
                         <form method="POST" action="/professionnel/abonnement/resilier"
                               onsubmit="return confirm('<?= t('pro_abo_confirm_cancel', 'Résilier votre abonnement Premium ?') ?>')">
                             <?= csrf_field() ?>
@@ -71,6 +75,7 @@
                             <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_2', "Analyse d'impact écologique détaillée") ?></li>
                             <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_3', 'Statistiques sur les matériaux disponibles') ?></li>
                             <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_4', 'Alertes priorisées pour la collecte') ?></li>
+                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_5', '10 annonces gratuites incluses') ?></li>
                         </ul>
                         <div id="abo-erreur" class="text-red-600 text-sm mb-3 hidden"></div>
                         <button type="button" id="btn-souscrire" onclick="souscrireAbonnement()"

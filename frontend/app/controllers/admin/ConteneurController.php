@@ -66,6 +66,9 @@ class ConteneurController
                 'localisation' => $_POST['localisation'] ?? '',
                 'capacite'     => (int)($_POST['capacite'] ?? 0),
                 'statut'       => $_POST['statut'] ?? 'disponible',
+                'hauteur'      => (float)($_POST['hauteur'] ?? 0),
+                'largeur'      => (float)($_POST['largeur'] ?? 0),
+                'longueur'     => (float)($_POST['longueur'] ?? 0),
             ]);
         } catch (\Exception $e) {}
         header('Location: /admin/conteneurs');
@@ -79,6 +82,9 @@ class ConteneurController
                 'localisation' => $_POST['localisation'] ?? '',
                 'capacite'     => (int)($_POST['capacite'] ?? 0),
                 'statut'       => $_POST['statut'] ?? 'disponible',
+                'hauteur'      => (float)($_POST['hauteur'] ?? 0),
+                'largeur'      => (float)($_POST['largeur'] ?? 0),
+                'longueur'     => (float)($_POST['longueur'] ?? 0),
             ]);
         } catch (\Exception $e) {}
         header('Location: /admin/conteneurs');
@@ -105,4 +111,18 @@ class ConteneurController
         header('Location: /admin/conteneurs');
         exit;
     }
-}
+
+    public function updateBoxDimensions($id)
+    {
+        $data = [];
+        foreach (['hauteur_cm', 'largeur_cm', 'longueur_cm'] as $dim) {
+            $val = $_POST[$dim] ?? '';
+            $data[$dim] = ($val !== '' && is_numeric($val)) ? (float)$val : null;
+        }
+        try {
+            $this->api->patch('/admin/box/' . $id, $data);
+        } catch (\Exception $e) {}
+        $idConteneur = (int)($_POST['id_conteneur'] ?? 0);
+        header('Location: /admin/conteneurs/' . $idConteneur);
+        exit;
+    }

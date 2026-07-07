@@ -9,11 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stripe/stripe-go/v76"
-	"github.com/stripe/stripe-go/v76/refund"
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/domain"
 	"upcycleconnect/internal/repository"
+
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/refund"
 )
 
 type FacturationService struct {
@@ -600,13 +601,15 @@ func (s *FacturationService) creerFactureUnique(tx *sql.Tx, f repository.Facture
 }
 
 type AbonnementDTO struct {
-	ID                string   `json:"id"`
-	Type              string   `json:"type"`
-	Statut            string   `json:"statut"`
-	Prix              float64  `json:"prix"`
-	DateDebut         string   `json:"date_debut"`
-	DateFin           string   `json:"date_fin"`
-	ActionsAutorisees []string `json:"allowed_actions"`
+	ID                         string   `json:"id"`
+	Type                       string   `json:"type"`
+	Statut                     string   `json:"statut"`
+	Prix                       float64  `json:"prix"`
+	DateDebut                  string   `json:"date_debut"`
+	DateFin                    string   `json:"date_fin"`
+	AnnoncesGratuitesIncluses  int      `json:"annonces_gratuites_incluses"`
+	AnnoncesGratuitesRestantes int      `json:"annonces_gratuites_restantes"`
+	ActionsAutorisees          []string `json:"allowed_actions"`
 }
 
 type CommissionDetailDTO struct {
@@ -660,13 +663,18 @@ func (s *FacturationService) ListerAbonnements() ([]AbonnementDTO, error) {
 		out = append(out, AbonnementDTO{
 			ID: a.ID, Type: a.Type, Statut: a.Statut, Prix: a.Prix,
 			DateDebut: a.DateDebut, DateFin: a.DateFin,
-			ActionsAutorisees: domain.ActionsAbonnementAdmin(a.Statut),
+			AnnoncesGratuitesIncluses:  a.AnnoncesGratuitesIncluses,
+			AnnoncesGratuitesRestantes: a.AnnoncesGratuitesIncluses - a.AnnoncesGratuitesUtilisees,
+			ActionsAutorisees:          domain.ActionsAbonnementAdmin(a.Statut),
 		})
 	}
 	return out, nil
 }
 
 const PrixAbonnementPremium = 24.99
+
+// QuotaAnnoncesGratuitesPremium : nombre d'annonces offertes avec l'abonnement Premium.
+const QuotaAnnoncesGratuitesPremium = 10
 
 func (s *FacturationService) ProAbonnementActuel(idPro int) (*AbonnementDTO, error) {
 	lignes, err := s.repo.AbonnementsDuPro(database.DB, idPro)
@@ -680,7 +688,9 @@ func (s *FacturationService) ProAbonnementActuel(idPro int) (*AbonnementDTO, err
 	return &AbonnementDTO{
 		ID: a.ID, Type: a.Type, Statut: a.Statut, Prix: a.Prix,
 		DateDebut: a.DateDebut, DateFin: a.DateFin,
-		ActionsAutorisees: domain.ActionsAbonnementAdmin(a.Statut),
+		AnnoncesGratuitesIncluses:  a.AnnoncesGratuitesIncluses,
+		AnnoncesGratuitesRestantes: a.AnnoncesGratuitesIncluses - a.AnnoncesGratuitesUtilisees,
+		ActionsAutorisees:          domain.ActionsAbonnementAdmin(a.Statut),
 	}, nil
 }
 
@@ -700,11 +710,25 @@ func (s *FacturationService) ProSouscrireAbonnement(idPro int, referenceStripe s
 		ID: id, Type: "premium", Prix: PrixAbonnementPremium,
 		DateDebut: time.Now().Format("2006-01-02"), Statut: domain.StatutAbonnementActif,
 		IdProfessionnels: idPro, ReferenceStripe: referenceStripe,
+		AnnoncesGratuitesIncluses: QuotaAnnoncesGratuitesPremium,
 	})
 	if err != nil {
 		return "", err
 	}
 	return id, nil
+}
+
+// ConsommerAnnonceGratuitePro consomme un credit d'annonce gratuite de
+// l'abonnement Premium du professionnel s'il lui en reste. Ne bloque jamais
+// la creation de l'annonce : c'est un avantage, pas une restriction.
+func (s *FacturationService) ConsommerAnnonceGratuitePro(idUtilisateur int) bool {
+	var idPro int
+	if err := database.DB.QueryRow(
+		"SELECT Id_Professionnels FROM Professionnels_artisans WHERE Id_Utilisateurs=?", idUtilisateur,
+	).Scan(&idPro); err != nil {
+		return false
+	}
+	return s.repo.ConsommerAnnonceGratuite(database.DB, idPro)
 }
 
 func (s *FacturationService) CompleterAbonnementProStripe(idPro int, referenceStripe string) error {

@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS Abonnement(
    Statut VARCHAR(50),
    Id_Professionnels INT NULL,
    Reference_Stripe VARCHAR(255) NULL UNIQUE,
+   Annonces_Gratuites_Incluses INT NOT NULL DEFAULT 0,
+   Annonces_Gratuites_Utilisees INT NOT NULL DEFAULT 0,
    PRIMARY KEY(Id_Abonnement)
 );
 
@@ -127,6 +129,9 @@ CREATE TABLE IF NOT EXISTS Conteneurs(
    Localisation VARCHAR(100),
    Capacite VARCHAR(50),
    Statut VARCHAR(50),
+   Hauteur DECIMAL(6,2) NULL,
+   Largeur DECIMAL(6,2) NULL,
+   Longueur DECIMAL(6,2) NULL,
    Id_Administrateurs INT NOT NULL,
    PRIMARY KEY(Id_Conteneurs),
    FOREIGN KEY(Id_Administrateurs) REFERENCES Administrateurs(Id_Administrateurs)
@@ -143,6 +148,8 @@ CREATE TABLE IF NOT EXISTS Evenements(
    Prix DECIMAL(10,2) DEFAULT 0,
    Categorie VARCHAR(50) DEFAULT 'atelier',
    Duree INT DEFAULT 2,
+   Statut_validation VARCHAR(20) NOT NULL DEFAULT 'en_attente',
+   Motif_refus VARCHAR(255) NULL,
    Id_Salaries INT NULL,
    Id_Salarie_Animateur INT NULL,
    PRIMARY KEY(Id_Evenements),
@@ -152,7 +159,10 @@ CREATE TABLE IF NOT EXISTS Evenements(
 CREATE TABLE IF NOT EXISTS Formations(
    Id_Formations INT AUTO_INCREMENT,
    Titre VARCHAR(100),
-   Description VARCHAR(255),
+   Description TEXT,
+   Objectifs TEXT NULL,
+   Prerequis TEXT NULL,
+   Programme TEXT NULL,
    Prix DECIMAL(15,2),
    Duree INT,
    Statut VARCHAR(50),
@@ -162,10 +172,22 @@ CREATE TABLE IF NOT EXISTS Formations(
    Places_dispo INT DEFAULT 20,
    Localisation VARCHAR(200),
    Categorie VARCHAR(100),
+   Statut_validation VARCHAR(20) NOT NULL DEFAULT 'en_attente',
+   Motif_refus VARCHAR(255) NULL,
    Id_Salaries INT,
    Id_Salarie_Animateur INT NULL,
    PRIMARY KEY(Id_Formations),
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
+);
+
+CREATE TABLE IF NOT EXISTS Formation_Etapes(
+   Id_Etapes INT AUTO_INCREMENT,
+   Id_Formations INT NOT NULL,
+   Titre VARCHAR(150) NOT NULL,
+   Description VARCHAR(500),
+   Ordre INT NOT NULL DEFAULT 0,
+   PRIMARY KEY(Id_Etapes),
+   FOREIGN KEY(Id_Formations) REFERENCES Formations(Id_Formations)
 );
 
 CREATE TABLE IF NOT EXISTS Services(
@@ -455,6 +477,8 @@ CREATE TABLE IF NOT EXISTS Atelier(
    Date_atelier DATETIME,
    Lieu VARCHAR(100),
    Statut VARCHAR(50),
+   Statut_validation VARCHAR(20) NOT NULL DEFAULT 'en_attente',
+   Motif_refus VARCHAR(255) NULL,
    Id_Salaries INT NOT NULL,
    Id_Salarie_Animateur INT NULL,
    PRIMARY KEY(Id_Atelier),
@@ -927,6 +951,9 @@ CREATE TABLE IF NOT EXISTS Box(
    Capacite INT NOT NULL DEFAULT 1,
    Statut VARCHAR(50) NOT NULL DEFAULT 'disponible',
    Id_Conteneurs INT NOT NULL,
+   Hauteur_cm DECIMAL(6,1) NULL,
+   Largeur_cm DECIMAL(6,1) NULL,
+   Longueur_cm DECIMAL(6,1) NULL,
    PRIMARY KEY(Id_Box),
    UNIQUE KEY uq_box_reference (Reference),
    CONSTRAINT fk_box_conteneur FOREIGN KEY(Id_Conteneurs) REFERENCES Conteneurs(Id_Conteneurs),

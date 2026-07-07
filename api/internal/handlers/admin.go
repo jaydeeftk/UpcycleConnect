@@ -437,9 +437,12 @@ func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Localisation string `json:"localisation"`
-		Capacite     int    `json:"capacite"`
-		Statut       string `json:"statut"`
+		Localisation string  `json:"localisation"`
+		Capacite     int     `json:"capacite"`
+		Statut       string  `json:"statut"`
+		Hauteur      float64 `json:"hauteur"`
+		Largeur      float64 `json:"largeur"`
+		Longueur     float64 `json:"longueur"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -447,6 +450,7 @@ func AdminCreateConteneur(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := conteneurSvc.CreerConteneur(middleware.GetUserID(r), services.ConteneurInput{
 		Localisation: body.Localisation, Capacite: body.Capacite, Statut: body.Statut,
+		Hauteur: body.Hauteur, Largeur: body.Largeur, Longueur: body.Longueur,
 	})
 	if err != nil {
 		httpx.WriteError(w, err)
@@ -464,9 +468,12 @@ func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut, http.MethodPatch:
 		var body struct {
-			Localisation string `json:"localisation"`
-			Capacite     int    `json:"capacite"`
-			Statut       string `json:"statut"`
+			Localisation string  `json:"localisation"`
+			Capacite     int     `json:"capacite"`
+			Statut       string  `json:"statut"`
+			Hauteur      float64 `json:"hauteur"`
+			Largeur      float64 `json:"largeur"`
+			Longueur     float64 `json:"longueur"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -474,6 +481,7 @@ func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := conteneurSvc.ModifierConteneur(id, services.ConteneurInput{
 			Localisation: body.Localisation, Capacite: body.Capacite, Statut: body.Statut,
+			Hauteur: body.Hauteur, Largeur: body.Largeur, Longueur: body.Longueur,
 		}); err != nil {
 			httpx.WriteError(w, err)
 			return
@@ -488,6 +496,32 @@ func AdminConteneurAction(w http.ResponseWriter, r *http.Request) {
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
 	}
+}
+
+func AdminBoxDimensions(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch && r.Method != http.MethodPut {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	idBox, err := idDepuisChemin(r.URL.Path, "/api/admin/box/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	var body struct {
+		HauteurCm  *float64 `json:"hauteur_cm"`
+		LargeurCm  *float64 `json:"largeur_cm"`
+		LongueurCm *float64 `json:"longueur_cm"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	if err := conteneurSvc.MettreAJourBoxDimensions(idBox, body.HauteurCm, body.LargeurCm, body.LongueurCm); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Dimensions mises à jour"})
 }
 
 func AdminGetDemandes(w http.ResponseWriter, r *http.Request) {

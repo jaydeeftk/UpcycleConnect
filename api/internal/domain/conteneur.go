@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"strings"
 	"time"
 )
@@ -32,19 +33,55 @@ func ValiderDate(valeur string) error {
 	if v == "" {
 		return Invalide("La date est obligatoire")
 	}
+	if _, err := parseDateSouple(v); err != nil {
+		return Invalide("Format de date invalide")
+	}
+	return nil
+}
+
+func parseDateSouple(valeur string) (time.Time, error) {
+	v := strings.TrimSpace(valeur)
 	for _, layout := range []string{"2006-01-02", "2006-01-02T15:04", "2006-01-02T15:04:05", "2006-01-02 15:04:05"} {
-		if _, err := time.Parse(layout, v); err == nil {
-			return nil
+		if t, err := time.Parse(layout, v); err == nil {
+			return t, nil
 		}
 	}
-	return Invalide("Format de date invalide")
+	return time.Time{}, errNoDateLayout
+}
+
+var errNoDateLayout = errors.New("aucun format de date reconnu")
+
+// FenetreProgrammationMax borne la programmation d'un événement/formation/atelier/dépôt
+// à un horizon raisonnable (2 ans) pour éviter les dates aberrantes.
+const FenetreProgrammationMax = 2 * 365 * 24 * time.Hour
+
+// toleranceDatePassee laisse une marge de quelques minutes pour le temps de
+// soumission du formulaire, sans autoriser une programmation dans le passé.
+const toleranceDatePassee = -10 * time.Minute
+
+// ValiderDateProgrammation vérifie le format ET que la date n'est ni dans le
+// passé, ni trop éloignée dans le futur. À utiliser pour toute date programmée
+// (événement, formation, atelier, dépôt d'objet).
+func ValiderDateProgrammation(valeur string) error {
+	if err := ValiderDate(valeur); err != nil {
+		return err
+	}
+	t, _ := parseDateSouple(valeur)
+	maintenant := time.Now()
+	if t.Before(maintenant.Add(toleranceDatePassee)) {
+		return Invalide("La date ne peut pas être dans le passé")
+	}
+	if t.After(maintenant.Add(FenetreProgrammationMax)) {
+		return Invalide("La date est trop éloignée dans le futur (2 ans maximum)")
+	}
+	return nil
 }
 
 func ValiderCreationDepot(typeObjet, destination string, prix float64, dateDepot string) error {
 	if strings.TrimSpace(typeObjet) == "" {
 		return Invalide("Le type d'objet est obligatoire")
 	}
-	if err := ValiderDate(dateDepot); err != nil {
+	if err := ValiderDateProgrammation(dateDepot); err != nil {
 		return err
 	}
 	switch destination {

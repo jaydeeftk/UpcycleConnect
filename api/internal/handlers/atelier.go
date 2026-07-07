@@ -188,8 +188,8 @@ func UpdateAtelier(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.Theme == "" {
-		http.Error(w, `{"message": "Thème requis"}`, http.StatusBadRequest)
+	if err := domain.ValiderCreationAtelier(body.Theme, body.DateAtelier, body.Lieu); err != nil {
+		httpx.WriteError(w, err)
 		return
 	}
 

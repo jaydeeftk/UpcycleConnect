@@ -36,7 +36,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_formations_label_date_start', 'Date de début') ?></label>
-                <input type="datetime-local" name="date_debut" class="w-full border rounded-lg px-4 py-2">
+                <input type="datetime-local" name="date_debut" min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>" class="w-full border rounded-lg px-4 py-2">
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_formations_label_places', 'Places disponibles') ?></label>

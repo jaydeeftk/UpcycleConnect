@@ -100,7 +100,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><?= t('adm_formations_label_datetime', 'Date & Heure') ?></label>
-                    <input type="datetime-local" name="date_formation" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500">
+                    <input type="datetime-local" name="date_formation" required min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><?= t('adm_formations_label_places_total', 'Places totales') ?></label>

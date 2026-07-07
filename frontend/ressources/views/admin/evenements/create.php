@@ -34,7 +34,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_events_label_date', 'Date') ?></label>
-                <input type="datetime-local" name="date_evenement" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <input type="datetime-local" name="date_evenement" min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>" class="w-full border rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_events_label_price', 'Prix (€)') ?> <span class="text-gray-400 font-normal"><?= t('adm_events_price_hint', '— 0 = gratuit') ?></span></label>

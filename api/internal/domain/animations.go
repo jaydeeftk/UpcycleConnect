@@ -8,7 +8,7 @@ func ValiderCreationEvenement(titre, date, lieu string, capacite int, prix float
 	if strings.TrimSpace(titre) == "" {
 		return Invalide("Le titre de l'événement est obligatoire")
 	}
-	if err := ValiderDate(date); err != nil {
+	if err := ValiderDateProgrammation(date); err != nil {
 		return err
 	}
 	if capacite < 0 {
@@ -25,7 +25,7 @@ func ValiderCreationFormation(titre, date string, places int, prix float64) erro
 	if strings.TrimSpace(titre) == "" {
 		return Invalide("Le titre de la formation est obligatoire")
 	}
-	if err := ValiderDate(date); err != nil {
+	if err := ValiderDateProgrammation(date); err != nil {
 		return err
 	}
 	if places < 0 {
@@ -41,7 +41,7 @@ func ValiderCreationAtelier(theme, date, lieu string) error {
 	if strings.TrimSpace(theme) == "" {
 		return Invalide("Le thème de l'atelier est obligatoire")
 	}
-	if err := ValiderDate(date); err != nil {
+	if err := ValiderDateProgrammation(date); err != nil {
 		return err
 	}
 	_ = lieu

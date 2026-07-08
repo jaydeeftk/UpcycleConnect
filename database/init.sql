@@ -386,11 +386,13 @@ CREATE TABLE IF NOT EXISTS Tickets(
    Id_Particulier INT NOT NULL,
    Id_Admin_Assigne INT NULL,
    Statut VARCHAR(20) NOT NULL DEFAULT 'en_attente',
+   Origine VARCHAR(10) NOT NULL DEFAULT 'client',
    Date_creation DATETIME,
    Date_cloture DATETIME NULL,
    PRIMARY KEY(Id_Tickets),
    FOREIGN KEY(Id_Particulier) REFERENCES Utilisateurs(Id_Utilisateurs),
-   FOREIGN KEY(Id_Admin_Assigne) REFERENCES Utilisateurs(Id_Utilisateurs)
+   FOREIGN KEY(Id_Admin_Assigne) REFERENCES Utilisateurs(Id_Utilisateurs),
+   CONSTRAINT chk_tickets_origine CHECK (Origine IN ('client','admin'))
 );
 
 CREATE TABLE IF NOT EXISTS Messages_Ticket(

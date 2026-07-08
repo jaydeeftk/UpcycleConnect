@@ -25,7 +25,7 @@ func (TicketRepo) TicketOuvertDuParticulier(q Querier, idParticulier int) (Ticke
 	var t TicketLigne
 	err := q.QueryRow(
 		`SELECT Id_Tickets, Id_Particulier, Id_Admin_Assigne, Statut
-		 FROM Tickets WHERE Id_Particulier = ? AND Statut != 'ferme'
+		 FROM Tickets WHERE Id_Particulier = ? AND Origine = 'client' AND Statut != 'ferme'
 		 ORDER BY Id_Tickets DESC LIMIT 1`,
 		idParticulier,
 	).Scan(&t.ID, &t.IdParticulier, &t.IdAdminAssigne, &t.Statut)
@@ -36,7 +36,7 @@ func (TicketRepo) TicketOuvertEntreAdminEtUtilisateur(q Querier, idUtilisateur, 
 	var t TicketLigne
 	err := q.QueryRow(
 		`SELECT Id_Tickets, Id_Particulier, Id_Admin_Assigne, Statut
-		 FROM Tickets WHERE Id_Particulier = ? AND Id_Admin_Assigne = ? AND Statut != 'ferme'
+		 FROM Tickets WHERE Id_Particulier = ? AND Id_Admin_Assigne = ? AND Origine = 'admin' AND Statut != 'ferme'
 		 ORDER BY Id_Tickets DESC LIMIT 1`,
 		idUtilisateur, idAdmin,
 	).Scan(&t.ID, &t.IdParticulier, &t.IdAdminAssigne, &t.Statut)
@@ -45,7 +45,7 @@ func (TicketRepo) TicketOuvertEntreAdminEtUtilisateur(q Querier, idUtilisateur, 
 
 func (TicketRepo) CreerParAdmin(q Querier, idUtilisateur, idAdmin int) (int, error) {
 	res, err := q.Exec(
-		"INSERT INTO Tickets (Id_Particulier, Id_Admin_Assigne, Statut, Date_creation) VALUES (?, ?, 'en_cours', NOW())",
+		"INSERT INTO Tickets (Id_Particulier, Id_Admin_Assigne, Statut, Origine, Date_creation) VALUES (?, ?, 'en_cours', 'admin', NOW())",
 		idUtilisateur, idAdmin,
 	)
 	if err != nil {
@@ -90,6 +90,7 @@ func (TicketRepo) ListerTous(q Querier) ([]TicketLigne, error) {
 			SELECT mt.Id_Messages_Ticket FROM Messages_Ticket mt
 			WHERE mt.Id_Tickets = t.Id_Tickets ORDER BY mt.Id_Messages_Ticket DESC LIMIT 1
 		)
+		WHERE t.Origine = 'client'
 		ORDER BY (t.Statut = 'en_attente') DESC, dernier.Date_envoi DESC, t.Date_creation DESC`,
 	)
 	if err != nil {

@@ -38,7 +38,7 @@ return [
     'home_join_sub' => 'Participa en eventos cerca de ti, aprende nuevas técnicas y dale una segunda vida a tus objetos con la ayuda de nuestra comunidad.',
     'home_join_create' => 'Crear una cuenta gratis',
 
-    // === i18n pages publiques (genere) ===
+    
     'catsvc_breadcrumb' => 'Catálogo',
     'catsvc_title' => 'Servicios',
     'catsvc_subtitle' => 'Encuentra un profesional para reparar, transformar o reciclar tus objetos.',
@@ -607,7 +607,7 @@ return [
     'footer_legal' => 'Aviso legal',
     'footer_privacy' => 'Privacidad',
     'footer_contact' => 'Contacto',
-    // === home: sections impact + plateforme ===
+    
     'home_impact_title' => 'Nuestro impacto',
     'home_impact_objets' => 'Objetos salvados',
     'home_impact_users' => 'Usuarios',
@@ -621,7 +621,7 @@ return [
     'home_feat3_title' => 'Participa en eventos responsables',
     'home_feat3_desc' => 'Descubre talleres, encuentros e iniciativas locales en torno a la reparación y el reciclaje.',
     'home_platform_cta_services' => 'Ver servicios',
-    // === tutoriel 1re connexion ===
+    
     'tuto_step' => 'Paso',
     'tuto_close' => 'Cerrar',
     'tuto_skip' => 'Saltar el tutorial',
@@ -642,7 +642,7 @@ return [
     'tuto_s6_text' => 'Encuentra todos tus cursos, eventos y actividades en tu agenda personal.',
     'tuto_s7_title' => '🎉 ¡Ya está todo listo!',
     'tuto_s7_text' => 'Ya conoces las funciones esenciales de UpcycleConnect. ¡Buena exploración y buen upcycling!',
-    // === clés manquantes (residus i18n + maintenance) ===
+    
     'annidx_state_label' => 'Estado:',
     'annmes_remove' => 'Retirar',
     'auth_role_pro_desc' => 'Ofrecer servicios',
@@ -685,7 +685,7 @@ return [
     'maint_text' => '¡Volvemos muy pronto!',
     'auth_label_company' => 'Nombre de la empresa',
     'auth_accept_terms' => 'Acepto las condiciones de uso',
-    // === navbar sous-menus ===
+    
     'nav_dd_services' => 'Servicios',
     'nav_dd_services_desc' => 'Reparación, transformación...',
     'nav_dd_formations' => 'Formaciones',
@@ -705,8 +705,8 @@ return [
     'auth_siret_verify' => 'Verificar',
     'auth_company_autofill' => 'Se rellena tras verificar el SIRET',
 
-    // === PRO espacio conectado (panel / recuperación / nuevo proyecto) ===
-    // -- Interfaz y navegación --
+    
+    
     'pro_space' => 'Espacio Profesional',
     'pro_nav_dashboard' => 'Panel de control',
     'pro_nav_recuperation' => 'Recuperación',
@@ -714,11 +714,11 @@ return [
     'pro_nav_annonces' => 'Anuncios',
     'pro_nav_services' => 'Servicios',
     'pro_nav_logout' => 'Cerrar sesión',
-    // -- Estadísticas --
+    
     'pro_stat_projects' => 'Proyectos',
     'pro_stat_favorites' => 'Favoritos',
     'pro_stat_contracts' => 'Contratos',
-    // -- Impacto ecológico --
+    
     'pro_impact_title' => 'Impacto ecológico',
     'pro_impact_download_pdf' => 'Descargar el informe PDF',
     'pro_impact_objects' => 'Objetos recuperados',
@@ -730,7 +730,7 @@ return [
     'pro_impact_no_objects' => 'Ningún objeto recuperado por el momento.',
     'pro_impact_co2_disclaimer_before' => 'CO₂ evitado: estimación indicativa (',
     'pro_impact_co2_disclaimer_after' => ' kg CO₂ por kg recuperado), no es una medición certificada.',
-    // -- Proyectos --
+    
     'pro_projects_title' => 'Mis proyectos de upcycling',
     'pro_projects_empty' => 'Ningún proyecto por el momento.',
     'pro_projects_empty_cta' => 'Crear tu primer proyecto',
@@ -741,17 +741,17 @@ return [
     'pro_action_reopen' => 'Reabrir',
     'pro_action_delete' => 'Eliminar',
     'pro_project_delete_confirm' => '¿Eliminar este proyecto?',
-    // -- Favoritos --
+    
     'pro_favorites_title' => 'Mis anuncios favoritos',
     'pro_favorites_empty' => 'Ningún anuncio en favoritos.',
     'pro_favorites_browse' => 'Explorar los anuncios',
-    // -- Notificaciones --
+    
     'pro_notifs_title' => 'Notificaciones',
     'pro_notifs_unread' => 'sin leer',
     'pro_plural_s' => '',
     'pro_notifs_empty' => 'Ninguna notificación por el momento.',
     'pro_notifs_mark_read' => 'Marcar como leída',
-    // -- Contratos --
+    
     'pro_contracts_title' => 'Mis contratos',
     'pro_contracts_empty' => 'Ningún contrato por el momento.',
     'pro_contracts_col_type' => 'Tipo',
@@ -761,10 +761,10 @@ return [
     'pro_contracts_col_actions' => 'Acciones',
     'pro_contract_resilier_confirm' => '¿Rescindir este contrato? Esta acción es definitiva.',
     'pro_contract_resilier' => 'Rescindir',
-    // -- Ventana de confirmación --
+    
     'pro_modal_cancel' => 'Cancelar',
     'pro_modal_confirm' => 'Confirmar',
-    // -- Recuperación --
+    
     'pro_recup_title' => 'Recuperación de objetos',
     'pro_recup_subtitle' => 'Reserva un objeto depositado y luego recógelo (botón o escaneo del código de barras).',
     'pro_recup_barcode_title' => 'Recuperar por código de barras',
@@ -778,7 +778,7 @@ return [
     'pro_recup_available_title' => 'Objetos disponibles',
     'pro_recup_available_empty' => 'Ningún objeto disponible para reservar.',
     'pro_action_reserver' => 'Reservar',
-    // -- Nuevo proyecto (formulario) --
+    
     'pro_new_project_page_title' => 'Nuevo proyecto',
     'pro_back_to_dashboard' => 'Volver al panel de control',
     'pro_new_project_heading' => 'Nuevo proyecto de upcycling',
@@ -793,7 +793,7 @@ return [
     'pro_status_done' => 'Finalizado',
     'pro_btn_create_project' => 'Crear el proyecto',
 
-    // === EMPLEADO espacio conectado (chrome / panel / módulos) ===
+    
     'sal_page_title' => 'Empleado',
     'sal_space' => 'Espacio Empleado',
     'sal_role' => 'Empleado',
@@ -934,8 +934,8 @@ return [
     'sal_flash_sujet_deleted' => 'Tema eliminado.',
     'sal_flash_reponse_deleted' => 'Respuesta eliminada.',
 
-    // === ADMIN espace connecté (chrome + ~25 vues) ===
-    // Chrome (layout + sidebar)
+    
+    
     'adm_chrome_admin' => 'Administración',
     'adm_chrome_admin_role' => 'Administrador',
     'adm_chrome_logout' => 'Cerrar sesión',
@@ -949,7 +949,7 @@ return [
     'adm_chrome_demandes_pending_many' => 'solicitudes de contenedor',
     'adm_chrome_demandes_pending_hint' => 'Por tramitar',
 
-    // Sidebar — sections
+    
     'adm_sec_pilotage' => 'GESTIÓN',
     'adm_sec_validations' => 'VALIDACIONES',
     'adm_sec_catalogue' => 'CATÁLOGO',
@@ -957,7 +957,7 @@ return [
     'adm_sec_communication' => 'COMUNICACIÓN',
     'adm_sec_systeme' => 'SISTEMA',
 
-    // Sidebar — nav labels
+    
     'adm_nav_dashboard' => 'Panel',
     'adm_nav_finances' => 'Finanzas y Estadísticas',
     'adm_nav_planning' => 'Agenda Global',
@@ -978,7 +978,7 @@ return [
     'adm_nav_forum' => 'Foro',
     'adm_nav_parametres' => 'Ajustes',
 
-    // Boutons / actions réutilisés
+    
     'adm_btn_cancel' => 'Cancelar',
     'adm_btn_create' => 'Crear',
     'adm_btn_save' => 'Guardar',
@@ -992,7 +992,7 @@ return [
     'adm_btn_view_detail' => 'Ver detalle',
     'adm_btn_send' => 'Enviar',
 
-    // Colonnes de tableaux réutilisées
+    
     'adm_col_id' => 'ID',
     'adm_col_name' => 'Nombre',
     'adm_col_email' => 'Correo',
@@ -1009,18 +1009,18 @@ return [
     'adm_col_code' => 'Código',
     'adm_col_localisation' => 'Ubicación',
 
-    // Filtres / placeholders réutilisés
+    
     'adm_filter' => 'Filtrar...',
     'adm_filter_titre_auteur' => 'Filtrar por título, autor...',
 
-    // Rôles
+    
     'adm_role_particulier' => 'Particular',
     'adm_role_professionnel' => 'Profesional',
     'adm_role_pro_artisan' => 'Profesional/Artesano',
     'adm_role_salarie' => 'Empleado',
     'adm_role_admin' => 'Administrador',
 
-    // Statuts (libellés sélecteurs)
+    
     'adm_status_actif' => 'Activo',
     'adm_status_inactif' => 'Inactivo',
     'adm_status_suspendu' => 'Suspendido',
@@ -1028,7 +1028,7 @@ return [
     'adm_status_validee' => 'Aprobada',
     'adm_status_refusee' => 'Rechazada',
 
-    // Dashboard
+    
     'adm_dash_welcome' => 'Bienvenido, Admin',
     'adm_dash_subtitle' => 'Aquí tienes el estado de tu plataforma hoy.',
     'adm_dash_export' => 'Exportar',
@@ -1049,7 +1049,7 @@ return [
     'adm_dash_add_user' => 'Añadir Usuario',
     'adm_dash_create_event' => 'Crear Evento',
 
-    // Utilisateurs
+    
     'adm_users_title' => 'Usuarios',
     'adm_users_subtitle' => 'Gestiona todos los usuarios de la plataforma',
     'adm_users_add' => 'Añadir un usuario',
@@ -1096,7 +1096,7 @@ return [
     'adm_users_delete_irreversible' => 'Esta acción es irreversible.',
     'adm_users_delete_yes' => 'Sí, eliminar',
 
-    // Annonces
+    
     'adm_annonces_title' => 'Gestión de Anuncios',
     'adm_annonces_subtitle' => 'Modera las publicaciones',
     'adm_annonces_filter' => 'Filtrar por título, ciudad, estado...',
@@ -1110,7 +1110,7 @@ return [
     'adm_annonces_modal_full_desc' => 'Descripción completa',
     'adm_annonces_js_default_title' => 'Anuncio',
 
-    // Événements
+    
     'adm_events_title' => 'Eventos',
     'adm_events_subtitle' => 'Gestión de eventos y talleres',
     'adm_events_col_event' => 'Evento',
@@ -1138,7 +1138,7 @@ return [
     'adm_events_label_capacity' => 'Capacidad',
     'adm_events_create_submit' => 'Crear evento',
 
-    // Formations
+    
     'adm_formations_title' => 'Gestión de Formaciones',
     'adm_formations_subtitle' => 'Validación de solicitudes de empleados y catálogo global',
     'adm_formations_new' => 'Nueva Formación',
@@ -1168,7 +1168,7 @@ return [
     'adm_formations_lieu_ph' => 'Ej: Sala A',
     'adm_formations_create_submit' => 'Crear la formación',
 
-    // Conteneurs
+    
     'adm_conteneurs_title' => 'Contenedores de Recogida',
     'adm_conteneurs_subtitle' => 'Supervisión de la red de contenedores UpcycleConnect',
     'adm_conteneurs_new' => 'Nuevo Contenedor',
@@ -1194,7 +1194,7 @@ return [
     'adm_conteneurs_col_particulier' => 'Particular',
     'adm_conteneurs_empty_box' => 'Ningún depósito en este contenedor.',
 
-    // Catégories
+    
     'adm_categories_title' => 'Categorías',
     'adm_categories_subtitle' => 'Gestiona las categorías de servicios',
     'adm_categories_add_title' => 'Añadir una categoría',
@@ -1204,7 +1204,7 @@ return [
     'adm_categories_empty' => 'Ninguna categoría',
     'adm_categories_confirm_delete' => '¿Eliminar esta categoría?',
 
-    // Contrats
+    
     'adm_contrats_title' => 'Contratos y Suscripciones',
     'adm_contrats_subtitle' => 'Gestiona los contratos de los profesionales',
     'adm_contrats_new' => 'Nuevo contrato',
@@ -1222,7 +1222,7 @@ return [
     'adm_contrats_empty' => 'Ningún contrato',
     'adm_contrats_confirm_delete' => '¿Eliminar este contrato?',
 
-    // Suscripciones
+    
     'adm_abo_title' => 'Suscripciones Pro',
     'adm_abo_subtitle' => 'Suscripciones Premium contratadas por los profesionales',
     'adm_abo_col_pro' => 'Profesional',
@@ -1236,7 +1236,7 @@ return [
     'adm_abo_empty' => 'Ninguna suscripción',
 
 
-    // Factures
+    
     'adm_factures_title' => 'Facturas',
     'adm_factures_subtitle' => 'Seguimiento financiero de la plataforma',
     'adm_factures_col_number' => 'Número',
@@ -1245,7 +1245,7 @@ return [
     'adm_factures_col_document' => 'Documento',
     'adm_factures_empty' => 'Ninguna factura registrada.',
 
-    // Notifications
+    
     'adm_notifs_title' => 'Notificaciones',
     'adm_notifs_subtitle' => 'Envío de notificaciones a los usuarios',
     'adm_notifs_send_title' => 'Enviar una notificación',
@@ -1259,7 +1259,7 @@ return [
     'adm_notifs_default_title' => 'Notificación',
     'adm_notifs_confirm_delete' => '¿Eliminar?',
 
-    // Messages
+    
     'adm_messages_internal' => 'Mensajes internos',
     'adm_messages_loading' => 'Cargando...',
     'adm_messages_search_ph' => 'Buscar...',
@@ -1278,7 +1278,7 @@ return [
     'adm_messages_js_session_expired_dot' => 'Sesión expirada.',
     'adm_messages_js_error' => 'Error: ',
 
-    // Paramètres
+    
     'adm_params_title' => 'Ajustes',
     'adm_params_subtitle' => 'Configuración general de la plataforma',
     'adm_params_nav_general' => 'General',
@@ -1303,7 +1303,7 @@ return [
     'adm_params_disable_maintenance' => 'Desactivar el modo mantenimiento',
     'adm_params_enable_maintenance' => 'Activar el modo mantenimiento',
 
-    // Demandes
+    
     'adm_demandes_title' => 'Depósitos en Contenedores',
     'adm_demandes_subtitle' => 'Solicitudes de depósito de objetos pendientes de tramitación',
     'adm_demandes_filter' => 'Filtrar por nombre, tipo, estado...',
@@ -1320,7 +1320,7 @@ return [
     'adm_demandes_reveal_wrong_pwd' => 'Contraseña incorrecta.',
     'adm_demandes_reveal' => 'Revelar',
 
-    // Finances
+    
     'adm_finances_title' => 'Finanzas y Estadísticas',
     'adm_finances_subtitle' => 'Visión general de tus ingresos generados',
     'adm_finances_ca_ttc' => 'Facturación con IVA',
@@ -1333,7 +1333,7 @@ return [
     'adm_finances_js_ca_label' => 'Facturación con IVA (€)',
     'adm_finances_js_no_facture' => 'Sin factura',
 
-    // Forum
+    
     'adm_forum_title' => 'Moderación del Foro',
     'adm_forum_subtitle' => 'Gestión de temas y discusiones',
     'adm_forum_col_sujet' => 'Tema',
@@ -1344,7 +1344,7 @@ return [
     'adm_forum_view_subject' => 'Ver el tema',
     'adm_forum_confirm_delete' => '¿Eliminar este tema y todas sus respuestas?',
 
-    // Conseils
+    
     'adm_conseils_title' => 'Moderación de Consejos',
     'adm_conseils_subtitle' => 'Gestión de artículos y trucos de upcycling',
     'adm_conseils_col_article' => 'Artículo y Contenido',
@@ -1358,7 +1358,7 @@ return [
     'adm_conseils_default_categorie' => 'General',
     'adm_conseils_confirm_delete' => '¿Eliminar definitivamente este consejo?',
 
-    // Services
+    
     'adm_services_title' => 'Prestaciones y Servicios',
     'adm_services_subtitle' => 'Catálogo de servicios de upcycling',
     'adm_services_new' => 'Nuevo Servicio',
@@ -1385,7 +1385,7 @@ return [
     'adm_services_edit_subtitle' => 'Actualización del servicio',
     'adm_services_label_duration_h' => 'Duración (h)',
 
-    // Planning
+    
     'adm_planning_title' => 'Agenda Global',
     'adm_planning_subtitle' => 'Visión general de eventos y formaciones',
     'adm_planning_js_status' => 'Estado: ',
@@ -1400,7 +1400,7 @@ return [
     'adm_planning_statut_termine' => 'Finalizado',
     'adm_planning_statut_actif' => 'Activo',
 
-    // Portail haute sécurité
+    
     'adm_portal_title' => 'Portal de Alta Seguridad',
     'adm_portal_subtitle' => 'Acceso reservado a los administradores de UpcycleConnect',
     'adm_portal_label_id' => 'Identificador de Administrador',
@@ -1408,7 +1408,7 @@ return [
     'adm_portal_submit' => 'Acceder al panel',
     'adm_portal_back' => '← Volver',
 
-    // --- Coherencia M1: contadores, unidades, contenedor vacío ---
+    
     'catsvc_results_found' => 'encontrado',
     'catfor_results_found' => 'encontrada',
     'catevt_results_count' => 'evento',
@@ -1419,7 +1419,7 @@ return [
     'annidx_eyebrow' => 'Marketplace',
     'pay_btn' => 'Pagar',
 
-    // --- Menú desplegable de cuenta (navbar) ---
+    
     'navdd_pro_space' => 'Mi espacio pro',
     'navdd_recovery' => 'Recogida',
     'navdd_new_project' => 'Nuevo proyecto',

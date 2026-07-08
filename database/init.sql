@@ -157,6 +157,14 @@ CREATE TABLE IF NOT EXISTS Evenements(
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
 );
 
+CREATE TABLE IF NOT EXISTS Evenement_Dates(
+   Id_Evenement_Dates INT AUTO_INCREMENT,
+   Id_Evenements INT NOT NULL,
+   Date_session DATETIME NOT NULL,
+   PRIMARY KEY(Id_Evenement_Dates),
+   FOREIGN KEY(Id_Evenements) REFERENCES Evenements(Id_Evenements) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS Formations(
    Id_Formations INT AUTO_INCREMENT,
    Titre VARCHAR(100),
@@ -179,6 +187,14 @@ CREATE TABLE IF NOT EXISTS Formations(
    Id_Salarie_Animateur INT NULL,
    PRIMARY KEY(Id_Formations),
    FOREIGN KEY(Id_Salaries) REFERENCES Salaries(Id_Salaries)
+);
+
+CREATE TABLE IF NOT EXISTS Formation_Dates(
+   Id_Formation_Dates INT AUTO_INCREMENT,
+   Id_Formations INT NOT NULL,
+   Date_session DATETIME NOT NULL,
+   PRIMARY KEY(Id_Formation_Dates),
+   FOREIGN KEY(Id_Formations) REFERENCES Formations(Id_Formations) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Formation_Etapes(
@@ -909,6 +925,12 @@ VALUES
 ('Formation Upcycling Débutant', 'Découvrez les bases de l upcycling et créez vos premières créations.', 49.00, 3, 'actif', DATE_ADD(CONCAT(CURDATE(), ' 09:00:00'), INTERVAL 15 DAY), 20, 20, 'Paris 10ème', 'Débutant', 1),
 ('Formation Couture Créative', 'Apprenez à coudre et transformer vos tissus.', 79.00, 6, 'actif', DATE_ADD(CONCAT(CURDATE(), ' 09:00:00'), INTERVAL 27 DAY), 15, 15, 'Paris 11ème', 'Couture', 1),
 ('Formation Menuiserie Recyclée', 'Travaillez le bois de récupération pour créer des meubles.', 99.00, 8, 'actif', DATE_ADD(CONCAT(CURDATE(), ' 14:00:00'), INTERVAL 40 DAY), 10, 10, 'Montreuil', 'Menuiserie', 1);
+
+INSERT INTO Evenement_Dates (Id_Evenements, Date_session)
+SELECT Id_Evenements, Date_ FROM Evenements WHERE Date_ IS NOT NULL;
+
+INSERT INTO Formation_Dates (Id_Formations, Date_session)
+SELECT Id_Formations, Date_formation FROM Formations WHERE Date_formation IS NOT NULL;
 
 
 INSERT INTO Services (Titre, Description, Prix, Duree, Categorie, Id_Salaries)

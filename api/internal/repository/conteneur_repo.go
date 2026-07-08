@@ -404,7 +404,6 @@ func (ConteneurRepo) AdminListerConteneurs(q Querier) ([]ConteneurAdmin, error) 
 		return nil, err
 	}
 
-	// Charger les box de chaque conteneur
 	for i, c := range liste {
 		boxes, err := listerBoxesConteneur(q, c.ID)
 		if err != nil {

@@ -68,7 +68,7 @@ $typeInfo = [
     </div>
 
     <?php
-    // On masque les evenements deja passes (aucune fausse donnee de demonstration).
+    
     $evenements = array_values(array_filter($evenements ?? [], function ($e) {
         $d = $e['date'] ?? '';
         if ($d === '') return true;

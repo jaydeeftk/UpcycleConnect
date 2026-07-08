@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"upcycleconnect/internal/database"
@@ -60,12 +61,12 @@ func GetEvenementsSalarie(w http.ResponseWriter, r *http.Request) {
 
 func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Titre          string `json:"titre"`
-		Description    string `json:"description"`
-		Lieu           string `json:"lieu"`
-		Date           string `json:"date"`
-		Capacite       int    `json:"capacite"`
-		IdUtilisateurs int    `json:"id_salaries"`
+		Titre          string   `json:"titre"`
+		Description    string   `json:"description"`
+		Lieu           string   `json:"lieu"`
+		Dates          []string `json:"dates"`
+		Capacite       int      `json:"capacite"`
+		IdUtilisateurs int      `json:"id_salaries"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -73,7 +74,12 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := domain.ValiderCreationEvenement(body.Titre, body.Date, body.Lieu, body.Capacite, 0); err != nil {
+	dates, err := validerEtTrierDates(body.Dates)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	if err := domain.ValiderCreationEvenement(body.Titre, dates[0], body.Lieu, body.Capacite, 0); err != nil {
 		httpx.WriteError(w, err)
 		return
 	}
@@ -83,7 +89,7 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var idSalaries int
-	err := database.DB.QueryRow(`
+	err = database.DB.QueryRow(`
 		SELECT Id_Salaries FROM Salaries WHERE Id_Utilisateurs = ?
 	`, body.IdUtilisateurs).Scan(&idSalaries)
 
@@ -95,7 +101,7 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	result, err := database.DB.Exec(`
 		INSERT INTO Evenements (Titre, Description, Lieu, Date_, Capacite, Statut, Statut_validation, Id_Salaries)
 		VALUES (?, ?, ?, ?, ?, 'a_venir', 'en_attente', ?)
-	`, body.Titre, body.Description, body.Lieu, body.Date, body.Capacite, idSalaries)
+	`, body.Titre, body.Description, body.Lieu, dates[0], body.Capacite, idSalaries)
 
 	if err != nil {
 		http.Error(w, `{"message": "Erreur lors de la création"}`, http.StatusInternalServerError)
@@ -103,6 +109,11 @@ func CreateEvenement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, _ := result.LastInsertId()
+
+	if err := remplacerDatesEvenement(int(id), dates); err != nil {
+		http.Error(w, `{"message": "Erreur lors de la création"}`, http.StatusInternalServerError)
+		return
+	}
 
 	database.DB.Exec(`
 		INSERT INTO Animer (Id_Salaries, Id_Evenements) VALUES (?, ?)
@@ -159,11 +170,11 @@ func UpdateEvenement(w http.ResponseWriter, r *http.Request) {
 	id := parts[len(parts)-1]
 
 	var body struct {
-		Titre       string `json:"titre"`
-		Description string `json:"description"`
-		Lieu        string `json:"lieu"`
-		Date        string `json:"date"`
-		Capacite    int    `json:"capacite"`
+		Titre       string   `json:"titre"`
+		Description string   `json:"description"`
+		Lieu        string   `json:"lieu"`
+		Dates       []string `json:"dates"`
+		Capacite    int      `json:"capacite"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -171,18 +182,29 @@ func UpdateEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := domain.ValiderCreationEvenement(body.Titre, body.Date, body.Lieu, body.Capacite, 0); err != nil {
+	dates, err := validerEtTrierDates(body.Dates)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	if err := domain.ValiderCreationEvenement(body.Titre, dates[0], body.Lieu, body.Capacite, 0); err != nil {
 		httpx.WriteError(w, err)
 		return
 	}
 
-	_, err := database.DB.Exec(`
+	_, err = database.DB.Exec(`
 		UPDATE Evenements SET Titre = ?, Description = ?, Lieu = ?, Date_ = ?, Capacite = ?,
 			Statut_validation = 'en_attente', Motif_refus = NULL
 		WHERE Id_Evenements = ? AND Id_Salaries = ?
-	`, body.Titre, body.Description, body.Lieu, body.Date, body.Capacite, id, salarieID)
+	`, body.Titre, body.Description, body.Lieu, dates[0], body.Capacite, id, salarieID)
 
 	if err != nil {
+		http.Error(w, `{"message": "Erreur lors de la mise à jour"}`, http.StatusInternalServerError)
+		return
+	}
+
+	idInt, _ := strconv.Atoi(id)
+	if err := remplacerDatesEvenement(idInt, dates); err != nil {
 		http.Error(w, `{"message": "Erreur lors de la mise à jour"}`, http.StatusInternalServerError)
 		return
 	}

@@ -18,12 +18,13 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 	idUtilisateur := parts[len(parts)-1]
 
 	evRows, err := database.DB.Query(
-		`SELECT e.Id_Evenements, e.Titre, COALESCE(DATE_FORMAT(e.Date_, '%Y-%m-%dT%H:%i:%s'),''), e.Lieu, e.Statut, COALESCE(e.Duree, 0)
+		`SELECT e.Id_Evenements, e.Titre, COALESCE(DATE_FORMAT(ed.Date_session, '%Y-%m-%dT%H:%i:%s'),''), e.Lieu, e.Statut, COALESCE(e.Duree, 0)
 		FROM Evenements e
 		JOIN Participer_evenements pe ON pe.Id_Evenements = e.Id_Evenements
 		JOIN Particuliers p ON p.Id_Particuliers = pe.Id_Particuliers
+		JOIN Evenement_Dates ed ON ed.Id_Evenements = e.Id_Evenements
 		WHERE p.Id_Utilisateurs = ?
-		ORDER BY e.Date_ ASC`, idUtilisateur,
+		ORDER BY ed.Date_session ASC`, idUtilisateur,
 	)
 
 	var evenements []map[string]interface{}
@@ -45,13 +46,14 @@ func GetPlanning(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fRows, err := database.DB.Query(
-		`SELECT f.Id_Formations, f.Titre, COALESCE(DATE_FORMAT(f.Date_formation, '%Y-%m-%dT%H:%i:%s'),''),
+		`SELECT f.Id_Formations, f.Titre, COALESCE(DATE_FORMAT(fd.Date_session, '%Y-%m-%dT%H:%i:%s'),''),
 			COALESCE(f.Localisation, ''), f.Statut, COALESCE(f.Duree, 0), COALESCE(DATE_FORMAT(f.Date_fin, '%Y-%m-%d'),'')
 		FROM Formations f
 		JOIN Reserver_formation rf ON rf.Id_Formations = f.Id_Formations
 		JOIN Particuliers p ON p.Id_Particuliers = rf.Id_Particuliers
+		JOIN Formation_Dates fd ON fd.Id_Formations = f.Id_Formations
 		WHERE p.Id_Utilisateurs = ?
-		ORDER BY f.Date_formation ASC`, idUtilisateur,
+		ORDER BY fd.Date_session ASC`, idUtilisateur,
 	)
 
 	var formations []map[string]interface{}

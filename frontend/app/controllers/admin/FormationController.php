@@ -26,9 +26,13 @@ class FormationController
             $salaries = $salResult['data'] ?? (is_array($salResult) ? $salResult : []);
         } catch (\Exception $e) { $salaries = []; }
 
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['error']);
+
         return view('admin.formations.index', [
             'formations' => $formations,
             'salaries'   => $salaries,
+            'error'      => $error,
             'page_title' => 'Catalogue & Validations',
             'page_subtitle' => 'Gérez les formations et approuvez les demandes des salariés'
         ]);
@@ -36,6 +40,7 @@ class FormationController
 
     public function store()
     {
+        $dates = array_values(array_filter(array_map('trim', $_POST['dates'] ?? []), fn($d) => $d !== ''));
         $data = [
             'titre'         => $_POST['titre'] ?? '',
             'description'   => $_POST['description'] ?? '',
@@ -43,14 +48,18 @@ class FormationController
             'duree'         => (int)($_POST['duree'] ?? 0),
             'statut'        => $_POST['statut'] ?? 'en_attente',
             'id_salaries'   => (int)($_POST['id_salaries'] ?? 1),
-            'date_formation'=> $_POST['date_formation'] ?? date('Y-m-d H:i:s'),
+            'dates'         => $dates,
             'places_total'  => (int)($_POST['places_total'] ?? 20),
             'localisation'  => $_POST['localisation'] ?? 'Siège UpcycleConnect'
         ];
 
         try {
             $this->api->post('/admin/formations', $data);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/formations');
+            exit;
+        }
 
         header('Location: /admin/formations');
         exit;

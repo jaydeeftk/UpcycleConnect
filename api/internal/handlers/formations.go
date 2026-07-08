@@ -182,16 +182,16 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		var body struct {
-			Titre         string  `json:"titre"`
-			Description   string  `json:"description"`
-			Prix          float64 `json:"prix"`
-			Duree         int     `json:"duree"`
-			Statut        string  `json:"statut"`
-			DateFormation string  `json:"date_formation"`
-			DateFin       string  `json:"date_fin"`
-			PlacesTotal   int     `json:"places_total"`
-			Localisation  string  `json:"localisation"`
-			IdSalaries    int     `json:"id_salaries"`
+			Titre        string   `json:"titre"`
+			Description  string   `json:"description"`
+			Prix         float64  `json:"prix"`
+			Duree        int      `json:"duree"`
+			Statut       string   `json:"statut"`
+			Dates        []string `json:"dates"`
+			DateFin      string   `json:"date_fin"`
+			PlacesTotal  int      `json:"places_total"`
+			Localisation string   `json:"localisation"`
+			IdSalaries   int      `json:"id_salaries"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
 		if body.PlacesTotal == 0 {
@@ -200,34 +200,53 @@ func AdminFormationAction(w http.ResponseWriter, r *http.Request) {
 		if body.Statut == "" {
 			body.Statut = "en_attente"
 		}
+		dates, err := validerEtTrierDates(body.Dates)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		result, err := database.DB.Exec(
 			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Date_formation, Date_fin, Places_total, Places_dispo, Localisation, Id_Salaries)
 			VALUES (?,?,?,?,?,?,NULLIF(?, ''),?,?,?,?)`,
 			body.Titre, body.Description, body.Prix, body.Duree, body.Statut,
-			body.DateFormation, body.DateFin, body.PlacesTotal, body.PlacesTotal, body.Localisation, body.IdSalaries,
+			dates[0], body.DateFin, body.PlacesTotal, body.PlacesTotal, body.Localisation, body.IdSalaries,
 		)
 		if err != nil {
 			httpx.JSONServerError(w, err)
 			return
 		}
 		newID, _ := result.LastInsertId()
+		if err := remplacerDatesFormation(int(newID), dates); err != nil {
+			httpx.JSONServerError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": newID})
 
 	case http.MethodPut:
 		var body struct {
-			Titre         string  `json:"titre"`
-			Description   string  `json:"description"`
-			Prix          float64 `json:"prix"`
-			Duree         int     `json:"duree"`
-			Statut        string  `json:"statut"`
-			DateFormation string  `json:"date_formation"`
-			DateFin       string  `json:"date_fin"`
+			Titre       string   `json:"titre"`
+			Description string   `json:"description"`
+			Prix        float64  `json:"prix"`
+			Duree       int      `json:"duree"`
+			Statut      string   `json:"statut"`
+			Dates       []string `json:"dates"`
+			DateFin     string   `json:"date_fin"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
+		dates, err := validerEtTrierDates(body.Dates)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		database.DB.Exec(
-			"UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Statut=?, Date_formation=IFNULL(NULLIF(?, ''), Date_formation), Date_fin=NULLIF(?, '') WHERE Id_Formations=?",
-			body.Titre, body.Description, body.Prix, body.Duree, body.Statut, body.DateFormation, body.DateFin, id,
+			"UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Statut=?, Date_formation=?, Date_fin=NULLIF(?, '') WHERE Id_Formations=?",
+			body.Titre, body.Description, body.Prix, body.Duree, body.Statut, dates[0], body.DateFin, id,
 		)
+		idInt, _ := strconv.Atoi(id)
+		if err := remplacerDatesFormation(idInt, dates); err != nil {
+			httpx.JSONServerError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation mise à jour"})
 
 	case http.MethodDelete:

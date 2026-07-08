@@ -165,16 +165,16 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		var body struct {
-			Titre       string  `json:"titre"`
-			Description string  `json:"description"`
-			Date        string  `json:"date"`
-			Lieu        string  `json:"lieu"`
-			Capacite    int     `json:"capacite"`
-			Statut      string  `json:"statut"`
-			Prix        float64 `json:"prix"`
-			Categorie   string  `json:"categorie"`
-			Duree       int     `json:"duree"`
-			IdSalaries  *int    `json:"id_salaries"`
+			Titre       string   `json:"titre"`
+			Description string   `json:"description"`
+			Dates       []string `json:"dates"`
+			Lieu        string   `json:"lieu"`
+			Capacite    int      `json:"capacite"`
+			Statut      string   `json:"statut"`
+			Prix        float64  `json:"prix"`
+			Categorie   string   `json:"categorie"`
+			Duree       int      `json:"duree"`
+			IdSalaries  *int     `json:"id_salaries"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -186,28 +186,37 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 		if body.Duree <= 0 {
 			body.Duree = 2
 		}
+		dates, err := validerEtTrierDates(body.Dates)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
 		result, err := database.DB.Exec(
 			"INSERT INTO Evenements (Titre, Description, Date_, Lieu, Capacite, Statut, Prix, Categorie, Duree, Id_Salaries) VALUES (?,?,?,?,?,?,?,?,?,?)",
-			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, body.Prix, body.Categorie, body.Duree, body.IdSalaries,
+			body.Titre, body.Description, dates[0], body.Lieu, body.Capacite, body.Statut, body.Prix, body.Categorie, body.Duree, body.IdSalaries,
 		)
 		if err != nil {
 			httpx.JSONServerError(w, err)
 			return
 		}
 		newID, _ := result.LastInsertId()
+		if err := remplacerDatesEvenement(int(newID), dates); err != nil {
+			httpx.JSONServerError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": newID})
 
 	case http.MethodPut:
 		var body struct {
-			Titre       string  `json:"titre"`
-			Description string  `json:"description"`
-			Date        string  `json:"date"`
-			Lieu        string  `json:"lieu"`
-			Capacite    int     `json:"capacite"`
-			Statut      string  `json:"statut"`
-			Prix        float64 `json:"prix"`
-			Categorie   string  `json:"categorie"`
-			Duree       int     `json:"duree"`
+			Titre       string   `json:"titre"`
+			Description string   `json:"description"`
+			Dates       []string `json:"dates"`
+			Lieu        string   `json:"lieu"`
+			Capacite    int      `json:"capacite"`
+			Statut      string   `json:"statut"`
+			Prix        float64  `json:"prix"`
+			Categorie   string   `json:"categorie"`
+			Duree       int      `json:"duree"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -219,11 +228,21 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 		if body.Duree <= 0 {
 			body.Duree = 2
 		}
-		_, err := database.DB.Exec(
+		dates, err := validerEtTrierDates(body.Dates)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		_, err = database.DB.Exec(
 			"UPDATE Evenements SET Titre=?, Description=?, Date_=?, Lieu=?, Capacite=?, Statut=?, Prix=?, Categorie=?, Duree=? WHERE Id_Evenements=?",
-			body.Titre, body.Description, body.Date, body.Lieu, body.Capacite, body.Statut, body.Prix, body.Categorie, body.Duree, id,
+			body.Titre, body.Description, dates[0], body.Lieu, body.Capacite, body.Statut, body.Prix, body.Categorie, body.Duree, id,
 		)
 		if err != nil {
+			httpx.JSONServerError(w, err)
+			return
+		}
+		idInt, _ := strconv.Atoi(id)
+		if err := remplacerDatesEvenement(idInt, dates); err != nil {
 			httpx.JSONServerError(w, err)
 			return
 		}
@@ -245,9 +264,38 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 func AdminDeleteEvenement(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	id := parts[len(parts)-1]
+
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+
+	erreurs := facturationSvc.RemboursementParticipantsEvenement(idInt, "Événement annulé (suppression par l'administration)")
+
 	database.DB.Exec("DELETE FROM Animer WHERE Id_Evenements = ?", id)
+	database.DB.Exec("DELETE FROM Administrer WHERE Id_Evenements = ?", id)
+	database.DB.Exec("DELETE FROM Contenir_evenements WHERE Id_Evenements = ?", id)
+	database.DB.Exec("DELETE FROM Catalogue_Evenement WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Participer_evenements WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Planifier_evenements WHERE Id_Evenements = ?", id)
+	database.DB.Exec("UPDATE Avis SET Id_Evenements = NULL WHERE Id_Evenements = ?", id)
+	database.DB.Exec("UPDATE Lignes_Facture SET Id_Evenements = NULL WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Evenements WHERE Id_Evenements = ?", id)
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement supprimé"})
+
+	if len(erreurs) > 0 {
+		details := make([]string, len(erreurs))
+		for i, e := range erreurs {
+			details[i] = e.Error()
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+			"message":               "Événement supprimé, mais la création de certaines demandes de remboursement a échoué et nécessite un traitement manuel.",
+			"erreurs_remboursement": details,
+		})
+		return
+	}
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+		"message": "Événement supprimé. Une demande de remboursement a été créée pour chaque participant ayant payé ; elle apparaîtra dans la liste des demandes à valider par un salarié.",
+	})
 }

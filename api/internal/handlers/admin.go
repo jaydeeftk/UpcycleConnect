@@ -103,6 +103,10 @@ func AdminDashboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		AdminCreateUtilisateur(w, r)
+		return
+	}
 	rows, err := database.DB.Query(
 		`SELECT u.Id_Utilisateurs, COALESCE(u.Nom,''), COALESCE(u.Prenom,''), COALESCE(u.Email,''), COALESCE(u.Statut,''), COALESCE(u.Date_Inscription,''),
 			CASE
@@ -132,6 +136,103 @@ func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	httpx.JSONOK(w, http.StatusOK, users)
+}
+
+func AdminCreateUtilisateur(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Nom           string `json:"nom"`
+		Prenom        string `json:"prenom"`
+		Email         string `json:"email"`
+		Password      string `json:"mot_de_passe"`
+		Role          string `json:"role"`
+		Telephone     string `json:"telephone"`
+		NomEntreprise string `json:"nom_entreprise"`
+		Siret         string `json:"siret"`
+		Type          string `json:"type"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+
+	body.Nom = strings.TrimSpace(body.Nom)
+	body.Prenom = strings.TrimSpace(body.Prenom)
+	body.Email = strings.ToLower(strings.TrimSpace(body.Email))
+	body.NomEntreprise = strings.TrimSpace(body.NomEntreprise)
+
+	if body.Nom == "" || body.Prenom == "" {
+		httpx.JSONError(w, http.StatusBadRequest, "Le nom et le prénom sont requis.")
+		return
+	}
+	if !emailRegex.MatchString(body.Email) {
+		httpx.JSONError(w, http.StatusBadRequest, "Adresse email invalide.")
+		return
+	}
+	if !motDePasseRobuste(body.Password) {
+		httpx.JSONError(w, http.StatusBadRequest, "Mot de passe trop faible : 8 caractères minimum, avec au moins une lettre et un chiffre.")
+		return
+	}
+
+	validRoles := map[string]bool{"particulier": true, "professionnel": true, "salarie": true, "admin": true}
+	if !validRoles[body.Role] {
+		body.Role = "particulier"
+	}
+
+	var siret string
+	if body.Role == "professionnel" {
+		nomVerifie, e := ValiderSiret(body.Siret)
+		if e != nil {
+			httpx.JSONError(w, http.StatusBadRequest, e.Error())
+			return
+		}
+		siret = chiffresSeulement(body.Siret)
+		if nomVerifie != "" {
+			body.NomEntreprise = nomVerifie
+		}
+		if body.NomEntreprise == "" {
+			httpx.JSONError(w, http.StatusBadRequest, "Le nom de l'entreprise est requis.")
+			return
+		}
+	}
+
+	var exists int
+	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs WHERE Email = ?", body.Email).Scan(&exists)
+	if exists > 0 {
+		httpx.JSONError(w, http.StatusConflict, "Email déjà utilisé")
+		return
+	}
+
+	hashed, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
+	if err != nil {
+		httpx.JSONServerError(w, err)
+		return
+	}
+
+	result, err := database.DB.Exec(
+		"INSERT INTO Utilisateurs (Nom, Prenom, Email, Telephone, Mot_de_passe, Statut, Date_Inscription, Id_Langue, Tutoriel_vu) VALUES (?, ?, ?, NULLIF(?,''), ?, 'actif', NOW(), 1, 0)",
+		body.Nom, body.Prenom, body.Email, strings.TrimSpace(body.Telephone), string(hashed),
+	)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de la création du compte")
+		return
+	}
+
+	id, _ := result.LastInsertId()
+
+	switch body.Role {
+	case "admin":
+		database.DB.Exec("INSERT INTO Administrateurs (Id_Utilisateurs) VALUES (?)", id)
+	case "salarie":
+		database.DB.Exec("INSERT INTO Salaries (Id_Utilisateurs) VALUES (?)", id)
+	case "professionnel":
+		database.DB.Exec("INSERT INTO Professionnels_artisans (Nom_Entreprise, Type, Siret, Id_Utilisateurs) VALUES (?, ?, ?, ?)", body.NomEntreprise, body.Type, siret, id)
+	default:
+		database.DB.Exec("INSERT INTO Particuliers (Score, Id_Utilisateurs) VALUES (0, ?)", id)
+	}
+
+	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{
+		"id": id, "nom": body.Nom, "prenom": body.Prenom, "email": body.Email, "role": body.Role,
+	})
 }
 
 func AdminUtilisateurAction(w http.ResponseWriter, r *http.Request) {

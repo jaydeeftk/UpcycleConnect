@@ -1,3 +1,9 @@
+<?php if (!empty($error)): ?>
+    <div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+        <?= htmlspecialchars($error) ?>
+    </div>
+<?php endif; ?>
+
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h2 class="text-2xl font-bold text-slate-800"><?= t('adm_formations_title', 'Gestion des Formations') ?></h2>
@@ -99,10 +105,6 @@
                     <input type="number" name="duree" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><?= t('adm_formations_label_datetime', 'Date & Heure') ?></label>
-                    <input type="datetime-local" name="date_formation" required min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500">
-                </div>
-                <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><?= t('adm_formations_label_places_total', 'Places totales') ?></label>
                     <input type="number" name="places_total" value="20" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500">
                 </div>
@@ -119,6 +121,18 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><?= t('adm_formations_label_dates', 'Dates') ?></label>
+                    <div id="dates-container">
+                        <div class="date-row flex gap-2 mb-2">
+                            <input type="datetime-local" name="dates[]" required min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500">
+                            <button type="button" class="remove-date-btn hidden text-red-500 px-2">&times;</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-date-btn" class="text-sm text-emerald-600 hover:underline">
+                        <?= t('adm_formations_add_date', '+ Ajouter une autre date') ?>
+                    </button>
+                </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="document.getElementById('modal-formation').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg transition-colors"><?= t('adm_btn_cancel', 'Annuler') ?></button>
@@ -127,6 +141,28 @@
         </form>
     </div>
 </div>
+
+<script>
+(function() {
+    const container = document.getElementById('dates-container');
+    function updateRemoveButtons() {
+        const rows = container.querySelectorAll('.date-row');
+        rows.forEach(row => row.querySelector('.remove-date-btn').classList.toggle('hidden', rows.length === 1));
+    }
+    document.getElementById('add-date-btn').addEventListener('click', function() {
+        const row = container.querySelector('.date-row').cloneNode(true);
+        row.querySelector('input').value = '';
+        container.appendChild(row);
+        updateRemoveButtons();
+    });
+    container.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-date-btn')) {
+            e.target.closest('.date-row').remove();
+            updateRemoveButtons();
+        }
+    });
+})();
+</script>
 
 <script>
 function filterTable(inputId, tableId) {

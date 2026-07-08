@@ -135,6 +135,32 @@ func (AnnonceRepo) ReserverDon(q Querier, idAnnonce, idUtilisateurDestinataire i
 }
 
 func (AnnonceRepo) Supprimer(q Querier, idAnnonce int) (int64, error) {
+	if _, err := q.Exec(
+		`DELETE mc FROM Messages_Conversation mc
+		 JOIN Conversations c ON c.Id_Conversations = mc.Id_Conversations
+		 WHERE c.Id_Annonces = ?`, idAnnonce,
+	); err != nil {
+		return 0, err
+	}
+	if _, err := q.Exec("DELETE FROM Conversations WHERE Id_Annonces = ?", idAnnonce); err != nil {
+		return 0, err
+	}
+	if _, err := q.Exec("DELETE FROM Medias WHERE Id_Annonces = ?", idAnnonce); err != nil {
+		return 0, err
+	}
+	if _, err := q.Exec("DELETE FROM Consulter WHERE Id_Annonces = ?", idAnnonce); err != nil {
+		return 0, err
+	}
+	if _, err := q.Exec("DELETE FROM Favoris WHERE Id_Annonces = ?", idAnnonce); err != nil {
+		return 0, err
+	}
+	if _, err := q.Exec("UPDATE Demandes_conteneurs SET Id_Annonces = NULL WHERE Id_Annonces = ?", idAnnonce); err != nil {
+		return 0, err
+	}
+	if _, err := q.Exec("UPDATE Commissions SET Id_Annonces = NULL WHERE Id_Annonces = ?", idAnnonce); err != nil {
+		return 0, err
+	}
+
 	res, err := q.Exec("DELETE FROM Annonces WHERE Id_Annonces = ?", idAnnonce)
 	if err != nil {
 		return 0, err

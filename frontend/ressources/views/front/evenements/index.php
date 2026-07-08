@@ -1,5 +1,5 @@
 <?php
-// On masque les evenements deja passes (date < aujourd'hui).
+
 $evenements = array_values(array_filter($evenements ?? [], function ($e) {
     $d = $e['date'] ?? '';
     if ($d === '') return true;

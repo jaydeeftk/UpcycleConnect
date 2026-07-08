@@ -673,6 +673,29 @@ func (FacturationRepo) DemandeRembPourMAJ(q Querier, idDemande int) (DemandeRemb
 	return d, err
 }
 
+func (FacturationRepo) PaiementsPayesPourEvenement(q Querier, idEvenement int) ([]int, error) {
+	rows, err := q.Query(
+		`SELECT DISTINCT p.Id_Paiements
+		 FROM Paiements p
+		 JOIN Lignes_Facture lf ON lf.Id_Facture = p.Id_Facture
+		 WHERE lf.Id_Evenements = ? AND p.Statut = 'paye'`,
+		idEvenement,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []int
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
 func (FacturationRepo) PaiementRembInfoPourMAJ(q Querier, idPaiement int) (PaiementRembInfo, error) {
 	var p PaiementRembInfo
 	err := q.QueryRow(

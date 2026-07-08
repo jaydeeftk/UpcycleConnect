@@ -1218,7 +1218,7 @@ return [
     'adm_contrats_empty' => 'No contracts',
     'adm_contrats_confirm_delete' => 'Delete this contract?',
 
-    // Subscriptions
+    
     'adm_abo_title' => 'Pro Subscriptions',
     'adm_abo_subtitle' => 'Premium subscriptions taken out by professionals',
     'adm_abo_col_pro' => 'Professional',

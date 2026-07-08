@@ -920,6 +920,52 @@ func (s *FacturationService) RefuserDemandeRemboursement(idDemande int) error {
 	})
 }
 
+func (s *FacturationService) RemboursementParticipantsEvenement(idEvenement int, motif string) []error {
+	idsPaiements, err := s.repo.PaiementsPayesPourEvenement(database.DB, idEvenement)
+	if err != nil {
+		return []error{fmt.Errorf("lecture des paiements de l'événement %d : %w", idEvenement, err)}
+	}
+	var erreurs []error
+	for _, idPaiement := range idsPaiements {
+		if err := s.creerDemandeRemboursementSysteme(idPaiement, motif); err != nil {
+			erreurs = append(erreurs, fmt.Errorf("paiement #%d : %w", idPaiement, err))
+		}
+	}
+	return erreurs
+}
+
+func (s *FacturationService) creerDemandeRemboursementSysteme(idPaiement int, motif string) error {
+	return withTx(func(tx *sql.Tx) error {
+		owner, statut, err := s.repo.PaiementOwnerStatutPourMAJ(tx, idPaiement)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Paiement introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if statut != domain.StatutPaiementPaye {
+			return nil
+		}
+		existe, err := s.repo.DemandeRembEnCoursExiste(tx, idPaiement)
+		if err != nil {
+			return err
+		}
+		if existe {
+			return nil
+		}
+		idPart, err := s.repo.IdParticulier(tx, owner)
+		if err != nil {
+			return err
+		}
+		if _, err := s.repo.CreerDemandeRemboursement(tx, idPaiement, idPart, motif); err != nil {
+			return err
+		}
+		_ = s.repo.NotifierUtilisateur(tx, owner,
+			"Votre inscription a été annulée suite à la suppression de l'événement. Une demande de remboursement a été créée et sera traitée prochainement par notre équipe.")
+		return nil
+	})
+}
+
 func (s *FacturationService) RefundDirect(idPaiement int, motif string) error {
 	var idDemande int64
 	err := withTx(func(tx *sql.Tx) error {

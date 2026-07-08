@@ -90,21 +90,26 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodPost:
 		var body struct {
-			Titre         string  `json:"titre"`
-			Description   string  `json:"description"`
-			Prix          float64 `json:"prix"`
-			Duree         int     `json:"duree"`
-			DateFormation string  `json:"date_formation"`
-			DateFin       string  `json:"date_fin"`
-			PlacesTotal   int     `json:"places_total"`
-			Localisation  string  `json:"localisation"`
-			Categorie     string  `json:"categorie"`
+			Titre        string   `json:"titre"`
+			Description  string   `json:"description"`
+			Prix         float64  `json:"prix"`
+			Duree        int      `json:"duree"`
+			Dates        []string `json:"dates"`
+			DateFin      string   `json:"date_fin"`
+			PlacesTotal  int      `json:"places_total"`
+			Localisation string   `json:"localisation"`
+			Categorie    string   `json:"categorie"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
 			return
 		}
-		if err := domain.ValiderCreationFormation(body.Titre, body.DateFormation, body.PlacesTotal, body.Prix); err != nil {
+		dates, err := validerEtTrierDates(body.Dates)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		if err := domain.ValiderCreationFormation(body.Titre, dates[0], body.PlacesTotal, body.Prix); err != nil {
 			httpx.WriteError(w, err)
 			return
 		}
@@ -115,7 +120,7 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 			`INSERT INTO Formations (Titre, Description, Prix, Duree, Statut, Statut_validation, Date_formation, Date_fin,
 				Places_total, Places_dispo, Localisation, Categorie, Id_Salaries)
 			VALUES (?,?,?,?,'en_attente','en_attente',?,NULLIF(?, ''),?,?,?,?,?)`,
-			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation, body.DateFin,
+			body.Titre, body.Description, body.Prix, body.Duree, dates[0], body.DateFin,
 			body.PlacesTotal, body.PlacesTotal, body.Localisation, body.Categorie, salarieID,
 		)
 		if err != nil {
@@ -123,6 +128,10 @@ func SalarieFormationsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		id, _ := result.LastInsertId()
+		if err := remplacerDatesFormation(int(id), dates); err != nil {
+			httpx.JSONServerError(w, err)
+			return
+		}
 		httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id": id, "message": "Formation soumise pour validation"})
 
 	default:

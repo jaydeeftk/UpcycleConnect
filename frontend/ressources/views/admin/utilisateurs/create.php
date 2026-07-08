@@ -35,15 +35,40 @@
         <div>
             <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_role', 'Rôle') ?></label>
             <?php $oldRole = $old['role'] ?? 'particulier'; ?>
-            <select name="role" class="w-full border rounded-lg px-3 py-2 text-sm">
+            <select name="role" id="role-select" class="w-full border rounded-lg px-3 py-2 text-sm">
                 <option value="particulier" <?= $oldRole === 'particulier' ? 'selected' : '' ?>><?= t('adm_role_particulier', 'Particulier') ?></option>
                 <option value="professionnel" <?= $oldRole === 'professionnel' ? 'selected' : '' ?>><?= t('adm_role_pro_artisan', 'Professionnel/Artisan') ?></option>
                 <option value="salarie" <?= $oldRole === 'salarie' ? 'selected' : '' ?>><?= t('adm_role_salarie', 'Salarié') ?></option>
                 <option value="admin" <?= $oldRole === 'admin' ? 'selected' : '' ?>><?= t('adm_role_admin', 'Administrateur') ?></option>
             </select>
         </div>
+        <div id="pro-fields" style="<?= $oldRole === 'professionnel' ? '' : 'display:none' ?>" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_siret', 'SIRET *') ?></label>
+                <input type="text" name="siret" inputmode="numeric" maxlength="17" value="<?= htmlspecialchars($old['siret'] ?? '') ?>" class="w-full border rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_nom_entreprise', "Nom de l'entreprise") ?></label>
+                <input type="text" name="nom_entreprise" value="<?= htmlspecialchars($old['nom_entreprise'] ?? '') ?>" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <p class="text-xs text-gray-400 mt-1">Laisser vide pour utiliser le nom officiel trouvé via le SIRET.</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_type', 'Type') ?></label>
+                <?php $oldType = $old['type'] ?? 'artisan'; ?>
+                <select name="type" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="artisan" <?= $oldType === 'artisan' ? 'selected' : '' ?>><?= t('adm_type_artisan', 'Artisan') ?></option>
+                    <option value="professionnel" <?= $oldType === 'professionnel' ? 'selected' : '' ?>><?= t('adm_type_pro', 'Professionnel') ?></option>
+                    <option value="entreprise" <?= $oldType === 'entreprise' ? 'selected' : '' ?>><?= t('adm_type_entreprise', 'Entreprise') ?></option>
+                </select>
+            </div>
+        </div>
         <button type="submit" class="w-full bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 font-medium">
             <i class="fas fa-user-plus mr-2"></i><?= t('adm_users_create_submit', 'Créer l\'utilisateur') ?>
         </button>
     </form>
 </div>
+<script>
+document.getElementById('role-select').addEventListener('change', function() {
+    document.getElementById('pro-fields').style.display = this.value === 'professionnel' ? '' : 'none';
+});
+</script>

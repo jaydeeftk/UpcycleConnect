@@ -140,12 +140,15 @@ func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 
 func AdminCreateUtilisateur(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Nom       string `json:"nom"`
-		Prenom    string `json:"prenom"`
-		Email     string `json:"email"`
-		Password  string `json:"mot_de_passe"`
-		Role      string `json:"role"`
-		Telephone string `json:"telephone"`
+		Nom           string `json:"nom"`
+		Prenom        string `json:"prenom"`
+		Email         string `json:"email"`
+		Password      string `json:"mot_de_passe"`
+		Role          string `json:"role"`
+		Telephone     string `json:"telephone"`
+		NomEntreprise string `json:"nom_entreprise"`
+		Siret         string `json:"siret"`
+		Type          string `json:"type"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -155,6 +158,7 @@ func AdminCreateUtilisateur(w http.ResponseWriter, r *http.Request) {
 	body.Nom = strings.TrimSpace(body.Nom)
 	body.Prenom = strings.TrimSpace(body.Prenom)
 	body.Email = strings.ToLower(strings.TrimSpace(body.Email))
+	body.NomEntreprise = strings.TrimSpace(body.NomEntreprise)
 
 	if body.Nom == "" || body.Prenom == "" {
 		httpx.JSONError(w, http.StatusBadRequest, "Le nom et le prénom sont requis.")
@@ -172,6 +176,23 @@ func AdminCreateUtilisateur(w http.ResponseWriter, r *http.Request) {
 	validRoles := map[string]bool{"particulier": true, "professionnel": true, "salarie": true, "admin": true}
 	if !validRoles[body.Role] {
 		body.Role = "particulier"
+	}
+
+	var siret string
+	if body.Role == "professionnel" {
+		nomVerifie, e := ValiderSiret(body.Siret)
+		if e != nil {
+			httpx.JSONError(w, http.StatusBadRequest, e.Error())
+			return
+		}
+		siret = chiffresSeulement(body.Siret)
+		if nomVerifie != "" {
+			body.NomEntreprise = nomVerifie
+		}
+		if body.NomEntreprise == "" {
+			httpx.JSONError(w, http.StatusBadRequest, "Le nom de l'entreprise est requis.")
+			return
+		}
 	}
 
 	var exists int
@@ -204,7 +225,7 @@ func AdminCreateUtilisateur(w http.ResponseWriter, r *http.Request) {
 	case "salarie":
 		database.DB.Exec("INSERT INTO Salaries (Id_Utilisateurs) VALUES (?)", id)
 	case "professionnel":
-		database.DB.Exec("INSERT INTO Professionnels_artisans (Nom_Entreprise, Type, Siret, Id_Utilisateurs) VALUES ('', '', NULLIF('',''), ?)", id)
+		database.DB.Exec("INSERT INTO Professionnels_artisans (Nom_Entreprise, Type, Siret, Id_Utilisateurs) VALUES (?, ?, ?, ?)", body.NomEntreprise, body.Type, siret, id)
 	default:
 		database.DB.Exec("INSERT INTO Particuliers (Score, Id_Utilisateurs) VALUES (0, ?)", id)
 	}

@@ -57,6 +57,9 @@ class UtilisateurController
                 'mot_de_passe' => $_POST['mot_de_passe'] ?? '',
                 'role'         => $_POST['role'] ?? 'particulier',
                 'telephone'    => $_POST['telephone'] ?? '',
+                'nom_entreprise' => $_POST['nom_entreprise'] ?? '',
+                'siret'        => $_POST['siret'] ?? '',
+                'type'         => $_POST['type'] ?? '',
             ]);
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
@@ -65,6 +68,9 @@ class UtilisateurController
                 'prenom' => $_POST['prenom'] ?? '',
                 'email'  => $_POST['email'] ?? '',
                 'role'   => $_POST['role'] ?? 'particulier',
+                'nom_entreprise' => $_POST['nom_entreprise'] ?? '',
+                'siret'  => $_POST['siret'] ?? '',
+                'type'   => $_POST['type'] ?? '',
             ];
             redirect('/admin/utilisateurs/create');
             return;

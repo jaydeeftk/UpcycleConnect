@@ -80,11 +80,16 @@ func ServiceProAction(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Prestation mise à jour"})
 
 	case http.MethodDelete:
-		if err := serviceCatalogueSvc.Supprimer(idPro, idService); err != nil {
+		archivee, err := serviceCatalogueSvc.Supprimer(idPro, idService)
+		if err != nil {
 			httpx.WriteError(w, err)
 			return
 		}
-		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Prestation supprimée"})
+		msg := "Prestation supprimée"
+		if archivee {
+			msg = "Prestation archivée : des commandes y sont liées, l'historique est conservé"
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": msg})
 
 	default:
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

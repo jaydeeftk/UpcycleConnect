@@ -136,15 +136,22 @@ func (s *ServiceCatalogueService) Modifier(idPro, idService int, titre, descript
 	return s.repo.Modifier(database.DB, idService, titre, description, prix, duree, categorie)
 }
 
-func (s *ServiceCatalogueService) Supprimer(idPro, idService int) error {
+func (s *ServiceCatalogueService) Supprimer(idPro, idService int) (bool, error) {
 	idProDuService, err := s.repo.IdProDuService(database.DB, idService)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if err := domain.PeutModifierServiceCatalogue(idProDuService, idPro); err != nil {
-		return err
+		return false, err
 	}
-	return s.repo.Supprimer(database.DB, idService)
+	aCommandes, err := s.repo.ServiceADesCommandes(database.DB, idService)
+	if err != nil {
+		return false, err
+	}
+	if aCommandes {
+		return true, s.repo.Archiver(database.DB, idService)
+	}
+	return false, s.repo.Supprimer(database.DB, idService)
 }
 
 func (s *ServiceCatalogueService) CreerCommande(idUtilisateur, idService int, nomObjet, descriptionObjet, photoURL string) (idCommande int, prix float64, titre string, err error) {

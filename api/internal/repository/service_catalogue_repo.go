@@ -50,6 +50,7 @@ func (ServiceCatalogueRepo) ListerCatalogue(q Querier) ([]ServiceCatalogueLigne,
 		 LEFT JOIN Professionnels_artisans pa ON pa.Id_Professionnels = s.Id_Professionnels
 		 LEFT JOIN Salaries sa ON sa.Id_Salaries = s.Id_Salaries
 		 LEFT JOIN Utilisateurs u ON u.Id_Utilisateurs = COALESCE(pa.Id_Utilisateurs, sa.Id_Utilisateurs)
+		 WHERE s.archived_at IS NULL
 		 ORDER BY EXISTS(
 			SELECT 1 FROM Publicites p2
 			WHERE p2.Id_Services = s.Id_Services AND p2.Statut = 'active'
@@ -75,7 +76,7 @@ func (ServiceCatalogueRepo) ListerParPro(q Querier, idPro int) ([]ServiceCatalog
 	rows, err := q.Query(
 		`SELECT Id_Services, COALESCE(Titre,''), COALESCE(Description,''), COALESCE(Prix,0),
 			COALESCE(Duree,0), COALESCE(Categorie,''), COALESCE(Id_Professionnels,0), '', 'pro'
-		 FROM Services WHERE Id_Professionnels = ? ORDER BY Id_Services DESC`,
+		 FROM Services WHERE Id_Professionnels = ? AND archived_at IS NULL ORDER BY Id_Services DESC`,
 		idPro,
 	)
 	if err != nil {
@@ -115,6 +116,17 @@ func (ServiceCatalogueRepo) Modifier(q Querier, idService int, titre, descriptio
 func (ServiceCatalogueRepo) Supprimer(q Querier, idService int) error {
 	_, err := q.Exec("DELETE FROM Services WHERE Id_Services=?", idService)
 	return err
+}
+
+func (ServiceCatalogueRepo) Archiver(q Querier, idService int) error {
+	_, err := q.Exec("UPDATE Services SET archived_at = NOW() WHERE Id_Services=?", idService)
+	return err
+}
+
+func (ServiceCatalogueRepo) ServiceADesCommandes(q Querier, idService int) (bool, error) {
+	var n int
+	err := q.QueryRow("SELECT COUNT(*) FROM Commandes_Services WHERE Id_Services = ?", idService).Scan(&n)
+	return n > 0, err
 }
 
 func (ServiceCatalogueRepo) IdProDuService(q Querier, idService int) (int, error) {

@@ -23,7 +23,7 @@ class FinancesController
 
         $remboursements = [];
         try {
-            $res = $this->api->get('/remboursements');
+            $res = $this->api->get('/admin/remboursements');
             $remboursements = $res['data'] ?? (is_array($res) && !isset($res['success']) ? $res : []);
         } catch (\Exception $e) {
             $remboursements = [];

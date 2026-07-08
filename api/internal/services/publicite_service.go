@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"upcycleconnect/internal/database"
@@ -108,6 +109,51 @@ func (s *PubliciteService) AnnulerPourPro(idPro int, id string) error {
 		if !appartient {
 			return domain.Introuvable("Campagne introuvable")
 		}
+		statut, err := s.repo.StatutPourMAJ(tx, id)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Campagne introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if err := domain.PeutAnnulerPublicite(statut); err != nil {
+			return err
+		}
+		return s.repo.MajStatut(tx, id, domain.StatutPubliciteAnnulee)
+	})
+}
+
+type PubliciteAdminDTO struct {
+	ID            string  `json:"id"`
+	Type          string  `json:"type"`
+	Prix          float64 `json:"prix"`
+	DateDebut     string  `json:"date_debut"`
+	DateFin       string  `json:"date_fin"`
+	Statut        string  `json:"statut"`
+	Entreprise    string  `json:"entreprise"`
+	Professionnel string  `json:"professionnel"`
+	Annulable     bool    `json:"annulable"`
+}
+
+func (s *PubliciteService) ListerTout() ([]PubliciteAdminDTO, error) {
+	lignes, err := s.repo.ListerTout(database.DB)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]PubliciteAdminDTO, 0, len(lignes))
+	for _, p := range lignes {
+		out = append(out, PubliciteAdminDTO{
+			ID: p.ID, Type: p.Type, Prix: p.Prix, DateDebut: p.DateDebut, DateFin: p.DateFin,
+			Statut: p.Statut, Entreprise: p.Entreprise,
+			Professionnel: strings.TrimSpace(p.Prenom + " " + p.Nom),
+			Annulable:     p.Statut == domain.StatutPubliciteActive,
+		})
+	}
+	return out, nil
+}
+
+func (s *PubliciteService) Annuler(id string) error {
+	return withTx(func(tx *sql.Tx) error {
 		statut, err := s.repo.StatutPourMAJ(tx, id)
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Introuvable("Campagne introuvable")

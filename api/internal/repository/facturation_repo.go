@@ -976,23 +976,34 @@ type FinancesAgregat struct {
 	TotalHT          float64        `json:"total_ht"`
 	TotalTTC         float64        `json:"total_ttc"`
 	TotalCommissions float64        `json:"total_commissions"`
-	CAParMois        []MoisCA       `json:"ca_par_mois"`
-	Statuts          map[string]int `json:"statuts"`
+	CAParMois        []MoisCA           `json:"ca_par_mois"`
+	Statuts          map[string]int     `json:"statuts"`
+	CAParSource      map[string]float64 `json:"ca_par_source"`
 }
 
 func (FacturationRepo) AgregatFinances(q Querier) (FinancesAgregat, error) {
-	agg := FinancesAgregat{CAParMois: []MoisCA{}, Statuts: map[string]int{}}
+	agg := FinancesAgregat{CAParMois: []MoisCA{}, Statuts: map[string]int{}, CAParSource: map[string]float64{}}
 
-	if err := q.QueryRow(
-		"SELECT COUNT(*), COALESCE(SUM(Montant_HT),0), COALESCE(SUM(Montant_TTC),0) FROM Factures",
-	).Scan(&agg.NbFactures, &agg.TotalHT, &agg.TotalTTC); err != nil {
+	var caAbonnements, caPublicites, caCommissions float64
+	if err := q.QueryRow("SELECT COALESCE(SUM(Prix),0) FROM Abonnement WHERE Statut='actif'").Scan(&caAbonnements); err != nil {
 		return agg, err
 	}
-	if err := q.QueryRow(
-		"SELECT COALESCE(SUM(Montant),0) FROM Commissions",
-	).Scan(&agg.TotalCommissions); err != nil {
+	if err := q.QueryRow("SELECT COALESCE(SUM(Prix),0) FROM Publicites WHERE Statut='active'").Scan(&caPublicites); err != nil {
 		return agg, err
 	}
+	if err := q.QueryRow("SELECT COALESCE(SUM(Montant),0) FROM Commissions").Scan(&caCommissions); err != nil {
+		return agg, err
+	}
+	if err := q.QueryRow("SELECT COUNT(*) FROM Factures").Scan(&agg.NbFactures); err != nil {
+		return agg, err
+	}
+
+	agg.TotalCommissions = caCommissions
+	agg.TotalTTC = caAbonnements + caPublicites + caCommissions
+	agg.TotalHT = agg.TotalTTC / 1.2
+	agg.CAParSource["abonnements"] = caAbonnements
+	agg.CAParSource["publicites"] = caPublicites
+	agg.CAParSource["commissions"] = caCommissions
 
 	rows, err := q.Query(
 		`SELECT DATE_FORMAT(Date_emission,'%Y-%m') AS mois, COALESCE(SUM(Montant_TTC),0)

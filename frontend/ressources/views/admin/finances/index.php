@@ -52,14 +52,37 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h3 class="text-lg font-bold text-slate-800 mb-6"><?= t('adm_finances_ca_evolution', 'Évolution du CA (12 derniers mois)') ?></h3>
-        <canvas id="caChart" height="120"></canvas>
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-slate-800"><?= t('adm_finances_split_source', 'Répartition du chiffre d\'affaires') ?></h3>
+        <span class="text-sm text-slate-400"><?= number_format($finances['total_ttc'] ?? 0, 2, ',', ' ') ?> € <?= t('adm_finances_total_label', 'au total') ?></span>
     </div>
-    <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h3 class="text-lg font-bold text-slate-800 mb-6"><?= t('adm_finances_split_status', 'Répartition par Statut') ?></h3>
-        <canvas id="statutChart" height="250"></canvas>
+    <?php
+    $src = $finances['ca_par_source'] ?? [];
+    $caTotal = array_sum($src) ?: 1;
+    $sources = [
+        [t('adm_finances_src_abo', 'Abonnements'), (float)($src['abonnements'] ?? 0), '/admin/abonnements', 'fa-id-card',          'text-emerald-500', 'bg-emerald-500'],
+        [t('adm_finances_src_pub', 'Publicités'),  (float)($src['publicites'] ?? 0),  '/admin/publicites',  'fa-ad',              'text-blue-500',    'bg-blue-500'],
+        [t('adm_finances_src_com', 'Commissions'), (float)($src['commissions'] ?? 0), '/admin/commissions', 'fa-hand-holding-usd','text-purple-500',  'bg-purple-500'],
+    ];
+    ?>
+    <div class="space-y-5">
+        <?php foreach ($sources as [$label, $montant, $lien, $icon, $txtColor, $barColor]):
+            $pct = round($montant / $caTotal * 100);
+        ?>
+        <a href="<?= $lien ?>" class="block group">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <i class="fas <?= $icon ?> <?= $txtColor ?>"></i><?= $label ?>
+                    <i class="fas fa-arrow-right text-xs text-slate-300 group-hover:text-slate-500 transition"></i>
+                </span>
+                <span class="text-sm font-bold text-slate-800"><?= number_format($montant, 2, ',', ' ') ?> € <span class="text-slate-400 font-normal">(<?= $pct ?>%)</span></span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5">
+                <div class="<?= $barColor ?> h-2.5 rounded-full" style="width: <?= $pct ?>%"></div>
+            </div>
+        </a>
+        <?php endforeach; ?>
     </div>
 </div>
 
@@ -126,66 +149,3 @@
     </div>
     <?php endif; ?>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const finances = <?= json_encode($finances ?? []) ?>;
-
-        const caData = finances.ca_par_mois || [];
-        const labelsCA = caData.map(item => item.mois);
-        const dataCA = caData.map(item => item.ca);
-
-        new Chart(document.getElementById('caChart'), {
-            type: 'line',
-            data: {
-                labels: labelsCA.length ? labelsCA : ['<?= t('adm_finances_js_no_data', 'Aucune donnée') ?>'],
-                datasets: [{
-                    label: '<?= t('adm_finances_js_ca_label', 'Chiffre d\'Affaires TTC (€)') ?>',
-                    data: dataCA.length ? dataCA : [0],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#10b981',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#10b981',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        const statuts = finances.statuts || {};
-        const labelsStatut = Object.keys(statuts);
-        const dataStatut = Object.values(statuts);
-
-        new Chart(document.getElementById('statutChart'), {
-            type: 'doughnut',
-            data: {
-                labels: labelsStatut.length ? labelsStatut : ['<?= t('adm_finances_js_no_facture', 'Aucune facture') ?>'],
-                datasets: [{
-                    data: dataStatut.length ? dataStatut : [1],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                    borderWidth: 2,
-                    borderColor: '#ffffff',
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                cutout: '70%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } }
-                }
-            }
-        });
-    });
-</script>

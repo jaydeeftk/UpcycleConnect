@@ -147,3 +147,29 @@ func ProfessionnelPubliciteCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"checkout_url": s.URL})
 }
+
+func AdminGetPublicites(w http.ResponseWriter, r *http.Request) {
+	liste, err := publiciteSvc.ListerTout()
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, liste)
+}
+
+func AdminPubliciteAction(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	segs := segmentsApres(r.URL.Path, "/api/admin/publicites/")
+	if len(segs) != 2 || segs[1] != "annuler" {
+		httpx.JSONError(w, http.StatusBadRequest, "Chemin invalide")
+		return
+	}
+	if err := publiciteSvc.Annuler(segs[0]); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Campagne annulée"})
+}

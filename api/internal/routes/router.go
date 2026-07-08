@@ -218,6 +218,9 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/api/admin/finances", middleware.AdminOnly(handlers.AdminGetFinances))
 	mux.HandleFunc("/api/admin/commissions", middleware.AdminOnly(handlers.AdminGetCommissions))
+	mux.HandleFunc("/api/admin/remboursements", middleware.AdminOnly(handlers.ListerDemandesRemboursement))
+	mux.HandleFunc("/api/admin/publicites", middleware.AdminOnly(handlers.AdminGetPublicites))
+	mux.HandleFunc("/api/admin/publicites/", middleware.AdminOnly(handlers.AdminPubliciteAction))
 
 	mux.HandleFunc("/api/admin/services", middleware.AdminOnly(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {

@@ -188,6 +188,9 @@ $router->group(['prefix' => 'admin'], function($router) {
 
     $router->get('/abonnements', 'Admin\AbonnementController@index');
 
+    $router->get('/publicites', 'Admin\PubliciteController@index');
+    $router->post('/publicites/{id}/annuler', 'Admin\PubliciteController@annuler');
+
     $router->get('/factures', 'Admin\FactureController@index');
     $router->get('/factures/{id}/pdf', 'Admin\FactureController@pdf');
     $router->get('/notifications', 'Admin\NotificationController@index');

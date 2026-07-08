@@ -78,3 +78,39 @@ func (PubliciteRepo) StatutPourMAJ(q Querier, id string) (string, error) {
 	).Scan(&statut)
 	return statut, err
 }
+
+type PubliciteLigneAdmin struct {
+	ID         string
+	Type       string
+	Prix       float64
+	DateDebut  string
+	DateFin    string
+	Statut     string
+	Entreprise string
+	Nom        string
+	Prenom     string
+}
+
+func (PubliciteRepo) ListerTout(q Querier) ([]PubliciteLigneAdmin, error) {
+	rows, err := q.Query(
+		`SELECT p.Id_Publicites, COALESCE(p.Type,''), COALESCE(p.Prix,0), COALESCE(p.Date_Debut,''), COALESCE(p.Date_Fin,''),
+			COALESCE(p.Statut,''), COALESCE(pa.Nom_Entreprise,''), COALESCE(u.Nom,''), COALESCE(u.Prenom,'')
+		FROM Publicites p
+		LEFT JOIN Professionnels_artisans pa ON pa.Id_Professionnels = p.Id_Professionnels
+		LEFT JOIN Utilisateurs u ON u.Id_Utilisateurs = pa.Id_Utilisateurs
+		ORDER BY p.Date_Debut DESC, p.Id_Publicites DESC`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []PubliciteLigneAdmin{}
+	for rows.Next() {
+		var p PubliciteLigneAdmin
+		if err := rows.Scan(&p.ID, &p.Type, &p.Prix, &p.DateDebut, &p.DateFin, &p.Statut, &p.Entreprise, &p.Nom, &p.Prenom); err != nil {
+			return nil, err
+		}
+		out = append(out, p)
+	}
+	return out, rows.Err()
+}

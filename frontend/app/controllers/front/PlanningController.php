@@ -24,7 +24,6 @@ class PlanningController
         $formations = [];
         $libres     = [];
         $stats      = [];
-        $depots     = [];
 
         try {
             $res        = $this->api->get('/planning/' . $_SESSION['user']['id']);
@@ -32,13 +31,11 @@ class PlanningController
             $evenements = $data['evenements'] ?? [];
             $formations = $data['formations'] ?? [];
             $libres     = $data['libres']     ?? [];
-            $depots     = $data['depots']     ?? [];
             $stats      = $data['stats']      ?? [];
         } catch (\Exception $e) {
             $evenements = [];
             $formations = [];
             $libres     = [];
-            $depots     = [];
             $stats      = [];
         }
 
@@ -46,7 +43,6 @@ class PlanningController
             'title'      => 'Mon Planning - UpcycleConnect',
             'evenements' => $evenements,
             'formations' => $formations,
-            'depots'     => $depots,
             'libres'     => $libres,
             'stats'      => $stats,
         ]);

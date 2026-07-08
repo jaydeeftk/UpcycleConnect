@@ -898,12 +898,13 @@ func (s *FacturationService) RefuserDemandeRemboursement(idDemande int) error {
 	})
 }
 
-// RemboursementParticipantsEvenement rembourse (via Stripe) tous les paiements
-// déjà payés pour un événement donné. Utilisé avant la suppression d'un
-// événement par l'administration, pour que chaque participant inscrit soit
-// remboursé automatiquement. Elle continue même si un remboursement
-// individuel échoue, et renvoie la liste des erreurs rencontrées (le cas
-// échéant) afin que l'admin puisse traiter les cas manuellement.
+// RemboursementParticipantsEvenement crée, pour chaque paiement déjà payé
+// lié à un événement, une demande de remboursement au statut "en_attente".
+// Elle n'exécute PAS le remboursement Stripe : conformément au processus
+// métier, seule la validation d'un salarié (via /api/salaries/remboursements/{id}/approuver)
+// déclenche l'appel Stripe réel. Utilisé avant la suppression d'un événement
+// par l'administration, pour que chaque participant inscrit et déjà payé
+// obtienne une demande de remboursement à traiter.
 func (s *FacturationService) RemboursementParticipantsEvenement(idEvenement int, motif string) []error {
 	idsPaiements, err := s.repo.PaiementsPayesPourEvenement(database.DB, idEvenement)
 	if err != nil {
@@ -911,11 +912,49 @@ func (s *FacturationService) RemboursementParticipantsEvenement(idEvenement int,
 	}
 	var erreurs []error
 	for _, idPaiement := range idsPaiements {
-		if err := s.RefundDirect(idPaiement, motif); err != nil {
+		if err := s.creerDemandeRemboursementSysteme(idPaiement, motif); err != nil {
 			erreurs = append(erreurs, fmt.Errorf("paiement #%d : %w", idPaiement, err))
 		}
 	}
 	return erreurs
+}
+
+// creerDemandeRemboursementSysteme crée une demande de remboursement "en_attente"
+// à l'initiative de la plateforme (et non du client lui-même), par exemple
+// suite à l'annulation d'un événement par l'administration. Elle ne vérifie
+// donc pas que l'appelant est le propriétaire du paiement (contrairement à
+// CreerDemandeRemboursement, utilisée pour les demandes initiées par le client).
+func (s *FacturationService) creerDemandeRemboursementSysteme(idPaiement int, motif string) error {
+	return withTx(func(tx *sql.Tx) error {
+		owner, statut, err := s.repo.PaiementOwnerStatutPourMAJ(tx, idPaiement)
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Introuvable("Paiement introuvable")
+		}
+		if err != nil {
+			return err
+		}
+		if statut != domain.StatutPaiementPaye {
+			// Rien à rembourser (déjà remboursé, en cours, etc.)
+			return nil
+		}
+		existe, err := s.repo.DemandeRembEnCoursExiste(tx, idPaiement)
+		if err != nil {
+			return err
+		}
+		if existe {
+			return nil
+		}
+		idPart, err := s.repo.IdParticulier(tx, owner)
+		if err != nil {
+			return err
+		}
+		if _, err := s.repo.CreerDemandeRemboursement(tx, idPaiement, idPart, motif); err != nil {
+			return err
+		}
+		_ = s.repo.NotifierUtilisateur(tx, owner,
+			"Votre inscription a été annulée suite à la suppression de l'événement. Une demande de remboursement a été créée et sera traitée prochainement par notre équipe.")
+		return nil
+	})
 }
 
 func (s *FacturationService) RefundDirect(idPaiement int, motif string) error {

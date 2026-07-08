@@ -21,17 +21,12 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative group">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 class="font-bold text-slate-800 text-lg">Box #<?= htmlspecialchars($box['id']) ?></h3>
+                    <h3 class="font-bold text-slate-800 text-lg"><?= t('adm_conteneurs_label', 'Conteneur') ?> #<?= htmlspecialchars($box['id']) ?></h3>
                     <p class="text-sm text-slate-500"><i class="fas fa-map-marker-alt text-slate-400 mr-1"></i><?= htmlspecialchars($box['localisation']) ?></p>
                 </div>
                 <span class="px-2 py-1 bg-<?= $statusColor ?>-50 text-<?= $statusColor ?>-600 border border-<?= $statusColor ?>-200 rounded text-xs font-bold uppercase">
                     <?= formatStatut($box['statut']) ?>
                 </span>
-                <?php if (!empty($box['plein'])): ?>
-                    <span class="px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded text-xs font-bold uppercase ml-1">
-                        <i class="fas fa-box-archive mr-1"></i><?= t('adm_conteneurs_full', 'Plein') ?>
-                    </span>
-                <?php endif; ?>
             </div>
 
             <div class="mb-4">
@@ -42,15 +37,13 @@
                 <div class="w-full bg-slate-100 rounded-full h-2.5">
                     <div class="bg-blue-500 h-2.5 rounded-full" style="width: <?= $fillRate ?>%"></div>
                 </div>
-                <p class="text-xs text-slate-400 mt-1 text-right"><?= t('adm_conteneurs_max_capacity_kg', 'Capacité max :') ?> <?= htmlspecialchars($box['capacite']) ?> kg</p>
-                <?php if (!empty($box['hauteur']) || !empty($box['largeur']) || !empty($box['longueur'])): ?>
-                    <p class="text-xs text-slate-400 mt-1 text-right">
-                        <?= t('adm_conteneurs_dimensions', 'Dimensions') ?> :
-                        <?= htmlspecialchars((string)($box['hauteur'] ?? 0)) ?> ×
-                        <?= htmlspecialchars((string)($box['largeur'] ?? 0)) ?> ×
-                        <?= htmlspecialchars((string)($box['longueur'] ?? 0)) ?> cm
-                    </p>
-                <?php endif; ?>
+                <div class="flex items-center justify-between text-xs text-slate-400 mt-2">
+                    <span><i class="fas fa-box-open mr-1"></i><?= (int)($box['nb_standard'] ?? 0) + (int)($box['nb_encombrant'] ?? 0) ?> <?= t('adm_conteneurs_slots', 'casiers') ?> · <?= (int)($box['capacite_totale'] ?? 0) ?> <?= t('adm_conteneurs_obj_max', 'objets max') ?></span>
+                    <span>
+                        <span class="text-slate-500"><?= (int)($box['nb_standard'] ?? 0) ?> <?= t('adm_conteneurs_std', 'standard') ?></span>
+                        · <span class="text-orange-500"><?= (int)($box['nb_encombrant'] ?? 0) ?> <?= t('adm_conteneurs_enc', 'encombrant') ?></span>
+                    </span>
+                </div>
             </div>
 
             <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
@@ -89,24 +82,17 @@
                     <input type="text" name="localisation" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_capacity_max', 'Capacité maximale (kg)') ?></label>
-                    <input type="number" name="capacite" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_capacity_slot', 'Capacité par casier (objets)') ?></label>
+                    <input type="number" name="capacite" required min="1" value="5" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <p class="text-xs text-slate-400 mt-1"><?= t('adm_conteneurs_slot_hint', '6 casiers créés automatiquement : 4 standard + 2 encombrant.') ?></p>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_status_init', 'Statut initial') ?></label>
                     <select name="statut" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
                         <option value="disponible"><?= t('adm_conteneurs_status_disponible', 'Disponible') ?></option>
                         <option value="maintenance"><?= t('adm_conteneurs_status_maintenance', 'En maintenance') ?></option>
-                        <option value="plein"><?= t('adm_conteneurs_status_plein', 'Plein') ?></option>
+                        <option value="hors_service"><?= t('adm_conteneurs_status_hs', 'Hors service') ?></option>
                     </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_dimensions', 'Dimensions (cm)') ?></label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" name="hauteur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_hauteur', 'Hauteur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                        <input type="number" name="largeur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_largeur', 'Largeur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                        <input type="number" name="longueur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_longueur', 'Longueur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
@@ -131,7 +117,7 @@
                     <input type="text" name="localisation" id="edit-localisation" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_capacity_max', 'Capacité maximale (kg)') ?></label>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_capacity_slot', 'Capacité par casier (objets)') ?></label>
                     <input type="number" name="capacite" id="edit-capacite" min="1" required class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
                 <div>
@@ -139,16 +125,8 @@
                     <select name="statut" id="edit-statut" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
                         <option value="disponible"><?= t('adm_conteneurs_status_disponible', 'Disponible') ?></option>
                         <option value="maintenance"><?= t('adm_conteneurs_status_maintenance', 'En maintenance') ?></option>
-                        <option value="plein"><?= t('adm_conteneurs_status_plein', 'Plein') ?></option>
+                        <option value="hors_service"><?= t('adm_conteneurs_status_hs', 'Hors service') ?></option>
                     </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= t('adm_conteneurs_label_dimensions', 'Dimensions (cm)') ?></label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" name="hauteur" id="edit-hauteur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_hauteur', 'Hauteur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                        <input type="number" name="largeur" id="edit-largeur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_largeur', 'Largeur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                        <input type="number" name="longueur" id="edit-longueur" min="0" step="0.1" placeholder="<?= t('adm_conteneurs_longueur', 'Longueur') ?>" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
@@ -165,9 +143,6 @@ function openEditBox(box) {
     document.getElementById('edit-localisation').value = box.localisation || '';
     document.getElementById('edit-capacite').value = box.capacite || '';
     document.getElementById('edit-statut').value = box.statut || 'disponible';
-    document.getElementById('edit-hauteur').value = box.hauteur || '';
-    document.getElementById('edit-largeur').value = box.largeur || '';
-    document.getElementById('edit-longueur').value = box.longueur || '';
     document.getElementById('editModal').classList.remove('hidden');
 }
 </script>

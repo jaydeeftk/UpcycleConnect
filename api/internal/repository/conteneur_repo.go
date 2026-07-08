@@ -458,10 +458,10 @@ func (ConteneurRepo) CreerConteneur(q Querier, localisation string, capacite int
 	return res.LastInsertId()
 }
 
-func (ConteneurRepo) CreerBox(q Querier, reference string, capacite, idConteneur int) error {
+func (ConteneurRepo) CreerBox(q Querier, reference string, capacite, idConteneur int, taille string) error {
 	_, err := q.Exec(
-		"INSERT INTO Box (Reference, Capacite, Statut, Id_Conteneurs) VALUES (?, ?, 'disponible', ?)",
-		reference, capacite, idConteneur,
+		"INSERT INTO Box (Reference, Capacite, Statut, Id_Conteneurs, Taille) VALUES (?, ?, 'disponible', ?, ?)",
+		reference, capacite, idConteneur, taille,
 	)
 	return err
 }

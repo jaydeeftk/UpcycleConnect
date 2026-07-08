@@ -66,9 +66,6 @@ class ConteneurController
                 'localisation' => $_POST['localisation'] ?? '',
                 'capacite'     => (int)($_POST['capacite'] ?? 0),
                 'statut'       => $_POST['statut'] ?? 'disponible',
-                'hauteur'      => (float)($_POST['hauteur'] ?? 0),
-                'largeur'      => (float)($_POST['largeur'] ?? 0),
-                'longueur'     => (float)($_POST['longueur'] ?? 0),
             ]);
         } catch (\Exception $e) {}
         header('Location: /admin/conteneurs');
@@ -82,9 +79,6 @@ class ConteneurController
                 'localisation' => $_POST['localisation'] ?? '',
                 'capacite'     => (int)($_POST['capacite'] ?? 0),
                 'statut'       => $_POST['statut'] ?? 'disponible',
-                'hauteur'      => (float)($_POST['hauteur'] ?? 0),
-                'largeur'      => (float)($_POST['largeur'] ?? 0),
-                'longueur'     => (float)($_POST['longueur'] ?? 0),
             ]);
         } catch (\Exception $e) {}
         header('Location: /admin/conteneurs');

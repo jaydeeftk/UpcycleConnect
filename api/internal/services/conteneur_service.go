@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"upcycleconnect/internal/database"
@@ -361,9 +362,12 @@ type ConteneurAdminDTO struct {
 	Statut       string        `json:"statut"`
 	NbDemandes   int           `json:"nb_demandes"`
 	Occupation   int           `json:"occupation"`
-	FillRate     int           `json:"fill_rate"`
-	Plein        bool          `json:"plein"`
-	Boxes        []BoxAdminDTO `json:"boxes"`
+	FillRate       int           `json:"fill_rate"`
+	Plein          bool          `json:"plein"`
+	CapaciteTotale int           `json:"capacite_totale"`
+	NbStandard     int           `json:"nb_standard"`
+	NbEncombrant   int           `json:"nb_encombrant"`
+	Boxes          []BoxAdminDTO `json:"boxes"`
 }
 
 func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) {
@@ -374,18 +378,36 @@ func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) 
 	out := make([]ConteneurAdminDTO, 0, len(rows))
 	for _, c := range rows {
 		boxes := make([]BoxAdminDTO, 0, len(c.Boxes))
+		nbStd, nbEnc := 0, 0
 		for _, b := range c.Boxes {
+			if b.Taille == domain.TailleBoxEncombrant {
+				nbEnc++
+			} else {
+				nbStd++
+			}
 			boxes = append(boxes, BoxAdminDTO{
 				ID: b.ID, Reference: b.Reference, Taille: b.Taille, Statut: b.Statut,
 				HauteurCm: b.HauteurCm, LargeurCm: b.LargeurCm, LongueurCm: b.LongueurCm,
 			})
 		}
+		plein := c.CapaciteBox > 0 && c.Occupation >= c.CapaciteBox
+		statut := c.Statut
+		if statut != "maintenance" && statut != "hors_service" {
+			if plein {
+				statut = "plein"
+			} else {
+				statut = "disponible"
+			}
+		}
 		out = append(out, ConteneurAdminDTO{
-			ID: c.ID, Localisation: c.Localisation, Capacite: c.Capacite, Statut: c.Statut,
+			ID: c.ID, Localisation: c.Localisation, Capacite: c.Capacite, Statut: statut,
 			NbDemandes: c.NbDemandes, Occupation: c.Occupation,
-			FillRate: domain.TauxRemplissage(c.Occupation, c.CapaciteBox),
-			Plein:    c.CapaciteBox > 0 && c.Occupation >= c.CapaciteBox,
-			Boxes:    boxes,
+			FillRate:       domain.TauxRemplissage(c.Occupation, c.CapaciteBox),
+			Plein:          plein,
+			CapaciteTotale: c.CapaciteBox,
+			NbStandard:     nbStd,
+			NbEncombrant:   nbEnc,
+			Boxes:          boxes,
 		})
 	}
 	return out, nil
@@ -429,7 +451,17 @@ func (s *ConteneurService) CreerConteneur(idUtilisateur int, in ConteneurInput) 
 		}
 		newID = id
 		reference := genererReferenceBox(id)
-		return s.repo.CreerBox(tx, reference, in.Capacite, int(id))
+		for i := 1; i <= 4; i++ {
+			if err := s.repo.CreerBox(tx, fmt.Sprintf("%s-S%d", reference, i), in.Capacite, int(id), domain.TailleBoxStandard); err != nil {
+				return err
+			}
+		}
+		for i := 1; i <= 2; i++ {
+			if err := s.repo.CreerBox(tx, fmt.Sprintf("%s-E%d", reference, i), in.Capacite, int(id), domain.TailleBoxEncombrant); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	return newID, err
 }

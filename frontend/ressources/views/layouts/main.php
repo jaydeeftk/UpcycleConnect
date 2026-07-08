@@ -123,7 +123,7 @@
         .dark .text-gray-700, .dark .text-slate-700 { color: #e2e8f0 !important; }
         .dark .text-gray-600, .dark .text-slate-600 { color: #cbd5e1 !important; }
         .dark .text-gray-500, .dark .text-slate-500 { color: #94a3b8 !important; }
-        .dark .border-gray-200, .dark .border-slate-200 { border-color: #1e293b !important; }
+        .dark .border-gray-200, .dark .border-gray-300, .dark .border-slate-200 { border-color: #334155 !important; }
 
         .dark .bg-green-50,.dark .bg-emerald-50,.dark .bg-teal-50,.dark .bg-lime-50,.dark .bg-green-100,.dark .bg-emerald-100,.dark .bg-teal-100 { background-color: rgba(16,185,129,.14) !important; }
         .dark .bg-blue-50,.dark .bg-sky-50,.dark .bg-cyan-50,.dark .bg-indigo-50,.dark .bg-blue-100,.dark .bg-sky-100,.dark .bg-indigo-100 { background-color: rgba(59,130,246,.14) !important; }

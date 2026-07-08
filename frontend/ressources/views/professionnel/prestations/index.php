@@ -74,9 +74,9 @@
                                         <input type="hidden" name="id_demande" value="<?= (int)($d['id'] ?? 0) ?>">
                                         <input type="number" name="prix" min="1" step="0.01" required
                                                value="<?= htmlspecialchars((string)($d['mon_devis_prix'] ?? '')) ?>"
-                                               class="input input-bordered w-full text-sm" placeholder="Prix (€)">
-                                        <textarea name="message" rows="2" required class="textarea textarea-bordered w-full text-sm" placeholder="Message"></textarea>
-                                        <button type="submit" class="btn btn-sm btn-primary"><?= t('pro_presta_update_btn', 'Mettre à jour') ?></button>
+                                               class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Prix (€)">
+                                        <textarea name="message" rows="2" required class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Message"></textarea>
+                                        <button type="submit" class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition"><?= t('pro_presta_update_btn', 'Mettre à jour') ?></button>
                                     </form>
                                 </details>
                                 <form method="POST" action="/professionnel/prestations/devis/<?= (int)$monDevisId ?>/retirer" class="mt-2"
@@ -92,10 +92,10 @@
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="id_demande" value="<?= (int)($d['id'] ?? 0) ?>">
                                 <input type="number" name="prix" min="1" step="0.01" required
-                                       class="input input-bordered text-sm w-32" placeholder="Prix (€)">
+                                       class="text-sm w-32 border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Prix (€)">
                                 <input type="text" name="message" required
-                                       class="input input-bordered text-sm flex-1" placeholder="<?= t('pro_presta_msg_placeholder', 'Votre message (délai, précisions...)') ?>">
-                                <button type="submit" class="btn btn-sm btn-primary whitespace-nowrap">
+                                       class="text-sm flex-1 border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="<?= t('pro_presta_msg_placeholder', 'Votre message (délai, précisions...)') ?>">
+                                <button type="submit" class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition whitespace-nowrap">
                                     <i class="fas fa-paper-plane mr-1"></i><?= t('pro_presta_propose_btn', 'Proposer un devis') ?>
                                 </button>
                             </form>

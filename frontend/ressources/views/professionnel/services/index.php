@@ -37,15 +37,15 @@
                     <?= csrf_field() ?>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium mb-1"><?= t('pro_svc_label_title', 'Titre') ?></label>
-                        <input type="text" name="titre" required class="input input-bordered w-full" placeholder="<?= t('pro_svc_title_ph', 'Ex : Réparation de vélo') ?>">
+                        <input type="text" name="titre" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="<?= t('pro_svc_title_ph', 'Ex : Réparation de vélo') ?>">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium mb-1"><?= t('pro_svc_label_desc', 'Description') ?></label>
-                        <textarea name="description" rows="3" class="textarea textarea-bordered w-full" placeholder="<?= t('pro_svc_desc_ph', 'Ce que comprend la prestation...') ?>"></textarea>
+                        <textarea name="description" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="<?= t('pro_svc_desc_ph', 'Ce que comprend la prestation...') ?>"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1"><?= t('pro_svc_label_category', 'Catégorie') ?></label>
-                        <select name="categorie" class="select select-bordered w-full">
+                        <select name="categorie" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="reparation"><?= t('pro_svc_cat_reparation', 'Réparation') ?></option>
                             <option value="transformation"><?= t('pro_svc_cat_transformation', 'Transformation') ?></option>
                             <option value="recyclage"><?= t('pro_svc_cat_recyclage', 'Recyclage') ?></option>
@@ -55,14 +55,14 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1"><?= t('pro_svc_label_duration', 'Durée (minutes, optionnel)') ?></label>
-                        <input type="number" name="duree" min="0" class="input input-bordered w-full">
+                        <input type="number" name="duree" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium mb-1"><?= t('pro_svc_label_price', 'Prix fixe (€)') ?></label>
-                        <input type="number" name="prix" min="1" step="0.01" required class="input input-bordered w-full">
+                        <input type="number" name="prix" min="1" step="0.01" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
                     <div class="md:col-span-2">
-                        <button type="submit" class="btn btn-neutral">
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
                             <i class="fas fa-plus mr-2"></i><?= t('pro_svc_create_btn', 'Créer la prestation') ?>
                         </button>
                     </div>

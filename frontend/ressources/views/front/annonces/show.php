@@ -80,7 +80,7 @@
                 <?php if (($_SESSION['user']['role'] ?? '') === 'professionnel'): ?>
                     <form method="POST" action="/professionnels/favoris/<?= $annonce['id'] ?>/toggle" class="mt-2">
                     <?= csrf_field() ?>
-                        <button type="submit" class="btn btn-outline btn-pink w-full gap-2">
+                        <button type="submit" class="btn btn-outline w-full gap-2 border-pink-400 text-pink-500 hover:bg-pink-500 hover:text-white hover:border-pink-500">
                             <i class="fas fa-heart text-pink-500"></i> <?= t('annshow_add_favorite', 'Ajouter aux favoris') ?>
                         </button>
                     </form>

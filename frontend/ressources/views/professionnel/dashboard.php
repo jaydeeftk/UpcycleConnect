@@ -134,7 +134,7 @@
                 <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
                     <h3 class="text-lg font-bold"><?= t('pro_projects_title', 'Mes projets upcycling') ?></h3>
                     <div class="flex items-center gap-2">
-                        <select id="filtre-origine-projet" class="select select-bordered select-sm">
+                        <select id="filtre-origine-projet" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="toutes"><?= t('pro_projects_filter_all', 'Toutes origines') ?></option>
                             <option value="manuel"><?= t('pro_projects_filter_manual', 'Créés manuellement') ?></option>
                             <option value="devis"><?= t('pro_projects_filter_devis', 'Issus d\'un devis') ?></option>

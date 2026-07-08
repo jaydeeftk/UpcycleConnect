@@ -44,3 +44,17 @@ func ActionsObjetPro(statut string, idProprietairePro, idProConsultant int) []st
 		return []string{}
 	}
 }
+
+func (o ObjetSnapshot) PeutRecupererParticulier() error {
+	if o.Statut != StatutObjetEnStock {
+		return EtatInvalide("Cet objet n'est plus disponible à la récupération")
+	}
+	return nil
+}
+
+func ActionsObjetParticulier(statut string) []string {
+	if statut == StatutObjetEnStock {
+		return []string{"recuperer"}
+	}
+	return []string{}
+}

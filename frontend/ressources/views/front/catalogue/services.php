@@ -81,12 +81,23 @@
                          alt="<?= htmlspecialchars($service['titre']) ?>"
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div class="absolute top-3 left-3">
+                    <div class="absolute top-3 left-3 flex gap-1">
                         <span class="badge badge-sm bg-white/90 text-gray-800 border-0" style="color:#1f2937!important"><?= htmlspecialchars($service['categorie'] ?? '') ?></span>
+                        <?php if (!empty($service['booste'])): ?>
+                            <span class="badge badge-sm bg-amber-500 text-white border-0"><i class="fas fa-bolt mr-1"></i><?= t('catsvc_sponsored', 'Sponsorisé') ?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="p-6">
                     <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($service['titre']) ?></h3>
+                    <?php if (($service['type_auteur'] ?? '') === 'pro' && !empty($service['nom_auteur'])): ?>
+                        <p class="text-xs text-base-content/50 mb-2 flex items-center gap-1">
+                            <i class="fas fa-user-tie"></i><?= htmlspecialchars($service['nom_auteur']) ?>
+                            <?php if (!empty($service['auteur_premium'])): ?>
+                                <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold uppercase ml-1"><?= t('catsvc_pro_premium', 'Pro Premium') ?></span>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
                     <p class="text-sm text-base-content/60 mb-4 line-clamp-2"><?= htmlspecialchars($service['description']) ?></p>
                     <div class="flex items-center justify-between">
                         <div>

@@ -11,6 +11,7 @@ import (
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/checkout/session"
 	"github.com/stripe/stripe-go/v76/webhook"
+	"upcycleconnect/internal/domain"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/middleware"
 	"upcycleconnect/internal/services"
@@ -40,11 +41,6 @@ func CreateCheckoutSession(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-		return
-	}
-
-	if body.Type == "annonce" && middleware.GetRole(r) != "professionnel" {
-		httpx.JSONError(w, http.StatusForbidden, "Seuls les professionnels peuvent acheter une annonce")
 		return
 	}
 
@@ -176,13 +172,18 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 				var err error
 				switch proAction {
 				case "abonnement_premium":
-					err = facturationSvc.CompleterAbonnementProStripe(idPro, s.ID)
+					subID := ""
+					if s.Subscription != nil {
+						subID = s.Subscription.ID
+					}
+					err = facturationSvc.CompleterAbonnementProStripe(idPro, s.ID, subID)
 				case "publicite":
 					prix, _ := strconv.ParseFloat(s.Metadata["pub_prix"], 64)
+					idService, _ := strconv.Atoi(s.Metadata["pub_id_service"])
 					err = publiciteSvc.CompleterPourProStripe(idPro, services.PubliciteInput{
 						Type: s.Metadata["pub_type"], Prix: prix,
 						DateDebut: s.Metadata["pub_date_debut"], DateFin: s.Metadata["pub_date_fin"],
-						Description: s.Metadata["pub_description"],
+						Description: s.Metadata["pub_description"], IdService: idService,
 					}, s.ID)
 				}
 				if err != nil {
@@ -208,6 +209,21 @@ func StripeWebhook(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
+		}
+	} else if event.Type == "customer.subscription.deleted" {
+		var sub stripe.Subscription
+		if err := json.Unmarshal(event.Data.Raw, &sub); err == nil {
+			_ = facturationSvc.SuspendreAbonnementParSubscriptionID(sub.ID, domain.StatutAbonnementResilie)
+		}
+	} else if event.Type == "invoice.payment_failed" {
+		var inv stripe.Invoice
+		if err := json.Unmarshal(event.Data.Raw, &inv); err == nil && inv.Subscription != nil {
+			_ = facturationSvc.SuspendreAbonnementParSubscriptionID(inv.Subscription.ID, domain.StatutAbonnementExpire)
+		}
+	} else if event.Type == "invoice.payment_succeeded" {
+		var inv stripe.Invoice
+		if err := json.Unmarshal(event.Data.Raw, &inv); err == nil && inv.Subscription != nil {
+			_ = facturationSvc.ReactiverAbonnementParSubscriptionID(inv.Subscription.ID)
 		}
 	}
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"received": true})

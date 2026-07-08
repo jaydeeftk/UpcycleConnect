@@ -28,6 +28,9 @@
                         <p class="text-sm font-semibold"><?= htmlspecialchars(($_SESSION['user']['prenom'] ?? '') . ' ' . ($_SESSION['user']['nom'] ?? '')) ?></p>
                         <p class="text-xs text-gray-500"><?= htmlspecialchars($profil['type'] ?? 'Professionnel') ?></p>
                     </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase <?= $estPremium ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500' ?>">
+                        <?= $estPremium ? t('nav_badge_premium', 'Premium') : t('nav_badge_freemium', 'Freemium') ?>
+                    </span>
                 </div>
             </div>
         </header>

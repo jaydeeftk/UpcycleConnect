@@ -188,6 +188,8 @@ func (s *ConteneurService) ValiderDemande(idDemande int) (string, error) {
 			}
 		}
 	}
+	_ = (repository.FacturationRepo{}).NotifierProsPremium(database.DB,
+		"Nouvel objet disponible en conteneur - accès prioritaire Premium. Consultez votre espace Récupération.")
 
 	return code, nil
 }
@@ -360,6 +362,7 @@ type ConteneurAdminDTO struct {
 	NbDemandes   int           `json:"nb_demandes"`
 	Occupation   int           `json:"occupation"`
 	FillRate     int           `json:"fill_rate"`
+	Plein        bool          `json:"plein"`
 	Boxes        []BoxAdminDTO `json:"boxes"`
 }
 
@@ -381,6 +384,7 @@ func (s *ConteneurService) AdminListerConteneurs() ([]ConteneurAdminDTO, error) 
 			ID: c.ID, Localisation: c.Localisation, Capacite: c.Capacite, Statut: c.Statut,
 			NbDemandes: c.NbDemandes, Occupation: c.Occupation,
 			FillRate: domain.TauxRemplissage(c.Occupation, c.CapaciteBox),
+			Plein:    c.CapaciteBox > 0 && c.Occupation >= c.CapaciteBox,
 			Boxes:    boxes,
 		})
 	}

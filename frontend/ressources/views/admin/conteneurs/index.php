@@ -27,6 +27,11 @@
                 <span class="px-2 py-1 bg-<?= $statusColor ?>-50 text-<?= $statusColor ?>-600 border border-<?= $statusColor ?>-200 rounded text-xs font-bold uppercase">
                     <?= formatStatut($box['statut']) ?>
                 </span>
+                <?php if (!empty($box['plein'])): ?>
+                    <span class="px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded text-xs font-bold uppercase ml-1">
+                        <i class="fas fa-box-archive mr-1"></i><?= t('adm_conteneurs_full', 'Plein') ?>
+                    </span>
+                <?php endif; ?>
             </div>
 
             <div class="mb-4">

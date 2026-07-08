@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"upcycleconnect/internal/database"
@@ -57,6 +58,7 @@ type PubliciteInput struct {
 	DateDebut   string
 	DateFin     string
 	Description string
+	IdService   int
 }
 
 func (s *PubliciteService) ValiderAvantPaiement(in PubliciteInput) error {
@@ -79,11 +81,13 @@ func (s *PubliciteService) CreerPourPro(idPro int, in PubliciteInput, referenceS
 		ID: id, Type: in.Type, Prix: domain.Round2(in.Prix),
 		DateDebut: in.DateDebut, DateFin: in.DateFin,
 		Statut: domain.StatutPubliciteActive, Description: in.Description, IdPro: idPro,
-		ReferenceStripe: referenceStripe,
+		ReferenceStripe: referenceStripe, IdService: in.IdService,
 	})
 	if err != nil {
 		return "", err
 	}
+	description := fmt.Sprintf("Campagne publicitaire (%s), du %s au %s, %.2f EUR.", in.Type, in.DateDebut, in.DateFin, in.Prix)
+	_ = (repository.FacturationRepo{}).CreerContratDepuisPublicite(database.DB, id, idPro, in.Prix, description)
 	return id, nil
 }
 

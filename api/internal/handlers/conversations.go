@@ -79,6 +79,19 @@ func ConversationMessagesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if segs[1] == "masquer" {
+		if r.Method != http.MethodPost {
+			httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+			return
+		}
+		if err := conversationSvc.Masquer(userID, idConv); err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Conversation supprimée"})
+		return
+	}
+
 	if segs[1] != "messages" {
 		httpx.JSONError(w, http.StatusBadRequest, "Chemin invalide")
 		return

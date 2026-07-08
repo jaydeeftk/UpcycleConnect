@@ -104,6 +104,17 @@ func (s *ConversationService) Lister(idUtilisateur int) ([]ConversationDTO, erro
 	return out, nil
 }
 
+func (s *ConversationService) Masquer(idUtilisateur, idConversation int) error {
+	appartient, err := s.repo.AppartientAUtilisateur(database.DB, idConversation, idUtilisateur)
+	if err != nil {
+		return err
+	}
+	if !appartient {
+		return domain.Forbidden("Cette conversation ne vous appartient pas")
+	}
+	return s.repo.MasquerPourUtilisateur(database.DB, idConversation, idUtilisateur)
+}
+
 func (s *ConversationService) Messages(idUtilisateur, idConversation int) ([]MessageConversationDTO, error) {
 	appartient, err := s.repo.AppartientAUtilisateur(database.DB, idConversation, idUtilisateur)
 	if err != nil {

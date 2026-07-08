@@ -117,9 +117,11 @@ func (ConversationRepo) ListerPourUtilisateur(q Querier, idUtilisateur int) ([]C
 			WHERE mc2.Id_Conversations = c.Id_Conversations
 			ORDER BY mc2.Id_Messages_Conversation DESC LIMIT 1
 		)
-		WHERE c.Id_Acheteur = ? OR c.Id_Vendeur = ?
+		LEFT JOIN Conversations_Masquees cm ON cm.Id_Conversations = c.Id_Conversations AND cm.Id_Utilisateurs = ?
+		WHERE (c.Id_Acheteur = ? OR c.Id_Vendeur = ?)
+		  AND (cm.Date_masquage IS NULL OR dernier.Date_envoi IS NULL OR dernier.Date_envoi > cm.Date_masquage)
 		ORDER BY dernier.Date_envoi DESC, c.Date_creation DESC`,
-		idUtilisateur, idUtilisateur, idUtilisateur, idUtilisateur,
+		idUtilisateur, idUtilisateur, idUtilisateur, idUtilisateur, idUtilisateur,
 	)
 	if err != nil {
 		return nil, err
@@ -145,6 +147,16 @@ func (ConversationRepo) AppartientAUtilisateur(q Querier, idConversation, idUtil
 		idConversation, idUtilisateur, idUtilisateur,
 	).Scan(&n)
 	return n > 0, err
+}
+
+func (ConversationRepo) MasquerPourUtilisateur(q Querier, idConversation, idUtilisateur int) error {
+	_, err := q.Exec(
+		`INSERT INTO Conversations_Masquees (Id_Conversations, Id_Utilisateurs, Date_masquage)
+		 VALUES (?, ?, NOW())
+		 ON DUPLICATE KEY UPDATE Date_masquage = NOW()`,
+		idConversation, idUtilisateur,
+	)
+	return err
 }
 
 func (ConversationRepo) ListerMessages(q Querier, idConversation int) ([]MessageConversationLigne, error) {

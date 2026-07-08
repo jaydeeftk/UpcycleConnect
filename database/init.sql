@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS Abonnement(
    Statut VARCHAR(50),
    Id_Professionnels INT NULL,
    Reference_Stripe VARCHAR(255) NULL UNIQUE,
+   Stripe_Subscription_Id VARCHAR(255) NULL UNIQUE,
    Annonces_Gratuites_Incluses INT NOT NULL DEFAULT 0,
    Annonces_Gratuites_Utilisees INT NOT NULL DEFAULT 0,
    PRIMARY KEY(Id_Abonnement)
@@ -365,6 +366,15 @@ CREATE TABLE IF NOT EXISTS Conversations(
    FOREIGN KEY(Id_Commandes_Services) REFERENCES Commandes_Services(Id_Commandes_Services),
    FOREIGN KEY(Id_Acheteur) REFERENCES Utilisateurs(Id_Utilisateurs),
    FOREIGN KEY(Id_Vendeur) REFERENCES Utilisateurs(Id_Utilisateurs)
+);
+
+CREATE TABLE IF NOT EXISTS Conversations_Masquees (
+   Id_Conversations INT NOT NULL,
+   Id_Utilisateurs INT NOT NULL,
+   Date_masquage DATETIME,
+   PRIMARY KEY (Id_Conversations, Id_Utilisateurs),
+   FOREIGN KEY (Id_Conversations) REFERENCES Conversations(Id_Conversations),
+   FOREIGN KEY (Id_Utilisateurs) REFERENCES Utilisateurs(Id_Utilisateurs)
 );
 
 CREATE TABLE IF NOT EXISTS Messages_Conversation(
@@ -980,6 +990,14 @@ ALTER TABLE Codes_Barres ADD UNIQUE KEY uq_codebarres_code (Code);
 
 -- 003 — vocabulaires de statut bornés (CHECK)
 ALTER TABLE Contrats ADD COLUMN Statut VARCHAR(50) NOT NULL DEFAULT 'actif';
+ALTER TABLE Contrats ADD COLUMN Id_Abonnement VARCHAR(50) NULL;
+ALTER TABLE Contrats ADD COLUMN Id_Publicites VARCHAR(50) NULL;
+ALTER TABLE Contrats ADD COLUMN Montant DECIMAL(15,2) NULL;
+ALTER TABLE Contrats ADD COLUMN Description VARCHAR(500) NULL;
+ALTER TABLE Contrats ADD CONSTRAINT fk_contrats_abonnement FOREIGN KEY (Id_Abonnement) REFERENCES Abonnement(Id_Abonnement);
+ALTER TABLE Contrats ADD CONSTRAINT fk_contrats_publicites FOREIGN KEY (Id_Publicites) REFERENCES Publicites(Id_Publicites);
+ALTER TABLE Publicites ADD COLUMN Id_Services INT NULL;
+ALTER TABLE Publicites ADD CONSTRAINT fk_publicites_services FOREIGN KEY (Id_Services) REFERENCES Services(Id_Services);
 ALTER TABLE Annonces            ADD CONSTRAINT chk_annonces_statut   CHECK (Statut IN ('en_attente','validee','refusee','retiree','vendue','reservee'));
 ALTER TABLE Evenements          ADD CONSTRAINT chk_evenements_statut CHECK (Statut IN ('brouillon','a_venir','en_cours','termine','annule'));
 ALTER TABLE Evenements          ADD CONSTRAINT chk_evenements_categorie CHECK (Categorie IN ('atelier','marche','conference','exposition','communautaire'));

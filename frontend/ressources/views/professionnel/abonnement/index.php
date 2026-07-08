@@ -37,7 +37,7 @@
                 <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-8 text-white text-center">
                     <i class="fas fa-crown text-4xl mb-3"></i>
                     <h3 class="text-2xl font-bold"><?= t('pro_abo_plan_name', 'UpcycleConnect Premium') ?></h3>
-                    <p class="text-blue-100 mt-1"><?= t('pro_abo_plan_desc', 'Tableaux de bord avancés, statistiques et alertes priorisées') ?></p>
+                    <p class="text-blue-100 mt-1"><?= t('pro_abo_plan_desc', 'Commission réduite, badge Premium, pub à prix réduit et alertes prioritaires') ?></p>
                     <p class="text-4xl font-bold mt-4">24,99 € <span class="text-base font-normal text-blue-100">/ <?= t('pro_abo_per_month', 'mois') ?></span></p>
                 </div>
 
@@ -58,10 +58,6 @@
                         <div class="mb-6 text-sm text-gray-500">
                             <?= t('pro_abo_ref', 'Référence') ?> : <span class="font-mono"><?= htmlspecialchars($abonnement['id'] ?? '') ?></span>
                         </div>
-                        <div class="mb-6 bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-center justify-between">
-                            <span class="text-sm text-gray-700"><i class="fas fa-bullhorn text-blue-500 mr-2"></i><?= t('pro_abo_annonces_gratuites', 'Annonces gratuites restantes') ?></span>
-                            <span class="font-bold text-blue-700"><?= (int)($abonnement['annonces_gratuites_restantes'] ?? 0) ?> / <?= (int)($abonnement['annonces_gratuites_incluses'] ?? 0) ?></span>
-                        </div>
                         <form method="POST" action="/professionnel/abonnement/resilier"
                               onsubmit="return confirm('<?= t('pro_abo_confirm_cancel', 'Résilier votre abonnement Premium ?') ?>')">
                             <?= csrf_field() ?>
@@ -71,11 +67,10 @@
                         </form>
                     <?php else: ?>
                         <ul class="space-y-3 mb-6 text-sm text-gray-600">
-                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_1', 'Tableaux de bord avancés') ?></li>
-                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_2', "Analyse d'impact écologique détaillée") ?></li>
-                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_3', 'Statistiques sur les matériaux disponibles') ?></li>
-                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_4', 'Alertes priorisées pour la collecte') ?></li>
-                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_5', '10 annonces gratuites incluses') ?></li>
+                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_1', 'Commission réduite sur vos ventes (7% au lieu de 10%)') ?></li>
+                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_2', 'Badge "Pro Premium" visible sur vos prestations') ?></li>
+                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_3', 'Tarif réduit de 20% sur les campagnes publicitaires') ?></li>
+                            <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-0.5"></i> <?= t('pro_abo_perk_4', 'Alertes prioritaires dès qu\'un objet est disponible en conteneur') ?></li>
                         </ul>
                         <div id="abo-erreur" class="text-red-600 text-sm mb-3 hidden"></div>
                         <button type="button" id="btn-souscrire" onclick="souscrireAbonnement()"

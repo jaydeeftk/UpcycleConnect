@@ -106,6 +106,18 @@
         </div>
         <form id="form-publicite" onsubmit="return creerCampagne(event)" class="space-y-4">
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_pub_field_service', 'Prestation à mettre en avant') ?> *</label>
+                <select name="id_service" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value=""><?= t('pro_pub_field_service_ph', 'Sélectionnez une prestation') ?></option>
+                    <?php foreach ($mesServices as $svc): ?>
+                        <option value="<?= (int)($svc['id'] ?? 0) ?>"><?= htmlspecialchars($svc['titre'] ?? '') ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (empty($mesServices)): ?>
+                    <p class="text-xs text-amber-600 mt-1"><?= t('pro_pub_field_service_empty', "Créez d'abord une prestation dans Mes prestations créées pour pouvoir la booster.") ?></p>
+                <?php endif; ?>
+            </div>
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_pub_field_type', 'Type de campagne') ?> *</label>
                 <select name="type" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="mise_en_avant"><?= t('pro_pub_type_mise_avant', 'Mise en avant de projet') ?></option>
@@ -119,11 +131,11 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_pub_field_debut', 'Date de début') ?> *</label>
-                    <input type="date" name="date_debut" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" name="date_debut" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_pub_field_fin', 'Date de fin') ?></label>
-                    <input type="date" name="date_fin" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" name="date_fin" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
             <div>
@@ -171,6 +183,7 @@ async function creerCampagne(event) {
                 date_debut: data.get('date_debut'),
                 date_fin: data.get('date_fin'),
                 prix: parseFloat(data.get('prix')) || 0,
+                id_service: parseInt(data.get('id_service'), 10) || 0,
             })
         });
         const json = await res.json();

@@ -413,6 +413,9 @@ func (s *FacturationService) PreparerCheckout(idUtilisateur int, typ string, idI
 		if err != nil {
 			return CheckoutData{}, err
 		}
+		if a.IdProprietaire == idUtilisateur {
+			return CheckoutData{}, domain.EtatInvalide("Vous ne pouvez pas acheter votre propre annonce")
+		}
 		if err := domain.ValiderAchatAnnonce(a.Statut, a.Type, a.Prix); err != nil {
 			return CheckoutData{}, err
 		}
@@ -501,6 +504,10 @@ func (s *FacturationService) EnregistrerPaiementItem(idUtilisateur int, typ stri
 					if activite, errAct := (repository.ScoreRepo{}).Activite(tx, idParticulierVendeur, idVendeur); errAct == nil {
 						score, _ := domain.CalculerScore(activite)
 						taux = domain.TauxCommissionPourScore(score)
+					}
+				} else if idProVendeur, errPro := s.repo.IdProfessionnelParUtilisateur(tx, idVendeur); errPro == nil && idProVendeur > 0 {
+					if abo, errAbo := s.ProAbonnementActuel(idProVendeur); errAbo == nil && abo != nil && abo.Statut == domain.StatutAbonnementActif {
+						taux = domain.TauxCommissionProPremium
 					}
 				}
 			}
@@ -700,7 +707,7 @@ func (s *FacturationService) ProAbonnementActuel(idPro int) (*AbonnementDTO, err
 	}, nil
 }
 
-func (s *FacturationService) ProSouscrireAbonnement(idPro int, referenceStripe string) (string, error) {
+func (s *FacturationService) ProSouscrireAbonnement(idPro int, referenceStripe, stripeSubscriptionID string) (string, error) {
 	if idPro <= 0 {
 		return "", domain.Forbidden("Action réservée aux professionnels")
 	}
@@ -715,12 +722,13 @@ func (s *FacturationService) ProSouscrireAbonnement(idPro int, referenceStripe s
 	err = s.repo.CreerAbonnement(database.DB, repository.AbonnementCreation{
 		ID: id, Type: "premium", Prix: PrixAbonnementPremium,
 		DateDebut: time.Now().Format("2006-01-02"), Statut: domain.StatutAbonnementActif,
-		IdProfessionnels: idPro, ReferenceStripe: referenceStripe,
+		IdProfessionnels: idPro, ReferenceStripe: referenceStripe, StripeSubscriptionID: stripeSubscriptionID,
 		AnnoncesGratuitesIncluses: QuotaAnnoncesGratuitesPremium,
 	})
 	if err != nil {
 		return "", err
 	}
+	_ = s.repo.CreerContratDepuisAbonnement(database.DB, id, idPro, PrixAbonnementPremium)
 	return id, nil
 }
 
@@ -737,12 +745,26 @@ func (s *FacturationService) ConsommerAnnonceGratuitePro(idUtilisateur int) bool
 	return s.repo.ConsommerAnnonceGratuite(database.DB, idPro)
 }
 
-func (s *FacturationService) CompleterAbonnementProStripe(idPro int, referenceStripe string) error {
-	_, err := s.ProSouscrireAbonnement(idPro, referenceStripe)
+func (s *FacturationService) CompleterAbonnementProStripe(idPro int, referenceStripe, stripeSubscriptionID string) error {
+	_, err := s.ProSouscrireAbonnement(idPro, referenceStripe, stripeSubscriptionID)
 	if err != nil && s.repo.EstViolationUnicite(err) {
 		return nil
 	}
 	return err
+}
+
+func (s *FacturationService) SuspendreAbonnementParSubscriptionID(stripeSubscriptionID, nouveauStatut string) error {
+	if strings.TrimSpace(stripeSubscriptionID) == "" {
+		return nil
+	}
+	return s.repo.MajStatutAbonnementParSubscriptionID(database.DB, stripeSubscriptionID, nouveauStatut)
+}
+
+func (s *FacturationService) ReactiverAbonnementParSubscriptionID(stripeSubscriptionID string) error {
+	if strings.TrimSpace(stripeSubscriptionID) == "" {
+		return nil
+	}
+	return s.repo.ReactiverAbonnementParSubscriptionID(database.DB, stripeSubscriptionID)
 }
 
 func (s *FacturationService) ProResilierAbonnement(idPro int) error {

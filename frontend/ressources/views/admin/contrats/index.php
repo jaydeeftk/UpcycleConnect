@@ -36,11 +36,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1"><?= t('adm_contrats_label_date_start', 'Date début') ?></label>
-                    <input type="date" name="date_debut" required class="w-full border rounded-lg px-4 py-2">
+                    <input type="date" name="date_debut" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>" required class="w-full border rounded-lg px-4 py-2">
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1"><?= t('adm_contrats_label_date_end', 'Date fin') ?></label>
-                    <input type="date" name="date_fin" required class="w-full border rounded-lg px-4 py-2">
+                    <input type="date" name="date_fin" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>" required class="w-full border rounded-lg px-4 py-2">
                 </div>
             </div>
             <div class="flex gap-4 mt-6">

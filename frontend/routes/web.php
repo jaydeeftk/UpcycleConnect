@@ -36,6 +36,9 @@ $router->get('/annonces', 'Front\AnnonceController@index');
 $router->get('/annonces/create', 'Front\AnnonceController@create');
 $router->post('/annonces/store', 'Front\AnnonceController@store');
 $router->get('/mes-annonces', 'Front\AnnonceController@mesAnnonces');
+$router->get('/mes-objets', 'Front\AnnonceController@recuperation');
+$router->post('/mes-objets/{id}/recuperer', 'Front\AnnonceController@recupererObjet');
+$router->post('/mes-objets/recuperer-par-code', 'Front\AnnonceController@recupererParCode');
 $router->get('/annonces/{id}', 'Front\AnnonceController@show');
 $router->post('/annonces/{id}/annuler', 'Front\AnnonceController@annuler');
 $router->post('/annonces/{id}/reserver', 'Front\AnnonceController@reserver');
@@ -77,6 +80,7 @@ $router->get('/messages/historique/{id}', 'Front\MessageController@historiqueDet
 $router->get('/messagerie', 'Front\MessagerieController@index');
 $router->post('/messagerie/demarrer', 'Front\MessagerieController@demarrer');
 $router->get('/messagerie/{id}', 'Front\MessagerieController@show');
+$router->post('/messagerie/{id}/supprimer', 'Front\MessagerieController@supprimer');
 $router->get('/notifications', 'Front\UserController@notifications');
 $router->post('/notifications/{id}/lu', 'Front\UserController@notificationLue');
 $router->get('/mes-demandes', 'Front\UserController@mesDemandes');

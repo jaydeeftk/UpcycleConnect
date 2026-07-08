@@ -317,9 +317,20 @@ type ConteneurPublic struct {
 
 func (ConteneurRepo) ListerConteneursDisponibles(q Querier) ([]ConteneurPublic, error) {
 	rows, err := q.Query(
-		`SELECT Id_Conteneurs, COALESCE(Localisation,''), COALESCE(CAST(Capacite AS UNSIGNED),0),
-		        COALESCE(Statut,'disponible')
-		 FROM Conteneurs WHERE Statut = 'disponible' ORDER BY Id_Conteneurs`,
+		`SELECT c.Id_Conteneurs, COALESCE(c.Localisation,''), COALESCE(CAST(c.Capacite AS UNSIGNED),0),
+		        COALESCE(c.Statut,'disponible')
+		 FROM Conteneurs c
+		 WHERE c.Statut = 'disponible'
+		   AND EXISTS (
+		       SELECT 1 FROM Box b
+		       WHERE b.Id_Conteneurs = c.Id_Conteneurs
+		         AND b.Statut = 'disponible'
+		         AND b.Capacite > (
+		             SELECT COUNT(*) FROM Objets o
+		             WHERE o.Id_Box = b.Id_Box AND o.Statut IN ('en_stock','reserve_pro')
+		         )
+		   )
+		 ORDER BY c.Id_Conteneurs`,
 	)
 	if err != nil {
 		return nil, err

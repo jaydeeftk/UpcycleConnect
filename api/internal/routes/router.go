@@ -282,6 +282,9 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/professionnels/impact/pdf", middleware.ProfessionnelOnly(handlers.ProfessionnelImpactPDF))
 
 	mux.HandleFunc("/api/professionnels/objets", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetsHandler))
+	mux.HandleFunc("/api/particuliers/mes-objets", middleware.JWTAuth(handlers.ParticulierMesObjetsHandler))
+	mux.HandleFunc("/api/particuliers/objets/recuperer-par-code", middleware.JWTAuth(handlers.ParticulierRecupererParCode))
+	mux.HandleFunc("/api/particuliers/objets/", middleware.JWTAuth(handlers.ParticulierObjetRecupererHandler))
 
 	mux.HandleFunc("/api/professionnels/objets/recuperer-par-code", middleware.ProfessionnelOnly(handlers.ProfessionnelRecupererParCode))
 	mux.HandleFunc("/api/professionnels/objets/", middleware.ProfessionnelOnly(handlers.ProfessionnelObjetAction))

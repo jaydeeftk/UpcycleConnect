@@ -47,6 +47,16 @@ class MessagerieController
         redirect('/messagerie');
     }
 
+    public function supprimer($id)
+    {
+        try {
+            $this->api->post('/conversations/' . (int)$id . '/masquer', []);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/messagerie');
+    }
+
     public function show($id)
     {
         return view('front.messagerie.show', [

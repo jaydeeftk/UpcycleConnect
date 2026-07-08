@@ -451,12 +451,12 @@ render();
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('planning_add_debut', 'Début') ?> *</label>
-                    <input type="datetime-local" name="date_debut" required
+                    <input type="datetime-local" name="date_debut" required min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('planning_add_fin', 'Fin') ?></label>
-                    <input type="datetime-local" name="date_fin"
+                    <input type="datetime-local" name="date_fin" min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>

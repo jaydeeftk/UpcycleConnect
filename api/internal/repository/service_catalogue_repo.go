@@ -1,15 +1,17 @@
 package repository
 
 type ServiceCatalogueLigne struct {
-	ID          int
-	Titre       string
-	Description string
-	Prix        float64
-	Duree       int
-	Categorie   string
-	IdPro       int
-	NomAuteur   string
-	TypeAuteur  string
+	ID            int
+	Titre         string
+	Description   string
+	Prix          float64
+	Duree         int
+	Categorie     string
+	IdPro         int
+	NomAuteur     string
+	TypeAuteur    string
+	Booste        bool
+	AuteurPremium bool
 }
 
 type CommandeServiceLigne struct {
@@ -34,12 +36,25 @@ func (ServiceCatalogueRepo) ListerCatalogue(q Querier) ([]ServiceCatalogueLigne,
 		`SELECT s.Id_Services, COALESCE(s.Titre,''), COALESCE(s.Description,''), COALESCE(s.Prix,0),
 			COALESCE(s.Duree,0), COALESCE(s.Categorie,''), COALESCE(s.Id_Professionnels,0),
 			TRIM(CONCAT(COALESCE(u.Prenom,''),' ',COALESCE(u.Nom,''))),
-			CASE WHEN s.Id_Professionnels IS NOT NULL THEN 'pro' ELSE 'salarie' END
+			CASE WHEN s.Id_Professionnels IS NOT NULL THEN 'pro' ELSE 'salarie' END,
+			EXISTS(
+				SELECT 1 FROM Publicites p
+				WHERE p.Id_Services = s.Id_Services AND p.Statut = 'active'
+				  AND p.Date_Debut <= CURDATE() AND (p.Date_Fin IS NULL OR p.Date_Fin >= CURDATE())
+			),
+			EXISTS(
+				SELECT 1 FROM Abonnement ab
+				WHERE ab.Id_Professionnels = s.Id_Professionnels AND ab.Statut = 'actif'
+			)
 		 FROM Services s
 		 LEFT JOIN Professionnels_artisans pa ON pa.Id_Professionnels = s.Id_Professionnels
 		 LEFT JOIN Salaries sa ON sa.Id_Salaries = s.Id_Salaries
 		 LEFT JOIN Utilisateurs u ON u.Id_Utilisateurs = COALESCE(pa.Id_Utilisateurs, sa.Id_Utilisateurs)
-		 ORDER BY s.Id_Services DESC`,
+		 ORDER BY EXISTS(
+			SELECT 1 FROM Publicites p2
+			WHERE p2.Id_Services = s.Id_Services AND p2.Statut = 'active'
+			  AND p2.Date_Debut <= CURDATE() AND (p2.Date_Fin IS NULL OR p2.Date_Fin >= CURDATE())
+		 ) DESC, s.Id_Services DESC`,
 	)
 	if err != nil {
 		return nil, err
@@ -48,7 +63,7 @@ func (ServiceCatalogueRepo) ListerCatalogue(q Querier) ([]ServiceCatalogueLigne,
 	out := []ServiceCatalogueLigne{}
 	for rows.Next() {
 		var l ServiceCatalogueLigne
-		if err := rows.Scan(&l.ID, &l.Titre, &l.Description, &l.Prix, &l.Duree, &l.Categorie, &l.IdPro, &l.NomAuteur, &l.TypeAuteur); err != nil {
+		if err := rows.Scan(&l.ID, &l.Titre, &l.Description, &l.Prix, &l.Duree, &l.Categorie, &l.IdPro, &l.NomAuteur, &l.TypeAuteur, &l.Booste, &l.AuteurPremium); err != nil {
 			return nil, err
 		}
 		out = append(out, l)

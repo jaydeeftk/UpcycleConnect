@@ -22,6 +22,18 @@
         <main class="flex-1 overflow-y-auto p-6">
         <div class="max-w-4xl mx-auto space-y-6">
 
+            <?php if ($estPremium): ?>
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
+                    <i class="fas fa-crown text-amber-500"></i>
+                    <p class="text-sm text-amber-800"><?= t('pro_comm_rate_premium', 'Grâce à votre abonnement Premium, votre commission sur les ventes d\'annonces est réduite à 7% (au lieu de 10%).') ?></p>
+                </div>
+            <?php else: ?>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between gap-3">
+                    <p class="text-sm text-blue-800"><i class="fas fa-info-circle mr-2"></i><?= t('pro_comm_rate_standard', "Taux standard : 10% sur les ventes d'annonces. Passez au Premium pour le réduire à 7%.") ?></p>
+                    <a href="/professionnel/abonnement" class="text-xs font-semibold text-blue-700 hover:underline whitespace-nowrap"><?= t('pro_comm_rate_cta', 'En savoir plus') ?></a>
+                </div>
+            <?php endif; ?>
+
             <?php
             $totalCommission = 0; $totalNet = 0;
             foreach ($commissions as $c) {
@@ -64,8 +76,13 @@
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-4 py-3 text-gray-500"><?= htmlspecialchars($c['date'] ?? '') ?></td>
                                     <td class="px-4 py-3">
-                                        <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= ($c['type'] ?? '') === 'annonce' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700' ?>">
-                                            <?= ($c['type'] ?? '') === 'annonce' ? t('pro_comm_type_annonce', 'Annonce') : t('pro_comm_type_devis', 'Prestation') ?>
+                                        <?php
+                                        $typeC = $c['type'] ?? '';
+                                        $typeCls = ['annonce' => 'bg-blue-100 text-blue-700', 'devis' => 'bg-orange-100 text-orange-700', 'prestation_catalogue' => 'bg-purple-100 text-purple-700'][$typeC] ?? 'bg-gray-100 text-gray-600';
+                                        $typeLabel = ['annonce' => t('pro_comm_type_annonce', 'Annonce'), 'devis' => t('pro_comm_type_devis', 'Prestation sur devis'), 'prestation_catalogue' => t('pro_comm_type_catalogue', 'Prestation catalogue')][$typeC] ?? $typeC;
+                                        ?>
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $typeCls ?>">
+                                            <?= $typeLabel ?>
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-gray-700"><?= htmlspecialchars($c['description'] ?? '') ?></td>

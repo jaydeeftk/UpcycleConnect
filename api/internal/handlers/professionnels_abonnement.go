@@ -105,11 +105,14 @@ func ProfessionnelAbonnementCheckout(w http.ResponseWriter, r *http.Request) {
 						Name: stripe.String("Abonnement UpcycleConnect Premium"),
 					},
 					UnitAmount: stripe.Int64(int64(math.Round(services.PrixAbonnementPremium * 100))),
+					Recurring: &stripe.CheckoutSessionLineItemPriceDataRecurringParams{
+						Interval: stripe.String(string(stripe.PriceRecurringIntervalMonth)),
+					},
 				},
 				Quantity: stripe.Int64(1),
 			},
 		},
-		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
+		Mode:       stripe.String(string(stripe.CheckoutSessionModeSubscription)),
 		SuccessURL: stripe.String(appURL + "/paiement/success?session_id={CHECKOUT_SESSION_ID}"),
 		CancelURL:  stripe.String(appURL + "/professionnel/abonnement"),
 	}

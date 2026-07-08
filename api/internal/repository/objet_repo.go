@@ -77,6 +77,40 @@ func scanObjets(q Querier, query string, args ...interface{}) ([]ObjetLigne, err
 	return liste, rows.Err()
 }
 
+func (ObjetRepo) ListerAchatsParticulier(q Querier, idUtilisateur int) ([]ObjetLigne, error) {
+	const base = `SELECT o.Id_Objets, COALESCE(o.Type,''), COALESCE(o.Poids,''),
+	                     COALESCE(o.Statut,'en_stock'), o.Id_Professionnels,
+	                     o.Id_Conteneurs, COALESCE(c.Localisation,''),
+	                     COALESCE((SELECT cb.Code FROM Codes_Barres cb
+	                               WHERE cb.Id_Objets = o.Id_Objets AND cb.Statut = 'active'
+	                               ORDER BY cb.Id_Codes_Barres DESC LIMIT 1),''),
+	                     COALESCE(a.Titre,''), COALESCE(a.Type_annonce,'')
+	              FROM Objets o
+	              JOIN Conteneurs c ON c.Id_Conteneurs = o.Id_Conteneurs
+	              JOIN Demandes_conteneurs d ON d.Id_Demandes_conteneurs = o.Id_Demandes_conteneurs
+	              JOIN Annonces a ON a.Id_Annonces = d.Id_Annonces
+	              WHERE a.Id_Acheteur_Utilisateur = ? AND o.Statut IN ('en_stock','recupere')
+	              ORDER BY o.Id_Objets DESC`
+	return scanObjets(q, base, idUtilisateur)
+}
+
+func (ObjetRepo) ObjetAppartientAAcheteur(q Querier, idObjet, idUtilisateur int) (bool, error) {
+	var n int
+	err := q.QueryRow(
+		`SELECT COUNT(*) FROM Objets o
+		 JOIN Demandes_conteneurs d ON d.Id_Demandes_conteneurs = o.Id_Demandes_conteneurs
+		 JOIN Annonces a ON a.Id_Annonces = d.Id_Annonces
+		 WHERE o.Id_Objets = ? AND a.Id_Acheteur_Utilisateur = ?`,
+		idObjet, idUtilisateur,
+	).Scan(&n)
+	return n > 0, err
+}
+
+func (ObjetRepo) RecupererDirect(q Querier, idObjet int) error {
+	_, err := q.Exec("UPDATE Objets SET Statut='recupere' WHERE Id_Objets=? AND Statut='en_stock'", idObjet)
+	return err
+}
+
 func (ObjetRepo) ObjetPourMAJ(q Querier, idObjet int) (domain.ObjetSnapshot, error) {
 	var s domain.ObjetSnapshot
 	err := q.QueryRow(

@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -343,18 +344,23 @@ func (FacturationRepo) CreerLigneFacture(q Querier, l LigneFactureCreation) erro
 }
 
 type AnnonceAchat struct {
-	Prix   float64
-	Titre  string
-	Statut string
-	Type   string
+	Prix           float64
+	Titre          string
+	Statut         string
+	Type           string
+	IdProprietaire int
 }
 
 func (FacturationRepo) AnnoncePourAchat(q Querier, idAnnonce int) (AnnonceAchat, error) {
 	var a AnnonceAchat
 	err := q.QueryRow(
-		`SELECT COALESCE(Prix,0), COALESCE(Titre,''), COALESCE(Statut,''), COALESCE(Type_annonce,'')
-		 FROM Annonces WHERE Id_Annonces = ?`, idAnnonce,
-	).Scan(&a.Prix, &a.Titre, &a.Statut, &a.Type)
+		`SELECT COALESCE(a.Prix,0), COALESCE(a.Titre,''), COALESCE(a.Statut,''), COALESCE(a.Type_annonce,''),
+			COALESCE(p.Id_Utilisateurs, pa.Id_Utilisateurs, 0)
+		 FROM Annonces a
+		 LEFT JOIN Particuliers p ON p.Id_Particuliers = a.Id_Particuliers
+		 LEFT JOIN Professionnels_artisans pa ON pa.Id_Professionnels = a.Id_Professionnels
+		 WHERE a.Id_Annonces = ?`, idAnnonce,
+	).Scan(&a.Prix, &a.Titre, &a.Statut, &a.Type, &a.IdProprietaire)
 	return a, err
 }
 
@@ -440,8 +446,15 @@ func (FacturationRepo) ListerCommissionsPourPro(q Querier, idPro int) ([]Commiss
 		 JOIN Devis d ON d.Id_Devis = c.Id_Devis
 		 JOIN Demandes_prestations dp ON dp.Id_Demandes_prestations = d.Id_Demandes_prestations
 		 WHERE c.Id_Devis IS NOT NULL AND d.Id_Professionnels = ?
+		 UNION ALL
+		 SELECT c.Id_Commission, COALESCE(DATE_FORMAT(c.Date_,'%d/%m/%Y %H:%i'),''), 'prestation_catalogue',
+			COALESCE(srv.Titre,''), COALESCE(cs.Prix,0), c.Taux, c.Montant, ''
+		 FROM Commissions c
+		 JOIN Commandes_Services cs ON cs.Id_Commandes_Services = c.Id_Commandes_Services
+		 JOIN Services srv ON srv.Id_Services = cs.Id_Services
+		 WHERE c.Id_Commandes_Services IS NOT NULL AND srv.Id_Professionnels = ?
 		 ORDER BY 2 DESC`,
-		idPro, idPro,
+		idPro, idPro, idPro,
 	)
 	if err != nil {
 		return nil, err
@@ -552,6 +565,14 @@ func (FacturationRepo) IdUtilisateurDuPro(q Querier, idPro int) (int, error) {
 	var id int
 	err := q.QueryRow(
 		"SELECT Id_Utilisateurs FROM Professionnels_artisans WHERE Id_Professionnels = ?", idPro,
+	).Scan(&id)
+	return id, err
+}
+
+func (FacturationRepo) IdProfessionnelParUtilisateur(q Querier, idUtilisateur int) (int, error) {
+	var id int
+	err := q.QueryRow(
+		"SELECT Id_Professionnels FROM Professionnels_artisans WHERE Id_Utilisateurs = ?", idUtilisateur,
 	).Scan(&id)
 	return id, err
 }
@@ -711,6 +732,18 @@ func (FacturationRepo) NotifierUtilisateur(q Querier, idUtilisateur int, contenu
 	return err
 }
 
+func (FacturationRepo) NotifierProsPremium(q Querier, contenu string) error {
+	_, err := q.Exec(
+		`INSERT INTO Notifications (Contenu, Date_Envoi, Statut, Id_Administrateurs, Id_Utilisateurs)
+		 SELECT ?, NOW(), 0, (SELECT MIN(Id_Administrateurs) FROM Administrateurs), pa.Id_Utilisateurs
+		 FROM Abonnement ab
+		 JOIN Professionnels_artisans pa ON pa.Id_Professionnels = ab.Id_Professionnels
+		 WHERE ab.Statut = 'actif'`,
+		contenu,
+	)
+	return err
+}
+
 func (FacturationRepo) ListerDemandesRemb(q Querier) ([]DemandeRembLigne, error) {
 	rows, err := q.Query(
 		`SELECT d.Id_Demande, d.Id_Paiements, d.Id_Particuliers, COALESCE(d.Motif,''), COALESCE(d.Statut,''),
@@ -795,6 +828,7 @@ type AbonnementCreation struct {
 	Statut                    string
 	IdProfessionnels          int
 	ReferenceStripe           string
+	StripeSubscriptionID      string
 	AnnoncesGratuitesIncluses int
 }
 
@@ -851,9 +885,44 @@ func (FacturationRepo) AbonnementsDuPro(q Querier, idPro int) ([]AbonnementLigne
 
 func (FacturationRepo) CreerAbonnement(q Querier, a AbonnementCreation) error {
 	_, err := q.Exec(
-		`INSERT INTO Abonnement (Id_Abonnement, Type, Prix, Date_Debut, Date_Fin, Statut, Id_Professionnels, Reference_Stripe, Annonces_Gratuites_Incluses)
-		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, NULLIF(?,0), NULLIF(?,''), ?)`,
-		a.ID, a.Type, a.Prix, a.DateDebut, a.DateFin, a.Statut, a.IdProfessionnels, a.ReferenceStripe, a.AnnoncesGratuitesIncluses,
+		`INSERT INTO Abonnement (Id_Abonnement, Type, Prix, Date_Debut, Date_Fin, Statut, Id_Professionnels, Reference_Stripe, Stripe_Subscription_Id, Annonces_Gratuites_Incluses)
+		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, NULLIF(?,0), NULLIF(?,''), NULLIF(?,''), ?)`,
+		a.ID, a.Type, a.Prix, a.DateDebut, a.DateFin, a.Statut, a.IdProfessionnels, a.ReferenceStripe, a.StripeSubscriptionID, a.AnnoncesGratuitesIncluses,
+	)
+	return err
+}
+
+func (FacturationRepo) MajStatutAbonnementParSubscriptionID(q Querier, stripeSubscriptionID, statut string) error {
+	_, err := q.Exec(
+		"UPDATE Abonnement SET Statut = ? WHERE Stripe_Subscription_Id = ?",
+		statut, stripeSubscriptionID,
+	)
+	return err
+}
+
+func (FacturationRepo) ReactiverAbonnementParSubscriptionID(q Querier, stripeSubscriptionID string) error {
+	_, err := q.Exec(
+		"UPDATE Abonnement SET Statut = 'actif' WHERE Stripe_Subscription_Id = ? AND Statut IN ('expire','suspendu')",
+		stripeSubscriptionID,
+	)
+	return err
+}
+
+func (FacturationRepo) CreerContratDepuisAbonnement(q Querier, idAbonnement string, idPro int, prix float64) error {
+	description := fmt.Sprintf("Abonnement Premium UpcycleConnect - %.2f EUR/mois, renouvellement automatique mensuel via Stripe.", prix)
+	_, err := q.Exec(
+		`INSERT INTO Contrats (Date_signature, Date_debut, Type, Id_Professionnels, Statut, Id_Abonnement, Montant, Description)
+		 VALUES (NOW(), CURDATE(), 'abonnement_premium', ?, 'actif', ?, ?, ?)`,
+		idPro, idAbonnement, prix, description,
+	)
+	return err
+}
+
+func (FacturationRepo) CreerContratDepuisPublicite(q Querier, idPublicite string, idPro int, prix float64, description string) error {
+	_, err := q.Exec(
+		`INSERT INTO Contrats (Date_signature, Date_debut, Type, Id_Professionnels, Statut, Id_Publicites, Montant, Description)
+		 VALUES (NOW(), CURDATE(), 'publicite', ?, 'actif', ?, ?, ?)`,
+		idPro, idPublicite, prix, description,
 	)
 	return err
 }

@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"upcycleconnect/internal/httpx"
+	"upcycleconnect/internal/middleware"
 	"upcycleconnect/internal/services"
 )
 
@@ -79,6 +80,70 @@ func ProfessionnelObjetAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": msg})
+}
+
+func ParticulierMesObjetsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	idUtilisateur := middleware.GetUserID(r)
+	if idUtilisateur <= 0 {
+		httpx.JSONError(w, http.StatusForbidden, "Non authentifié")
+		return
+	}
+	liste, err := recuperationSvc.MesAchatsParticulier(idUtilisateur)
+	if err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, liste)
+}
+
+func ParticulierObjetRecupererHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	idUtilisateur := middleware.GetUserID(r)
+	if idUtilisateur <= 0 {
+		httpx.JSONError(w, http.StatusForbidden, "Non authentifié")
+		return
+	}
+	idObjet, err := idDepuisChemin(r.URL.Path, "/api/particuliers/objets/")
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+	if err := recuperationSvc.RecupererParticulier(idUtilisateur, idObjet); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Objet récupéré"})
+}
+
+func ParticulierRecupererParCode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
+		return
+	}
+	idUtilisateur := middleware.GetUserID(r)
+	if idUtilisateur <= 0 {
+		httpx.JSONError(w, http.StatusForbidden, "Non authentifié")
+		return
+	}
+	var body struct {
+		Code string `json:"code"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
+		return
+	}
+	if err := recuperationSvc.RecupererParCodeBarreParticulier(idUtilisateur, body.Code); err != nil {
+		httpx.WriteError(w, err)
+		return
+	}
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Objet récupéré"})
 }
 
 func ProfessionnelRecupererParCode(w http.ResponseWriter, r *http.Request) {

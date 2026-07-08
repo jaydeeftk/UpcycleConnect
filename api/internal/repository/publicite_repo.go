@@ -22,6 +22,7 @@ type PubliciteCreation struct {
 	Illustration    string
 	IdPro           int
 	ReferenceStripe string
+	IdService       int
 }
 
 type PubliciteRepo struct{}
@@ -50,9 +51,9 @@ func (PubliciteRepo) ListerParPro(q Querier, idPro int) ([]PubliciteLigne, error
 
 func (PubliciteRepo) Creer(q Querier, p PubliciteCreation) error {
 	_, err := q.Exec(
-		`INSERT INTO Publicites (Id_Publicites, Type, Prix, Date_Debut, Date_Fin, Statut, Description, Illustration, Id_Professionnels, Reference_Stripe)
-		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, ?, ?, ?, NULLIF(?,''))`,
-		p.ID, p.Type, p.Prix, p.DateDebut, p.DateFin, p.Statut, p.Description, p.Illustration, p.IdPro, p.ReferenceStripe,
+		`INSERT INTO Publicites (Id_Publicites, Type, Prix, Date_Debut, Date_Fin, Statut, Description, Illustration, Id_Professionnels, Reference_Stripe, Id_Services)
+		 VALUES (?, ?, ?, NULLIF(?,''), NULLIF(?,''), ?, ?, ?, ?, NULLIF(?,''), NULLIF(?,0))`,
+		p.ID, p.Type, p.Prix, p.DateDebut, p.DateFin, p.Statut, p.Description, p.Illustration, p.IdPro, p.ReferenceStripe, p.IdService,
 	)
 	return err
 }

@@ -155,6 +155,19 @@ function navActive(string $path, string $current): string {
                             <i class="fas fa-user text-primary text-sm"></i>
                         </div>
                         <span><?= htmlspecialchars($_SESSION['user']['prenom'] ?? 'Mon compte') ?></span>
+                        <?php if (($_SESSION['user']['role'] ?? '') === 'professionnel'):
+                            $estPremiumNav = false;
+                            try {
+                                $apiNav = new \App\Services\ApiService();
+                                $rNav = $apiNav->get('/professionnels/abonnement');
+                                $aboNav = isset($rNav['data']) ? $rNav['data'] : (is_array($rNav) && !isset($rNav['success']) ? $rNav : null);
+                                $estPremiumNav = is_array($aboNav) && ($aboNav['statut'] ?? '') === 'actif';
+                            } catch (\Exception $e) {}
+                        ?>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase <?= $estPremiumNav ? 'bg-amber-100 text-amber-700' : 'bg-base-200 text-base-content/50' ?>">
+                                <?= $estPremiumNav ? t('nav_badge_premium', 'Premium') : t('nav_badge_freemium', 'Freemium') ?>
+                            </span>
+                        <?php endif; ?>
                         <i class="fas fa-chevron-down text-xs text-base-content/40"></i>
                     </button>
                     <div id="user-menu-dropdown"
@@ -203,6 +216,9 @@ function navActive(string $path, string $current): string {
                             </a>
                             <a href="/mes-annonces" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/mes-annonces') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-bullhorn text-green-500 w-4 text-center"></i> <?= t('navdd_my_annonces', 'Mes annonces') ?>
+                            </a>
+                            <a href="/mes-objets" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/mes-objets') ? 'text-primary' : '' ?>">
+                                <i class="fas fa-box-open text-amber-500 w-4 text-center"></i> <?= t('navdd_my_objects', 'Récupérer mes objets') ?>
                             </a>
                             <a href="/mes-demandes" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-base-200 <?= str_starts_with($currentPath, '/mes-demandes') ? 'text-primary' : '' ?>">
                                 <i class="fas fa-clipboard-list w-4 text-center"></i> <?= t('navdd_my_requests', 'Mes demandes') ?>

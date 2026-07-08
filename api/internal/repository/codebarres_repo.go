@@ -38,6 +38,22 @@ func (CodeBarreRepo) ResoudrePourMAJ(q Querier, code string) (domain.CodeBarreSn
 	return s, err
 }
 
+func (CodeBarreRepo) ResoudrePourMAJParticulier(q Querier, code string, idUtilisateur int) (domain.CodeBarreSnapshot, error) {
+	var s domain.CodeBarreSnapshot
+	err := q.QueryRow(
+		`SELECT cb.Id_Codes_Barres, COALESCE(cb.Statut,'active'),
+		        o.Id_Objets, COALESCE(o.Statut,'en_stock')
+		 FROM Codes_Barres cb
+		 JOIN Objets o ON o.Id_Objets = cb.Id_Objets
+		 JOIN Demandes_conteneurs d ON d.Id_Demandes_conteneurs = o.Id_Demandes_conteneurs
+		 JOIN Annonces a ON a.Id_Annonces = d.Id_Annonces
+		 WHERE cb.Code = ? AND a.Id_Acheteur_Utilisateur = ?
+		 FOR UPDATE`,
+		code, idUtilisateur,
+	).Scan(&s.ID, &s.Statut, &s.IdObjet, &s.StatutObjet)
+	return s, err
+}
+
 func (CodeBarreRepo) MarquerUtilise(q Querier, idCodeBarre int) error {
 	_, err := q.Exec(
 		"UPDATE Codes_Barres SET Statut=? WHERE Id_Codes_Barres=? AND Statut=?",

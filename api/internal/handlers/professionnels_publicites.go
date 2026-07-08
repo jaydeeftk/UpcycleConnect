@@ -9,6 +9,7 @@ import (
 
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/checkout/session"
+	"upcycleconnect/internal/domain"
 	"upcycleconnect/internal/httpx"
 	"upcycleconnect/internal/services"
 )
@@ -71,6 +72,7 @@ func ProfessionnelPubliciteCheckout(w http.ResponseWriter, r *http.Request) {
 		DateDebut   string  `json:"date_debut"`
 		DateFin     string  `json:"date_fin"`
 		Description string  `json:"description"`
+		IdService   int     `json:"id_service"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -82,6 +84,20 @@ func ProfessionnelPubliciteCheckout(w http.ResponseWriter, r *http.Request) {
 	}); err != nil {
 		httpx.WriteError(w, err)
 		return
+	}
+	if body.IdService <= 0 {
+		httpx.JSONError(w, http.StatusBadRequest, "Sélectionnez la prestation à mettre en avant")
+		return
+	}
+	idProService, err := serviceCatalogueSvc.IdProDuService(body.IdService)
+	if err != nil || idProService != idPro {
+		httpx.JSONError(w, http.StatusForbidden, "Cette prestation ne vous appartient pas")
+		return
+	}
+
+	prixFacture := body.Prix
+	if abo, errAbo := facturationSvc.ProAbonnementActuel(idPro); errAbo == nil && abo != nil && abo.Statut == domain.StatutAbonnementActif {
+		prixFacture = domain.Round2(prixFacture * (1 - domain.ReductionPubPremium))
 	}
 
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
@@ -103,7 +119,7 @@ func ProfessionnelPubliciteCheckout(w http.ResponseWriter, r *http.Request) {
 					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
 						Name: stripe.String("Campagne publicitaire — " + body.Type),
 					},
-					UnitAmount: stripe.Int64(int64(math.Round(body.Prix * 100))),
+					UnitAmount: stripe.Int64(int64(math.Round(prixFacture * 100))),
 				},
 				Quantity: stripe.Int64(1),
 			},
@@ -115,9 +131,10 @@ func ProfessionnelPubliciteCheckout(w http.ResponseWriter, r *http.Request) {
 	params.AddMetadata("pro_action", "publicite")
 	params.AddMetadata("id_pro", strconv.Itoa(idPro))
 	params.AddMetadata("pub_type", body.Type)
-	params.AddMetadata("pub_prix", strconv.FormatFloat(body.Prix, 'f', 2, 64))
+	params.AddMetadata("pub_prix", strconv.FormatFloat(prixFacture, 'f', 2, 64))
 	params.AddMetadata("pub_date_debut", body.DateDebut)
 	params.AddMetadata("pub_date_fin", body.DateFin)
+	params.AddMetadata("pub_id_service", strconv.Itoa(body.IdService))
 	if len(body.Description) > 400 {
 		body.Description = body.Description[:400]
 	}

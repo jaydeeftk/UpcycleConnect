@@ -69,6 +69,9 @@ func ValiderContrat(typeContrat string, dateDebut, dateFin time.Time, idProfessi
 	if idProfessionnel <= 0 {
 		return Invalide("Le professionnel rattaché est obligatoire")
 	}
+	if !dateDebut.IsZero() && dateDebut.Before(time.Now().Add(toleranceDatePassee)) {
+		return Invalide("La date de début ne peut pas être dans le passé")
+	}
 	if !dateDebut.IsZero() && !dateFin.IsZero() && dateFin.Before(dateDebut) {
 		return Invalide("La date de fin ne peut précéder la date de début")
 	}
@@ -137,6 +140,8 @@ const (
 	TauxCommissionMax    = 0.10
 	TauxCommissionDefaut = 0.10
 )
+
+const TauxCommissionProPremium = 0.07
 
 func TauxCommission() float64 {
 	v := os.Getenv("COMMISSION_RATE")

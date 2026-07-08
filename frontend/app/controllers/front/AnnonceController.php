@@ -50,6 +50,50 @@ class AnnonceController
         ]);
     }
 
+    public function recuperation()
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        $mesObjets = [];
+        try {
+            $res = $this->api->get('/particuliers/mes-objets');
+            $mesObjets = isset($res['data']) && is_array($res['data']) ? $res['data'] : (is_array($res) && !isset($res['success']) ? $res : []);
+        } catch (\Exception $e) {}
+        return view('front.recuperation.index', [
+            'title'     => 'Récupérer mes objets - UpcycleConnect',
+            'mesObjets' => $mesObjets,
+        ]);
+    }
+
+    public function recupererObjet($id)
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        try {
+            $this->api->post('/particuliers/objets/' . (int)$id . '/recuperer', []);
+            $_SESSION['success'] = 'Objet marqué comme récupéré.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/mes-objets');
+    }
+
+    public function recupererParCode()
+    {
+        if (!isset($_SESSION['user'])) {
+            redirect('/login');
+        }
+        try {
+            $this->api->post('/particuliers/objets/recuperer-par-code', ['code' => $_POST['code'] ?? '']);
+            $_SESSION['success'] = 'Objet récupéré.';
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        redirect('/mes-objets');
+    }
+
     public function show($id)
     {
         $annonce = [];

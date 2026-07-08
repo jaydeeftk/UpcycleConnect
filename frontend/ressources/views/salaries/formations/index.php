@@ -196,12 +196,12 @@ unset($_SESSION['success'], $_SESSION['error']);
             <div class="grid grid-cols-2 gap-4 mb-4">
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date', 'Date') ?></label>
-        <input type="datetime-local" name="date"
+        <input type="datetime-local" name="date" min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
     </div>
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date_fin', 'Date de fin') ?></label>
-        <input type="date" name="date_fin"
+        <input type="date" name="date_fin" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
     </div>
 </div>
@@ -285,12 +285,12 @@ unset($_SESSION['success'], $_SESSION['error']);
             <div class="grid grid-cols-2 gap-4 mb-4">
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date', 'Date') ?></label>
-        <input type="datetime-local" name="date" id="edit-date"
+        <input type="datetime-local" name="date" id="edit-date" min="<?= dateProgrammationMin() ?>" max="<?= dateProgrammationMax() ?>"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
     </div>
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_date_fin', 'Date de fin') ?></label>
-        <input type="date" name="date_fin" id="edit-date-fin"
+        <input type="date" name="date_fin" id="edit-date-fin" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
     </div>
 </div>

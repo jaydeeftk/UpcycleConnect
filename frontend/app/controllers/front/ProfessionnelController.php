@@ -28,6 +28,13 @@ class ProfessionnelController
             $profil = isset($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
         } catch (\Exception $e) {}
 
+        $estPremium = false;
+        try {
+            $r = $this->api->get('/professionnels/abonnement');
+            $abo = isset($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : null);
+            $estPremium = is_array($abo) && ($abo['statut'] ?? '') === 'actif';
+        } catch (\Exception $e) {}
+
         try {
             $r = $this->api->get('/notifications');
             $bloc = $r['data'] ?? $r;
@@ -71,6 +78,7 @@ class ProfessionnelController
             'notifications' => $notifications,
             'notifsNonLues' => $notifsNonLues,
             'impact'   => $impact,
+            'estPremium' => $estPremium,
             'page_title' => 'Espace Professionnel',
             'layout' => 'raw',
         ]);
@@ -427,11 +435,18 @@ class ProfessionnelController
             $publicites = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
         } catch (\Exception $e) {}
 
+        $mesServices = [];
+        try {
+            $r = $this->api->get('/professionnels/services');
+            $mesServices = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
+        } catch (\Exception $e) {}
+
         return view('professionnel.publicites.index', [
-            'publicites' => $publicites,
-            'page_title' => 'Campagnes publicitaires',
-            'layout'     => 'raw',
-            'token'      => $_SESSION['user']['token'] ?? '',
+            'publicites'  => $publicites,
+            'mesServices' => $mesServices,
+            'page_title'  => 'Campagnes publicitaires',
+            'layout'      => 'raw',
+            'token'       => $_SESSION['user']['token'] ?? '',
         ]);
     }
 
@@ -454,8 +469,16 @@ class ProfessionnelController
             $commissions = isset($r['data']) && is_array($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : []);
         } catch (\Exception $e) {}
 
+        $estPremium = false;
+        try {
+            $r = $this->api->get('/professionnels/abonnement');
+            $abo = isset($r['data']) ? $r['data'] : (is_array($r) && !isset($r['success']) ? $r : null);
+            $estPremium = is_array($abo) && ($abo['statut'] ?? '') === 'actif';
+        } catch (\Exception $e) {}
+
         return view('professionnel.commissions.index', [
             'commissions' => $commissions,
+            'estPremium'  => $estPremium,
             'page_title'  => 'Mes commissions',
             'layout'      => 'raw',
         ]);

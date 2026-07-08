@@ -11,14 +11,16 @@ import (
 )
 
 type ServiceCatalogueDTO struct {
-	ID          int     `json:"id"`
-	Titre       string  `json:"titre"`
-	Description string  `json:"description"`
-	Prix        float64 `json:"prix"`
-	Duree       int     `json:"duree"`
-	Categorie   string  `json:"categorie"`
-	NomAuteur   string  `json:"nom_auteur,omitempty"`
-	TypeAuteur  string  `json:"type_auteur"`
+	ID            int     `json:"id"`
+	Titre         string  `json:"titre"`
+	Description   string  `json:"description"`
+	Prix          float64 `json:"prix"`
+	Duree         int     `json:"duree"`
+	Categorie     string  `json:"categorie"`
+	NomAuteur     string  `json:"nom_auteur,omitempty"`
+	TypeAuteur    string  `json:"type_auteur"`
+	Booste        bool    `json:"booste"`
+	AuteurPremium bool    `json:"auteur_premium"`
 }
 
 type CommandeServiceDTO struct {
@@ -84,9 +86,14 @@ func (s *ServiceCatalogueService) ListerCatalogue() ([]ServiceCatalogueDTO, erro
 		out = append(out, ServiceCatalogueDTO{
 			ID: l.ID, Titre: l.Titre, Description: l.Description, Prix: l.Prix,
 			Duree: l.Duree, Categorie: l.Categorie, NomAuteur: l.NomAuteur, TypeAuteur: l.TypeAuteur,
+			Booste: l.Booste, AuteurPremium: l.AuteurPremium,
 		})
 	}
 	return out, nil
+}
+
+func (s *ServiceCatalogueService) IdProDuService(idService int) (int, error) {
+	return s.repo.IdProDuService(database.DB, idService)
 }
 
 func (s *ServiceCatalogueService) ListerPourPro(idPro int) ([]ServiceCatalogueDTO, error) {

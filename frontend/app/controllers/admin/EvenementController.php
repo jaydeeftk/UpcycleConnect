@@ -24,23 +24,30 @@ class EvenementController
 
     public function create()
     {
-        return view('admin.evenements.create', ['page_title' => 'Créer un événement']);
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['error']);
+        return view('admin.evenements.create', ['page_title' => 'Créer un événement', 'error' => $error]);
     }
 
     public function store()
     {
+        $dates = array_values(array_filter(array_map('trim', $_POST['dates'] ?? []), fn($d) => $d !== ''));
         try {
             $this->api->post('/admin/evenements', [
                 'titre'         => $_POST['titre'] ?? '',
                 'description'   => $_POST['description'] ?? '',
                 'lieu'          => $_POST['lieu'] ?? '',
-                'date'          => $_POST['date_evenement'] ?? $_POST['date'] ?? '',
+                'dates'         => $dates,
                 'capacite'      => (int)($_POST['capacite'] ?? 50),
                 'statut'        => $_POST['statut'] ?? 'à venir',
                 'prix'          => (float)($_POST['prix'] ?? 0),
                 'id_salaries'   => !empty($_POST['id_salaries']) ? (int)$_POST['id_salaries'] : null,
             ]);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            redirect('/admin/evenements/create');
+            return;
+        }
         redirect('/admin/evenements');
     }
 

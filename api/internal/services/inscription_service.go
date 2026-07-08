@@ -146,6 +146,7 @@ type FicheEvenementDTO struct {
 	Titre             string   `json:"titre"`
 	Description       string   `json:"description"`
 	Date              string   `json:"date"`
+	Dates             []string `json:"dates"`
 	Lieu              string   `json:"lieu"`
 	Capacite          int      `json:"capacite"`
 	Participants      int      `json:"participants"`
@@ -166,6 +167,7 @@ func (s *InscriptionService) FicheEvenement(idUtilisateur, idEvenement int) (Fic
 	}
 
 	estParticulier, dejaInscrit, aPaye := s.contexteParticulierEvenement(idUtilisateur, idEvenement)
+	dates, _ := s.repo.DatesEvenement(database.DB, idEvenement)
 
 	snap := domain.EvenementSnapshot{
 		Statut:       f.Statut,
@@ -176,7 +178,7 @@ func (s *InscriptionService) FicheEvenement(idUtilisateur, idEvenement int) (Fic
 	}
 	dto = FicheEvenementDTO{
 		ID: f.ID, Titre: f.Titre, Description: f.Description, Lieu: f.Lieu,
-		Date: formatDate(f.Date), Capacite: f.Capacite, Participants: f.Participants,
+		Date: formatDate(f.Date), Dates: dates, Capacite: f.Capacite, Participants: f.Participants,
 		Statut: f.Statut, Prix: f.Prix, EstInscrit: dejaInscrit,
 		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit, aPaye),
 	}
@@ -285,6 +287,7 @@ type FicheFormationDTO struct {
 	Duree             int                 `json:"duree"`
 	Statut            string              `json:"statut"`
 	Date              string              `json:"date"`
+	Dates             []string            `json:"dates"`
 	DateFin           string              `json:"date_fin"`
 	PlacesTotal       int                 `json:"places_total"`
 	PlacesDispo       int                 `json:"places_dispo"`
@@ -319,10 +322,11 @@ func (s *InscriptionService) FicheFormation(idUtilisateur, idFormation int) (Fic
 	for _, e := range etapesRepo {
 		etapes = append(etapes, EtapeFormationDTO{ID: e.ID, Titre: e.Titre, Description: e.Description, Ordre: e.Ordre})
 	}
+	dates, _ := s.repo.DatesFormation(database.DB, idFormation)
 
 	dto = FicheFormationDTO{
 		ID: f.ID, Titre: f.Titre, Description: f.Description, Prix: f.Prix,
-		Duree: f.Duree, Statut: f.Statut, Date: formatDate(f.Date), DateFin: formatDate(f.DateFin),
+		Duree: f.Duree, Statut: f.Statut, Date: formatDate(f.Date), Dates: dates, DateFin: formatDate(f.DateFin),
 		PlacesTotal: f.PlacesTotal, PlacesDispo: f.PlacesDispo,
 		Localisation: f.Localisation, Categorie: f.Categorie, Etapes: etapes, EstInscrit: dejaInscrit,
 		ActionsAutorisees: snap.ActionsParticulier(time.Now(), estParticulier, dejaInscrit, aPaye),

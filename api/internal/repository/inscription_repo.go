@@ -29,6 +29,46 @@ type EvenementFiche struct {
 	Prix         float64
 }
 
+func (InscriptionRepo) DatesEvenement(q Querier, idEvenement int) ([]string, error) {
+	rows, err := q.Query(
+		"SELECT DATE_FORMAT(Date_session, '%Y-%m-%dT%H:%i:%s') FROM Evenement_Dates WHERE Id_Evenements = ? ORDER BY Date_session ASC",
+		idEvenement,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	dates := []string{}
+	for rows.Next() {
+		var d string
+		if err := rows.Scan(&d); err != nil {
+			return nil, err
+		}
+		dates = append(dates, d)
+	}
+	return dates, rows.Err()
+}
+
+func (InscriptionRepo) DatesFormation(q Querier, idFormation int) ([]string, error) {
+	rows, err := q.Query(
+		"SELECT DATE_FORMAT(Date_session, '%Y-%m-%dT%H:%i:%s') FROM Formation_Dates WHERE Id_Formations = ? ORDER BY Date_session ASC",
+		idFormation,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	dates := []string{}
+	for rows.Next() {
+		var d string
+		if err := rows.Scan(&d); err != nil {
+			return nil, err
+		}
+		dates = append(dates, d)
+	}
+	return dates, rows.Err()
+}
+
 func (InscriptionRepo) FicheEvenement(q Querier, idEvenement int) (EvenementFiche, error) {
 	var f EvenementFiche
 	err := q.QueryRow(

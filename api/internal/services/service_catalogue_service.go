@@ -155,7 +155,7 @@ func (s *ServiceCatalogueService) Supprimer(idPro, idService int) (bool, error) 
 }
 
 func (s *ServiceCatalogueService) CreerCommande(idUtilisateur, idService int, nomObjet, descriptionObjet, photoURL string) (idCommande int, prix float64, titre string, err error) {
-	if err = domain.ValiderCommandeService(nomObjet); err != nil {
+	if err = domain.ValiderCommandeService(nomObjet, photoURL); err != nil {
 		return
 	}
 	titre, prix, idPro, err := s.repo.ServicePourAchat(database.DB, idService)

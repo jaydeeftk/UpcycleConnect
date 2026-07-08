@@ -13,6 +13,45 @@ class CatalogueController
         $this->api = new ApiService();
     }
 
+    public function uploadCommandePhoto()
+    {
+        header('Content-Type: application/json');
+        if (!isset($_SESSION['user'])) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'Authentification requise']);
+            return;
+        }
+        $url = $this->stockerPhoto($_FILES['photo'] ?? null);
+        if ($url === null) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'error' => 'Photo invalide (JPEG, PNG ou WebP, 5 Mo max).']);
+            return;
+        }
+        echo json_encode(['success' => true, 'url' => $url]);
+    }
+
+    private function stockerPhoto($file): ?string
+    {
+        if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+        $mime = mime_content_type($file['tmp_name'] ?? '') ?: '';
+        if (!isset($allowed[$mime]) || ($file['size'] ?? 0) > 5 * 1024 * 1024) {
+            return null;
+        }
+        $uid = (int)($_SESSION['user']['id'] ?? 0);
+        $dir = __DIR__ . '/../../../public/uploads/commandes/' . $uid;
+        if (!is_dir($dir) && !mkdir($dir, 0o755, true)) {
+            return null;
+        }
+        $name = bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
+        if (!move_uploaded_file($file['tmp_name'], $dir . '/' . $name)) {
+            return null;
+        }
+        return '/uploads/commandes/' . $uid . '/' . $name;
+    }
+
     public function showService($id)
     {
         $service = [];

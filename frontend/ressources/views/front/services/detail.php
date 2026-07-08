@@ -45,8 +45,9 @@
                         <input type="text" name="nom_objet" required class="input input-bordered w-full" placeholder="<?= t('svcdet_order_object_ph', 'Ex : Vélo de ville, commode en bois...') ?>">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1"><?= t('svcdet_order_photo', "Photo de l'objet") ?></label>
-                        <input type="url" name="photo_url" class="input input-bordered w-full" placeholder="<?= t('svcdet_order_photo_ph', 'https://... (lien vers une photo)') ?>">
+                        <label class="block text-sm font-medium mb-1"><?= t('svcdet_order_photo', "Photo de l'objet") ?> <span class="text-red-500">*</span></label>
+                        <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required class="file-input file-input-bordered w-full">
+                        <p class="text-xs text-base-content/40 mt-1"><?= t('svcdet_order_photo_hint', 'JPG, PNG ou WebP, 5 Mo max.') ?></p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1"><?= t('svcdet_order_desc', 'Précisions') ?></label>
@@ -76,16 +77,25 @@
                         const original = btn.innerHTML;
                         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-                        fetch('/api/services/commander', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-                            body: JSON.stringify({
-                                id_service: ID_SERVICE,
-                                nom_objet: form.nom_objet.value,
-                                photo_url: form.photo_url.value,
-                                description_objet: form.description_objet.value,
+                        const photoData = new FormData();
+                        photoData.append('photo', form.photo.files[0]);
+                        fetch('/services/commande/photo', { method: 'POST', body: photoData })
+                            .then(function (r) { return r.json(); })
+                            .then(function (up) {
+                                if (!up.success || !up.url) {
+                                    throw new Error((up && up.error) || 'Photo invalide');
+                                }
+                                return fetch('/api/services/commander', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+                                    body: JSON.stringify({
+                                        id_service: ID_SERVICE,
+                                        nom_objet: form.nom_objet.value,
+                                        photo_url: up.url,
+                                        description_objet: form.description_objet.value,
+                                    })
+                                });
                             })
-                        })
                             .then(function (r) { return r.json(); })
                             .then(function (json) {
                                 if (!json.success || !json.data || !json.data.id_commande) {

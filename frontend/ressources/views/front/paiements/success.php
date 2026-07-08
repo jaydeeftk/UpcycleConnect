@@ -2,9 +2,10 @@
 $cmd  = $commande ?? null;
 $paye = is_array($cmd) && ($cmd['trouve'] ?? false) && in_array($cmd['statut'] ?? '', ['paye', 'payee'], true);
 $type = $cmd['type'] ?? '';
+$estService = in_array($type, ['devis_prestation', 'prestation_catalogue'], true);
 $retourUrl = '/paiements';
 $retourLabel = t('paysucc_view_payments', 'Voir mes paiements');
-if (in_array($type, ['devis_prestation', 'prestation_catalogue'], true)) {
+if ($estService) {
     $retourUrl = '/mes-prestations';
     $retourLabel = t('paysucc_view_services', 'Voir mes prestations réservées');
 } elseif ($type === 'annonce') {
@@ -12,8 +13,8 @@ if (in_array($type, ['devis_prestation', 'prestation_catalogue'], true)) {
     $retourLabel = t('paysucc_view_annonces', 'Voir mes annonces');
 }
 ?>
-<section class="max-w-lg mx-auto px-6 py-16 text-center">
-    <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-10">
+<section class="max-w-lg mx-auto px-6 py-16">
+    <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-10 text-center">
         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <i class="fas fa-check text-4xl text-green-500"></i>
         </div>
@@ -39,4 +40,38 @@ if (in_array($type, ['devis_prestation', 'prestation_catalogue'], true)) {
             <i class="fas fa-receipt mr-2"></i> <?= $retourLabel ?>
         </a>
     </div>
+
+    <?php if ($estService): ?>
+        <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-8 mt-6">
+            <h2 class="font-semibold text-lg mb-6 flex items-center gap-2">
+                <i class="fas fa-route text-green-500"></i> <?= t('paysucc_next_title', 'Que se passe-t-il ensuite ?') ?>
+            </h2>
+            <ol class="space-y-5">
+                <li class="flex items-start gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">1</span>
+                    <div>
+                        <p class="font-medium"><?= t('paysucc_step1_title', 'Le prestataire est notifié') ?></p>
+                        <p class="text-sm text-base-content/60"><?= t('paysucc_step1_text', 'Il reçoit votre commande et la photo de l\'objet pour préparer son intervention.') ?></p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">2</span>
+                    <div>
+                        <p class="font-medium"><?= t('paysucc_step2_title', 'Un projet de suivi est créé') ?></p>
+                        <p class="text-sm text-base-content/60"><?= t('paysucc_step2_text', 'Vous suivrez chaque étape de la transformation, photos à l\'appui, depuis vos prestations réservées.') ?></p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">3</span>
+                    <div>
+                        <p class="font-medium"><?= t('paysucc_step3_title', 'Échangez avec le prestataire') ?></p>
+                        <p class="text-sm text-base-content/60"><?= t('paysucc_step3_text', 'Une conversation est ouverte pour convenir de la remise de l\'objet et répondre à vos questions.') ?></p>
+                    </div>
+                </li>
+            </ol>
+            <a href="/messages" class="btn btn-outline btn-sm mt-6 w-full">
+                <i class="fas fa-comments mr-2"></i> <?= t('paysucc_open_messaging', 'Ouvrir la messagerie') ?>
+            </a>
+        </div>
+    <?php endif; ?>
 </section>

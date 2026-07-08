@@ -17,9 +17,12 @@ func ValiderServiceCatalogue(titre string, prix float64) error {
 	return nil
 }
 
-func ValiderCommandeService(nomObjet string) error {
+func ValiderCommandeService(nomObjet, photoURL string) error {
 	if strings.TrimSpace(nomObjet) == "" {
 		return Invalide("Merci de préciser l'objet concerné")
+	}
+	if strings.TrimSpace(photoURL) == "" {
+		return Invalide("Une photo de l'objet est obligatoire")
 	}
 	return nil
 }

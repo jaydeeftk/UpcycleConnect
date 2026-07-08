@@ -10,6 +10,7 @@ $router->get('/demande-prestation', 'Front\PrestationController@create');
 $router->post('/demande-prestation', 'Front\PrestationController@store');
 
 $router->get('/catalogue/services', 'Front\CatalogueController@services');
+$router->post('/services/commande/photo', 'Front\CatalogueController@uploadCommandePhoto');
 $router->get('/services/{id}', 'Front\CatalogueController@showService');
 $router->get('/catalogue/formations', 'Front\CatalogueController@formations');
 $router->get('/formations/{id}', 'Front\CatalogueController@showFormation');

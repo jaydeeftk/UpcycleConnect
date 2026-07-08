@@ -9,8 +9,6 @@ import (
 	"upcycleconnect/internal/httpx"
 )
 
-// formationAppartientAuSalarie verifie que la formation appartient bien au
-// salarie connecte avant de laisser gerer ses etapes.
 func formationAppartientAuSalarie(idFormation, salarieID int) bool {
 	var n int
 	database.DB.QueryRow(
@@ -20,8 +18,6 @@ func formationAppartientAuSalarie(idFormation, salarieID int) bool {
 	return n > 0
 }
 
-// SalarieFormationEtapesHandler gere la liste et la creation des etapes
-// d'une formation. Route : /api/salaries/formations/{id}/etapes
 func SalarieFormationEtapesHandler(w http.ResponseWriter, r *http.Request) {
 	_, salarieID, ok := getSalarieFromContext(r)
 	if !ok {
@@ -91,8 +87,6 @@ func SalarieFormationEtapesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// SalarieFormationEtapeAction gere la modification et la suppression d'une
-// etape. Route : /api/salaries/formations/{id}/etapes/{etapeId}
 func SalarieFormationEtapeAction(w http.ResponseWriter, r *http.Request) {
 	_, salarieID, ok := getSalarieFromContext(r)
 	if !ok {

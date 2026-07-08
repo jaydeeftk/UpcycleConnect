@@ -950,10 +950,6 @@ func (FacturationRepo) CreerContratDepuisPublicite(q Querier, idPublicite string
 	return err
 }
 
-// ConsommerAnnonceGratuite decremente le quota d'annonces gratuites de
-// l'abonnement premium actif du professionnel, si disponible. Renvoie true
-// si un credit gratuit a ete utilise. La mise a jour est atomique (une seule
-// requete) pour eviter toute sur-consommation en cas de creations simultanees.
 func (FacturationRepo) ConsommerAnnonceGratuite(q Querier, idPro int) bool {
 	res, err := q.Exec(
 		`UPDATE Abonnement SET Annonces_Gratuites_Utilisees = Annonces_Gratuites_Utilisees + 1
@@ -995,10 +991,10 @@ type MoisCA struct {
 }
 
 type FinancesAgregat struct {
-	NbFactures       int            `json:"nb_factures"`
-	TotalHT          float64        `json:"total_ht"`
-	TotalTTC         float64        `json:"total_ttc"`
-	TotalCommissions float64        `json:"total_commissions"`
+	NbFactures       int                `json:"nb_factures"`
+	TotalHT          float64            `json:"total_ht"`
+	TotalTTC         float64            `json:"total_ttc"`
+	TotalCommissions float64            `json:"total_commissions"`
 	CAParMois        []MoisCA           `json:"ca_par_mois"`
 	Statuts          map[string]int     `json:"statuts"`
 	CAParSource      map[string]float64 `json:"ca_par_source"`

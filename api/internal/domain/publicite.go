@@ -23,7 +23,7 @@ func ValiderPublicite(typ string, prix float64, dateDebut, dateFin time.Time) er
 		return Invalide("La date de début est obligatoire")
 	}
 	maintenant := time.Now()
-	if dateDebut.Before(maintenant.Add(toleranceDatePassee)) {
+	if dateAvantAujourdhui(dateDebut) {
 		return Invalide("La date de début ne peut pas être dans le passé")
 	}
 	if dateDebut.After(maintenant.Add(FenetreProgrammationMax)) {

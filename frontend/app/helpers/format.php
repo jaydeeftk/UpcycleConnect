@@ -131,7 +131,7 @@ function statutCouleur(string $statut): string
  */
 function dateProgrammationMin(bool $avecHeure = true): string
 {
-    return date($avecHeure ? 'Y-m-d\TH:i' : 'Y-m-d');
+    return date($avecHeure ? 'Y-m-d\T00:00' : 'Y-m-d');
 }
 
 /**

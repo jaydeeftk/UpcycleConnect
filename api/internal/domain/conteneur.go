@@ -55,9 +55,12 @@ var errNoDateLayout = errors.New("aucun format de date reconnu")
 // à un horizon raisonnable (2 ans) pour éviter les dates aberrantes.
 const FenetreProgrammationMax = 2 * 365 * 24 * time.Hour
 
-// toleranceDatePassee laisse une marge de quelques minutes pour le temps de
-// soumission du formulaire, sans autoriser une programmation dans le passé.
-const toleranceDatePassee = -10 * time.Minute
+func dateAvantAujourdhui(t time.Time) bool {
+	maintenant := time.Now()
+	aujourdhui := time.Date(maintenant.Year(), maintenant.Month(), maintenant.Day(), 0, 0, 0, 0, time.UTC)
+	jour := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+	return jour.Before(aujourdhui)
+}
 
 // ValiderDateProgrammation vérifie le format ET que la date n'est ni dans le
 // passé, ni trop éloignée dans le futur. À utiliser pour toute date programmée
@@ -68,7 +71,7 @@ func ValiderDateProgrammation(valeur string) error {
 	}
 	t, _ := parseDateSouple(valeur)
 	maintenant := time.Now()
-	if t.Before(maintenant.Add(toleranceDatePassee)) {
+	if dateAvantAujourdhui(t) {
 		return Invalide("La date ne peut pas être dans le passé")
 	}
 	if t.After(maintenant.Add(FenetreProgrammationMax)) {

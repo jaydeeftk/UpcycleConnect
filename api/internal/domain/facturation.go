@@ -69,7 +69,7 @@ func ValiderContrat(typeContrat string, dateDebut, dateFin time.Time, idProfessi
 	if idProfessionnel <= 0 {
 		return Invalide("Le professionnel rattaché est obligatoire")
 	}
-	if !dateDebut.IsZero() && dateDebut.Before(time.Now().Add(toleranceDatePassee)) {
+	if !dateDebut.IsZero() && dateAvantAujourdhui(dateDebut) {
 		return Invalide("La date de début ne peut pas être dans le passé")
 	}
 	if !dateDebut.IsZero() && !dateFin.IsZero() && dateFin.Before(dateDebut) {

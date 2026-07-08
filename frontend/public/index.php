@@ -5,7 +5,9 @@ session_start();
 
 date_default_timezone_set('Europe/Paris');
 
-ini_set('display_errors', 1);
+$afficherErreurs = in_array(getenv('APP_ENV'), ['local', 'dev', 'development'], true);
+ini_set('display_errors', $afficherErreurs ? '1' : '0');
+ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
 spl_autoload_register(function ($class) {

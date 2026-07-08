@@ -21,7 +21,7 @@
                         <h3 class="text-xl font-semibold mb-3"><?= htmlspecialchars($prestation['titre'] ?? '') ?></h3>
                         <p class="text-base-content/70 mb-2"><?= htmlspecialchars($prestation['description'] ?? '') ?></p>
                         <p class="font-semibold mb-4"><?= t('prestidx_from_price', 'À partir de') ?> <?= htmlspecialchars(formatPrix($prestation['prix'] ?? 0)) ?></p>
-                        <a href="/prestations/<?= $prestation['id'] ?>" class="text-sm font-medium hover:underline">
+                        <a href="/prestations/<?= $prestation['id'] ?? 0 ?>" class="text-sm font-medium hover:underline">
                             <?= t('prestidx_view_link', 'Voir la prestation') ?> →
                         </a>
                     </div>

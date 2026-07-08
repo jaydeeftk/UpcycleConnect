@@ -12,7 +12,6 @@ import (
 type TicketDTO struct {
 	ID             int    `json:"id"`
 	Statut         string `json:"statut"`
-	Origine        string `json:"origine"`
 	DateCreation   string `json:"date_creation"`
 	IdAdminAssigne *int   `json:"id_admin_assigne,omitempty"`
 	NomParticulier string `json:"nom_particulier,omitempty"`
@@ -64,33 +63,6 @@ func (s *TicketService) ParticulierEnvoyerMessage(idParticulier int, contenu str
 		idTicket = t.ID
 	}
 	if _, err := s.repo.CreerMessage(database.DB, idTicket, idParticulier, contenu); err != nil {
-		return 0, err
-	}
-	return idTicket, nil
-}
-
-func (s *TicketService) AdminEnvoyerMessage(idAdmin, idUtilisateur int, contenu string) (int, error) {
-	if err := domain.ValiderContenuMessageTicket(contenu); err != nil {
-		return 0, err
-	}
-	var exists int
-	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs WHERE Id_Utilisateurs = ?", idUtilisateur).Scan(&exists)
-	if exists == 0 {
-		return 0, domain.Introuvable("Utilisateur introuvable")
-	}
-	t, err := s.repo.TicketOuvertEntreAdminEtUtilisateur(database.DB, idUtilisateur, idAdmin)
-	var idTicket int
-	if errors.Is(err, sql.ErrNoRows) {
-		idTicket, err = s.repo.CreerParAdmin(database.DB, idUtilisateur, idAdmin)
-		if err != nil {
-			return 0, err
-		}
-	} else if err != nil {
-		return 0, err
-	} else {
-		idTicket = t.ID
-	}
-	if _, err := s.repo.CreerMessage(database.DB, idTicket, idAdmin, contenu); err != nil {
 		return 0, err
 	}
 	return idTicket, nil
@@ -176,7 +148,7 @@ func (s *TicketService) HistoriqueParticulier(idParticulier int) ([]TicketDTO, e
 	out := make([]TicketDTO, 0, len(lignes))
 	for _, t := range lignes {
 		out = append(out, TicketDTO{
-			ID: t.ID, Statut: t.Statut, Origine: t.Origine, DateCreation: t.DateCreation, IdAdminAssigne: t.IdAdminAssigne,
+			ID: t.ID, Statut: t.Statut, DateCreation: t.DateCreation, IdAdminAssigne: t.IdAdminAssigne,
 			NomAdmin: t.NomAdmin, DernierMessage: t.DernierMessage, DateDernierMsg: t.DateDernierMsg,
 		})
 	}

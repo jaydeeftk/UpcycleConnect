@@ -26,9 +26,6 @@
                         <div class="flex items-center gap-2 mb-1">
                             <span class="font-semibold"><?= t('msghist_ticket', 'Ticket') ?> #<?= (int)($t['id'] ?? 0) ?></span>
                             <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $color ?>"><?= htmlspecialchars(formatStatut($t['statut'] ?? '')) ?></span>
-                            <?php if (($t['origine'] ?? 'client') === 'admin'): ?>
-                                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800"><?= t('msghist_badge_admin', "Message de l'équipe") ?></span>
-                            <?php endif; ?>
                         </div>
                         <?php if (!empty($t['dernier_message'])): ?>
                             <div class="text-sm text-base-content/60 truncate"><?= htmlspecialchars($t['dernier_message']) ?></div>

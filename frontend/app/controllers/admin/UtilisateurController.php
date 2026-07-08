@@ -127,30 +127,4 @@ class UtilisateurController
         } catch (\Exception $e) {}
         redirect('/admin/utilisateurs/' . $id);
     }
-
-    public function message($id)
-    {
-        $error = $_SESSION['error'] ?? null;
-        unset($_SESSION['error']);
-        return view('admin.utilisateurs.message', [
-            'id_utilisateur' => (int)$id,
-            'page_title'     => 'Envoyer un message',
-            'error'          => $error,
-        ]);
-    }
-
-    public function envoyerMessage($id)
-    {
-        try {
-            $result = $this->api->post('/admin/tickets/utilisateur/' . (int)$id, [
-                'contenu' => $_POST['contenu'] ?? '',
-            ]);
-            $idTicket = $result['data']['id_ticket'] ?? $result['id_ticket'] ?? 0;
-        } catch (\Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-            redirect('/admin/utilisateurs/' . (int)$id . '/message');
-            return;
-        }
-        redirect('/admin/tickets/' . (int)$idTicket);
-    }
 }

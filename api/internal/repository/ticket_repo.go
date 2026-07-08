@@ -5,7 +5,6 @@ type TicketLigne struct {
 	IdParticulier  int
 	IdAdminAssigne *int
 	Statut         string
-	Origine        string
 	DateCreation   string
 	NomParticulier string
 	NomAdmin       string
@@ -26,34 +25,11 @@ func (TicketRepo) TicketOuvertDuParticulier(q Querier, idParticulier int) (Ticke
 	var t TicketLigne
 	err := q.QueryRow(
 		`SELECT Id_Tickets, Id_Particulier, Id_Admin_Assigne, Statut
-		 FROM Tickets WHERE Id_Particulier = ? AND Origine = 'client' AND Statut != 'ferme'
+		 FROM Tickets WHERE Id_Particulier = ? AND Statut != 'ferme'
 		 ORDER BY Id_Tickets DESC LIMIT 1`,
 		idParticulier,
 	).Scan(&t.ID, &t.IdParticulier, &t.IdAdminAssigne, &t.Statut)
 	return t, err
-}
-
-func (TicketRepo) TicketOuvertEntreAdminEtUtilisateur(q Querier, idUtilisateur, idAdmin int) (TicketLigne, error) {
-	var t TicketLigne
-	err := q.QueryRow(
-		`SELECT Id_Tickets, Id_Particulier, Id_Admin_Assigne, Statut
-		 FROM Tickets WHERE Id_Particulier = ? AND Id_Admin_Assigne = ? AND Origine = 'admin' AND Statut != 'ferme'
-		 ORDER BY Id_Tickets DESC LIMIT 1`,
-		idUtilisateur, idAdmin,
-	).Scan(&t.ID, &t.IdParticulier, &t.IdAdminAssigne, &t.Statut)
-	return t, err
-}
-
-func (TicketRepo) CreerParAdmin(q Querier, idUtilisateur, idAdmin int) (int, error) {
-	res, err := q.Exec(
-		"INSERT INTO Tickets (Id_Particulier, Id_Admin_Assigne, Statut, Origine, Date_creation) VALUES (?, ?, 'en_cours', 'admin', NOW())",
-		idUtilisateur, idAdmin,
-	)
-	if err != nil {
-		return 0, err
-	}
-	newID, err := res.LastInsertId()
-	return int(newID), err
 }
 
 func (TicketRepo) Creer(q Querier, idParticulier int) (int, error) {
@@ -91,7 +67,6 @@ func (TicketRepo) ListerTous(q Querier) ([]TicketLigne, error) {
 			SELECT mt.Id_Messages_Ticket FROM Messages_Ticket mt
 			WHERE mt.Id_Tickets = t.Id_Tickets ORDER BY mt.Id_Messages_Ticket DESC LIMIT 1
 		)
-		WHERE t.Origine = 'client'
 		ORDER BY (t.Statut = 'en_attente') DESC, dernier.Date_envoi DESC, t.Date_creation DESC`,
 	)
 	if err != nil {
@@ -112,7 +87,7 @@ func (TicketRepo) ListerTous(q Querier) ([]TicketLigne, error) {
 
 func (TicketRepo) ListerDuParticulier(q Querier, idParticulier int) ([]TicketLigne, error) {
 	rows, err := q.Query(
-		`SELECT t.Id_Tickets, t.Id_Particulier, t.Id_Admin_Assigne, t.Statut, t.Origine,
+		`SELECT t.Id_Tickets, t.Id_Particulier, t.Id_Admin_Assigne, t.Statut,
 			COALESCE(DATE_FORMAT(t.Date_creation, '%Y-%m-%d %H:%i:%s'),''),
 			'', TRIM(CONCAT(COALESCE(ua.Prenom,''),' ',COALESCE(ua.Nom,''))),
 			COALESCE(dernier.Contenu,''), COALESCE(DATE_FORMAT(dernier.Date_envoi, '%Y-%m-%d %H:%i:%s'),'')
@@ -133,7 +108,7 @@ func (TicketRepo) ListerDuParticulier(q Querier, idParticulier int) ([]TicketLig
 	out := []TicketLigne{}
 	for rows.Next() {
 		var t TicketLigne
-		if err := rows.Scan(&t.ID, &t.IdParticulier, &t.IdAdminAssigne, &t.Statut, &t.Origine, &t.DateCreation,
+		if err := rows.Scan(&t.ID, &t.IdParticulier, &t.IdAdminAssigne, &t.Statut, &t.DateCreation,
 			&t.NomParticulier, &t.NomAdmin, &t.DernierMessage, &t.DateDernierMsg); err != nil {
 			return nil, err
 		}

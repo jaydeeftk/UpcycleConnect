@@ -118,36 +118,6 @@ func TicketDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AdminEnvoyerMessageUtilisateurHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")
-		return
-	}
-	idAdmin := middleware.GetUserID(r)
-	if idAdmin <= 0 {
-		httpx.JSONError(w, http.StatusForbidden, "Non authentifié")
-		return
-	}
-	idUtilisateur, err := idDepuisChemin(r.URL.Path, "/api/admin/tickets/utilisateur/")
-	if err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
-		return
-	}
-	var body struct {
-		Contenu string `json:"contenu"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
-		return
-	}
-	idTicket, err := ticketSvc.AdminEnvoyerMessage(idAdmin, idUtilisateur, body.Contenu)
-	if err != nil {
-		httpx.WriteError(w, err)
-		return
-	}
-	httpx.JSONOK(w, http.StatusCreated, map[string]interface{}{"id_ticket": idTicket})
-}
-
 func AdminTicketsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		httpx.JSONError(w, http.StatusMethodNotAllowed, "Méthode non autorisée")

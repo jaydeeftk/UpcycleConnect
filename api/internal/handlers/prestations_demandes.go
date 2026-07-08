@@ -37,6 +37,7 @@ func creerDemandePrestation(w http.ResponseWriter, r *http.Request, uid int) {
 		Description  string `json:"description"`
 		Localisation string `json:"localisation"`
 		Budget       string `json:"budget"`
+		PhotoURL     string `json:"photo_url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -47,11 +48,15 @@ func creerDemandePrestation(w http.ResponseWriter, r *http.Request, uid int) {
 		httpx.JSONError(w, http.StatusBadRequest, "Le nom de l'objet est requis.")
 		return
 	}
+	if strings.TrimSpace(body.PhotoURL) == "" {
+		httpx.JSONError(w, http.StatusUnprocessableEntity, "Une photo de l'objet est obligatoire.")
+		return
+	}
 	res, err := database.DB.Exec(
 		`INSERT INTO Demandes_prestations
-			(Nom_objet, Categorie, Type_objet, Etat, Description, Localisation, Budget, Statut, Date_creation, Id_Utilisateurs)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, 'ouverte', NOW(), ?)`,
-		body.NomObjet, body.Categorie, body.TypeObjet, body.Etat, body.Description, body.Localisation, body.Budget, uid,
+			(Nom_objet, Categorie, Type_objet, Etat, Description, Localisation, Budget, Photo_url, Statut, Date_creation, Id_Utilisateurs)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, NULLIF(?,''), 'ouverte', NOW(), ?)`,
+		body.NomObjet, body.Categorie, body.TypeObjet, body.Etat, body.Description, body.Localisation, body.Budget, body.PhotoURL, uid,
 	)
 	if err != nil {
 		httpx.JSONServerError(w, err)

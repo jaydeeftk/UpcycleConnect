@@ -31,6 +31,7 @@ type AnnonceCreation struct {
 	Prix            float64
 	Ville           string
 	CodePostal      string
+	PhotoURL        string
 	IdParticulier   int
 	IdProfessionnel int
 }
@@ -45,11 +46,11 @@ func (AnnonceRepo) Creer(q Querier, a AnnonceCreation) (int64, error) {
 	}
 	res, err := q.Exec(
 		`INSERT INTO Annonces
-		   (Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal,
+		   (Titre, Description, Categorie, Etat, Type_annonce, Prix, Ville, Code_postal, Photo_url,
 		    Statut, Date_publication, Id_Particuliers, Id_Professionnels)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NOW(), ?, ?)`,
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULLIF(?,''), 'en_attente', NOW(), ?, ?)`,
 		a.Titre, a.Description, a.Categorie, a.Etat, a.Type, a.Prix,
-		a.Ville, a.CodePostal, idPart, idPro,
+		a.Ville, a.CodePostal, a.PhotoURL, idPart, idPro,
 	)
 	if err != nil {
 		return 0, err

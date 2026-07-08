@@ -58,6 +58,7 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 		Prix        float64 `json:"prix"`
 		Ville       string  `json:"ville"`
 		CodePostal  string  `json:"code_postal"`
+		PhotoURL    string  `json:"photo_url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		httpx.JSONError(w, http.StatusBadRequest, "Données invalides")
@@ -66,7 +67,7 @@ func CreateAnnonce(w http.ResponseWriter, r *http.Request) {
 	id, err := annonceSvc.CreerAnnonce(middleware.GetUserID(r), services.CreationAnnonceInput{
 		Titre: body.Titre, Description: body.Description, Categorie: body.Categorie,
 		Etat: body.Etat, Type: body.TypeAnnonce, Prix: body.Prix,
-		Ville: body.Ville, CodePostal: body.CodePostal,
+		Ville: body.Ville, CodePostal: body.CodePostal, PhotoURL: body.PhotoURL,
 	})
 	if err != nil {
 		httpx.WriteError(w, err)

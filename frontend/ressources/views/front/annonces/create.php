@@ -98,13 +98,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_photos', 'Photos de l\'objet') ?></label>
-                        <div class="border-2 border-dashed border-base-300 rounded-xl p-6 text-center hover:border-primary/50 transition cursor-pointer" onclick="document.getElementById('photos').click()">
-                            <i class="fas fa-cloud-upload-alt text-3xl text-base-content/30 mb-3 block"></i>
-                            <p class="text-sm text-base-content/60"><?= t('anncre_upload_cta', 'Cliquez pour ajouter des photos') ?></p>
-                            <p class="text-xs text-base-content/40 mt-1"><?= t('anncre_upload_hint', 'PNG, JPG jusqu\'à 5 Mo chacune (max 5 photos)') ?></p>
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_photos', 'Photo de l\'objet') ?> <span class="text-error">*</span></label>
+                        <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" required
+                               class="file-input file-input-bordered w-full">
+                        <p class="text-xs text-base-content/40 mt-1"><?= t('anncre_upload_hint', 'JPG, PNG ou WebP, 5 Mo max.') ?></p>
+                        <div id="photo-preview" class="mt-3 hidden">
+                            <img alt="" class="h-32 rounded-lg object-cover border border-base-300">
                         </div>
-                        <input type="file" id="photos" name="photos[]" multiple accept="image/*" class="hidden">
                     </div>
 
                 </div>
@@ -199,11 +199,14 @@
         });
     });
 
-    document.getElementById('photos').addEventListener('change', function() {
-        const label = this.previousElementSibling;
-        const count = this.files.length;
-        if (count > 0) {
-            label.querySelector('p').textContent = count + ' <?= t('anncre_js_photos_selected', 'photo(s) sélectionnée(s)') ?>';
+    document.getElementById('photo').addEventListener('change', function() {
+        const preview = document.getElementById('photo-preview');
+        const file = this.files[0];
+        if (file) {
+            preview.querySelector('img').src = URL.createObjectURL(file);
+            preview.classList.remove('hidden');
+        } else {
+            preview.classList.add('hidden');
         }
     });
 </script>

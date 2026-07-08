@@ -7,8 +7,15 @@
         </p>
     </div>
 
+    <?php if (isset($_GET['photo'])): ?>
+        <div class="alert alert-error mb-6 max-w-3xl mx-auto">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?= t('demcre_photo_required_error', 'Une photo de l\'objet est obligatoire (JPEG, PNG ou WebP, 5 Mo max).') ?></span>
+        </div>
+    <?php endif; ?>
+
     <div class="bg-base-100 rounded-3xl shadow-sm p-8 md:p-10">
-        <form class="space-y-8" method="POST" action="/demande-prestation">
+        <form class="space-y-8" method="POST" action="/demande-prestation" enctype="multipart/form-data">
         <?= csrf_field() ?>
 
             <div class="grid md:grid-cols-2 gap-6">
@@ -77,11 +84,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium mb-2"><?= t('demcre_label_photo', 'Ajouter une photo de l\'objet') ?></label>
-                <input type="file" name="photo"
+                <label class="block text-sm font-medium mb-2"><?= t('demcre_label_photo', 'Photo de l\'objet') ?> <span class="text-error">*</span></label>
+                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required
                     class="w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-base-200 file:cursor-pointer" />
                 <p class="text-sm text-base-content/60 mt-2">
-                    <?= t('demcre_photo_hint', 'Ajoutez une photo pour aider les prestataires à mieux comprendre votre demande.') ?>
+                    <?= t('demcre_photo_hint', 'Une photo est obligatoire pour aider les prestataires à comprendre votre demande (JPEG, PNG ou WebP, 5 Mo max).') ?>
                 </p>
             </div>
 

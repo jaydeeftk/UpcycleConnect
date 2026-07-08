@@ -58,6 +58,11 @@ class PrestationController
             redirect('/login');
             return;
         }
+        $photoUrl = $this->stockerPhoto($_FILES['photo'] ?? null);
+        if ($photoUrl === null) {
+            redirect('/demande-prestation?photo=1');
+            return;
+        }
         $payload = [
             'nom_objet'    => $_POST['nom_objet'] ?? '',
             'categorie'    => $_POST['categorie'] ?? '',
@@ -66,6 +71,7 @@ class PrestationController
             'description'  => $_POST['description'] ?? '',
             'localisation' => $_POST['localisation'] ?? '',
             'budget'       => $_POST['budget'] ?? '',
+            'photo_url'    => $photoUrl,
         ];
         try {
             $this->api->post('/prestations/demandes', $payload);
@@ -73,5 +79,27 @@ class PrestationController
         } catch (\Exception $e) {
             redirect('/mes-prestations?erreur=1');
         }
+    }
+
+    private function stockerPhoto($file): ?string
+    {
+        if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+        $mime = mime_content_type($file['tmp_name'] ?? '') ?: '';
+        if (!isset($allowed[$mime]) || ($file['size'] ?? 0) > 5 * 1024 * 1024) {
+            return null;
+        }
+        $uid = (int)($_SESSION['user']['id'] ?? 0);
+        $dir = __DIR__ . '/../../../public/uploads/prestations/' . $uid;
+        if (!is_dir($dir) && !mkdir($dir, 0o755, true)) {
+            return null;
+        }
+        $name = bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
+        if (!move_uploaded_file($file['tmp_name'], $dir . '/' . $name)) {
+            return null;
+        }
+        return '/uploads/prestations/' . $uid . '/' . $name;
     }
 }

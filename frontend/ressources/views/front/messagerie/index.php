@@ -1,6 +1,33 @@
+<?php $__pro = !empty($isPro); ?>
+<?php if ($__pro): ?>
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= t('msgidx_title', 'Messagerie') ?> - UpcycleConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>(function(){ if ((localStorage.getItem('theme') || 'light') === 'dark') { document.documentElement.classList.add('dark'); document.documentElement.setAttribute('data-theme','dark'); } })();</script>
+    <?php include __DIR__ . '/../../components/pro/dark.php'; ?>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen overflow-hidden">
+    <?php include __DIR__ . '/../../components/pro/sidebar.php'; ?>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <h2 class="text-2xl font-bold text-gray-800"><?= t('msgidx_title', 'Messagerie') ?></h2>
+            <p class="text-gray-600 text-sm"><?= t('msgidx_subtitle', 'Vos échanges à propos des annonces.') ?></p>
+        </header>
+        <main class="flex-1 overflow-y-auto bg-gray-100">
+<?php endif; ?>
+
 <section class="max-w-3xl mx-auto px-4 py-10">
+    <?php if (!$__pro): ?>
     <h1 class="text-2xl font-bold mb-2"><?= t('msgidx_title', 'Messagerie') ?></h1>
     <p class="text-base-content/60 mb-8"><?= t('msgidx_subtitle', 'Vos échanges à propos des annonces.') ?></p>
+    <?php endif; ?>
 
     <?php if (empty($conversations)): ?>
         <div class="text-center py-16 text-base-content/40">
@@ -44,3 +71,11 @@
         </div>
     <?php endif; ?>
 </section>
+
+<?php if ($__pro): ?>
+        </main>
+    </div>
+</div>
+</body>
+</html>
+<?php endif; ?>

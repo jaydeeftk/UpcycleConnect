@@ -96,10 +96,10 @@
                         <label class="block text-sm font-medium mb-2"><?= t('contcre_label_etat', 'État d\'usure') ?> <span class="text-red-500">*</span></label>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <?php foreach ([
-                                ['bon', t('contcre_etat_bon', 'Bon état'), 'fa-thumbs-up', 'text-green-500'],
-                                ['usage', t('contcre_etat_usage', 'Usagé'), 'fa-minus-circle', 'text-yellow-500'],
-                                ['abime', t('contcre_etat_abime', 'Abîmé'), 'fa-exclamation-circle', 'text-orange-500'],
-                                ['hs', t('contcre_etat_hs', 'Hors service'), 'fa-times-circle', 'text-red-500'],
+                                ['neuf', t('anncre_cond_new', 'Neuf'), 'fa-star', 'text-green-500'],
+                                ['bon', t('anncre_cond_good', 'Bon état'), 'fa-thumbs-up', 'text-blue-500'],
+                                ['usage', t('anncre_cond_used', 'Usagé'), 'fa-minus-circle', 'text-yellow-500'],
+                                ['abime', t('anncre_cond_damaged', 'Abîmé'), 'fa-exclamation-circle', 'text-red-500'],
                             ] as [$val, $label, $icon, $color]): ?>
                                 <label class="cursor-pointer">
                                     <input type="radio" name="etat_usure" value="<?= $val ?>" class="hidden peer" required>

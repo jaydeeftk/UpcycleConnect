@@ -1,3 +1,24 @@
+<?php $__pro = !empty($isPro); ?>
+<?php if ($__pro): ?>
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= t('msgshow_title', 'Conversation') ?> - UpcycleConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>(function(){ if ((localStorage.getItem('theme') || 'light') === 'dark') { document.documentElement.classList.add('dark'); document.documentElement.setAttribute('data-theme','dark'); } })();</script>
+    <?php include __DIR__ . '/../../components/pro/dark.php'; ?>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen overflow-hidden">
+    <?php include __DIR__ . '/../../components/pro/sidebar.php'; ?>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 overflow-y-auto bg-gray-100">
+<?php endif; ?>
+
 <section class="max-w-2xl mx-auto px-4 py-10">
     <a href="/messagerie" class="link link-hover text-sm text-base-content/50 mb-4 inline-block">
         <i class="fas fa-arrow-left mr-1"></i> <?= t('msgshow_back', 'Retour à la messagerie') ?>
@@ -102,3 +123,11 @@
     setInterval(function () { charger(true); }, 4000);
 })();
 </script>
+
+<?php if ($__pro): ?>
+        </main>
+    </div>
+</div>
+</body>
+</html>
+<?php endif; ?>

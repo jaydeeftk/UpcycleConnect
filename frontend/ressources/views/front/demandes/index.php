@@ -62,6 +62,16 @@
             </a>
         </div>
 
+        <div class="mb-8">
+            <label class="relative block max-w-md">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40"></i>
+                <input type="text" id="demande-search" autocomplete="off"
+                       placeholder="<?= t('demidx_search_ph', 'Rechercher (titre, catégorie, ville, état…)') ?>"
+                       class="input input-bordered w-full pl-11">
+            </label>
+            <p id="demande-search-empty" class="hidden text-sm text-base-content/50 mt-3 italic"><?= t('demidx_search_empty', 'Aucun résultat pour cette recherche.') ?></p>
+        </div>
+
         <?php if ($showAnnonces): ?>
             <div class="mb-8">
                 <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -90,8 +100,9 @@
                                 'rejetee', 'refusee' => t('demidx_status_rejected_f', 'Rejetée'),
                                 default   => t('demidx_status_pending', 'En attente'),
                             };
+                            $searchAnn = strtolower(trim(($annonce['titre'] ?? '') . ' ' . ($annonce['categorie'] ?? '') . ' ' . ($annonce['ville'] ?? '') . ' ' . ($annonce['contenu'] ?? '') . ' ' . $statutLabel . ' ' . ((($annonce['type_annonce'] ?? '') === 'vente') ? 'vente' : 'don')));
                             ?>
-                            <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6">
+                            <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 js-demande-item" data-search="<?= htmlspecialchars($searchAnn, ENT_QUOTES) ?>">
                                 <div class="flex items-start justify-between gap-4">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
@@ -161,8 +172,9 @@
                                 'refusee'    => t('demidx_status_refused_m', 'Refusé'),
                                 default      => t('demidx_status_pending', 'En attente'),
                             };
+                            $searchCont = strtolower(trim(($conteneur['type_objet'] ?? '') . ' ' . ($conteneur['description'] ?? '') . ' ' . $statutLabel . ' ' . ((($conteneur['destination'] ?? '') === 'vente') ? 'vente' : 'don')));
                             ?>
-                            <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6">
+                            <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 js-demande-item" data-search="<?= htmlspecialchars($searchCont, ENT_QUOTES) ?>">
                                 <div class="flex items-start justify-between gap-4">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
@@ -281,4 +293,22 @@ document.querySelectorAll('[id^="qr-front-"]').forEach(function(el){
         new QRCode(el, { text: el.dataset.code, width: 120, height: 120, correctLevel: QRCode.CorrectLevel.M });
     }
 });
+</script>
+
+<script>
+(function () {
+    var input = document.getElementById('demande-search');
+    if (!input) return;
+    var empty = document.getElementById('demande-search-empty');
+    input.addEventListener('input', function () {
+        var q = input.value.trim().toLowerCase();
+        var visible = 0;
+        document.querySelectorAll('.js-demande-item').forEach(function (el) {
+            var match = !q || (el.dataset.search || '').indexOf(q) !== -1;
+            el.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        if (empty) empty.classList.toggle('hidden', visible !== 0);
+    });
+})();
 </script>

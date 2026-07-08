@@ -24,11 +24,15 @@ class MessagerieController
             $conversations = $result['data'] ?? (is_array($result) ? $result : []);
         } catch (\Exception $e) {}
 
+        $isPro = ($_SESSION['user']['role'] ?? '') === 'professionnel';
+
         return view('front.messagerie.index', [
             'conversations' => $conversations,
             'title'         => 'Messagerie - UpcycleConnect',
             'token'         => $_SESSION['user']['token'] ?? '',
             'user_id'       => $_SESSION['user']['id'] ?? 0,
+            'isPro'         => $isPro,
+            'layout'        => $isPro ? 'raw' : 'main',
         ]);
     }
 
@@ -59,11 +63,15 @@ class MessagerieController
 
     public function show($id)
     {
+        $isPro = ($_SESSION['user']['role'] ?? '') === 'professionnel';
+
         return view('front.messagerie.show', [
             'id_conversation' => (int)$id,
             'title'           => 'Conversation - UpcycleConnect',
             'token'           => $_SESSION['user']['token'] ?? '',
             'user_id'         => $_SESSION['user']['id'] ?? 0,
+            'isPro'           => $isPro,
+            'layout'          => $isPro ? 'raw' : 'main',
         ]);
     }
 }

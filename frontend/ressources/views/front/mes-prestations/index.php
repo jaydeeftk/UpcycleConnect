@@ -237,10 +237,15 @@ function chargerEtapesModal(url) {
             }
             content.innerHTML = etapes.map(function (e, i) {
                 let photosHtml = '';
-                (e.photos || []).forEach(function (p) {
-                    const label = p.type_photo === 'avant' ? <?= json_encode(t('mesprest_photo_before', 'Avant')) ?> : <?= json_encode(t('mesprest_photo_after', 'Après')) ?>;
-                    photosHtml += '<div class="text-xs text-base-content/50 mt-1">' + label + ' : <a href="' + escapeHtmlPresta(p.url) + '" target="_blank" class="link link-primary">' + <?= json_encode(t('mesprest_photo_view', 'voir la photo')) ?> + '</a></div>';
-                });
+                if (e.photos && e.photos.length) {
+                    photosHtml = '<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">' + e.photos.map(function (p) {
+                        const label = p.type_photo === 'avant' ? <?= json_encode(t('mesprest_photo_before', 'Avant')) ?> : <?= json_encode(t('mesprest_photo_after', 'Après')) ?>;
+                        return '<a href="' + escapeHtmlPresta(p.url) + '" target="_blank" class="block group">' +
+                            '<img src="' + escapeHtmlPresta(p.url) + '" alt="' + label + '" loading="lazy" class="w-full h-24 object-cover rounded-lg border border-base-300 group-hover:opacity-90 transition">' +
+                            '<span class="block text-[11px] text-base-content/50 mt-1 text-center">' + label + '</span>' +
+                        '</a>';
+                    }).join('') + '</div>';
+                }
                 return '<div class="border border-base-300 rounded-xl p-4">' +
                     '<div class="flex items-start gap-3">' +
                     '<span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">' + (i + 1) + '</span>' +

@@ -3,7 +3,6 @@ package services
 import (
 	"database/sql"
 	"errors"
-	"strings"
 
 	"upcycleconnect/internal/database"
 	"upcycleconnect/internal/domain"
@@ -60,9 +59,6 @@ type CreationAnnonceInput struct {
 func (s *AnnonceService) CreerAnnonce(idUtilisateur int, in CreationAnnonceInput) (int64, error) {
 	if err := domain.ValiderCreationAnnonce(in.Titre, in.Type, in.Prix); err != nil {
 		return 0, err
-	}
-	if strings.TrimSpace(in.PhotoURL) == "" {
-		return 0, domain.Invalide("Une photo de l'objet est obligatoire")
 	}
 	if err := domain.ValiderCodePostal(in.CodePostal); err != nil {
 		return 0, err

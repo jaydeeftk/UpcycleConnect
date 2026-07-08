@@ -196,13 +196,9 @@ class AnnonceController
             ]);
         }
         $photoUrl = $this->stockerPhoto($_FILES['photo'] ?? null, 'annonces');
-        if ($photoUrl === null) {
-            return view('front.annonces.create', [
-                'title' => 'Déposer une annonce - UpcycleConnect',
-                'error' => 'Une photo de l\'objet est obligatoire (JPEG, PNG ou WebP, 5 Mo max).',
-            ]);
+        if ($photoUrl !== null) {
+            $data['photo_url'] = $photoUrl;
         }
-        $data['photo_url'] = $photoUrl;
         try {
             $this->api->post('/annonces/create', $data);
             return view('front.annonces.create', [

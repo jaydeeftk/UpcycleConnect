@@ -98,8 +98,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_photos', 'Photo de l\'objet') ?> <span class="text-error">*</span></label>
-                        <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" required
+                        <label class="block text-sm font-medium mb-2"><?= t('anncre_label_photos', 'Photo de l\'objet') ?> <span class="text-base-content/40">(<?= t('anncre_photo_optional', 'facultatif') ?>)</span></label>
+                        <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp"
                                class="file-input file-input-bordered w-full">
                         <p class="text-xs text-base-content/40 mt-1"><?= t('anncre_upload_hint', 'JPG, PNG ou WebP, 5 Mo max.') ?></p>
                         <div id="photo-preview" class="mt-3 hidden">

@@ -235,7 +235,11 @@ func GetPaiementsUser(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
 		return
 	}
-	liste, err := facturationSvc.PaiementsDeLUtilisateur(id)
+	filtre := r.URL.Query().Get("type")
+	if filtre == "tous" {
+		filtre = ""
+	}
+	liste, err := facturationSvc.PaiementsDeLUtilisateur(id, filtre)
 	if err != nil {
 		httpx.WriteError(w, err)
 		return

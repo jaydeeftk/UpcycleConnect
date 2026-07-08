@@ -218,6 +218,29 @@ const (
 	StatutDemandeRembEchouee    = "echouee"
 )
 
+func TypeFactureRemboursable(typ string) bool {
+	return typ == "formation" || typ == "evenement"
+}
+
+func LibelleSourcePaiement(typ string) string {
+	switch typ {
+	case "formation":
+		return "Formation"
+	case "evenement":
+		return "Événement"
+	case "annonce":
+		return "Achat annonce"
+	case "prestation_catalogue":
+		return "Prestation"
+	case "devis_prestation":
+		return "Prestation sur devis"
+	case "premium":
+		return "Abonnement Premium"
+	default:
+		return "Autre"
+	}
+}
+
 const (
 	MethodePaiementCarte = "carte"
 )

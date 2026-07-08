@@ -481,13 +481,15 @@ func (FacturationRepo) CreerCommission(q Querier, c CommissionCreation) error {
 }
 
 type PaiementLigne struct {
-	ID        int
-	Montant   float64
-	Statut    string
-	Methode   string
-	Date      string
-	Facture   string
-	IdFacture int
+	ID                   int
+	Montant              float64
+	Statut               string
+	Methode              string
+	Date                 string
+	Facture              string
+	IdFacture            int
+	Source               string
+	RemboursementEnCours bool
 }
 
 type CommandeReference struct {
@@ -513,7 +515,9 @@ func (FacturationRepo) PaiementsDeLUtilisateur(q Querier, idUtilisateur int) ([]
 	rows, err := q.Query(
 		`SELECT p.Id_Paiements, COALESCE(p.Montant,0), COALESCE(p.Statut,''),
 			COALESCE(p.Methode,''), COALESCE(p.Date_,''), COALESCE(f.Numero_facture,''),
-			COALESCE(f.Id_Facture,0)
+			COALESCE(f.Id_Facture,0), COALESCE(f.Type,''),
+			EXISTS(SELECT 1 FROM Demandes_remboursement dr
+				WHERE dr.Id_Paiements = p.Id_Paiements AND dr.Statut IN ('en_attente','approuvee'))
 		FROM Paiements p
 		LEFT JOIN Factures f ON f.Id_Facture = p.Id_Facture
 		WHERE p.Id_Utilisateurs = ?
@@ -526,12 +530,22 @@ func (FacturationRepo) PaiementsDeLUtilisateur(q Querier, idUtilisateur int) ([]
 	out := []PaiementLigne{}
 	for rows.Next() {
 		var p PaiementLigne
-		if err := rows.Scan(&p.ID, &p.Montant, &p.Statut, &p.Methode, &p.Date, &p.Facture, &p.IdFacture); err != nil {
+		if err := rows.Scan(&p.ID, &p.Montant, &p.Statut, &p.Methode, &p.Date, &p.Facture, &p.IdFacture, &p.Source, &p.RemboursementEnCours); err != nil {
 			return nil, err
 		}
 		out = append(out, p)
 	}
 	return out, rows.Err()
+}
+
+func (FacturationRepo) TypeFactureDuPaiement(q Querier, idPaiement int) (string, error) {
+	var typ string
+	err := q.QueryRow(
+		`SELECT COALESCE(f.Type,'') FROM Paiements p
+		 LEFT JOIN Factures f ON f.Id_Facture = p.Id_Facture
+		 WHERE p.Id_Paiements = ?`, idPaiement,
+	).Scan(&typ)
+	return typ, err
 }
 
 func (FacturationRepo) PaiementParReference(q Querier, reference string) (CommandeReference, error) {

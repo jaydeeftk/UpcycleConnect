@@ -85,9 +85,11 @@ class UserController
     public function paiements()
     {
         $paiements = [];
+        $filtre = $_GET['type'] ?? 'tous';
         if (isset($_SESSION['user']['id'])) {
             try {
-                $res       = $this->api->get('/paiements/' . $_SESSION['user']['id']);
+                $params    = ($filtre !== '' && $filtre !== 'tous') ? ['type' => $filtre] : [];
+                $res       = $this->api->get('/paiements/' . $_SESSION['user']['id'], $params);
                 $paiements = $res['data'] ?? (is_array($res) && !isset($res['success']) ? $res : []);
             } catch (\Exception $e) {
                 $paiements = [];
@@ -95,7 +97,8 @@ class UserController
         }
         return view('front.paiements.index', [
             'title'     => 'Paiements - UpcycleConnect',
-            'paiements' => $paiements
+            'paiements' => $paiements,
+            'filtre'    => $filtre,
         ]);
     }
     public function payer()

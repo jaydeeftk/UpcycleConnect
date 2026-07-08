@@ -308,25 +308,35 @@ func (s *FacturationService) ObtenirFacture(idFacture int) (FactureDTO, error) {
 }
 
 type PaiementDTO struct {
-	ID        int     `json:"id"`
-	Montant   float64 `json:"montant"`
-	Statut    string  `json:"statut"`
-	Methode   string  `json:"methode"`
-	Date      string  `json:"date"`
-	Facture   string  `json:"facture"`
-	IdFacture int     `json:"id_facture"`
+	ID                   int     `json:"id"`
+	Montant              float64 `json:"montant"`
+	Statut               string  `json:"statut"`
+	Methode              string  `json:"methode"`
+	Date                 string  `json:"date"`
+	Facture              string  `json:"facture"`
+	IdFacture            int     `json:"id_facture"`
+	Source               string  `json:"source"`
+	SourceLabel          string  `json:"source_label"`
+	RemboursementEnCours bool    `json:"remboursement_en_cours"`
+	Remboursable         bool    `json:"remboursable"`
 }
 
-func (s *FacturationService) PaiementsDeLUtilisateur(idUtilisateur int) ([]PaiementDTO, error) {
+func (s *FacturationService) PaiementsDeLUtilisateur(idUtilisateur int, filtreSource string) ([]PaiementDTO, error) {
 	lignes, err := s.repo.PaiementsDeLUtilisateur(database.DB, idUtilisateur)
 	if err != nil {
 		return nil, err
 	}
 	out := make([]PaiementDTO, 0, len(lignes))
 	for _, p := range lignes {
+		if filtreSource != "" && p.Source != filtreSource {
+			continue
+		}
 		out = append(out, PaiementDTO{
 			ID: p.ID, Montant: p.Montant, Statut: p.Statut, Methode: p.Methode,
 			Date: p.Date, Facture: p.Facture, IdFacture: p.IdFacture,
+			Source: p.Source, SourceLabel: domain.LibelleSourcePaiement(p.Source),
+			RemboursementEnCours: p.RemboursementEnCours,
+			Remboursable:         p.Statut == domain.StatutPaiementPaye && domain.TypeFactureRemboursable(p.Source) && !p.RemboursementEnCours,
 		})
 	}
 	return out, nil
@@ -873,6 +883,13 @@ func (s *FacturationService) CreerDemandeRemboursement(idUtilisateur, idPaiement
 		}
 		if statut != domain.StatutPaiementPaye {
 			return domain.EtatInvalide("Seul un paiement payé peut faire l'objet d'une demande de remboursement")
+		}
+		typ, err := s.repo.TypeFactureDuPaiement(tx, idPaiement)
+		if err != nil {
+			return err
+		}
+		if !domain.TypeFactureRemboursable(typ) {
+			return domain.EtatInvalide("Seuls les paiements de formations et d'événements sont remboursables")
 		}
 		idPart, err := s.repo.IdParticulier(tx, idUtilisateur)
 		if err != nil {

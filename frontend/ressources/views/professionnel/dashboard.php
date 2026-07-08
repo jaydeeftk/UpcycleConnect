@@ -68,67 +68,6 @@
                 </div>
             </div>
 
-            <!-- Impact écologique (PR7/PR8) -->
-            <?php
-                $imObjets = (int)($impact['objets_recuperes'] ?? 0);
-                $imPoids  = (float)($impact['poids_total_kg'] ?? 0);
-                $imCo2    = (float)($impact['co2_estime_kg'] ?? 0);
-                $imCo2f   = (float)($impact['co2_facteur'] ?? 0);
-                $imProjT  = (int)($impact['projets_termines'] ?? 0);
-                $imProjN  = (int)($impact['projets_total'] ?? 0);
-                $imMat    = $impact['materiaux'] ?? [];
-                $imMax    = 0; foreach ($imMat as $m) { $imMax = max($imMax, (int)($m['nombre'] ?? 0)); }
-            ?>
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                    <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-leaf text-emerald-600"></i> <?= t('pro_impact_title', 'Impact écologique') ?></h3>
-                    <a href="/professionnel/impact/pdf" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-emerald-700 transition">
-                        <i class="fas fa-file-pdf"></i> <?= t('pro_impact_download_pdf', 'Télécharger le bilan PDF') ?>
-                    </a>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="rounded-lg border border-gray-100 p-4 text-center">
-                        <p class="text-2xl font-extrabold text-emerald-600"><?= $imObjets ?></p>
-                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_objects', 'Objets valorisés') ?></p>
-                    </div>
-                    <div class="rounded-lg border border-gray-100 p-4 text-center">
-                        <p class="text-2xl font-extrabold text-emerald-600"><?= number_format($imPoids, 1, ',', ' ') ?> kg</p>
-                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_weight', 'Poids détourné') ?></p>
-                    </div>
-                    <div class="rounded-lg border border-gray-100 p-4 text-center">
-                        <p class="text-2xl font-extrabold text-emerald-600">~<?= number_format($imCo2, 1, ',', ' ') ?> kg</p>
-                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_co2', 'CO₂ évité') ?> <span class="text-gray-300"><?= t('pro_impact_co2_est', '(est.)') ?></span></p>
-                    </div>
-                    <div class="rounded-lg border border-gray-100 p-4 text-center">
-                        <p class="text-2xl font-extrabold text-emerald-600"><?= $imProjT ?>/<?= $imProjN ?></p>
-                        <p class="text-xs text-gray-500 mt-1"><?= t('pro_impact_projects_done', 'Projets réalisés') ?></p>
-                    </div>
-                </div>
-
-                <h4 class="text-sm font-bold text-gray-700 mb-3"><?= t('pro_impact_by_material', 'Répartition par matériau') ?></h4>
-                <?php if (empty($imMat)): ?>
-                    <p class="text-sm text-gray-400 italic"><?= t('pro_impact_no_objects', 'Aucun objet récupéré pour le moment.') ?></p>
-                <?php else: ?>
-                    <div class="space-y-3">
-                        <?php foreach ($imMat as $m):
-                            $mn  = (int)($m['nombre'] ?? 0);
-                            $pct = $imMax > 0 ? round($mn / $imMax * 100) : 0;
-                        ?>
-                        <div>
-                            <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                <span class="font-medium"><?= htmlspecialchars($m['type'] ?? 'Autre') ?></span>
-                                <span><?= $mn ?> objet<?= $mn > 1 ? 's' : '' ?> · <?= number_format((float)($m['poids_kg'] ?? 0), 1, ',', ' ') ?> kg</span>
-                            </div>
-                            <div class="w-full bg-gray-100 rounded-full h-2.5">
-                                <div class="bg-emerald-500 h-2.5 rounded-full" style="width: <?= max($pct, 6) ?>%"></div>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <p class="text-[11px] text-gray-400 mt-4 italic"><?= t('pro_impact_co2_disclaimer_before', 'CO₂ évité : estimation indicative (') ?><?= number_format($imCo2f, 1, ',', ' ') ?><?= t('pro_impact_co2_disclaimer_after', ' kg CO₂ par kg valorisé), non une mesure certifiée.') ?></p>
-                <?php endif; ?>
-            </div>
-
             <!-- Projets -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">

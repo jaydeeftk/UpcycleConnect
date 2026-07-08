@@ -114,7 +114,6 @@ $router->post('/professionnel/objets/{id}/annuler', 'Front\ProfessionnelControll
 $router->get('/professionnel/contrats/{id}/pdf', 'Front\ProfessionnelController@contratPdf');
 $router->post('/professionnel/contrats/{id}/resilier', 'Front\ProfessionnelController@resilierContrat');
 $router->post('/professionnel/notifications/{id}/lu', 'Front\ProfessionnelController@notificationLue');
-$router->get('/professionnel/impact/pdf', 'Front\ProfessionnelController@impactPdf');
 
 $router->get('/professionnel/annonces', 'Front\ProfessionnelController@annonces');
 $router->get('/professionnel/annonces/create', 'Front\ProfessionnelController@createAnnonce');

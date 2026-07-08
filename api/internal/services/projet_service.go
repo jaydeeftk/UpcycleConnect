@@ -95,18 +95,11 @@ func (s *ProjetService) CreerProjet(idPro int, in ProjetInput) (int, error) {
 	if titre == "" {
 		return 0, domain.Invalide("Le titre du projet est obligatoire")
 	}
-	statut := in.Statut
-	if statut == "" {
-		statut = domain.StatutProjetEnCours
-	}
-	if !domain.StatutProjetValide(statut) {
-		return 0, domain.Invalide("Statut de projet invalide")
-	}
 	return s.repo.Creer(database.DB, repository.ProjetCreation{
 		Titre:       titre,
 		Description: in.Description,
 		DateDebut:   in.DateDebut,
-		Statut:      statut,
+		Statut:      domain.StatutProjetEnCours,
 		IdPro:       idPro,
 	})
 }

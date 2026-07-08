@@ -41,20 +41,10 @@
                                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="<?= t('pro_form_description_ph', 'Décrivez votre projet...') ?>"></textarea>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_form_start_date', 'Date de début') ?></label>
-                                <input type="date" name="date_debut" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>"
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_form_status', 'Statut') ?></label>
-                                <select name="statut" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="en_cours"><?= t('pro_status_in_progress', 'En cours') ?></option>
-                                    <option value="pause"><?= t('pro_status_paused', 'En pause') ?></option>
-                                    <option value="termine"><?= t('pro_status_done', 'Terminé') ?></option>
-                                </select>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1"><?= t('pro_form_start_date', 'Date de début') ?></label>
+                            <input type="date" name="date_debut" min="<?= dateProgrammationMin(false) ?>" max="<?= dateProgrammationMax(false) ?>"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition font-medium">
                             <i class="fas fa-plus mr-2"></i><?= t('pro_btn_create_project', 'Créer le projet') ?>

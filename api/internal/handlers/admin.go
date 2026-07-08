@@ -138,10 +138,6 @@ func AdminGetUtilisateurs(w http.ResponseWriter, r *http.Request) {
 	httpx.JSONOK(w, http.StatusOK, users)
 }
 
-// AdminCreateUtilisateur permet à un admin de créer directement un compte
-// (particulier, professionnel, salarié ou admin) sans passer par le flux
-// d'inscription publique (pas de vérification MX, pas de confirmation email,
-// compte actif immédiatement).
 func AdminCreateUtilisateur(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Nom       string `json:"nom"`

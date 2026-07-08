@@ -252,10 +252,6 @@ func AdminDeleteEvenement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Créer une demande de remboursement "en_attente" pour chaque participant
-	// ayant payé, avant de supprimer l'événement et ses inscriptions (sinon le
-	// lien avec le paiement serait perdu). Le remboursement Stripe réel n'est
-	// déclenché que lorsqu'un salarié valide la demande.
 	erreurs := facturationSvc.RemboursementParticipantsEvenement(idInt, "Événement annulé (suppression par l'administration)")
 
 	database.DB.Exec("DELETE FROM Animer WHERE Id_Evenements = ?", id)
@@ -264,8 +260,6 @@ func AdminDeleteEvenement(w http.ResponseWriter, r *http.Request) {
 	database.DB.Exec("DELETE FROM Catalogue_Evenement WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Participer_evenements WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Planifier_evenements WHERE Id_Evenements = ?", id)
-	// Enregistrements conservés pour l'historique/la comptabilité : on se
-	// contente de dissocier l'événement supprimé plutôt que de les effacer.
 	database.DB.Exec("UPDATE Avis SET Id_Evenements = NULL WHERE Id_Evenements = ?", id)
 	database.DB.Exec("UPDATE Lignes_Facture SET Id_Evenements = NULL WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Evenements WHERE Id_Evenements = ?", id)

@@ -135,8 +135,6 @@ func (AnnonceRepo) ReserverDon(q Querier, idAnnonce, idUtilisateurDestinataire i
 }
 
 func (AnnonceRepo) Supprimer(q Querier, idAnnonce int) (int64, error) {
-	// Nettoyage des dépendances (clés étrangères) avant suppression de l'annonce,
-	// sinon la suppression échoue silencieusement à cause des contraintes FK.
 	if _, err := q.Exec(
 		`DELETE mc FROM Messages_Conversation mc
 		 JOIN Conversations c ON c.Id_Conversations = mc.Id_Conversations
@@ -156,8 +154,6 @@ func (AnnonceRepo) Supprimer(q Querier, idAnnonce int) (int64, error) {
 	if _, err := q.Exec("DELETE FROM Favoris WHERE Id_Annonces = ?", idAnnonce); err != nil {
 		return 0, err
 	}
-	// Ces enregistrements sont conservés pour l'historique/la comptabilité,
-	// on se contente de dissocier l'annonce supprimée.
 	if _, err := q.Exec("UPDATE Demandes_conteneurs SET Id_Annonces = NULL WHERE Id_Annonces = ?", idAnnonce); err != nil {
 		return 0, err
 	}

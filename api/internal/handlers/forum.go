@@ -137,7 +137,9 @@ func MarquerSolution(w http.ResponseWriter, r *http.Request) {
 		httpx.JSONError(w, http.StatusBadRequest, "Identifiants invalides")
 		return
 	}
-	if err := forumSvc.MarquerSolution(userID, idSujet, idReponse); err != nil {
+	role := middleware.GetRole(r)
+	estSalarie := role == "salarie" || role == "admin"
+	if err := forumSvc.MarquerSolution(userID, estSalarie, idSujet, idReponse); err != nil {
 		httpx.WriteError(w, err)
 		return
 	}

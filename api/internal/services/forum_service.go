@@ -202,20 +202,20 @@ func (s *ForumService) RepondreSujet(idUtilisateur, idSujet int, contenu string)
 	return id, err
 }
 
-func (s *ForumService) MarquerSolution(idUtilisateur, idSujet, idReponse int) error {
+func (s *ForumService) MarquerSolution(idUtilisateur int, estSalarie bool, idSujet, idReponse int) error {
 	if idUtilisateur <= 0 {
 		return domain.Forbidden("Authentification requise")
 	}
+	if !estSalarie {
+		return domain.Forbidden("Seul un salarié peut désigner la solution")
+	}
 	return withTx(func(tx *sql.Tx) error {
-		statut, idAuteur, err := s.repo.SujetStatutAuteurPourMAJ(tx, idSujet)
+		statut, _, err := s.repo.SujetStatutAuteurPourMAJ(tx, idSujet)
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Introuvable("Sujet introuvable")
 		}
 		if err != nil {
 			return err
-		}
-		if idUtilisateur != idAuteur {
-			return domain.Forbidden("Seul l'auteur du sujet peut désigner la solution")
 		}
 		if err := domain.PeutMarquerSolution(statut); err != nil {
 			return err

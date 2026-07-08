@@ -73,7 +73,7 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <?php if (isset($_SESSION['user']) && ($_SESSION['user']['id'] ?? 0) == ($sujet['auteur_id'] ?? -1) && !($sujet['resolu'] ?? false)): ?>
+                            <?php if (isset($_SESSION['user']) && in_array($_SESSION['user']['role'] ?? '', ['salarie', 'admin'], true) && !($sujet['resolu'] ?? false)): ?>
                                 <form method="POST" action="/conseils/forum/<?= $sujet['id'] ?>/solution/<?= $reponse['id'] ?>">
                                 <?= csrf_field() ?>
                                     <button type="submit" class="btn btn-success btn-xs gap-1">

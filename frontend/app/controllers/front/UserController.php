@@ -26,6 +26,15 @@ class UserController
                 $conteneurs = [];
             }
         }
+        $deposees = [];
+        foreach ($conteneurs as $c) {
+            if (!empty($c['id_annonce'])) {
+                $deposees[(int)$c['id_annonce']] = true;
+            }
+        }
+        if ($deposees) {
+            $annonces = array_values(array_filter($annonces, fn($a) => empty($deposees[(int)($a['id'] ?? 0)])));
+        }
         return view('front.demandes.index', [
             'title'      => 'Mes demandes - UpcycleConnect',
             'annonces'   => $annonces,

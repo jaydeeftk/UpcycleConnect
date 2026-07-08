@@ -230,6 +230,7 @@ type DemandeLigne struct {
 	IdBox        int
 	BoxReference string
 	BoxTaille    string
+	IdAnnonce    int
 }
 
 func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, error) {
@@ -237,7 +238,7 @@ func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, 
 		`SELECT d.Id_Demandes_conteneurs, COALESCE(d.Type_objet,''), COALESCE(d.Description,''),
 		        COALESCE(d.Etat_usure,''), COALESCE(d.Statut,'en_attente'), COALESCE(d.Code_acces,''),
 		        COALESCE(d.Date_demande,''), COALESCE(cb.Code,''),
-		        COALESCE(d.Id_Box, 0), COALESCE(b.Reference, ''), COALESCE(b.Taille, '')
+		        COALESCE(d.Id_Box, 0), COALESCE(b.Reference, ''), COALESCE(b.Taille, ''), COALESCE(d.Id_Annonces,0)
 		 FROM Demandes_conteneurs d
 		 LEFT JOIN Objets o ON o.Id_Demandes_conteneurs = d.Id_Demandes_conteneurs
 		 LEFT JOIN Codes_Barres cb ON cb.Id_Objets = o.Id_Objets
@@ -254,7 +255,7 @@ func (ConteneurRepo) MesDemandes(q Querier, idParticulier int) ([]DemandeLigne, 
 	for rows.Next() {
 		var d DemandeLigne
 		if err := rows.Scan(&d.ID, &d.TypeObjet, &d.Description, &d.EtatUsure, &d.Statut, &d.CodeAcces, &d.Date, &d.CodeBarre,
-			&d.IdBox, &d.BoxReference, &d.BoxTaille); err != nil {
+			&d.IdBox, &d.BoxReference, &d.BoxTaille, &d.IdAnnonce); err != nil {
 			return nil, err
 		}
 		liste = append(liste, d)

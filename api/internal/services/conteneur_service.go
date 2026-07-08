@@ -264,6 +264,7 @@ type DemandeDTO struct {
 	IdBox        int    `json:"id_box"`
 	BoxReference string `json:"box_reference"`
 	BoxTaille    string `json:"box_taille"`
+	IdAnnonce    int    `json:"id_annonce"`
 }
 
 func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeDTO, error) {
@@ -284,6 +285,7 @@ func (s *ConteneurService) DemandesDeLUtilisateur(idUtilisateur int) ([]DemandeD
 			ID: d.ID, TypeObjet: d.TypeObjet, Description: d.Description,
 			EtatUsure: d.EtatUsure, Statut: d.Statut, CodeAcces: d.CodeAcces, Date: d.Date,
 			CodeBarre: d.CodeBarre, IdBox: d.IdBox, BoxReference: d.BoxReference, BoxTaille: d.BoxTaille,
+			IdAnnonce: d.IdAnnonce,
 		})
 	}
 	return out, nil

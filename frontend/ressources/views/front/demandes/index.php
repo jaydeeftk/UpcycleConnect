@@ -91,12 +91,16 @@
                             <?php
                             $statutColor = match($annonce['statut'] ?? 'en_attente') {
                                 'validee', 'vendue' => 'badge-success',
+                                'reservee' => 'badge-info',
+                                'retiree'  => 'badge-ghost',
                                 'rejetee', 'refusee' => 'badge-error',
                                 default   => 'badge-warning',
                             };
                             $statutLabel = match($annonce['statut'] ?? 'en_attente') {
                                 'validee' => t('demidx_status_validated_f', 'Validée'),
                                 'vendue'  => t('demidx_status_sold', 'Vendue'),
+                                'reservee' => t('demidx_status_reserved_f', 'Réservée'),
+                                'retiree'  => t('demidx_status_withdrawn_f', 'Retirée'),
                                 'rejetee', 'refusee' => t('demidx_status_rejected_f', 'Rejetée'),
                                 default   => t('demidx_status_pending', 'En attente'),
                             };

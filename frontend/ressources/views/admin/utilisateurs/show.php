@@ -8,6 +8,14 @@
     </a>
 </div>
 
+<?php if (!empty($utilisateur['id'])): ?>
+<div class="mb-6">
+    <a href="/admin/utilisateurs/<?= (int)$utilisateur['id'] ?>/message" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium">
+        <i class="fas fa-paper-plane mr-2"></i><?= t('adm_users_message_link', 'Envoyer un message') ?>
+    </a>
+</div>
+<?php endif; ?>
+
 <?php if (empty($utilisateur)) { ?>
     <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500"><?= t('adm_users_not_found', 'Utilisateur introuvable.') ?></div>
 <?php } else { ?>

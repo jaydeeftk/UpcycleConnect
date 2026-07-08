@@ -67,6 +67,7 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/tickets/messages", middleware.JWTAuth(handlers.TicketMessagesEnvoyerHandler))
 	mux.HandleFunc("/api/tickets/", middleware.JWTAuth(handlers.TicketDispatch))
 	mux.HandleFunc("/api/admin/tickets", middleware.AdminOnly(handlers.AdminTicketsHandler))
+	mux.HandleFunc("/api/admin/tickets/utilisateur/", middleware.AdminOnly(handlers.AdminEnvoyerMessageUtilisateurHandler))
 	mux.HandleFunc("/api/admin/tickets/", middleware.AdminOnly(handlers.AdminTicketAccepterHandler))
 	mux.HandleFunc("/api/conteneurs/demandes", middleware.JWTAuth(handlers.CreateDemandeConteneur))
 	mux.HandleFunc("/api/conteneurs/annonces-eligibles", middleware.JWTAuth(handlers.GetAnnoncesEligiblesDepot))

@@ -68,6 +68,33 @@ func (s *TicketService) ParticulierEnvoyerMessage(idParticulier int, contenu str
 	return idTicket, nil
 }
 
+func (s *TicketService) AdminEnvoyerMessage(idAdmin, idUtilisateur int, contenu string) (int, error) {
+	if err := domain.ValiderContenuMessageTicket(contenu); err != nil {
+		return 0, err
+	}
+	var exists int
+	database.DB.QueryRow("SELECT COUNT(*) FROM Utilisateurs WHERE Id_Utilisateurs = ?", idUtilisateur).Scan(&exists)
+	if exists == 0 {
+		return 0, domain.Introuvable("Utilisateur introuvable")
+	}
+	t, err := s.repo.TicketOuvertEntreAdminEtUtilisateur(database.DB, idUtilisateur, idAdmin)
+	var idTicket int
+	if errors.Is(err, sql.ErrNoRows) {
+		idTicket, err = s.repo.CreerParAdmin(database.DB, idUtilisateur, idAdmin)
+		if err != nil {
+			return 0, err
+		}
+	} else if err != nil {
+		return 0, err
+	} else {
+		idTicket = t.ID
+	}
+	if _, err := s.repo.CreerMessage(database.DB, idTicket, idAdmin, contenu); err != nil {
+		return 0, err
+	}
+	return idTicket, nil
+}
+
 func (s *TicketService) Messages(idUtilisateur int, estAdmin bool, idTicket int) ([]MessageTicketDTO, error) {
 	t, err := s.repo.ParID(database.DB, idTicket)
 	if errors.Is(err, sql.ErrNoRows) {

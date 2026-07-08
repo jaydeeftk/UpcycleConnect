@@ -141,6 +141,8 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->get('/utilisateurs/create', 'Admin\UtilisateurController@create');
     $router->post('/utilisateurs/store', 'Admin\UtilisateurController@store');
     $router->get('/utilisateurs/{id}', 'Admin\UtilisateurController@show');
+    $router->get('/utilisateurs/{id}/message', 'Admin\UtilisateurController@message');
+    $router->post('/utilisateurs/{id}/message/envoyer', 'Admin\UtilisateurController@envoyerMessage');
     $router->post('/utilisateurs/{id}/update', 'Admin\UtilisateurController@update');
     $router->get('/utilisateurs/{id}/delete', 'Admin\UtilisateurController@confirmDelete');
     $router->post('/utilisateurs/{id}/delete/confirm', 'Admin\UtilisateurController@delete');

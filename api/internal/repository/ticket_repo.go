@@ -32,6 +32,29 @@ func (TicketRepo) TicketOuvertDuParticulier(q Querier, idParticulier int) (Ticke
 	return t, err
 }
 
+func (TicketRepo) TicketOuvertEntreAdminEtUtilisateur(q Querier, idUtilisateur, idAdmin int) (TicketLigne, error) {
+	var t TicketLigne
+	err := q.QueryRow(
+		`SELECT Id_Tickets, Id_Particulier, Id_Admin_Assigne, Statut
+		 FROM Tickets WHERE Id_Particulier = ? AND Id_Admin_Assigne = ? AND Statut != 'ferme'
+		 ORDER BY Id_Tickets DESC LIMIT 1`,
+		idUtilisateur, idAdmin,
+	).Scan(&t.ID, &t.IdParticulier, &t.IdAdminAssigne, &t.Statut)
+	return t, err
+}
+
+func (TicketRepo) CreerParAdmin(q Querier, idUtilisateur, idAdmin int) (int, error) {
+	res, err := q.Exec(
+		"INSERT INTO Tickets (Id_Particulier, Id_Admin_Assigne, Statut, Date_creation) VALUES (?, ?, 'en_cours', NOW())",
+		idUtilisateur, idAdmin,
+	)
+	if err != nil {
+		return 0, err
+	}
+	newID, err := res.LastInsertId()
+	return int(newID), err
+}
+
 func (TicketRepo) Creer(q Querier, idParticulier int) (int, error) {
 	res, err := q.Exec(
 		"INSERT INTO Tickets (Id_Particulier, Statut, Date_creation) VALUES (?, 'en_attente', NOW())",

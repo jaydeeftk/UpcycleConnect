@@ -174,7 +174,12 @@ func (s *AnnonceService) transitionAdmin(
 }
 
 func (s *AnnonceService) SupprimerAnnonce(idAnnonce int) error {
-	n, err := s.repo.Supprimer(database.DB, idAnnonce)
+	var n int64
+	err := withTx(func(tx *sql.Tx) error {
+		var e error
+		n, e = s.repo.Supprimer(tx, idAnnonce)
+		return e
+	})
 	if err != nil {
 		return err
 	}

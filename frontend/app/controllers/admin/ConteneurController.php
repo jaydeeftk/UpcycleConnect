@@ -126,3 +126,4 @@ class ConteneurController
         header('Location: /admin/conteneurs/' . $idConteneur);
         exit;
     }
+}

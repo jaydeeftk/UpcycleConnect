@@ -37,20 +37,38 @@ class UtilisateurController
 
     public function create()
     {
-        return view('admin.utilisateurs.create', ['page_title' => 'Ajouter un utilisateur']);
+        $error = $_SESSION['error'] ?? null;
+        $old = $_SESSION['old'] ?? [];
+        unset($_SESSION['error'], $_SESSION['old']);
+        return view('admin.utilisateurs.create', [
+            'page_title' => 'Ajouter un utilisateur',
+            'error'      => $error,
+            'old'        => $old,
+        ]);
     }
 
     public function store()
     {
         try {
-            $this->api->post('/auth/register', [
+            $this->api->post('/admin/utilisateurs', [
                 'nom'          => $_POST['nom'] ?? '',
                 'prenom'       => $_POST['prenom'] ?? '',
                 'email'        => $_POST['email'] ?? '',
                 'mot_de_passe' => $_POST['mot_de_passe'] ?? '',
-                'role'         => $_POST['role'] ?? 'particulier'
+                'role'         => $_POST['role'] ?? 'particulier',
+                'telephone'    => $_POST['telephone'] ?? '',
             ]);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            $_SESSION['old'] = [
+                'nom'    => $_POST['nom'] ?? '',
+                'prenom' => $_POST['prenom'] ?? '',
+                'email'  => $_POST['email'] ?? '',
+                'role'   => $_POST['role'] ?? 'particulier',
+            ];
+            redirect('/admin/utilisateurs/create');
+            return;
+        }
         redirect('/admin/utilisateurs');
     }
 

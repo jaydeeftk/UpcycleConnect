@@ -6,31 +6,40 @@
 
 <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
     <h3 class="text-lg font-bold mb-6"><?= t('adm_users_create_title', 'Créer un utilisateur') ?></h3>
+    <?php if (!empty($error)): ?>
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+            <?= htmlspecialchars($error) ?>
+        </div>
+    <?php endif; ?>
     <form method="POST" action="/admin/utilisateurs/store" class="space-y-4">
     <?= csrf_field() ?>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_nom', 'Nom *') ?></label>
-                <input type="text" name="nom" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                <input type="text" name="nom" required value="<?= htmlspecialchars($old['nom'] ?? '') ?>" class="w-full border rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_prenom', 'Prénom *') ?></label>
-                <input type="text" name="prenom" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                <input type="text" name="prenom" required value="<?= htmlspecialchars($old['prenom'] ?? '') ?>" class="w-full border rounded-lg px-3 py-2 text-sm">
             </div>
         </div>
         <div>
             <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_email', 'Email *') ?></label>
-            <input type="email" name="email" required class="w-full border rounded-lg px-3 py-2 text-sm">
+            <input type="email" name="email" required value="<?= htmlspecialchars($old['email'] ?? '') ?>" class="w-full border rounded-lg px-3 py-2 text-sm">
         </div>
         <div>
             <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_password', 'Mot de passe *') ?></label>
             <input type="password" name="mot_de_passe" required class="w-full border rounded-lg px-3 py-2 text-sm">
+            <p class="text-xs text-gray-400 mt-1">8 caractères minimum, avec au moins une lettre et un chiffre.</p>
         </div>
         <div>
             <label class="block text-sm font-medium mb-1"><?= t('adm_users_label_role', 'Rôle') ?></label>
+            <?php $oldRole = $old['role'] ?? 'particulier'; ?>
             <select name="role" class="w-full border rounded-lg px-3 py-2 text-sm">
-                <option value="particulier"><?= t('adm_role_particulier', 'Particulier') ?></option>
-                <option value="professionnel"><?= t('adm_role_pro_artisan', 'Professionnel/Artisan') ?></option>
+                <option value="particulier" <?= $oldRole === 'particulier' ? 'selected' : '' ?>><?= t('adm_role_particulier', 'Particulier') ?></option>
+                <option value="professionnel" <?= $oldRole === 'professionnel' ? 'selected' : '' ?>><?= t('adm_role_pro_artisan', 'Professionnel/Artisan') ?></option>
+                <option value="salarie" <?= $oldRole === 'salarie' ? 'selected' : '' ?>><?= t('adm_role_salarie', 'Salarié') ?></option>
+                <option value="admin" <?= $oldRole === 'admin' ? 'selected' : '' ?>><?= t('adm_role_admin', 'Administrateur') ?></option>
             </select>
         </div>
         <button type="submit" class="w-full bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 font-medium">

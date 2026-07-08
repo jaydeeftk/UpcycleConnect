@@ -898,6 +898,26 @@ func (s *FacturationService) RefuserDemandeRemboursement(idDemande int) error {
 	})
 }
 
+// RemboursementParticipantsEvenement rembourse (via Stripe) tous les paiements
+// déjà payés pour un événement donné. Utilisé avant la suppression d'un
+// événement par l'administration, pour que chaque participant inscrit soit
+// remboursé automatiquement. Elle continue même si un remboursement
+// individuel échoue, et renvoie la liste des erreurs rencontrées (le cas
+// échéant) afin que l'admin puisse traiter les cas manuellement.
+func (s *FacturationService) RemboursementParticipantsEvenement(idEvenement int, motif string) []error {
+	idsPaiements, err := s.repo.PaiementsPayesPourEvenement(database.DB, idEvenement)
+	if err != nil {
+		return []error{fmt.Errorf("lecture des paiements de l'événement %d : %w", idEvenement, err)}
+	}
+	var erreurs []error
+	for _, idPaiement := range idsPaiements {
+		if err := s.RefundDirect(idPaiement, motif); err != nil {
+			erreurs = append(erreurs, fmt.Errorf("paiement #%d : %w", idPaiement, err))
+		}
+	}
+	return erreurs
+}
+
 func (s *FacturationService) RefundDirect(idPaiement int, motif string) error {
 	var idDemande int64
 	err := withTx(func(tx *sql.Tx) error {

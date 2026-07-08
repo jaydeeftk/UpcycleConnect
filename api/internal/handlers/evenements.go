@@ -245,9 +245,33 @@ func AdminCreateEvenement(w http.ResponseWriter, r *http.Request) {
 func AdminDeleteEvenement(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	id := parts[len(parts)-1]
+
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		httpx.JSONError(w, http.StatusBadRequest, "Identifiant invalide")
+		return
+	}
+
+	// Rembourser chaque participant ayant payé, avant de supprimer l'événement
+	// et ses inscriptions (sinon le lien avec le paiement serait perdu).
+	erreurs := facturationSvc.RemboursementParticipantsEvenement(idInt, "Événement annulé (suppression par l'administration)")
+
 	database.DB.Exec("DELETE FROM Animer WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Participer_evenements WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Planifier_evenements WHERE Id_Evenements = ?", id)
 	database.DB.Exec("DELETE FROM Evenements WHERE Id_Evenements = ?", id)
-	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement supprimé"})
+
+	if len(erreurs) > 0 {
+		details := make([]string, len(erreurs))
+		for i, e := range erreurs {
+			details[i] = e.Error()
+		}
+		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{
+			"message":               "Événement supprimé, mais certains remboursements ont échoué et nécessitent un traitement manuel.",
+			"erreurs_remboursement": details,
+		})
+		return
+	}
+
+	httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Événement supprimé et participants remboursés"})
 }

@@ -48,7 +48,7 @@ class EvenementController
                 'titre'       => $_POST['titre'] ?? '',
                 'description' => $_POST['description'] ?? '',
                 'lieu'        => $_POST['lieu'] ?? '',
-                'date'        => $_POST['date'] ?? '',
+                'dates'       => array_values(array_filter([trim($_POST['date'] ?? '')])),
                 'capacite'    => (int)($_POST['capacite'] ?? 0),
                 'id_salaries' => $_SESSION['user']['id'] ?? 0
             ]);
@@ -89,7 +89,7 @@ class EvenementController
                 'titre'       => $_POST['titre'] ?? '',
                 'description' => $_POST['description'] ?? '',
                 'lieu'        => $_POST['lieu'] ?? '',
-                'date'        => $_POST['date'] ?? '',
+                'dates'       => array_values(array_filter([trim($_POST['date'] ?? '')])),
                 'capacite'    => (int)($_POST['capacite'] ?? 0),
             ]);
 

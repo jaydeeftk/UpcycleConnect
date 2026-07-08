@@ -12,6 +12,7 @@ import (
 type TicketDTO struct {
 	ID             int    `json:"id"`
 	Statut         string `json:"statut"`
+	Origine        string `json:"origine"`
 	DateCreation   string `json:"date_creation"`
 	IdAdminAssigne *int   `json:"id_admin_assigne,omitempty"`
 	NomParticulier string `json:"nom_particulier,omitempty"`
@@ -175,7 +176,7 @@ func (s *TicketService) HistoriqueParticulier(idParticulier int) ([]TicketDTO, e
 	out := make([]TicketDTO, 0, len(lignes))
 	for _, t := range lignes {
 		out = append(out, TicketDTO{
-			ID: t.ID, Statut: t.Statut, DateCreation: t.DateCreation, IdAdminAssigne: t.IdAdminAssigne,
+			ID: t.ID, Statut: t.Statut, Origine: t.Origine, DateCreation: t.DateCreation, IdAdminAssigne: t.IdAdminAssigne,
 			NomAdmin: t.NomAdmin, DernierMessage: t.DernierMessage, DateDernierMsg: t.DateDernierMsg,
 		})
 	}

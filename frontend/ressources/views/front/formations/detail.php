@@ -1,5 +1,5 @@
 <?php
-// La formation est-elle déjà passée ? (date dépassée)
+
 $dateFormation = $formation['date'] ?? '';
 $tsFormation   = $dateFormation !== '' ? strtotime($dateFormation) : false;
 $estPasse      = $tsFormation !== false && $tsFormation < time();

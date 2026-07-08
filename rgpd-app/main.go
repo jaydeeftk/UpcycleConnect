@@ -36,7 +36,6 @@ func main() {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(5)
 
-	// La base peut démarrer après l'application : on patiente.
 	for i := 0; i < 30; i++ {
 		if err = db.Ping(); err == nil {
 			break

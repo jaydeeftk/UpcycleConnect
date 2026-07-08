@@ -125,19 +125,19 @@ function statutCouleur(string $statut): string
     return $map[$statut] ?? '#94a3b8';
 }
 
-/**
- * Borne min pour un champ date/datetime de programmation (événement, formation,
- * atelier, dépôt) : maintenant. Cohérent avec ValiderDateProgrammation côté API.
- */
+
+
+
+
 function dateProgrammationMin(bool $avecHeure = true): string
 {
     return date($avecHeure ? 'Y-m-d\TH:i' : 'Y-m-d');
 }
 
-/**
- * Borne max pour un champ date/datetime de programmation : 2 ans dans le futur.
- * Cohérent avec ValiderDateProgrammation côté API.
- */
+
+
+
+
 function dateProgrammationMax(bool $avecHeure = true): string
 {
     return date($avecHeure ? 'Y-m-d\TH:i' : 'Y-m-d', strtotime('+2 years'));

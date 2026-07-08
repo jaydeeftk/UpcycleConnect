@@ -6,11 +6,6 @@ import (
 	"strconv"
 )
 
-// -------------------------------------------------------------------
-// Consentements (art. 6 & 7 RGPD) — finalité par finalité, recueil
-// et retrait horodatés.
-// -------------------------------------------------------------------
-
 type Consentement struct {
 	ID               int    `json:"id"`
 	Finalite         string `json:"finalite"`
@@ -93,10 +88,6 @@ func handleAddConsent(w http.ResponseWriter, r *http.Request) {
 	audit(r, action, "consentement", id, in.Finalite)
 	jsonOK(w, http.StatusCreated, map[string]interface{}{"id": cid, "message": "consentement enregistré"})
 }
-
-// -------------------------------------------------------------------
-// Demandes d'exercice des droits (art. 15 à 21 RGPD).
-// -------------------------------------------------------------------
 
 type Demande struct {
 	ID             int    `json:"id"`
@@ -206,10 +197,6 @@ func handleListDemandes(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, http.StatusOK, list)
 }
 
-// -------------------------------------------------------------------
-// Registre des traitements (art. 30 RGPD).
-// -------------------------------------------------------------------
-
 type Traitement struct {
 	ID                int    `json:"id"`
 	Nom               string `json:"nom"`
@@ -252,10 +239,6 @@ func handleRegistre(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, http.StatusOK, list)
 }
 
-// -------------------------------------------------------------------
-// Journal d'accès (art. 5.2 responsabilité & art. 32 sécurité).
-// -------------------------------------------------------------------
-
 type JournalEntry struct {
 	ID         int64  `json:"id"`
 	Acteur     string `json:"acteur"`
@@ -287,8 +270,7 @@ func handleJournal(w http.ResponseWriter, r *http.Request) {
 			list = append(list, j)
 		}
 	}
-	// La consultation du journal est elle-même journalisée (après lecture,
-	// pour ne pas s'auto-inclure) : redevabilité complète des accès.
+
 	audit(r, "consultation_journal", "journal", "", "")
 	jsonOK(w, http.StatusOK, list)
 }

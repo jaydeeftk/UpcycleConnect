@@ -86,8 +86,8 @@ class Router
         $method = $_SERVER['REQUEST_METHOD'];
         $path = getCleanPath();
 
-        // Protection CSRF : toute requete POST doit porter un jeton valide
-        // (champ csrf_token des formulaires, ou en-tete X-CSRF-Token pour le JS).
+        
+        
         if ($method === 'POST' && !csrf_verify()) {
             http_response_code(403);
             view('errors.419');

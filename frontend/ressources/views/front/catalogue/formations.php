@@ -1,4 +1,4 @@
-<?php /* illustrations : helper uc_image() (pools varies, choix deterministe par id) */ ?>
+<?php  ?>
 
 <section class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
 
@@ -76,7 +76,7 @@
     </div>
 
     <?php
-    // Masque les formations déjà passées (la date est dépassée).
+    
     $formations = array_values(array_filter($formations ?? [], function ($f) {
         $d = $f['date'] ?? '';
         if ($d === '') return true;

@@ -1217,7 +1217,7 @@ return [
     'adm_contrats_empty' => 'Kein Vertrag',
     'adm_contrats_confirm_delete' => 'Diesen Vertrag löschen?',
 
-    // Abonnements
+    
     'adm_abo_title' => 'Pro-Abonnements',
     'adm_abo_subtitle' => 'Premium-Abonnements der Fachbetriebe',
     'adm_abo_col_pro' => 'Fachbetrieb',

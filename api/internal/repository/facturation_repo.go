@@ -1005,10 +1005,10 @@ type MoisCA struct {
 }
 
 type FinancesAgregat struct {
-	NbFactures       int            `json:"nb_factures"`
-	TotalHT          float64        `json:"total_ht"`
-	TotalTTC         float64        `json:"total_ttc"`
-	TotalCommissions float64        `json:"total_commissions"`
+	NbFactures       int                `json:"nb_factures"`
+	TotalHT          float64            `json:"total_ht"`
+	TotalTTC         float64            `json:"total_ttc"`
+	TotalCommissions float64            `json:"total_commissions"`
 	CAParMois        []MoisCA           `json:"ca_par_mois"`
 	Statuts          map[string]int     `json:"statuts"`
 	CAParSource      map[string]float64 `json:"ca_par_source"`

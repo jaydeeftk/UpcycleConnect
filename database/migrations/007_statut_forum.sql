@@ -1,23 +1,3 @@
--- 007_statut_forum.sql
--- Phase 4 — Vertical forum : vocabulaire de statut borné (CHECK).
---
--- Sujets.Statut était un VARCHAR libre (DEFAULT 'ouvert'). On le contraint au
--- vocabulaire canonique dérivé du domaine (api/internal/domain/forum.go) :
--- 'ouvert', 'resolu', 'ferme'. La base devient la dernière ligne de défense :
--- aucune valeur hors-enum ne peut être écrite, même par un handler bogué. Les
--- transitions (marquage de solution, modération) sont déjà gardées côté service ;
--- ce CHECK borne en plus les écritures directes.
---
--- IMPORTANT (prod) : un CHECK posé sur une ligne hors-enum échouerait. Sur une
--- base reconstruite depuis init.sql la table est sans seed (sûr). Sur la base de
--- PRODUCTION, les valeurs distinctes réelles de Sujets.Statut doivent être
--- vérifiées AVANT application (requiert une lecture approuvée). À ce jour ces
--- valeurs sont « inconnues » côté prod : aucune normalisation n'est inventée ici.
---
--- NULL toléré : un CHECK MySQL passe quand l'expression vaut TRUE ou UNKNOWN ;
--- la colonne nullable accepte donc NULL.
---
--- Idempotent : ré-exécutable sans erreur (garde information_schema).
 
 DROP PROCEDURE IF EXISTS _mig_add_check;
 DELIMITER //

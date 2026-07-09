@@ -5,7 +5,6 @@
     <p class="text-gray-600"><?= t('sal_dashboard_welcome', 'Bienvenue') ?>, <?= htmlspecialchars($_SESSION['user']['prenom'] ?? t('sal_role', 'Salarié')) ?> !</p>
 </div>
 
-
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
@@ -53,7 +52,6 @@
    class="text-sm text-purple-600 hover:underline mt-3 block"><?= t('sal_manage', 'Gérer') ?> →</a>
     </div>
 </div>
-
 
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">

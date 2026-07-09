@@ -1,4 +1,3 @@
--- Migration 030 : dimensions du conteneur (casier) en centimetres.
 
 SET @add_hauteur := IF(
     (SELECT COUNT(*) FROM information_schema.COLUMNS

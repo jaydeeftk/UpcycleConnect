@@ -964,10 +964,6 @@ func (FacturationRepo) CreerContratDepuisPublicite(q Querier, idPublicite string
 	return err
 }
 
-// ConsommerAnnonceGratuite decremente le quota d'annonces gratuites de
-// l'abonnement premium actif du professionnel, si disponible. Renvoie true
-// si un credit gratuit a ete utilise. La mise a jour est atomique (une seule
-// requete) pour eviter toute sur-consommation en cas de creations simultanees.
 func (FacturationRepo) ConsommerAnnonceGratuite(q Querier, idPro int) bool {
 	res, err := q.Exec(
 		`UPDATE Abonnement SET Annonces_Gratuites_Utilisees = Annonces_Gratuites_Utilisees + 1

@@ -99,7 +99,6 @@
 </div>
 <?php endif; ?>
 
-<!-- Modal révélation code -->
 <div id="modal-reveal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
         <h3 class="text-lg font-bold text-slate-800 mb-4"><i class="fas fa-lock mr-2 text-amber-500"></i><?= t('adm_demandes_reveal_title', 'Révéler le code') ?></h3>

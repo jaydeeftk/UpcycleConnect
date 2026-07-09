@@ -63,7 +63,6 @@ class PlanningController
         redirect('/salaries/planning');
     }
 
-    
     public function storeFormation()
     {
         try {
@@ -85,7 +84,6 @@ class PlanningController
         redirect('/salaries/planning');
     }
 
- 
     public function storeAtelier()
     {
         try {
@@ -104,7 +102,6 @@ class PlanningController
         redirect('/salaries/planning');
     }
 
-
     public function deleteEvenement($id)
     {
         try {
@@ -117,7 +114,6 @@ class PlanningController
         redirect('/salaries/planning');
     }
 
- 
     public function deleteFormation($id)
     {
         try {
@@ -129,7 +125,6 @@ class PlanningController
 
         redirect('/salaries/planning');
     }
-
 
     public function deleteAtelier($id)
     {

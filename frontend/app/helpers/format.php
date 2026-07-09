@@ -125,18 +125,10 @@ function statutCouleur(string $statut): string
     return $map[$statut] ?? '#94a3b8';
 }
 
-
-
-
-
 function dateProgrammationMin(bool $avecHeure = true): string
 {
     return date($avecHeure ? 'Y-m-d\T00:00' : 'Y-m-d');
 }
-
-
-
-
 
 function dateProgrammationMax(bool $avecHeure = true): string
 {

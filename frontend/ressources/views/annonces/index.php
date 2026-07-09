@@ -21,7 +21,7 @@
                     <td colspan="4" class="p-8 text-center text-slate-400 italic">Aucune annonce trouvée.</td>
                 </tr>
             <?php } else { ?>
-                <?php foreach ($annonces as $annonce) { 
+                <?php foreach ($annonces as $annonce) {
                     $statut = strtolower($annonce['statut'] ?? 'en attente');
                     $badgeColor = 'slate';
                     if ($statut === 'validee' || $statut === 'actif') $badgeColor = 'emerald';

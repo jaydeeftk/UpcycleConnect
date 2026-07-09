@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button id="tuto-fermer" style="background:none; border:none; cursor:pointer; color:#9ca3af; font-size:20px; line-height:1; padding:0 4px;" title="${TUTO.close}">×</button>
             </div>
 
-            <!-- Barre de progression -->
             <div style="background:#f3f4f6; border-radius:99px; height:4px; margin-bottom:20px;">
                 <div style="background:linear-gradient(to right, #10b981, #059669); height:4px; border-radius:99px; width:${((index + 1) / total) * 100}%; transition:width 0.3s ease;"></div>
             </div>

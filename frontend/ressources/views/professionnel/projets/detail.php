@@ -48,7 +48,6 @@
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
 
-            <!-- Edition projet -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-1"><?= t('proprj_edit_title', 'Informations du projet') ?></h3>
                 <div class="text-sm text-gray-500 mb-6">
@@ -76,7 +75,6 @@
                 </form>
             </div>
 
-            <!-- Etapes -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-1"><?= t('proprj_steps_title', 'Étapes du projet') ?></h3>
                 <p class="text-sm text-gray-500 mb-6">
@@ -140,7 +138,6 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- Form ajout étape -->
                 <form method="POST" action="/professionnel/projets/<?= (int)$projet['id'] ?>/etapes" enctype="multipart/form-data" class="space-y-4 border-t border-gray-200 pt-6">
                     <?= csrf_field() ?>
                     <h4 class="font-semibold text-sm uppercase tracking-wide text-gray-500"><?= t('proprj_step_add', 'Ajouter une étape') ?></h4>

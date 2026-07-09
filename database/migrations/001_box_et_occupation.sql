@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS Box(
    CONSTRAINT chk_box_statut CHECK (Statut IN ('disponible','pleine','maintenance','hors_service'))
 );
 
-
 DROP PROCEDURE IF EXISTS _mig_add_col;
 DELIMITER //
 CREATE PROCEDURE _mig_add_col(IN tbl VARCHAR(64), IN col VARCHAR(64), IN ddl TEXT)
@@ -26,7 +25,6 @@ END //
 DELIMITER ;
 CALL _mig_add_col('Objets', 'Id_Box', 'Id_Box INT NULL');
 DROP PROCEDURE IF EXISTS _mig_add_col;
-
 
 DROP PROCEDURE IF EXISTS _mig_add_fk;
 DELIMITER //

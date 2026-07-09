@@ -1,5 +1,3 @@
--- Migration 029 : quota d'annonces gratuites inclus dans l'abonnement
--- Premium des professionnels.
 
 SET @add_annonces_incluses := IF(
     (SELECT COUNT(*) FROM information_schema.COLUMNS

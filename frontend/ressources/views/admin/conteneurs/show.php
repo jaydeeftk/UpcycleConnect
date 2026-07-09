@@ -32,7 +32,6 @@
     </div>
 </div>
 
-<!-- Section casiers avec dimensions -->
 <?php if (!empty($conteneur['boxes'])): ?>
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-8">
     <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
@@ -89,7 +88,6 @@
 </div>
 <?php endif; ?>
 
-<!-- Modal édition dimensions casier -->
 <div id="boxDimModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex justify-center items-center z-50">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200">
         <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">

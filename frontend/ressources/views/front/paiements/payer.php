@@ -8,7 +8,6 @@
         <p class="text-base-content/60 mt-1"><?= t('paypay_subtitle', 'Paiement sécurisé via Stripe') ?></p>
     </div>
 
-
     <div class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 mb-6">
         <h2 class="font-semibold mb-4"><?= t('paypay_summary', 'Récapitulatif') ?></h2>
         <div class="flex justify-between items-center py-3 border-b border-base-200">

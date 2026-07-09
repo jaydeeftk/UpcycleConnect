@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require __DIR__ . '/../components/csrf_head.php'; ?>
     <title>UpcycleConnect</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -56,7 +56,6 @@
             }
         };
 
-        
         function applyTheme(theme) {
             const html = document.documentElement;
             if (theme === 'dark') {
@@ -68,7 +67,7 @@
             }
         }
 
-        const savedTheme = localStorage.getItem('theme') || 
+        const savedTheme = localStorage.getItem('theme') ||
             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         applyTheme(savedTheme);
 
@@ -81,13 +80,12 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        body { 
+
+        body {
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
         }
 
-        
         header {
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -97,7 +95,6 @@
             background-color: rgba(2, 6, 23, 0.8);
         }
 
-        
         .card, .bg-base-100 {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -106,15 +103,13 @@
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
 
-       
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { 
-            background: #10b981; 
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
             border-radius: 20px;
         }
 
-       
         .reveal { animation: fade-in 0.6s ease-out; }
 
         .dark .bg-white { background-color: #0f172a !important; }

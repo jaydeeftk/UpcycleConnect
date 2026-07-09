@@ -86,7 +86,6 @@
     </div>
 </div>
 
-<!-- Section remboursements (lecture seule) -->
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mt-6">
     <div class="flex items-center justify-between mb-5">
         <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">

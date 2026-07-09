@@ -1,6 +1,3 @@
--- Migration 012 : redate les evenements/formations de demonstration dans le futur.
--- Les seeds avaient des dates fixes (mai/juin 2026) desormais passees, ce qui vidait
--- les pages publiques (qui masquent les elements passes). On ne touche qu'aux passes.
 
 UPDATE Evenements
    SET Date_ = DATE_ADD(NOW(), INTERVAL (10 + (Id_Evenements * 7)) DAY)

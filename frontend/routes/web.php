@@ -226,14 +226,12 @@ $router->group(['prefix' => 'admin'], function($router) {
     $router->post('/forum/sujets/{id}/supprimer', 'Admin\ForumController@deleteSujet');
     $router->post('/forum/reponses/{id}/supprimer', 'Admin\ForumController@deleteReponse');
 
-    
 });
 
 $router->group(['prefix' => 'salaries'], function($router) {
 
     $router->get('/dashboard', 'salaries\DashboardController@index');
 
-    
     $router->get('/forum', 'salaries\ForumController@index');
     $router->post('/forum/sujets/{id}/supprimer', 'salaries\ForumController@deleteSujet');
     $router->post('/forum/reponses/{id}/supprimer', 'salaries\ForumController@deleteReponse');
@@ -244,7 +242,6 @@ $router->group(['prefix' => 'salaries'], function($router) {
     $router->post('/conseils/{id}/update', 'salaries\ConseilController@update');
     $router->post('/conseils/{id}/delete', 'salaries\ConseilController@delete');
 
-    
     $router->get('/formations', 'salaries\FormationController@index');
     $router->post('/formations/store', 'salaries\FormationController@store');
     $router->get('/formations/{id}/edit', 'salaries\FormationController@edit');
@@ -254,21 +251,18 @@ $router->group(['prefix' => 'salaries'], function($router) {
     $router->post('/formations/{id}/etapes/store', 'salaries\FormationController@etapesStore');
     $router->post('/formations/{id}/etapes/{etapeId}/delete', 'salaries\FormationController@etapesDelete');
 
-    
     $router->get('/evenements', 'salaries\EvenementController@index');
     $router->post('/evenements/store', 'salaries\EvenementController@store');
     $router->get('/evenements/{id}/edit', 'salaries\EvenementController@edit');
     $router->post('/evenements/{id}/update', 'salaries\EvenementController@update');
     $router->post('/evenements/{id}/delete', 'salaries\EvenementController@delete');
 
-   
     $router->get('/ateliers', 'salaries\AtelierController@index');
     $router->post('/ateliers/store', 'salaries\AtelierController@store');
     $router->get('/ateliers/{id}/edit', 'salaries\AtelierController@edit');
     $router->post('/ateliers/{id}/update', 'salaries\AtelierController@update');
     $router->post('/ateliers/{id}/delete', 'salaries\AtelierController@delete');
 
-   
     $router->get('/planning', 'salaries\PlanningController@index');
     $router->post('/planning/evenement/create', 'salaries\PlanningController@storeEvenement');
     $router->post('/planning/formation/create', 'salaries\PlanningController@storeFormation');

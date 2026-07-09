@@ -40,7 +40,6 @@
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
 
-            <!-- Mes annonces -->
             <?php if (!empty($mesAnnonces)): ?>
             <div class="bg-white rounded-lg shadow mb-6">
                 <div class="px-6 py-4 border-b border-gray-100">
@@ -100,7 +99,6 @@
             </div>
             <?php endif; ?>
 
-            <!-- Toutes les annonces -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">

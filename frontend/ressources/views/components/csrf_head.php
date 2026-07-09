@@ -1,7 +1,5 @@
 <meta name="csrf-token" content="<?= htmlspecialchars(function_exists('csrf_token') ? csrf_token() : '', ENT_QUOTES) ?>">
 <script>
-// CSRF : ajoute automatiquement l'en-tete X-CSRF-Token aux requetes mutantes same-origin
-// (fetch + XHR) pour que le JS n'ait pas a le gerer manuellement. Les <form> portent le champ csrf_token.
 (function () {
     var m = document.querySelector('meta[name="csrf-token"]');
     var TOKEN = m ? m.getAttribute('content') : '';

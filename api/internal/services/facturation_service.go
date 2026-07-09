@@ -696,7 +696,6 @@ func (s *FacturationService) ListerAbonnements() ([]AbonnementDTO, error) {
 
 const PrixAbonnementPremium = 24.99
 
-// QuotaAnnoncesGratuitesPremium : nombre d'annonces offertes avec l'abonnement Premium.
 const QuotaAnnoncesGratuitesPremium = 10
 
 func (s *FacturationService) ProAbonnementActuel(idPro int) (*AbonnementDTO, error) {
@@ -742,9 +741,6 @@ func (s *FacturationService) ProSouscrireAbonnement(idPro int, referenceStripe, 
 	return id, nil
 }
 
-// ConsommerAnnonceGratuitePro consomme un credit d'annonce gratuite de
-// l'abonnement Premium du professionnel s'il lui en reste. Ne bloque jamais
-// la creation de l'annonce : c'est un avantage, pas une restriction.
 func (s *FacturationService) ConsommerAnnonceGratuitePro(idUtilisateur int) bool {
 	var idPro int
 	if err := database.DB.QueryRow(

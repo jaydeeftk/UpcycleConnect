@@ -15,7 +15,7 @@ class ParametreController
     public function index()
     {
         try {
-            $result = $this->api->get('/admin/parametres/'); 
+            $result = $this->api->get('/admin/parametres/');
 
             $parametres = [];
             if (isset($result['data'])) {
@@ -30,7 +30,7 @@ class ParametreController
             ]);
         } catch (\Exception $e) {
             return view('admin.parametres.index', [
-                'parametres' => [], 
+                'parametres' => [],
                 'error' => "Erreur de connexion API : " . $e->getMessage()
             ]);
         }

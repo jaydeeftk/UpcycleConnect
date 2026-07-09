@@ -1,5 +1,3 @@
--- Migration 011 : demandes de prestation (mise en relation particulier <-> prestataire).
--- Idempotente : peut etre rejouee sans risque sur une base existante.
 
 CREATE TABLE IF NOT EXISTS Demandes_prestations (
   Id_Demandes_prestations INT AUTO_INCREMENT PRIMARY KEY,

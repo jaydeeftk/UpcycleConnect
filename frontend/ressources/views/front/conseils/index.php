@@ -45,7 +45,7 @@
                         ['slug' => 'bricolage',       'label' => 'Bricolage & Réparation',    'icon' => 'fa-wrench',       'color' => 'text-orange-500'],
                         ['slug' => 'bonnes-pratiques','label' => 'Bonnes pratiques',          'icon' => 'fa-check-circle', 'color' => 'text-blue-500'],
                     ];
-                    
+
                     $categorieActive = $onglet === 'forum' ? $catForum : $catConseil;
                     foreach ($categories as $cat):
                     ?>

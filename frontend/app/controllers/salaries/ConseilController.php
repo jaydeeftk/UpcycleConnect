@@ -43,12 +43,12 @@ class ConseilController
 
     public function store()
     {
-      
+
         try {
-            $this->api->post('/salaries/conseils/create', [
-                'contenu'      => $_POST['contenu'] ?? '',
-                'date_d_ajout' => date('Y-m-d H:i:s'),
-                'id_salaries'  => $_SESSION['user']['id'] ?? 0
+            $this->api->post('/salaries/conseils', [
+                'titre'     => $_POST['titre'] ?? '',
+                'contenu'   => $_POST['contenu'] ?? '',
+                'categorie' => $_POST['categorie'] ?? '',
             ]);
 
             $_SESSION['success'] = t('sal_flash_conseil_added', 'Conseil ajouté avec succès.');

@@ -1,6 +1,3 @@
--- Migration 028 : etapes d'une formation (programme pedagogique), visibles
--- sur la fiche publique et gerees par le salarie createur. Idempotente
--- (CREATE TABLE IF NOT EXISTS).
 
 CREATE TABLE IF NOT EXISTS Formation_Etapes(
    Id_Etapes INT AUTO_INCREMENT,

@@ -32,7 +32,7 @@
         <tbody class="divide-y divide-slate-100">
             <?php if (empty($formations)) : ?>
                 <tr><td colspan="4" class="p-8 text-center text-slate-400 italic"><?= t('adm_formations_empty', 'Aucune formation enregistrée.') ?></td></tr>
-            <?php else : foreach ($formations as $f) : 
+            <?php else : foreach ($formations as $f) :
                 $st = strtolower($f['statut'] ?? 'en_attente');
                 $color = ($st === 'actif' || $st === 'validee') ? 'emerald' : (($st === 'rejete') ? 'rose' : 'amber');
             ?>

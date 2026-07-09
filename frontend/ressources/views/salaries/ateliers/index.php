@@ -27,7 +27,6 @@ unset($_SESSION['success'], $_SESSION['error']);
 </div>
 <?php endif; ?>
 
-<!-- Statistiques -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
@@ -62,7 +61,6 @@ unset($_SESSION['success'], $_SESSION['error']);
     </div>
 </div>
 
-<!-- Tableau -->
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <table class="min-w-full">
         <thead class="bg-gray-50">
@@ -143,7 +141,6 @@ unset($_SESSION['success'], $_SESSION['error']);
     </table>
 </div>
 
-<!-- Modal ajout -->
 <div id="modal-add" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
@@ -189,7 +186,6 @@ unset($_SESSION['success'], $_SESSION['error']);
     </div>
 </div>
 
-<!-- Modal édition -->
 <div id="modal-edit" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">

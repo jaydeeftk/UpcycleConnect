@@ -1,21 +1,4 @@
--- 003_statuts_canoniques.sql
--- Phase 3 — Schéma & intégrité : vocabulaires de statut bornés (CHECK).
---
--- Les statuts étaient des VARCHAR libres : on les contraint à un vocabulaire
--- canonique (dérivé des machines à états de la Phase 2). La base devient la
--- dernière ligne de défense : aucune valeur hors-enum ne peut être écrite,
--- même si un handler bogué l'essaie.
---
--- IMPORTANT (prod) : la NORMALISATION doit précéder le CHECK. Sur une base
--- reconstruite depuis init.sql les valeurs sont connues (seeds 'a_venir',
--- 'actif', ...). Sur la base de PRODUCTION, les valeurs distinctes réelles
--- doivent être vérifiées AVANT application (requiert une lecture approuvée) :
--- un CHECK posé sur une ligne hors-enum échouerait. Les UPDATE ci-dessous
--- couvrent les divergences connues (legacy 'active').
---
--- Idempotent : ré-exécutable sans erreur (gardes information_schema).
 
--- --- Contrats : ajout de la colonne Statut (cycle de vie absent jusqu'ici) ----
 DROP PROCEDURE IF EXISTS _mig_add_col;
 DELIMITER //
 CREATE PROCEDURE _mig_add_col(IN tbl VARCHAR(64), IN col VARCHAR(64), IN ddl TEXT)
@@ -30,11 +13,9 @@ DELIMITER ;
 CALL _mig_add_col('Contrats', 'Statut', "Statut VARCHAR(50) NOT NULL DEFAULT 'actif'");
 DROP PROCEDURE IF EXISTS _mig_add_col;
 
--- --- Normalisation des divergences connues -----------------------------------
 UPDATE Annonces SET Statut = 'validee'    WHERE Statut = 'active';
 UPDATE Annonces SET Statut = 'en_attente' WHERE Statut IS NULL OR Statut = '';
 
--- --- CHECK idempotents --------------------------------------------------------
 DROP PROCEDURE IF EXISTS _mig_add_check;
 DELIMITER //
 CREATE PROCEDURE _mig_add_check(IN tbl VARCHAR(64), IN cname VARCHAR(64), IN expr TEXT)

@@ -246,7 +246,6 @@ class ProfessionnelController
         exit;
     }
 
-
     public function annonces()
     {
         $annonces    = [];

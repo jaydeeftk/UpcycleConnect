@@ -228,7 +228,6 @@
         setProRequired(true);
     });
 
-    // Vérification du SIRET via l'API publique (proxy frontend -> API Go)
     const siretBtn = document.getElementById('siret-verify-btn');
     const siretResult = document.getElementById('siret-result');
     if (siretBtn) {

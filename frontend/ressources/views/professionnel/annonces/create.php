@@ -37,7 +37,6 @@
                     <form method="POST" action="/professionnel/annonces/store">
                         <?= csrf_field() ?>
 
-                        <!-- Informations objet -->
                         <div>
                             <h3 class="text-base font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">
                                 <?= t('anncre_section_item', 'Informations sur l\'objet') ?>
@@ -98,7 +97,6 @@
                             </div>
                         </div>
 
-                        <!-- Type de mise à disposition -->
                         <div>
                             <h3 class="text-base font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">
                                 <?= t('anncre_section_type', 'Type de mise à disposition') ?>
@@ -136,7 +134,6 @@
                             </div>
                         </div>
 
-                        <!-- Localisation -->
                         <div>
                             <h3 class="text-base font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">
                                 <?= t('anncre_section_location', 'Localisation') ?>

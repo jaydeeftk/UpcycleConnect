@@ -18,8 +18,8 @@ class FactureController
         try {
             $result = $this->api->get('/admin/factures');
 
-            $factures = isset($result['data']) && is_array($result['data']) 
-                ? $result['data'] 
+            $factures = isset($result['data']) && is_array($result['data'])
+                ? $result['data']
                 : (is_array($result) && !isset($result['success']) ? $result : []);
 
         } catch (\Exception $e) {

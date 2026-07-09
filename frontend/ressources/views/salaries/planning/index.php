@@ -366,7 +366,6 @@ $ateliers    = array_filter($items ?? [], fn($i) => $i['type'] === 'atelier');
     </div>
 </div>
 
-<!-- Modal Déléguer -->
 <div id="modal-deleguer" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
         <div class="flex items-center justify-between mb-4">
@@ -416,8 +415,6 @@ const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Ao�
 const JOURS_COURTS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const JOURS_LONGS  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 
-// Plage horaire affichee dans la vue "Semaine" (grille avec heures, comme un vrai
-// calendrier) : un creneau de 14h a 17h occupe visuellement 3 lignes de la grille.
 const SEMAINE_HEURE_DEBUT = 9;
 const SEMAINE_HEURE_FIN   = 19;
 const SEMAINE_ROW_H       = 48;
@@ -435,8 +432,6 @@ function sameDay(a, b) {
            a.getDate() === b.getDate();
 }
 
-// Une formation avec date_fin (plusieurs jours) apparait sur chaque jour de la
-// grille compris entre sa date de debut et sa date de fin.
 function itemCouvreJour(item, jour) {
     const debut = itemDate(item);
     if (!debut) return false;
@@ -488,9 +483,6 @@ function cardHtml(item) {
     </div>`;
 }
 
-// Bloc positionne en absolu dans la grille horaire de la vue "Semaine" : le top
-// et la hauteur sont calcules a partir de l'heure de debut et de la duree, pour
-// qu'un creneau de 14h a 17h occupe visuellement l'espace entre ces deux heures.
 function carteSemainePositionnee(item) {
     const d = itemDate(item);
     const debutH = d ? Math.max(SEMAINE_HEURE_DEBUT, Math.min(d.getHours() + d.getMinutes() / 60, SEMAINE_HEURE_FIN)) : SEMAINE_HEURE_DEBUT;
@@ -658,7 +650,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     });
 });
 
-
 ['modal-evenement', 'modal-formation', 'modal-atelier', 'modal-deleguer'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) this.classList.add('hidden');
@@ -667,7 +658,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 </script>
 
 <script>
-// --- Délégation (animateur assigné) ---
 let deleguerType = null, deleguerId = null;
 
 function ouvrirDeleguer(type, id, titre) {

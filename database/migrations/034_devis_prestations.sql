@@ -19,8 +19,6 @@ SET @conv_annonce_nullable := (
       AND COLUMN_NAME = 'Id_Annonces' AND IS_NULLABLE = 'NO'
 );
 
--- Rendre Id_Annonces nullable (une conversation peut desormais porter sur une
--- prestation a la place d'une annonce).
 SET @modify_stmt := IF(@conv_annonce_nullable > 0,
     'ALTER TABLE Conversations MODIFY Id_Annonces INT NULL',
     'DO 0');

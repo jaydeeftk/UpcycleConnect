@@ -37,7 +37,6 @@
 
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
 
-            <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow p-6 flex items-center space-x-4">
                     <div class="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -68,7 +67,6 @@
                 </div>
             </div>
 
-            <!-- Projets -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
                     <h3 class="text-lg font-bold"><?= t('pro_projects_title', 'Mes projets upcycling') ?></h3>
@@ -151,7 +149,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Favoris -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <h3 class="text-lg font-bold mb-4"><?= t('pro_favorites_title', 'Mes annonces favorites') ?></h3>
                 <?php if (empty($favoris)): ?>
@@ -180,7 +177,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Notifications -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-bell text-emerald-600"></i> <?= t('pro_notifs_title', 'Notifications') ?></h3>
@@ -214,7 +210,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Facturation cumulée -->
             <?php $fact = $facturation ?? []; ?>
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between mb-4">
@@ -247,7 +242,6 @@
                 </div>
             </div>
 
-            <!-- Contrats -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-bold mb-4"><?= t('pro_contracts_title', 'Mes contrats') ?></h3>
                 <?php if (empty($contrats)): ?>

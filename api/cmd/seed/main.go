@@ -159,12 +159,10 @@ func main() {
 		return maintenant.AddDate(0, 0, 3+rng.Intn(150)).Add(time.Duration(9+rng.Intn(9)) * time.Hour)
 	}
 
-	// Langue (Id_Langue=1 attendu par défaut sur Utilisateurs)
 	bulk(tx, "Langue", []string{"Id_Langue", "Nom"}, [][]interface{}{
 		{1, "Français"}, {2, "English"}, {3, "Español"}, {4, "Deutsch"},
 	})
 
-	// Utilisateurs 1..1000
 	type personne struct{ nom, prenom, email string }
 	gens := make([]personne, 1001)
 	emails := map[string]bool{}
@@ -204,7 +202,6 @@ func main() {
 	}
 	bulk(tx, "Utilisateurs", []string{"Id_Utilisateurs", "Nom", "Prenom", "Telephone", "Statut", "Adresse", "Mot_de_passe", "Email", "Token_confirmation", "Date_Inscription", "Date_naissance", "Id_Langue", "Tutoriel_vu"}, uRows)
 
-	// Rôles : 1-3 admins, 4-18 salariés, 19-298 pros, 299-998 particuliers, 999-1000 réservés
 	bulk(tx, "Administrateurs", []string{"Id_Administrateurs", "Grade", "Id_Utilisateurs"}, [][]interface{}{
 		{1, "superadmin", 1}, {2, "admin", 2}, {3, "admin", 3},
 	})
@@ -233,7 +230,6 @@ func main() {
 	partUser := func(p int) int { return 298 + p }
 	proUser := func(p int) int { return 18 + p }
 
-	// Abonnements premium pour 30 pros
 	var aboRows [][]interface{}
 	prosPremium := rng.Perm(280)[:30]
 	for i, p := range prosPremium {
@@ -255,7 +251,6 @@ func main() {
 		}
 	}
 
-	// Conteneurs + Box
 	lieux := []string{"Paris 11e — Bastille", "Paris 15e — Vaugirard", "Montreuil — Croix de Chavaux", "Boulogne — Marcel Sembat",
 		"Lyon 3e — Part-Dieu", "Lille — Centre", "Nantes — Commerce", "Bordeaux — Chartrons"}
 	var contRows [][]interface{}
@@ -284,7 +279,6 @@ func main() {
 	}
 	bulk(tx, "Box", []string{"Id_Box", "Reference", "Capacite", "Statut", "Id_Conteneurs", "Taille", "Hauteur_cm", "Largeur_cm", "Longueur_cm"}, boxRows)
 
-	// Annonces
 	type annonce struct {
 		id, part, pro, acheteur int
 		statut, typeAnn         string
@@ -359,7 +353,6 @@ func main() {
 	}
 	bulk(tx, "Annonces", []string{"Id_Annonces", "Date_publication", "Contenu", "Statut", "Id_Particuliers", "Titre", "Description", "Categorie", "Etat", "Type_annonce", "Prix", "Ville", "Code_postal", "Id_Acheteur_Utilisateur", "Id_Professionnels", "Photo_url"}, annRows)
 
-	// Demandes de dépôt en conteneur
 	type demande struct{ id, part, box, cont int }
 	var demandes []demande
 	var demRows [][]interface{}
@@ -411,7 +404,6 @@ func main() {
 	}
 	bulk(tx, "Demandes_conteneurs", []string{"Id_Demandes_conteneurs", "Type_objet", "Description", "Etat_usure", "Id_Conteneurs", "Date_depot", "Destination", "Prix_vente", "Photo_url", "Statut", "Code_acces", "Date_demande", "Id_Particuliers", "Id_Box", "Id_Annonces"}, demRows)
 
-	// Objets (les premiers liés aux demandes validées) + codes-barres
 	var objRows, cbRows [][]interface{}
 	statutObj := func() string {
 		r := rng.Intn(100)
@@ -451,7 +443,6 @@ func main() {
 	bulk(tx, "Objets", []string{"Id_Objets", "Type", "Poids", "Statut", "Id_Conteneurs", "Id_Professionnels", "Id_Particuliers", "Id_Box", "Id_Demandes_conteneurs"}, objRows)
 	bulk(tx, "Codes_Barres", []string{"Id_Codes_Barres", "Code", "Date_generation", "Statut", "Id_Objets", "Id_Box"}, cbRows)
 
-	// Formations + dates + réservations
 	type formation struct {
 		id     int
 		prix   float64
@@ -520,7 +511,6 @@ func main() {
 	bulk(tx, "Reserver_formation", []string{"Id_Particuliers", "Id_Formations", "Date_reservation"}, resaRows)
 	bulk(tx, "Participer", []string{"Id_Particuliers", "Id_Formations"}, participerRows)
 
-	// Événements + dates + participations
 	type evenement struct {
 		id    int
 		prix  float64
@@ -587,7 +577,6 @@ func main() {
 	bulk(tx, "Evenement_Dates", []string{"Id_Evenement_Dates", "Id_Evenements", "Date_session"}, evtDatesRows)
 	bulk(tx, "Participer_evenements", []string{"Id_Particuliers", "Id_Evenements"}, partEvtRows)
 
-	// Services (catalogue pro)
 	type service struct {
 		id, pro int
 		prix    float64
@@ -606,7 +595,6 @@ func main() {
 	}
 	bulk(tx, "Services", []string{"Id_Services", "Titre", "Description", "Prix", "Duree", "Categorie", "Id_Salaries", "Id_Professionnels", "archived_at"}, svcRows)
 
-	// Commandes de services
 	type commande struct {
 		id, svc, user int
 		statut        string
@@ -642,7 +630,6 @@ func main() {
 	}
 	bulk(tx, "Commandes_Services", []string{"Id_Commandes_Services", "Id_Services", "Id_Utilisateurs", "Nom_Objet", "Categorie_Objet", "Description_Objet", "Prix", "Statut", "Date_creation", "Reference_Stripe", "Photo_Url"}, cmdRows)
 
-	// Demandes de prestations
 	type demPresta struct {
 		id, user int
 		statut   string
@@ -672,7 +659,6 @@ func main() {
 	}
 	bulk(tx, "Demandes_prestations", []string{"Id_Demandes_prestations", "Nom_objet", "Categorie", "Type_objet", "Etat", "Description", "Localisation", "Budget", "Statut", "Date_creation", "Id_Utilisateurs", "Id_Professionnels", "Photo_url"}, dpRows)
 
-	// Projets pro (manuels + issus des commandes payées)
 	var projRows, etapeRows [][]interface{}
 	idProjet, idEtape := 0, 0
 	nomsEtapes := []string{"Diagnostic", "Démontage", "Ponçage", "Traitement", "Peinture", "Remontage", "Finitions", "Contrôle qualité"}
@@ -718,7 +704,6 @@ func main() {
 	bulk(tx, "Projets", []string{"Id_Projets", "Titre", "Description", "Date_Debut", "Statut", "Id_Professionnels", "Id_Demandes_prestations", "Id_Commandes_Services"}, projRows)
 	bulk(tx, "Etapes", []string{"Id_Etapes", "Nom", "Description", "Visuel", "Id_Projets"}, etapeRows)
 
-	// Conversations + messages
 	type conv struct {
 		id, acheteur, vendeur int
 	}
@@ -797,7 +782,6 @@ func main() {
 	}
 	bulk(tx, "Messages_Conversation", []string{"Id_Messages_Conversation", "Id_Conversations", "Id_Expediteur", "Contenu", "Date_envoi", "Lu", "Est_Automatique", "Type_Evenement"}, msgRows)
 
-	// Factures + lignes + paiements
 	type facture struct {
 		user     int
 		ttc      float64
@@ -894,7 +878,6 @@ func main() {
 	bulk(tx, "Lignes_Facture", []string{"Id_Ligne", "Description", "Quantite", "Prix_unitaire_HT", "Total_HT", "Id_Facture", "Id_Formations", "Id_Evenements", "Id_Services"}, ligneRows)
 	bulk(tx, "Paiements", []string{"Id_Paiements", "Date_", "Montant", "Statut", "Methode", "Reference_stripe", "Id_Facture", "Id_Utilisateurs", "Date_remboursement", "Motif_remboursement", "Ref_refund", "Ref_paiement_intent"}, paieRows)
 
-	// Avis
 	var avisRows [][]interface{}
 	for i := 1; i <= 800; i++ {
 		var idPro, idEvt, idForm interface{}
@@ -919,7 +902,6 @@ func main() {
 	}
 	bulk(tx, "Avis", []string{"Date_du_post", "Contenu", "Id_Particuliers", "Id_Professionnels", "Id_Evenements", "Id_Formations"}, avisRows)
 
-	// Favoris (pro -> annonce)
 	var favRows [][]interface{}
 	vuFav := map[string]bool{}
 	for len(favRows) < 600 {
@@ -937,7 +919,6 @@ func main() {
 	}
 	bulk(tx, "Favoris", []string{"Id_Professionnels", "Id_Annonces"}, favRows)
 
-	// Conseils des salariés
 	var consRows [][]interface{}
 	catConseils := []string{"Tri", "Réparation", "Upcycling", "Zéro déchet"}
 	for i := 1; i <= 45; i++ {
@@ -953,7 +934,6 @@ func main() {
 	}
 	bulk(tx, "Conseils", []string{"Id_Conseils", "Date_d_ajout", "Titre", "Contenu", "Categorie", "Tags", "Statut", "Id_Salaries"}, consRows)
 
-	// Forum
 	bulk(tx, "Forum", []string{"Id_Forum"}, [][]interface{}{{1}})
 	var sujetRows, repRows [][]interface{}
 	idRep := 0

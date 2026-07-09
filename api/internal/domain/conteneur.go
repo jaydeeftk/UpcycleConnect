@@ -51,8 +51,6 @@ func parseDateSouple(valeur string) (time.Time, error) {
 
 var errNoDateLayout = errors.New("aucun format de date reconnu")
 
-// FenetreProgrammationMax borne la programmation d'un événement/formation/atelier/dépôt
-// à un horizon raisonnable (2 ans) pour éviter les dates aberrantes.
 const FenetreProgrammationMax = 2 * 365 * 24 * time.Hour
 
 func dateAvantAujourdhui(t time.Time) bool {
@@ -62,9 +60,6 @@ func dateAvantAujourdhui(t time.Time) bool {
 	return jour.Before(aujourdhui)
 }
 
-// ValiderDateProgrammation vérifie le format ET que la date n'est ni dans le
-// passé, ni trop éloignée dans le futur. À utiliser pour toute date programmée
-// (événement, formation, atelier, dépôt d'objet).
 func ValiderDateProgrammation(valeur string) error {
 	if err := ValiderDate(valeur); err != nil {
 		return err

@@ -10,13 +10,13 @@
         <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-semibold text-gray-700">Identifiant Administrateur</label>
-                <input type="email" name="email" placeholder="admin@upcycle.com" 
+                <input type="email" name="email" placeholder="admin@upcycle.com"
                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" required>
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700">Mot de passe</label>
-                <input type="password" name="password" placeholder="••••••••" 
+                <input type="password" name="password" placeholder="••••••••"
                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" required>
             </div>
 

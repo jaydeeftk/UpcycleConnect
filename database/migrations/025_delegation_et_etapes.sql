@@ -1,10 +1,3 @@
--- Migration 025 : delegation (animateur assigne) pour formations, evenements
--- et ateliers.
---
--- Id_Salarie_Animateur : le salarie assigne pour animer (peut differer du createur,
--- Id_Salaries, qui reste le proprietaire). NULL = pas de delegation, le createur anime.
---
--- Idempotente : rejouable sans erreur (colonnes gardees par information_schema).
 
 SET @add_anim_formations := IF(
     (SELECT COUNT(*) FROM information_schema.COLUMNS

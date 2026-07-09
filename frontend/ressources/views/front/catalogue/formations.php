@@ -76,7 +76,7 @@
     </div>
 
     <?php
-    
+
     $formations = array_values(array_filter($formations ?? [], function ($f) {
         $d = $f['date'] ?? '';
         if ($d === '') return true;

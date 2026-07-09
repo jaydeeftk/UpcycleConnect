@@ -95,7 +95,6 @@
     </div>
 </div>
 
-<!-- Modal Nouvelle campagne -->
 <div id="modal-add" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">

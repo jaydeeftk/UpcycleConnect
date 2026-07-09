@@ -1,6 +1,5 @@
 <?php
 
-
 $success = $_SESSION['success'] ?? null;
 $error_session = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
@@ -28,7 +27,6 @@ unset($_SESSION['success'], $_SESSION['error']);
     <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error_session) ?>
 </div>
 <?php endif; ?>
-
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow p-6">
@@ -122,7 +120,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
-        <form method="POST" action=" /salaries/conseils/store">
+        <form method="POST" action="/salaries/conseils/store">
         <?= csrf_field() ?>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_conseil_contenu', 'Contenu du conseil') ?></label>

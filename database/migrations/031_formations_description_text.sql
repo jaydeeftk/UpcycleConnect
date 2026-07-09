@@ -1,5 +1,3 @@
--- Migration 031 : la description d'une formation doit pouvoir expliquer
--- en detail le contenu du cours (255 caracteres etaient trop courts).
 
 SET @is_short := (
     SELECT COUNT(*) FROM information_schema.COLUMNS

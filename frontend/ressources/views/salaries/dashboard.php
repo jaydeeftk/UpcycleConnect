@@ -5,7 +5,7 @@
     <p class="text-gray-600"><?= t('sal_dashboard_welcome', 'Bienvenue') ?>, <?= htmlspecialchars($_SESSION['user']['prenom'] ?? t('sal_role', 'Salarié')) ?> !</p>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -39,17 +39,6 @@
        <a href=" /salaries/formations"
    class="text-sm text-green-600 hover:underline mt-3 block"><?= t('sal_manage', 'Gérer') ?> →</a>
 
-    </div>
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm"><?= t('sal_nav_ateliers', 'Ateliers') ?></p>
-                <p class="text-3xl font-bold text-purple-600"><?= $nb_ateliers ?></p>
-            </div>
-            <i class="fas fa-tools text-4xl text-purple-400"></i>
-        </div>
-        <a href=" /salaries/ateliers"
-   class="text-sm text-purple-600 hover:underline mt-3 block"><?= t('sal_manage', 'Gérer') ?> →</a>
     </div>
 </div>
 

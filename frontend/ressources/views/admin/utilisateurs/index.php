@@ -22,7 +22,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= t('adm_col_actions', 'Actions') ?></th>
             </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody id="user-rows" class="bg-white divide-y divide-gray-200">
             <?php if (empty($utilisateurs)): ?>
                 <tr><td colspan="7" class="px-6 py-8 text-center text-gray-500"><?= t('adm_users_empty', 'Aucun utilisateur.') ?></td></tr>
             <?php else: ?>

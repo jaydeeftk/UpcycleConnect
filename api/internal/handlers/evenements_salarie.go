@@ -235,15 +235,29 @@ func EvenementSalarieAction(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteEvenement(w http.ResponseWriter, r *http.Request) {
+	_, salarieID, ok := getSalarieFromContext(r)
+	if !ok {
+		httpx.JSONError(w, http.StatusForbidden, "Profil salarié introuvable")
+		return
+	}
 	parts := strings.Split(r.URL.Path, "/")
 	id := parts[len(parts)-1]
+
+	var owner int
+	if err := database.DB.QueryRow("SELECT COALESCE(Id_Salaries,0) FROM Evenements WHERE Id_Evenements = ?", id).Scan(&owner); err != nil {
+		httpx.JSONError(w, http.StatusNotFound, "Événement introuvable")
+		return
+	}
+	if owner != salarieID {
+		httpx.JSONError(w, http.StatusForbidden, "Cet événement ne vous appartient pas")
+		return
+	}
 
 	database.DB.Exec(`DELETE FROM Animer WHERE Id_Evenements = ?`, id)
 	database.DB.Exec(`DELETE FROM Planifier_evenements WHERE Id_Evenements = ?`, id)
 	database.DB.Exec(`DELETE FROM Participer_evenements WHERE Id_Evenements = ?`, id)
 
-	_, err := database.DB.Exec(`DELETE FROM Evenements WHERE Id_Evenements = ?`, id)
-	if err != nil {
+	if _, err := database.DB.Exec(`DELETE FROM Evenements WHERE Id_Evenements = ?`, id); err != nil {
 		http.Error(w, `{"message": "Erreur lors de la suppression"}`, http.StatusInternalServerError)
 		return
 	}

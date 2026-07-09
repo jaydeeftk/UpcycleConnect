@@ -708,7 +708,7 @@ func AdminForumReponseAction(w http.ResponseWriter, r *http.Request) {
 func AdminGetConseils(w http.ResponseWriter, r *http.Request) {
 	rows, err := database.DB.Query(
 		`SELECT c.Id_Conseils, COALESCE(c.Titre,''), COALESCE(c.Contenu,''), COALESCE(c.Categorie,''), COALESCE(c.Tags,''), COALESCE(c.Statut,'en_attente'), c.Date_d_ajout,
-			u.Nom, u.Prenom, COALESCE(u.Role,'salarie')
+			u.Nom, u.Prenom, 'salarie'
 		FROM Conseils c
 		JOIN Salaries s ON s.Id_Salaries = c.Id_Salaries
 		JOIN Utilisateurs u ON u.Id_Utilisateurs = s.Id_Utilisateurs

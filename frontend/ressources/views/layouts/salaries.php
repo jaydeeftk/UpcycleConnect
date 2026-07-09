@@ -142,13 +142,6 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/salaries/ateliers"
-                       class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'ateliers') ? 'active' : '' ?>">
-                        <i class="fas fa-tools text-lg w-5 text-center"></i>
-                        <span class="sb-text font-semibold text-sm"><?= t('sal_nav_ateliers', 'Ateliers') ?></span>
-                    </a>
-                </li>
-                <li>
                     <a href="/salaries/planning"
                        class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white <?= str_contains($_SERVER['REQUEST_URI'] ?? '', 'planning') ? 'active' : '' ?>">
                         <i class="fas fa-calendar-week text-lg w-5 text-center"></i>

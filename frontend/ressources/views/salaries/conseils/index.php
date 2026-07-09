@@ -43,7 +43,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             <div>
                 <p class="text-gray-500 text-sm"><?= t('sal_conseils_mine', 'Mes conseils') ?></p>
                 <p class="text-3xl font-bold text-green-600">
-                    <?= count(array_filter($conseils, fn($c) => ($c['id_salaries'] ?? 0) == ($_SESSION['user']['id'] ?? -1))) ?>
+                    <?= count($conseils) ?>
                 </p>
             </div>
             <i class="fas fa-user-check text-4xl text-green-500"></i>
@@ -74,7 +74,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             <?php foreach ($conseils as $conseil): ?>
             <tr>
                 <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                    <?= formatDate($conseil['date_d_ajout'] ?? '') ?>
+                    <?= formatDate($conseil['date'] ?? '') ?>
                 </td>
                 <td class="px-6 py-4">
                     <p class="text-sm text-gray-800 max-w-md truncate">
@@ -82,25 +82,21 @@ unset($_SESSION['success'], $_SESSION['error']);
                     </p>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-600">
-                    <?= htmlspecialchars($conseil['auteur'] ?? 'Inconnu') ?>
+                    <?= htmlspecialchars(trim(($_SESSION['user']['prenom'] ?? '') . ' ' . ($_SESSION['user']['nom'] ?? ''))) ?>
                 </td>
                 <td class="px-6 py-4">
                     <div class="flex gap-2">
-                        <?php if (($conseil['id_salaries'] ?? 0) == ($_SESSION['user']['id'] ?? -1)): ?>
-                        <button onclick="openEditModal(<?= (int)($conseil['id_conseils'] ?? 0) ?>, <?= json_encode((string)($conseil['contenu'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>)"
+                        <button onclick="openEditModal(<?= (int)($conseil['id'] ?? 0) ?>, <?= json_encode((string)($conseil['contenu'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode((string)($conseil['titre'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode((string)($conseil['categorie'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>, <?= json_encode((string)($conseil['tags'] ?? ''), JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>)"
                                 class="text-green-600 hover:text-green-800" title="<?= t('sal_action_edit', 'Modifier') ?>">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <form method="POST" action="/salaries/conseils/<?= $conseil['id_conseils'] ?>/delete" class="inline"
+                        <form method="POST" action="/salaries/conseils/<?= $conseil['id'] ?>/delete" class="inline"
                            onsubmit="return ucConfirm(this, '<?= t('sal_conseils_delete_confirm', 'Supprimer ce conseil ?') ?>')">
                             <?= csrf_field() ?>
                             <button type="submit" class="text-red-600 hover:text-red-800" title="<?= t('sal_action_delete', 'Supprimer') ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
-                        <?php else: ?>
-                        <span class="text-gray-400 text-xs italic"><?= t('sal_not_editable', 'Non modifiable') ?></span>
-                        <?php endif; ?>
                     </div>
                 </td>
             </tr>
@@ -155,6 +151,9 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
         <form method="POST" id="form-edit" action="">
         <?= csrf_field() ?>
+            <input type="hidden" name="titre" id="edit-titre">
+            <input type="hidden" name="categorie" id="edit-categorie">
+            <input type="hidden" name="tags" id="edit-tags">
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><?= t('sal_field_conseil_contenu', 'Contenu du conseil') ?></label>
                 <textarea name="contenu" id="edit-contenu" rows="5" required
@@ -176,10 +175,12 @@ unset($_SESSION['success'], $_SESSION['error']);
 </div>
 
 <script>
-function openEditModal(id, contenu) {
+function openEditModal(id, contenu, titre, categorie, tags) {
     document.getElementById('edit-contenu').value = contenu;
-    document.getElementById('form-edit').action =
-        ' /salaries/conseils/' + id + '/update';
+    document.getElementById('edit-titre').value = titre || '';
+    document.getElementById('edit-categorie').value = categorie || '';
+    document.getElementById('edit-tags').value = tags || '';
+    document.getElementById('form-edit').action = '/salaries/conseils/' + id + '/update';
     document.getElementById('modal-edit').classList.remove('hidden');
 }
 </script>

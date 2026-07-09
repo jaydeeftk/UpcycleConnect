@@ -84,7 +84,10 @@ class ConseilController
     {
         try {
             $this->api->put('/salaries/conseils/' . $id, [
-                'contenu' => $_POST['contenu'] ?? ''
+                'titre'     => $_POST['titre'] ?? '',
+                'contenu'   => $_POST['contenu'] ?? '',
+                'categorie' => $_POST['categorie'] ?? '',
+                'tags'      => $_POST['tags'] ?? '',
             ]);
 
             $_SESSION['success'] = t('sal_flash_conseil_updated', 'Conseil modifié avec succès.');

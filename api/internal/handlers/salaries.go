@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"upcycleconnect/internal/database"
@@ -161,25 +162,41 @@ func SalarieFormationAction(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		var body struct {
-			Titre         string  `json:"titre"`
-			Description   string  `json:"description"`
-			Prix          float64 `json:"prix"`
-			Duree         int     `json:"duree"`
-			DateFormation string  `json:"date_formation"`
-			DateFin       string  `json:"date_fin"`
-			PlacesTotal   int     `json:"places_total"`
-			Localisation  string  `json:"localisation"`
-			Categorie     string  `json:"categorie"`
+			Titre        string   `json:"titre"`
+			Description  string   `json:"description"`
+			Prix         float64  `json:"prix"`
+			Duree        int      `json:"duree"`
+			Dates        []string `json:"dates"`
+			DateFin      string   `json:"date_fin"`
+			PlacesTotal  int      `json:"places_total"`
+			Localisation string   `json:"localisation"`
+			Categorie    string   `json:"categorie"`
 		}
 		json.NewDecoder(r.Body).Decode(&body)
-		database.DB.Exec(
+		dates, err := validerEtTrierDates(body.Dates)
+		if err != nil {
+			httpx.WriteError(w, err)
+			return
+		}
+		res, err := database.DB.Exec(
 			`UPDATE Formations SET Titre=?, Description=?, Prix=?, Duree=?, Date_formation=?, Date_fin=NULLIF(?, ''),
 				Places_total=?, Localisation=?, Categorie=?,
 				Statut_validation='en_attente', Motif_refus=NULL
 			WHERE Id_Formations=? AND Id_Salaries=?`,
-			body.Titre, body.Description, body.Prix, body.Duree, body.DateFormation, body.DateFin,
+			body.Titre, body.Description, body.Prix, body.Duree, dates[0], body.DateFin,
 			body.PlacesTotal, body.Localisation, body.Categorie, id, salarieID,
 		)
+		if err != nil {
+			httpx.JSONServerError(w, err)
+			return
+		}
+		if n, _ := res.RowsAffected(); n == 0 {
+			httpx.JSONError(w, http.StatusNotFound, "Formation introuvable")
+			return
+		}
+		if idInt, convErr := strconv.Atoi(id); convErr == nil {
+			remplacerDatesFormation(idInt, dates)
+		}
 		httpx.JSONOK(w, http.StatusOK, map[string]interface{}{"message": "Formation mise à jour"})
 	case http.MethodDelete:
 		database.DB.Exec("DELETE FROM Formation_Etapes WHERE Id_Formations=?", id)

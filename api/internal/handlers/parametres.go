@@ -36,7 +36,10 @@ func AdminUpdateParametres(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for cle, valeur := range body {
-		_, err := database.DB.Exec("UPDATE Parametres SET Valeur = ? WHERE Cle = ?", valeur, cle)
+		_, err := database.DB.Exec(
+			"INSERT INTO Parametres (Cle, Valeur) VALUES (?, ?) ON DUPLICATE KEY UPDATE Valeur = VALUES(Valeur)",
+			cle, valeur,
+		)
 		if err != nil {
 			httpx.JSONError(w, http.StatusInternalServerError, "Erreur lors de la mise à jour de "+cle)
 			return

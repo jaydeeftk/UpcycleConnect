@@ -39,7 +39,7 @@ class EvenementController
                 'lieu'          => $_POST['lieu'] ?? '',
                 'dates'         => $dates,
                 'capacite'      => (int)($_POST['capacite'] ?? 50),
-                'statut'        => $_POST['statut'] ?? 'à venir',
+                'statut'        => $_POST['statut'] ?? 'a_venir',
                 'prix'          => (float)($_POST['prix'] ?? 0),
                 'id_salaries'   => !empty($_POST['id_salaries']) ? (int)$_POST['id_salaries'] : null,
             ]);

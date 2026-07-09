@@ -312,5 +312,46 @@
     function toast(m,ok){var c=ok?'#22c55e':'#ef4444';var o=document.createElement('div');o.style.cssText='position:fixed;top:20px;right:20px;z-index:99999;background:'+c+';color:#fff;padding:12px 20px;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.25);font-family:inherit;font-size:14px;max-width:340px';o.textContent=m;document.body.appendChild(o);setTimeout(function(){o.style.transition='opacity .3s';o.style.opacity='0';setTimeout(function(){o.remove()},300)},3500)}
     </script>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var main = document.querySelector('main');
+        if (!main) return;
+        main.querySelectorAll('table').forEach(function (table) {
+            if (table.dataset.searchWired) return;
+            if (table.closest('[id*="modal"], .modal, [role="dialog"], .hidden')) return;
+            var tbody = table.tBodies[0];
+            if (!tbody) return;
+            var dataRows = Array.prototype.slice.call(tbody.rows).filter(function (r) {
+                return !r.querySelector('td[colspan]');
+            });
+            if (dataRows.length < 6) return;
+            table.dataset.searchWired = '1';
+
+            var wrap = document.createElement('div');
+            wrap.className = 'mb-4';
+            wrap.innerHTML = '<div class="relative max-w-md">' +
+                '<i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"></i>' +
+                '<input type="text" autocomplete="off" placeholder="Rechercher…" ' +
+                'class="w-full border border-gray-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">' +
+                '</div><p class="hidden text-sm text-gray-500 mt-2 italic">Aucun résultat pour cette recherche.</p>';
+            var card = table.closest('.bg-white') || table;
+            card.parentNode.insertBefore(wrap, card);
+
+            var input = wrap.querySelector('input');
+            var empty = wrap.querySelector('p');
+            input.addEventListener('input', function () {
+                var q = input.value.trim().toLowerCase();
+                var visible = 0;
+                dataRows.forEach(function (r) {
+                    var match = !q || r.textContent.toLowerCase().indexOf(q) !== -1;
+                    r.style.display = match ? '' : 'none';
+                    if (match) visible++;
+                });
+                empty.classList.toggle('hidden', visible !== 0);
+            });
+        });
+    });
+    </script>
+
 </body>
 </html>

@@ -50,7 +50,7 @@ class PlanningController
                 'titre'       => $_POST['titre'] ?? '',
                 'description' => $_POST['description'] ?? '',
                 'lieu'        => $_POST['lieu'] ?? '',
-                'date'        => $_POST['date'] ?? '',
+                'dates'       => array_values(array_filter([trim($_POST['date'] ?? '')])),
                 'capacite'    => (int)($_POST['capacite'] ?? 0),
                 'id_salaries' => $_SESSION['user']['id'] ?? 0
             ]);
@@ -71,7 +71,7 @@ class PlanningController
                 'description'   => $_POST['description'] ?? '',
                 'prix'          => (float)($_POST['prix'] ?? 0),
                 'duree'         => (int)($_POST['duree'] ?? 0),
-                'date_formation'=> $_POST['date_debut'] ?? '',
+                'dates'         => array_values(array_filter([trim($_POST['date_debut'] ?? '')])),
                 'date_fin'      => $_POST['date_fin'] ?? '',
                 'id_salaries'   => $_SESSION['user']['id'] ?? 0
             ]);

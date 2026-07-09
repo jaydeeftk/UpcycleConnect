@@ -193,13 +193,22 @@ func UpdateAtelier(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := database.DB.Exec(`
+	_, salarieID, ok := getSalarieFromContext(r)
+	if !ok {
+		httpx.JSONError(w, http.StatusForbidden, "Profil salarié introuvable")
+		return
+	}
+	res, err := database.DB.Exec(`
 		UPDATE Atelier SET Theme = ?, Date_atelier = ?, Lieu = ?
-		WHERE Id_Atelier = ?
-	`, body.Theme, body.DateAtelier, body.Lieu, id)
+		WHERE Id_Atelier = ? AND Id_Salaries = ?
+	`, body.Theme, body.DateAtelier, body.Lieu, id, salarieID)
 
 	if err != nil {
 		http.Error(w, `{"message": "Erreur lors de la mise à jour"}`, http.StatusInternalServerError)
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		httpx.JSONError(w, http.StatusForbidden, "Cet atelier ne vous appartient pas")
 		return
 	}
 
@@ -210,8 +219,23 @@ func UpdateAtelier(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteAtelier(w http.ResponseWriter, r *http.Request) {
+	_, salarieID, ok := getSalarieFromContext(r)
+	if !ok {
+		httpx.JSONError(w, http.StatusForbidden, "Profil salarié introuvable")
+		return
+	}
 	parts := strings.Split(r.URL.Path, "/")
 	id := parts[len(parts)-1]
+
+	var owner int
+	if err := database.DB.QueryRow("SELECT COALESCE(Id_Salaries,0) FROM Atelier WHERE Id_Atelier = ?", id).Scan(&owner); err != nil {
+		httpx.JSONError(w, http.StatusNotFound, "Atelier introuvable")
+		return
+	}
+	if owner != salarieID {
+		httpx.JSONError(w, http.StatusForbidden, "Cet atelier ne vous appartient pas")
+		return
+	}
 
 	database.DB.Exec(`DELETE FROM Animer_atelier WHERE Id_Atelier = ?`, id)
 
